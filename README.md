@@ -1,4 +1,4 @@
-# test-veutify
+# test-vuetify
 
 ## Project setup
 ```
