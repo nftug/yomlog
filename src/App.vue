@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
+      <v-app-bar-nav-icon class="mr-2"></v-app-bar-nav-icon>
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
@@ -28,7 +29,7 @@
         target="_blank"
         text
       >
-        <span class="mr-2">Latest Release</span>
+        <span class="mr-2 hidden-sm-and-down">Latest Release</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
     </v-app-bar>
@@ -54,23 +55,50 @@
     </v-bottom-navigation>
 
     <v-main>
-      <HelloWorld />
+      <v-container>
+        <div class="text-center">
+          <h1 class="mt-2">Hello Vuetify!</h1>
+
+          <p class="mt-2">
+            Vuetify
+            <v-icon>mdi-vuetify</v-icon>
+            のテストです。
+          </p>
+        </div>
+
+        <v-row class="mt-2 mx-auto" justify="center">
+          <v-col cols="6">
+            <v-dialog v-model="dialog" width="500">
+              <template #activator="{ on, attrs }">
+                <v-btn block v-bind="attrs" v-on="on">Click Me!</v-btn>
+              </template>
+
+              <v-card>
+                <v-card-title class="text-h5 green--text">
+                  こんにちは。
+                </v-card-title>
+                <v-card-text>これはダイアログです。</v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn text @click="dialog = false">キャンセル</v-btn>
+                  <v-btn text @click="dialog = false">OK</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
-
 export default {
   name: 'App',
 
-  components: {
-    HelloWorld,
-  },
-
   data: () => ({
     value: 'recent',
+    dialog: false,
   }),
 }
 </script>
