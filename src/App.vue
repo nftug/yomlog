@@ -1,7 +1,10 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <v-app-bar-nav-icon class="mr-2"></v-app-bar-nav-icon>
+    <v-app-bar app color="primary" dark clipped-left>
+      <v-app-bar-nav-icon
+        class="mr-2 hidden-lg-and-up"
+        @click.stop="drawer = !drawer"
+      ></v-app-bar-nav-icon>
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
@@ -34,6 +37,29 @@
       </v-btn>
     </v-app-bar>
 
+    <v-navigation-drawer app clipped v-model="drawer">
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title class="text-h6">Application</v-list-item-title>
+          <v-list-item-subtitle>subtext</v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider></v-divider>
+
+      <v-list nav>
+        <v-list-item v-for="item in items" :key="item.title" link>
+          <v-list-item-icon>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
     <v-bottom-navigation v-model="value" app dark class="hidden-md-and-up">
       <v-btn value="recent">
         <span>Recent</span>
@@ -57,7 +83,7 @@
     <v-main>
       <v-container>
         <div class="text-center">
-          <h1 class="mt-2">Hello Vuetify!</h1>
+          <h1>Hello Vuetify!</h1>
 
           <p class="mt-2">
             Vuetify
@@ -66,27 +92,25 @@
           </p>
         </div>
 
-        <v-row class="mt-2 mx-auto" justify="center">
-          <v-col cols="6">
-            <v-dialog v-model="dialog" width="500">
-              <template #activator="{ on, attrs }">
-                <v-btn block v-bind="attrs" v-on="on">Click Me!</v-btn>
-              </template>
+        <div class="text-center mt-2">
+          <v-dialog v-model="dialog" width="500">
+            <template #activator="{ on, attrs }">
+              <v-btn v-bind="attrs" v-on="on">Click Me!</v-btn>
+            </template>
 
-              <v-card>
-                <v-card-title class="text-h5 green--text">
-                  こんにちは。
-                </v-card-title>
-                <v-card-text>これはダイアログです。</v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn text @click="dialog = false">キャンセル</v-btn>
-                  <v-btn text @click="dialog = false">OK</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-col>
-        </v-row>
+            <v-card>
+              <v-card-title class="text-h5 green--text">
+                こんにちは。
+              </v-card-title>
+              <v-card-text>これはダイアログです。</v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text @click="dialog = false">キャンセル</v-btn>
+                <v-btn text @click="dialog = false">OK</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </div>
       </v-container>
     </v-main>
   </v-app>
@@ -99,6 +123,13 @@ export default {
   data: () => ({
     value: 'recent',
     dialog: false,
+    drawer: null,
+    items: [
+      { title: 'Dashboard', icon: 'mdi-view-dashboard' },
+      { title: 'Photos', icon: 'mdi-image' },
+      { title: 'About', icon: 'mdi-help-box' },
+    ],
+    right: null,
   }),
 }
 </script>
