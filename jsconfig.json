@@ -1,7 +1,11 @@
 {
+  "include": ["./src/**/*"],
   "compilerOptions": {
-    "target": "es6",
-    "checkJs": true
+    "module": "es2015",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "exclude": ["node_modules"]
 }

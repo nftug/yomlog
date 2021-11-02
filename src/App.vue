@@ -60,57 +60,78 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-bottom-navigation v-model="value" app dark class="hidden-md-and-up">
-      <v-btn value="recent">
-        <span>Recent</span>
-
-        <v-icon>mdi-history</v-icon>
-      </v-btn>
-
-      <v-btn value="favorites">
-        <span>Favorites</span>
-
-        <v-icon>mdi-heart</v-icon>
-      </v-btn>
-
-      <v-btn value="nearby">
-        <span>Nearby</span>
-
-        <v-icon>mdi-map-marker</v-icon>
-      </v-btn>
-    </v-bottom-navigation>
-
     <v-main>
       <v-container>
-        <div class="text-center">
+        <v-alert
+          v-model="showInfo"
+          border="left"
+          color="indigo"
+          dark
+          dismissible
+        >
+          {{ message.info }}
+        </v-alert>
+
+        <v-card width="700px" class="mx-auto pa-5 text-center">
           <h1>Hello Vuetify!</h1>
 
-          <p class="mt-2">
-            Vuetify
-            <v-icon>mdi-vuetify</v-icon>
-            のテストです。
-          </p>
-        </div>
+          <p class="mt-2">Vuetifyのテストです。</p>
 
-        <div class="text-center mt-2">
           <v-dialog v-model="dialog" width="500">
             <template #activator="{ on, attrs }">
               <v-btn v-bind="attrs" v-on="on">Click Me!</v-btn>
             </template>
 
-            <v-card>
-              <v-card-title class="text-h5 green--text">
-                こんにちは。
-              </v-card-title>
-              <v-card-text>これはダイアログです。</v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text @click="dialog = false">キャンセル</v-btn>
-                <v-btn text @click="dialog = false">OK</v-btn>
-              </v-card-actions>
-            </v-card>
+            <v-form
+              lazy-validation
+              v-model="formName.valid"
+              ref="form"
+              @submit.prevent="submitForm()"
+            >
+              <v-card>
+                <v-card-title class="text-h5 green--text">
+                  こんにちは。
+                </v-card-title>
+                <v-card-text>
+                  お名前を入力してください。
+                  <v-row>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="formName.lastname"
+                        :rules="nameRules"
+                        label="姓"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="formName.firstname"
+                        :rules="nameRules"
+                        label="名"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="formName.email"
+                        :rules="emailRules"
+                        label="Email"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn text @click="dialog = false">キャンセル</v-btn>
+                  <v-btn text type="submit" :disabled="!formName.valid">
+                    OK
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-form>
           </v-dialog>
-        </div>
+        </v-card>
       </v-container>
     </v-main>
   </v-app>
@@ -119,17 +140,53 @@
 <script>
 export default {
   name: 'App',
-
-  data: () => ({
-    value: 'recent',
-    dialog: false,
-    drawer: null,
-    items: [
-      { title: 'Dashboard', icon: 'mdi-view-dashboard' },
-      { title: 'Photos', icon: 'mdi-image' },
-      { title: 'About', icon: 'mdi-help-box' },
-    ],
-    right: null,
-  }),
+  data() {
+    return {
+      dialog: false,
+      drawer: null,
+      items: [
+        { title: 'Dashboard', icon: 'mdi-view-dashboard' },
+        { title: 'Photos', icon: 'mdi-image' },
+        { title: 'About', icon: 'mdi-help-box' },
+      ],
+      formName: {
+        valid: true,
+        firstname: '',
+        lastname: '',
+      },
+      nameRules: [(v) => !!v || '名前を入力してください'],
+      emailRules: [
+        (v) => !!v || 'メールアドレスを入力してください',
+        (v) => /.+@.+/.test(v) || '正しいメールアドレスを入力してください',
+      ],
+      message: {
+        info: '',
+        error: '',
+      },
+    }
+  },
+  computed: {
+    showInfo: {
+      get() {
+        return this.message.info.length > 0
+      },
+      set(val) {
+        this.message.info = val
+      },
+    },
+  },
+  watch: {
+    dialog() {
+      this.$refs.form.reset()
+    },
+  },
+  methods: {
+    submitForm() {
+      if (this.$refs.form.validate()) {
+        this.message.info = `${this.formName.lastname} ${this.formName.firstname}さん、こんにちは！`
+        this.dialog = false
+      }
+    },
+  },
 }
 </script>
