@@ -49,28 +49,23 @@
         <span class="hidden-sm-and-down">Sign Up</span>
       </v-btn>
     </template>
-
-    <WindowResize v-model="windowSize"></WindowResize>
   </v-app-bar>
 </template>
 
 <script>
-import Mixin from '@/mixins'
+import Mixin, { WindowResizeMixin } from '@/mixins'
 import LogoutDialog from '@/components/LogoutDialog.vue'
-import WindowResize from '@/components/WindowResize.vue'
 
 export default {
-  mixins: [Mixin],
+  mixins: [Mixin, WindowResizeMixin],
   components: {
     LogoutDialog,
-    WindowResize,
   },
   props: {
     value: Boolean,
   },
   data: () => ({
     dialogLogout: false,
-    windowSize: null,
   }),
   computed: {
     drawer: {

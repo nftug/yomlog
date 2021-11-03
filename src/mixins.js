@@ -10,6 +10,24 @@ export const FormRulesMixin = {
   }),
 }
 
+export const WindowResizeMixin = {
+  data: () => ({
+    windowSize: null,
+  }),
+  created() {
+    this.onWindowResize()
+    window.addEventListener('resize', this.onWindowResize)
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onWindowResize)
+  },
+  methods: {
+    onWindowResize: function () {
+      this.windowSize = window.innerWidth
+    },
+  },
+}
+
 export default {
   filters: {
     isoToDateTime: function (value) {
