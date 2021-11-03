@@ -4,6 +4,7 @@ import store from '@/store'
 
 const LoginPage = () => import('@/pages/LoginPage.vue')
 const HomePage = () => import('@/pages/HomePage.vue')
+const SignUpPage = () => import('@/pages/SignUpPage.vue')
 const NotFoundPage = () => import('@/pages/error/NotFoundPage.vue')
 
 Vue.use(VueRouter)
@@ -24,6 +25,18 @@ const router = new VueRouter({
       name: 'login',
       component: LoginPage,
       meta: { requiresNotAuth: true, title: 'ログイン' },
+    },
+    {
+      path: '/signup/',
+      name: 'signup',
+      component: SignUpPage,
+      meta: { requiresNotAuth: true, title: 'ユーザー登録' },
+    },
+    {
+      path: '/activate/:uid/:token/',
+      name: 'signup_activate',
+      component: SignUpPage,
+      meta: { title: 'ユーザー認証' },
     },
     { path: '*', component: NotFoundPage },
   ],

@@ -1,8 +1,13 @@
 <template>
   <v-container>
-    <v-alert v-model="showInfo" border="left" color="indigo" dark dismissible>
+    <v-snackbar v-model="showInfo">
       {{ message.info }}
-    </v-alert>
+      <template #action="{ attrs }">
+        <v-btn color="primary" text v-bind="attrs" @click="showInfo = ''">
+          OK
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-alert v-model="showError" border="left" color="red" dark dismissible>
       {{ message.error }}
     </v-alert>
