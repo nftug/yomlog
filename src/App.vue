@@ -30,6 +30,13 @@ export default {
     GlobalSidebar,
     GlobalMessage,
   },
+  metaInfo() {
+    return {
+      title: this.$route.meta.title
+        ? `${this.$route.meta.title} - Vuetify Test`
+        : 'Vuetify Test',
+    }
+  },
   data: () => ({
     drawer: null,
   }),
