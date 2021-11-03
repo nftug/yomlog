@@ -8,7 +8,14 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <v-alert v-model="showError" border="left" color="red" dark dismissible>
+    <v-alert
+      v-model="showError"
+      border="left"
+      color="red"
+      dark
+      dismissible
+      class="mb-0"
+    >
       {{ message.error }}
     </v-alert>
   </v-container>

@@ -2,7 +2,11 @@
   <v-container>
     <div class="col-xl-4 col-lg-5 col-md-6 col-sm-10 mx-auto">
       <v-card class="mx-auto pa-sm-5 pa-2">
-        <v-form v-model="formLogin.valid" @submit.prevent="submitLogin()">
+        <v-form
+          v-model="formLogin.valid"
+          @submit.prevent="submitLogin()"
+          ref="formLogin"
+        >
           <v-card-title class="text-h4 mb-4">ログイン</v-card-title>
           <v-card-text>
             <v-text-field
@@ -69,9 +73,13 @@ export default {
         })
         .catch((error) => {
           let data = error.response.data
-          Object.keys(data).forEach((key) => {
-            this.formLogin[key].warnings = data[key]
-          })
+          if (error.response.status === 400) {
+            Object.keys(data).forEach((key) => {
+              this.formLogin[key].warnings = data[key]
+            })
+          } else {
+            this.$refs.formLogin.reset()
+          }
         })
     },
   },

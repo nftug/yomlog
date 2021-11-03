@@ -77,8 +77,8 @@ export default {
     },
   }),
   watch: {
-    dialog() {
-      this.$refs.form.reset()
+    dialog(val) {
+      if (!val) this.$refs.form.reset()
     },
   },
   methods: {
