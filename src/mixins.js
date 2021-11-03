@@ -21,6 +21,11 @@ export const WindowResizeMixin = {
   beforeDestroy() {
     window.removeEventListener('resize', this.onWindowResize)
   },
+  computed: {
+    isLessThanMd: function () {
+      return this.windowSize < 960
+    },
+  },
   methods: {
     onWindowResize: function () {
       this.windowSize = window.innerWidth

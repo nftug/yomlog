@@ -76,9 +76,6 @@ export default {
         this.$emit('input', val)
       },
     },
-    isLessThanMd: function () {
-      return this.windowSize < 960
-    },
   },
 }
 </script>
