@@ -10,10 +10,11 @@
           <v-card-title class="text-h4 mb-4">ログイン</v-card-title>
           <v-card-text>
             <v-text-field
-              v-model="formLogin.username.value"
-              label="ユーザー名"
-              :error-messages="formLogin.username.warnings"
-              @input="formLogin.username.warnings = []"
+              type="email"
+              v-model="formLogin.email.value"
+              label="メールアドレス"
+              :error-messages="formLogin.email.warnings"
+              @input="formLogin.email.warnings = []"
               required
             ></v-text-field>
             <v-text-field
@@ -46,7 +47,7 @@ export default {
   data: () => ({
     formLogin: {
       valid: false,
-      username: {
+      email: {
         value: '',
         warnings: [],
       },
@@ -62,7 +63,7 @@ export default {
       // ログイン実行
       this.$store
         .dispatch('auth/login', {
-          username: this.formLogin.username.value,
+          email: this.formLogin.email.value,
           password: this.formLogin.password.value,
         })
         .then(() => {

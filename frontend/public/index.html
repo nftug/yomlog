@@ -1,0 +1,22 @@
+{% load static %}
+{% load render_bundle from webpack_loader %}
+
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" href="{% static 'webpack_bundles/favicon.ico' %}">
+    <meta name="theme-color" content="#343a40">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Test Vuetify</title>
+  </head>
+  <body>
+    <noscript>
+      <strong>このサイトの利用にはJavaScriptの有効化が必要です。</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+    {% render_bundle 'app' %}
+  </body>
+</html>

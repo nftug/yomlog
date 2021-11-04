@@ -4,6 +4,7 @@
     {
       "type": "npm",
       "script": "serve",
+      "path": "frontend/",
       "problemMatcher": [],
       "label": "npm: serve - frontend",
       "detail": "vue-cli-service serve",
@@ -12,10 +13,22 @@
     {
       "type": "npm",
       "script": "build",
+      "path": "frontend/",
       "group": "build",
       "problemMatcher": [],
       "label": "npm: build - frontend",
       "detail": "vue-cli-service build"
+    },
+    {
+      "label": "Run Django server",
+      "detail": "python manage.py runserver 0.0.0.0:8000",
+      "type": "shell",
+      "command": "source ./venv/bin/activate; ${config:python.pythonPath} manage.py runserver 0.0.0.0:8000",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
     }
   ]
 }

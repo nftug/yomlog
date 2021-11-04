@@ -11,25 +11,34 @@ const authModule = {
   state: {
     username: '',
     email: '',
+    first_name: '',
+    last_name: '',
+    fullname: '',
+    id: '',
+    avatar: '',
     isSuperuser: false,
     isLoggedIn: false,
-  },
-  getters: {
-    username: (state) => state.username,
-    email: (state) => state.email,
-    isSuperUser: (state) => state.isSuperuser,
-    isLoggedIn: (state) => state.isLoggedIn,
   },
   mutations: {
     set(state, payload) {
       state.username = payload.user.username
       state.email = payload.user.email
+      state.id = payload.user.id
+      state.first_name = payload.user.first_name
+      state.last_name = payload.user.last_name
+      state.fullname = payload.user.fullname
+      state.avatar = payload.user.avatar_thumbnail
       state.isSuperuser = payload.user.is_superuser
       state.isLoggedIn = true
     },
     clear(state) {
       state.username = ''
       state.email = ''
+      state.id = ''
+      state.first_name = ''
+      state.last_name = ''
+      state.fullname = ''
+      state.avatar = ''
       state.isSuperuser = false
       state.isLoggedIn = false
     },
@@ -39,7 +48,7 @@ const authModule = {
     login(context, payload) {
       return api
         .post('/auth/jwt/create/', {
-          username: payload.username,
+          email: payload.email,
           password: payload.password,
         })
         .then((response) => {
