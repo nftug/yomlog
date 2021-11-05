@@ -7,8 +7,8 @@
   <!-- 登録フォームページ -->
   <v-container v-else>
     <!-- メインエリア -->
-    <div class="col-xl-4 col-lg-5 col-md-6 col-sm-10 mx-auto">
-      <v-card class="mx-auto pa-sm-5 pa-2">
+    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-10 mx-auto">
+      <v-card class="pa-sm-5 pa-2">
         <v-card-title class="text-h4 mb-4">ユーザー登録</v-card-title>
 
         <v-card-text>
