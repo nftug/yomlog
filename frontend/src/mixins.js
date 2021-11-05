@@ -127,7 +127,7 @@ export default {
       })
     },
     logout: function () {
-      this.$store.dispatch('thread/clearAll')
+      // Data clear
       this.$store.dispatch('auth/logout')
       this.$router.push('/login/')
       this.$store.dispatch('message/setInfoMessage', {
