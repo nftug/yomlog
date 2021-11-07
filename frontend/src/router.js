@@ -6,6 +6,13 @@ const LoginPage = () => import('@/pages/LoginPage.vue')
 const HomePage = () => import('@/pages/HomePage.vue')
 const SignUpPage = () => import('@/pages/SignUpPage.vue')
 const NotFoundPage = () => import('@/pages/error/NotFoundPage.vue')
+const PasswordResetPage = () => import('@/pages/settings/PasswordResetPage.vue')
+const SettingsPage = () => import('@/pages/settings/SettingsPage.vue')
+const ProfileSettingsPage = () =>
+  import('@/pages/settings/ProfileSettingsPage.vue')
+const EmailSettingsPage = () => import('@/pages/settings/EmailSettingsPage.vue')
+const PasswordChangePage = () =>
+  import('@/pages/settings/PasswordChangePage.vue')
 
 Vue.use(VueRouter)
 
@@ -37,6 +44,50 @@ const router = new VueRouter({
       name: 'signup_activate',
       component: SignUpPage,
       meta: { title: 'ユーザー認証' },
+    },
+    {
+      path: '/password/reset/',
+      name: 'password_reset',
+      component: PasswordResetPage,
+      meta: { title: 'パスワードのリセット' },
+    },
+    {
+      path: '/password/reset/confirm/:uid/:token/',
+      name: 'password_reset_confirm',
+      component: PasswordResetPage,
+      meta: { title: 'パスワードのリセット' },
+    },
+    {
+      path: '/settings/',
+      name: 'settings',
+      component: SettingsPage,
+      meta: { title: '設定' },
+      children: [
+        {
+          path: '',
+          name: 'settings_profile',
+          component: ProfileSettingsPage,
+          meta: { title: 'プロフィールの設定' },
+        },
+        {
+          path: 'profile/',
+          name: 'settings_profile',
+          component: ProfileSettingsPage,
+          meta: { title: 'プロフィールの設定' },
+        },
+        {
+          path: 'email/',
+          name: 'settings_email',
+          component: EmailSettingsPage,
+          meta: { title: 'メールアドレスの設定' },
+        },
+        {
+          path: 'password/',
+          name: 'settings_password',
+          component: PasswordChangePage,
+          meta: { title: 'パスワードの変更' },
+        },
+      ],
     },
     { path: '*', component: NotFoundPage },
   ],

@@ -10,7 +10,6 @@ urlpatterns = [
     path('api/v1/auth/', include('djoser.urls')),
     path('api/v1/auth/', include('djoser.urls.jwt')),
     path('api/v1/', include('apiv1.urls')),
-    re_path('^.*$', TemplateView.as_view(template_name='index.html')),
 ]
 
 if settings.DEBUG:

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerializer
-from djoser.conf import settings
+from django.conf import settings
 from djoser.conf import settings as djoser_settings
 
 from models.models import Book

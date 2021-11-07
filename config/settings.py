@@ -173,3 +173,4 @@ try:
 
 except:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    HOST_URL = 'http://localhost:8000'
