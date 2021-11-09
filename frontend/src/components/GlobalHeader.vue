@@ -27,15 +27,9 @@
 
     <!-- Right -->
     <template v-if="isLoggedIn">
-      <v-btn
-        @click.stop="dialogLogout = true"
-        :icon="isLessThanLg"
-        :text="!isLessThanLg"
-      >
-        <v-icon class="hidden-lg-and-up">mdi-logout</v-icon>
-        <span class="hidden-md-and-down">Logout</span>
+      <v-btn icon v-if="isShowMenuButton">
+        <v-icon>mdi-magnify</v-icon>
       </v-btn>
-      <LogoutDialog v-model="dialogLogout"></LogoutDialog>
     </template>
 
     <template v-else>
@@ -53,19 +47,12 @@
 
 <script>
 import Mixin, { WindowResizeMixin } from '@/mixins'
-import LogoutDialog from '@/components/LogoutDialog.vue'
 
 export default {
   mixins: [Mixin, WindowResizeMixin],
-  components: {
-    LogoutDialog,
-  },
   props: {
     value: Boolean,
   },
-  data: () => ({
-    dialogLogout: false,
-  }),
   computed: {
     drawer: {
       get() {

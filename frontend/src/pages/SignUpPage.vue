@@ -9,7 +9,9 @@
     <!-- メインエリア -->
     <div class="col-xl-3 col-lg-5 col-md-6 col-sm-10 mx-auto">
       <v-card class="pa-sm-5 pa-2">
-        <v-card-title class="text-h4 mb-4">ユーザー登録</v-card-title>
+        <v-card-title class="text-h4 mb-4 d-none d-lg-block">
+          ユーザー登録
+        </v-card-title>
 
         <v-card-text>
           <SendForm
