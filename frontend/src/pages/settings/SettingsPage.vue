@@ -38,7 +38,7 @@
         </v-tabs>
 
         <v-tabs-items v-model="selectedIndex">
-          <v-tab-item v-for="(page, i) in pages" :key="i">
+          <v-tab-item v-for="(page, i) in pages" :key="i" :transition="false">
             <v-card flat>
               <v-card-text>
                 <router-view></router-view>

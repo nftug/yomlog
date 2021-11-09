@@ -16,12 +16,12 @@
     </v-btn>
 
     <!-- Title -->
-    <div class="d-flex align-center">
+    <v-toolbar-title>
       <div class="hidden-lg-and-up">
         {{ $route.meta.title }}
       </div>
       <div class="hidden-md-and-down">Vuetify Test</div>
-    </div>
+    </v-toolbar-title>
 
     <v-spacer></v-spacer>
 
