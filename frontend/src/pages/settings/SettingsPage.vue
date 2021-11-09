@@ -1,7 +1,7 @@
 <template>
   <!-- メインエリア (モバイル) -->
   <div v-if="!isDisplayLarge">
-    <v-container v-if="$route.path === '/settings/'">
+    <v-container v-if="$route.name === 'settings'">
       <div class="col-md-6 col-sm-10 mx-auto">
         <v-card class="mx-auto" tile>
           <v-list-item-group v-model="selectedIndex" color="primary">
@@ -56,19 +56,19 @@ export default {
       selectedIndex: 0,
       pages: [
         {
-          path: '/settings/profile/',
+          path: '/settings/profile',
           icon: 'mdi-account-circle',
           title: 'プロフィールの設定',
           titleTab: 'プロフィール',
         },
         {
-          path: '/settings/email/',
+          path: '/settings/email',
           icon: 'mdi-email',
           title: 'メールアドレスの設定',
           titleTab: 'メールアドレス',
         },
         {
-          path: '/settings/password/',
+          path: '/settings/password',
           icon: 'mdi-lock',
           title: 'パスワードの変更',
           titleTab: 'パスワード',
@@ -95,7 +95,10 @@ export default {
   },
   methods: {
     changeIndex: function () {
-      if (this.$route.name != 'settings') {
+      if (this.$route.name === 'settings' && window.innerWidth >= 992) {
+        // 画面サイズがlarge以上でpathがルートなら、プロフィールページに遷移
+        this.$router.replace('/settings/profile')
+      } else if (this.$route.name != 'settings') {
         // pathがルート以外なら、そのままselectedIndexを変更
         // onChangeTab()でフックされたpath変更の動作が作動する
         this.selectedIndex = this.pages.findIndex(

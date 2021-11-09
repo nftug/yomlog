@@ -16,7 +16,7 @@
           </div>
           <div class="text-right pt-5 text-body-2">
             <div class="mb-1">
-              <router-link class="button secondaryAction" to="/password/reset/">
+              <router-link class="button secondaryAction" to="/password/reset">
                 パスワードを忘れましたか？
               </router-link>
             </div>
