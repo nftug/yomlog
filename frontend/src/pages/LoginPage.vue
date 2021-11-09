@@ -31,12 +31,18 @@
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
-            <v-spacer></v-spacer>
             <v-btn color="primary" block type="submit">
               <v-icon left>mdi-login</v-icon>
               ログイン
             </v-btn>
           </v-card-actions>
+          <div class="text-right pt-4 text-body-2">
+            <div class="mb-1">
+              <router-link class="button secondaryAction" to="/password/reset">
+                パスワードを忘れましたか？
+              </router-link>
+            </div>
+          </div>
         </v-form>
       </v-card>
     </div>
