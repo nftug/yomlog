@@ -27,9 +27,22 @@
 
     <!-- Right -->
     <template v-if="isLoggedIn">
-      <v-btn icon v-if="isShowMenuButton">
+      <v-btn icon v-show="$route.name === 'home'">
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
+
+      <v-menu left bottom v-show="$route.name === 'home'">
+        <template #activator="{ on, attrs }">
+          <v-btn icon v-show="$route.name === 'home'" v-bind="attrs" v-on="on">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item @click="() => {}">本の登録</v-list-item>
+          <v-list-item @click="() => {}">本の削除</v-list-item>
+        </v-list>
+      </v-menu>
     </template>
 
     <template v-else>
