@@ -7,7 +7,9 @@
           @submit.prevent="submitLogin()"
           ref="formLogin"
         >
-          <v-card-title class="text-h4 mb-4">ログイン</v-card-title>
+          <v-card-title class="text-h4 mb-4 d-none d-lg-block">
+            ログイン
+          </v-card-title>
           <v-card-text>
             <v-text-field
               ref="email"

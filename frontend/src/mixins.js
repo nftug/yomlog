@@ -25,6 +25,9 @@ export const WindowResizeMixin = {
     isLessThanMd: function () {
       return this.windowSize < 960
     },
+    isLessThanLg: function () {
+      return this.windowSize < 1264
+    },
   },
   methods: {
     onWindowResize: function () {
@@ -87,6 +90,9 @@ export default {
   computed: {
     isLoggedIn: function () {
       return this.$store.state.auth.isLoggedIn
+    },
+    isShowMenuButton: function () {
+      return this.$route.meta.isShowMenuButton
     },
     isSameDateTime: function () {
       return function (value_1, value_2) {

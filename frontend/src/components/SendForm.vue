@@ -25,7 +25,7 @@
                   <a
                     href="javascript:void(0)"
                     @click="clearFile(key)"
-                    class="small"
+                    class="text-body-2"
                   >
                     ファイルをクリア
                   </a>

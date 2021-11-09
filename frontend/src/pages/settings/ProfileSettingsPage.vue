@@ -1,6 +1,6 @@
 <template>
   <!-- メインエリア -->
-  <div class="col-lg-7 col-md-6 col-sm-10 mx-auto">
+  <div id="profile-settings-page">
     <SendForm
       v-model="userInfoForm"
       action="/auth/users/me/"
