@@ -19,7 +19,7 @@ class GlobalViewMixin():
 
 class CustomPageNumberPagination(pagination.PageNumberPagination):
     """ページネーションクラス"""
-    page_size = 3
+    page_size = 12
 
     def get_paginated_response(self, data):
         return response.Response({
@@ -33,25 +33,25 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
 
 
 class BookOriginViewSet(viewsets.ModelViewSet, GlobalViewMixin):
-    """本モデルのCRUD用APIクラス"""
+    """BookOriginのCRUD用APIクラス"""
 
     queryset = BookOrigin.objects.all().order_by('-created_at')
     serializer_class = BookOriginSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     filter_backends = [filters.SearchFilter]
-    search_fields = ['title']
+    search_fields = ['title', 'author', 'books_copy__amazon_dp']
 
     pagination_class = CustomPageNumberPagination
 
-    def update(self, request, *args, **kwargs):
-        instance = self.get_obj_for_user(pk=self.kwargs['pk'], request=request)
+    def update(self, request, pk, *args, **kwargs):
+        instance = self.get_obj_for_user(pk=pk, request=request)
         serializer = BookOriginSerializer(instance=instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return response.Response(serializer.data, status.HTTP_200_OK)
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_obj_for_user(pk=self.kwargs['pk'], request=request)
+    def destroy(self, request, pk, *args, **kwargs):
+        instance = self.get_obj_for_user(pk=pk, request=request)
         instance.delete()
         return response.Response(status=status.HTTP_204_NO_CONTENT)

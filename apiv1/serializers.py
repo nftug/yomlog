@@ -4,7 +4,7 @@ from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerialize
 from django.conf import settings
 from djoser.conf import settings as djoser_settings
 
-from backend.models import BookOrigin
+from backend.models import *
 
 
 class ImageSerializerMixin():
@@ -30,6 +30,31 @@ class ImageSerializerMixin():
                 url = '{}{}'.format(settings.HOST_URL, url)
 
         return url
+
+
+class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
+    def _get_user_profile(self, user):
+        ret = {}
+
+        if user is None:
+            ret['username'] = None
+            ret['fullname'] = None
+            ret['avatar'] = None
+        else:
+            ret['username'] = user.username
+            fullname = '{} {}'.format(user.last_name, user.first_name).strip()
+            ret['fullname'] = fullname if fullname else user.username
+            ret['avatar'] = self.get_thumbnail(user)
+
+        return ret
+
+    def get_created_by(self, instance):
+        return self._get_user_profile(instance.created_by)
+
+    def create(self, validated_data):
+        user = super().context['request'].user
+        validated_data['created_by'] = user
+        return super().create(validated_data)
 
 
 class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
@@ -104,25 +129,19 @@ class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
         return super().create(validated_data)
 
 
-class BookOriginSerializer(serializers.ModelSerializer):
-    username = serializers.SerializerMethodField()
+class BookOriginSerializer(PostSerializer):
+    created_by = serializers.SerializerMethodField()
 
     class Meta:
         model = BookOrigin
-        fields = ['id', 'title', 'price', 'created_by', 'username']
-        extra_kwargs = {'created_by': {'required': False, 'write_only': True}}
+        fields = '__all__'
+        extra_kwargs = {'created_at': {'required': False, 'read_only': True}}
 
-    def get_username(self, instance):
-        if instance.created_by is None:
-            return None
-        return instance.created_by.username
 
-    def validate_price(self, value):
-        if value < 0:
-            raise serializers.ValidationError("価格は0以上を指定してください。")
-        return value
+class BookCopySerializer(PostSerializer):
+    created_by = serializers.SerializerMethodField()
 
-    def create(self, validated_data):
-        user = self.context['request'].user
-        validated_data['created_by'] = user
-        return super().create(validated_data)
+    class Meta:
+        model = BookCopy
+        fields = '__all__'
+        extra_kwargs = {'created_at': {'required': False, 'read_only': True}}
