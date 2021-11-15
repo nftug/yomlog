@@ -20,7 +20,7 @@
       <div class="hidden-lg-and-up">
         {{ $route.meta.title }}
       </div>
-      <div class="hidden-md-and-down">Vuetify Test</div>
+      <div class="hidden-md-and-down">{{ appName }}</div>
     </v-toolbar-title>
 
     <v-spacer></v-spacer>

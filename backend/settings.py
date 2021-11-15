@@ -34,7 +34,7 @@ INSTALLED_APPS = [
 
     # My applications
     'apiv1.apps.Apiv1Config',
-    'models.apps.ModelsConfig',
+    'backend.apps.BackendConfig',
 ]
 
 MIDDLEWARE = [
@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
     {
@@ -67,7 +67,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -130,7 +130,7 @@ CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8080',
 )
 
-AUTH_USER_MODEL = 'models.CustomUser'
+AUTH_USER_MODEL = 'backend.CustomUser'
 
 DJOSER = {
     'USER_CREATE_PASSWORD_RETYPE': True,

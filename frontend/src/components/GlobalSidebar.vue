@@ -1,9 +1,10 @@
 <template>
   <v-navigation-drawer app clipped v-model="drawer">
-    <v-list-item>
+    <v-list-item style="line-height: 1.5">
       <v-list-item-content>
-        <v-list-item-title class="text-h6">Application</v-list-item-title>
-        <v-list-item-subtitle>subtext</v-list-item-subtitle>
+        <v-list-item-title class="text-h6">
+          {{ currentUserInfo.fullname }}
+        </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
 
@@ -33,8 +34,10 @@
 
 <script>
 import LogoutDialog from '@/components/LogoutDialog.vue'
+import Mixin from '@/mixins'
 
 export default {
+  mixins: [Mixin],
   props: {
     value: Boolean,
   },

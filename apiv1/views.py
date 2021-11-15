@@ -2,7 +2,7 @@ from django.core.exceptions import PermissionDenied
 from rest_framework import status, viewsets, filters, pagination, response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from models.models import Book
+from backend.models import Book
 from .serializers import BookSerializer
 
 

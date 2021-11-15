@@ -4,7 +4,7 @@ from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerialize
 from django.conf import settings
 from djoser.conf import settings as djoser_settings
 
-from models.models import Book
+from backend.models import Book
 
 
 class ImageSerializerMixin():

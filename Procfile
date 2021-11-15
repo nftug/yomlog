@@ -1,2 +1,2 @@
 release: ./release.sh
-web: gunicorn config.wsgi --log-file -
+web: gunicorn backend.wsgi --log-file -

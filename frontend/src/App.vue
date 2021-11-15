@@ -33,8 +33,8 @@ export default {
   metaInfo() {
     return {
       title: this.$route.meta.title
-        ? `${this.$route.meta.title} - Vuetify Test`
-        : 'Vuetify Test',
+        ? `${this.$route.meta.title} - ${process.env.VUE_APP_APPNAME}`
+        : process.env.VUE_APP_APPNAME,
     }
   },
   data: () => ({

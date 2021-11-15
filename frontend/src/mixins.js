@@ -114,6 +114,12 @@ export default {
         return ret
       }
     },
+    appName: function () {
+      return process.env.VUE_APP_APPNAME
+    },
+    currentUserInfo: function () {
+      return this.$store.state.auth
+    },
   },
   methods: {
     isEmptyObj: function (obj) {
