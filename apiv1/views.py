@@ -2,12 +2,12 @@ from django.core.exceptions import PermissionDenied
 from rest_framework import status, viewsets, filters, pagination, response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from backend.models import Book
-from .serializers import BookSerializer
+from backend.models import BookOrigin
+from .serializers import BookOriginSerializer
 
 
 class GlobalViewMixin():
-    def get_obj_for_user(self, pk, request, obj=Book):
+    def get_obj_for_user(self, pk, request, obj=BookOrigin):
         if request.user.is_superuser:
             return obj.objects.get(pk=pk)
         else:
@@ -32,11 +32,11 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
         })
 
 
-class BookViewSet(viewsets.ModelViewSet, GlobalViewMixin):
+class BookOriginViewSet(viewsets.ModelViewSet, GlobalViewMixin):
     """本モデルのCRUD用APIクラス"""
 
-    queryset = Book.objects.all().order_by('-created_at')
-    serializer_class = BookSerializer
+    queryset = BookOrigin.objects.all().order_by('-created_at')
+    serializer_class = BookOriginSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     filter_backends = [filters.SearchFilter]
@@ -46,7 +46,7 @@ class BookViewSet(viewsets.ModelViewSet, GlobalViewMixin):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_obj_for_user(pk=self.kwargs['pk'], request=request)
-        serializer = BookSerializer(instance=instance, data=request.data)
+        serializer = BookOriginSerializer(instance=instance, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return response.Response(serializer.data, status.HTTP_200_OK)

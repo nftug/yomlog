@@ -4,7 +4,7 @@ from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerialize
 from django.conf import settings
 from djoser.conf import settings as djoser_settings
 
-from backend.models import Book
+from backend.models import BookOrigin
 
 
 class ImageSerializerMixin():
@@ -104,11 +104,11 @@ class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
         return super().create(validated_data)
 
 
-class BookSerializer(serializers.ModelSerializer):
+class BookOriginSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField()
 
     class Meta:
-        model = Book
+        model = BookOrigin
         fields = ['id', 'title', 'price', 'created_by', 'username']
         extra_kwargs = {'created_by': {'required': False, 'write_only': True}}
 
