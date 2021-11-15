@@ -28,7 +28,7 @@
   <!-- PC用 -->
   <div v-else>
     <v-container>
-      <div class="col-xl-6 col-lg-7 col-md-7 mx-auto">
+      <div class="col-xl-4 col-lg-5 col-md-6 mx-auto">
         <p class="text-h4 my-4">設定</p>
 
         <v-tabs v-model="selectedIndex" @change="onChangeTab()">

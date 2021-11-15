@@ -1,26 +1,26 @@
 <template>
   <v-app-bar app color="primary" dark clipped-left>
     <!-- Menu button or Back button (Mobile) -->
-    <v-app-bar-nav-icon
-      v-if="isLoggedIn && isShowMenuButton"
-      class="hidden-lg-and-up mr-2"
-      @click.stop="drawer = !drawer"
-    ></v-app-bar-nav-icon>
-    <v-btn
-      v-else-if="$route.name != 'login'"
-      class="hidden-lg-and-up mr-2"
-      @click="$router.go(-1)"
-      icon
-    >
-      <v-icon>mdi-arrow-left</v-icon>
-    </v-btn>
+    <template v-if="isLoggedIn && isShowMenuButton">
+      <v-app-bar-nav-icon
+        class="hidden-lg-and-up"
+        @click.stop="drawer = !drawer"
+      ></v-app-bar-nav-icon>
+    </template>
+    <template v-else-if="$route.name != 'login'">
+      <v-app-bar-nav-icon class="hidden-lg-and-up" @click="$router.go(-1)">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-app-bar-nav-icon>
+    </template>
 
     <!-- Title -->
-    <v-toolbar-title>
+    <v-toolbar-title style="cursor: pointer">
       <div class="hidden-lg-and-up">
         {{ $route.meta.title }}
       </div>
-      <div class="hidden-md-and-down">{{ appName }}</div>
+      <router-link tag="div" class="hidden-md-and-down" to="/">
+        {{ appName }}
+      </router-link>
     </v-toolbar-title>
 
     <v-spacer></v-spacer>

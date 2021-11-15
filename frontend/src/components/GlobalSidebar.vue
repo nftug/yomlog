@@ -1,12 +1,14 @@
 <template>
   <v-navigation-drawer app clipped v-model="drawer">
-    <v-list-item style="line-height: 1.5">
-      <v-list-item-content>
-        <v-list-item-title class="text-h6">
-          {{ currentUserInfo.fullname }}
-        </v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
+    <v-list>
+      <v-list-item style="line-height: 1.5">
+        <v-list-item-content>
+          <v-list-item-title class="text-h6">
+            {{ currentUserInfo.fullname }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list>
 
     <v-divider></v-divider>
 
