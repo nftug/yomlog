@@ -129,19 +129,71 @@ class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
         return super().create(validated_data)
 
 
-class BookOriginSerializer(PostSerializer):
+class StatusLogSerializer(PostSerializer):
     created_by = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
 
     class Meta:
-        model = BookOrigin
+        model = StatusLog
         fields = '__all__'
-        extra_kwargs = {'created_at': {'required': False, 'read_only': True}}
+        extra_kwargs = {
+            'created_at': {'required': False, 'read_only': True},
+        }
+
+    def get_status(self, instance):
+        if not instance.position:
+            # TODO: ここは現在表示されない。要対策？
+            return 'to_be_read'
+        elif instance.position < instance.book.total:
+            return 'reading'
+        else:
+            return 'done'
 
 
 class BookCopySerializer(PostSerializer):
     created_by = serializers.SerializerMethodField()
+    title = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField()
+    cover = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = BookCopy
         fields = '__all__'
-        extra_kwargs = {'created_at': {'required': False, 'read_only': True}}
+        extra_kwargs = {
+            'created_at': {'required': False, 'read_only': True},
+        }
+
+    def get_title(self, instance):
+        return BookOrigin.objects.get(books_copy=instance.id).title
+
+    def get_author(self, instance):
+        return BookOrigin.objects.get(books_copy=instance.id).author
+
+    def get_cover(self, instance):
+        return BookOrigin.objects.get(books_copy=instance.id).thumbnail
+
+    def get_status(self, instance):
+        context = {'request': self.context.get('request')}
+
+        if instance.status_log:
+            status = instance.status_log.order_by('-created_at').first()
+            return StatusLogSerializer(status, many=False, read_only=True, context=context).data
+        else:
+            return None
+
+
+class BookOriginSerializer(PostSerializer):
+    created_by = serializers.SerializerMethodField()
+    books_copy = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BookOrigin
+        fields = '__all__'
+        extra_kwargs = {
+            'created_at': {'required': False, 'read_only': True}
+        }
+
+    def get_books_copy(self, instance):
+        book_copies = BookCopy.objects.filter(book_origin=instance)
+        return (_.id for _ in book_copies)

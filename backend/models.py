@@ -11,7 +11,9 @@ class CustomUser(AbstractUser):
     """ユーザーモデル"""
 
     class Meta:
-        db_table = 'user'
+        # db_table = 'user'
+        verbose_name_plural = 'ユーザー'
+        ordering = ['username']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(_('email address'), unique=True)
@@ -21,15 +23,12 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
-    class Meta:
-        verbose_name_plural = 'ユーザー'
-        ordering = ['username']
-
 
 class BookOrigin(models.Model):
 
     class Meta:
         db_table = 'book_origin'
+        ordering = ['-created_at']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField('タイトル', max_length=100)
@@ -47,6 +46,7 @@ class BookCopy(models.Model):
 
     class Meta:
         db_table = 'book_copy'
+        ordering = ['-created_at']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     book_origin = models.ForeignKey(BookOrigin, verbose_name='元データ', on_delete=models.CASCADE,
@@ -59,13 +59,14 @@ class BookCopy(models.Model):
                                    on_delete=models.SET_NULL, null=True, related_name='books_copy')
 
     def __str__(self):
-        return self.title
+        return self.book_origin.title
 
 
 class Note(models.Model):
 
     class Meta:
         db_table = 'note'
+        ordering = ['-created_at']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     book = models.ForeignKey(BookCopy, verbose_name='書籍', on_delete=models.CASCADE,
@@ -83,6 +84,7 @@ class StatusLog(models.Model):
 
     class Meta:
         db_table = 'status_log'
+        ordering = ['-created_at']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     book = models.ForeignKey(BookCopy, verbose_name='書籍', on_delete=models.CASCADE,
