@@ -1,9 +1,11 @@
 from django.core.exceptions import PermissionDenied
 from rest_framework import status, viewsets, filters, pagination, response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django_filters import rest_framework as django_filter
 
 from backend.models import *
 from .serializers import BookOriginSerializer, BookCopySerializer
+from .filters import BookOriginFilter, BookCopyFilter
 
 
 class GlobalViewMixin():
@@ -39,15 +41,15 @@ class BookOriginViewSet(viewsets.ModelViewSet, GlobalViewMixin):
     serializer_class = BookOriginSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'author', 'books_copy__amazon_dp']
-
-    pagination_class = CustomPageNumberPagination
+    filter_backends = [django_filter.DjangoFilterBackend]
+    filterset_class = BookOriginFilter
 
     def get_queryset(self):
         if self.request.method != 'GET':
+            # 編集や削除は作成したユーザーに限る
             return BookOrigin.objects.filter(created_by=self.request.user)
         else:
+            # GETは全ユーザーで可能
             return self.queryset
 
 
@@ -58,13 +60,11 @@ class BookCopyViewSet(viewsets.ModelViewSet, GlobalViewMixin):
     serializer_class = BookCopySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'author', 'books_copy__amazon_dp']
+    filter_backends = [django_filter.DjangoFilterBackend]
+    filterset_class = BookCopyFilter
 
     pagination_class = CustomPageNumberPagination
 
     def get_queryset(self):
-        if self.request.method != 'GET':
-            return BookCopy.objects.filter(created_by=self.request.user)
-        else:
-            return self.queryset
+        # プライベートアクセスのみ
+        return BookCopy.objects.filter(created_by=self.request.user)

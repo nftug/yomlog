@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     # 3rd party apps
     'rest_framework',
     'djoser',
+    'django_filters',
     'corsheaders',
     'webpack_loader',
 

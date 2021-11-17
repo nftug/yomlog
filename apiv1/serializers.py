@@ -141,6 +141,7 @@ class StatusLogSerializer(PostSerializer):
         }
 
     def get_status(self, instance):
+        print(instance)
         if not instance.position:
             # TODO: ここは現在表示されない。要対策？
             return 'to_be_read'
@@ -180,6 +181,7 @@ class BookCopySerializer(PostSerializer):
             status = instance.status_log.order_by('-created_at').first()
             return StatusLogSerializer(status, many=False, read_only=True, context=context).data
         else:
+            print('a')
             return None
 
 
