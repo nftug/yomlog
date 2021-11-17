@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerializer
 from django.conf import settings
 from djoser.conf import settings as djoser_settings
+import os
 
 from backend.models import *
 
@@ -141,7 +142,6 @@ class StatusLogSerializer(PostSerializer):
         }
 
     def get_status(self, instance):
-        print(instance)
         if not instance.position:
             # TODO: ここは現在表示されない。要対策？
             return 'to_be_read'
@@ -181,7 +181,6 @@ class BookCopySerializer(PostSerializer):
             status = instance.status_log.order_by('-created_at').first()
             return StatusLogSerializer(status, many=False, read_only=True, context=context).data
         else:
-            print('a')
             return None
 
 
