@@ -141,9 +141,9 @@ DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SERIALIZERS': {
-        'user': 'apiv1.serializers.CustomUserListSerializer',
-        'current_user': 'apiv1.serializers.CustomUserSerializer',
-        'user_create_password_retype': 'apiv1.serializers.CustomUserCreateSerializer',
+        'user': 'auth.serializers.CustomUserListSerializer',
+        'current_user': 'auth.serializers.CustomUserSerializer',
+        'user_create_password_retype': 'auth.serializers.CustomUserCreateSerializer',
     },
     'HIDE_USERS': False
 }
