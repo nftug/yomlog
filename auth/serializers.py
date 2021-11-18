@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerializer
 from djoser.conf import settings as djoser_settings
 
-from apiv1.serializers import ImageSerializerMixin
+from apiv1.mixins import ImageSerializerMixin
 
 
 class CustomUserSerializer(UserSerializer, ImageSerializerMixin):

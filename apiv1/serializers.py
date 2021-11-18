@@ -1,54 +1,14 @@
 from rest_framework import serializers
-from django.conf import settings
-import os
 from django.utils.timezone import localtime
 
+from .mixins import ImageSerializerMixin
 from backend.models import *
-
-
-class ImageSerializerMixin():
-    def _get_thumbnail(self, instance):
-        url = None
-
-        if hasattr(instance, 'photo') and instance.photo:
-            url = instance.photo.url
-        elif hasattr(instance, 'avatar') and instance.avatar:
-            url = instance.avatar.url
-
-        if url is not None:
-            if not settings.DEBUG:
-                CLOUDINARY_URL = 'https://res.cloudinary.com/' + os.environ['CLOUDINARY_CLOUD_NAME'] + '/image/upload'
-                if hasattr(instance, 'avatar'):
-                    prop = '/c_fill,h_128,w_128'
-                else:
-                    prop = '/c_fill,w_350'
-
-                url = url.replace(CLOUDINARY_URL, CLOUDINARY_URL + prop)
-
-            else:
-                url = '{}{}'.format(settings.HOST_URL, url)
-
-        return url
+from auth.serializers import CustomUserListSerializer
 
 
 class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
-    def _get_user_profile(self, user):
-        ret = {}
-
-        if user is None:
-            ret['username'] = None
-            ret['fullname'] = None
-            ret['avatar'] = None
-        else:
-            ret['username'] = user.username
-            fullname = '{} {}'.format(user.last_name, user.first_name).strip()
-            ret['fullname'] = fullname if fullname else user.username
-            ret['avatar'] = self._get_thumbnail(user)
-
-        return ret
-
     def get_created_by(self, instance):
-        return self._get_user_profile(instance.created_by)
+        return CustomUserListSerializer(instance.created_by, many=False, read_only=True).data
 
     def create(self, validated_data):
         user = super().context['request'].user
@@ -57,13 +17,14 @@ class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
 
 
 class StatusLogSerializer(PostSerializer):
+    created_by = serializers.SerializerMethodField()
     state = serializers.SerializerMethodField()
 
     class Meta:
         model = StatusLog
-        exclude = ['created_by']
+        fields = '__all__'
         extra_kwargs = {
-            'created_at': {'required': False},
+            'created_at': {'required': False, 'read_only': True},
         }
 
     def to_representation(self, instance):
@@ -103,13 +64,12 @@ class BookCopySerializer(PostSerializer):
     def get_status(self, instance):
         context = {'request': self.context.get('request')}
         status_log = instance.status_log.order_by('-created_at')
-        status_current = status_log.first()
-
-        if status_log.exists() and status_log.count() > 1:
-            context['status_previous'] = status_log[1]
 
         if status_log.exists():
-            return StatusLogSerializer(status_current, many=False, read_only=True, context=context).data
+            if status_log.count() > 1:
+                context['status_previous'] = status_log[1]
+
+            return StatusLogSerializer(status_log.first(), many=False, read_only=True, context=context).data
         else:
             return {
                 'state': 'to_be_read',

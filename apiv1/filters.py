@@ -2,7 +2,7 @@ from django_filters import rest_framework as django_filter
 from django.db.models import Q
 from django.db.models import F
 
-from backend.models import BookOrigin, BookCopy
+from backend.models import BookOrigin, BookCopy, StatusLog
 
 
 class GenericSearchFilterSet(django_filter.FilterSet):
@@ -91,3 +91,21 @@ class BookCopyFilter(GenericSearchFilterSet):
             queryset_tmp = BookCopy.objects.filter_current_status(query, 'read')
 
         return queryset_tmp.filter(query)
+
+
+class StatusLogFilter(GenericSearchFilterSet):
+    """StatusLog 検索用フィルタ"""
+
+    title = django_filter.CharFilter(field_name='book__title', lookup_expr='icontains')
+    author = django_filter.CharFilter(field_name='book__author', lookup_expr='icontains')
+    amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
+    created_by = django_filter.CharFilter(field_name='created_by__username')
+
+    class Meta:
+        model = StatusLog
+        fields = '__all__'
+        fields_for_search = [
+            'book__title__icontains',
+            'book__author__icontains',
+            'amazon_dp'
+        ]

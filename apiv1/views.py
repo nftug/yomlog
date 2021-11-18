@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters import rest_framework as django_filter
 
 from backend.models import *
-from .serializers import BookOriginSerializer, BookCopySerializer
-from .filters import BookOriginFilter, BookCopyFilter
+from .serializers import BookOriginSerializer, BookCopySerializer, StatusLogSerializer
+from .filters import BookOriginFilter, BookCopyFilter, StatusLogFilter
 
 
 class CustomPageNumberPagination(pagination.PageNumberPagination):
@@ -58,3 +58,24 @@ class BookCopyViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # プライベートアクセスのみ
         return self.queryset.filter(created_by=self.request.user)
+
+
+class StatusLogViewSet(viewsets.ModelViewSet):
+    """StatusLogのCRUD用APIクラス"""
+
+    queryset = StatusLog.objects.all()
+    serializer_class = StatusLogSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    filter_backends = [django_filter.DjangoFilterBackend]
+    filterset_class = StatusLogFilter
+
+    pagination_class = CustomPageNumberPagination
+
+    def get_queryset(self):
+        if self.request.method != 'GET':
+            # 編集や削除は作成したユーザーに限る
+            return self.queryset.filter(created_by=self.request.user)
+        else:
+            # GETは全ユーザーで可能
+            return self.queryset
