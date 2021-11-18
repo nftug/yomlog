@@ -4,6 +4,7 @@ from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerialize
 from django.conf import settings
 from djoser.conf import settings as djoser_settings
 import os
+from django.utils.timezone import localtime
 
 from backend.models import *
 
@@ -137,11 +138,24 @@ class StatusLogSerializer(PostSerializer):
         model = StatusLog
         exclude = ['created_by']
         extra_kwargs = {
-            'created_at': {'required': False, 'read_only': True},
+            'created_at': {'required': False},
         }
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+
+        status_previous = self.context.get('status_previous')
+        if instance.position == 0 and status_previous:
+            # 積読中で前のレコードが存在する場合、前のレコードの値を返す
+            ret['position'] = status_previous.position
+            ret['created_at'] = localtime(status_previous.created_at)
+
+        return ret
+
     def get_state(self, instance):
-        if instance.position < instance.book.total:
+        if instance.position == 0:
+            return 'to_be_read'
+        elif instance.position < instance.book.total:
             return 'reading'
         else:
             return 'read'
@@ -164,10 +178,21 @@ class BookCopySerializer(PostSerializer):
     def get_status(self, instance):
         context = {'request': self.context.get('request')}
         status_log = instance.status_log.order_by('-created_at')
+        status_current = status_log.first()
+
+        if status_log.exists() and status_log.count() > 1:
+            context['status_previous'] = status_log[1]
+
         if status_log.exists():
-            return StatusLogSerializer(status_log.first(), many=False, read_only=True, context=context).data
+            return StatusLogSerializer(status_current, many=False, read_only=True, context=context).data
         else:
-            return {'state': 'to_be_read'}
+            return {
+                'state': 'to_be_read',
+                'id': None,
+                'position': 0,
+                'created_at': None,
+                'book': instance.id
+            }
 
 
 class BookOriginSerializer(PostSerializer):
