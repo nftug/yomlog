@@ -37,7 +37,7 @@ class BookOriginViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.method != 'GET':
             # 編集や削除は作成したユーザーに限る
-            return BookOrigin.objects.filter(created_by=self.request.user)
+            return self.queryset.filter(created_by=self.request.user)
         else:
             # GETは全ユーザーで可能
             return self.queryset
@@ -57,4 +57,4 @@ class BookCopyViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # プライベートアクセスのみ
-        return BookCopy.objects.filter(created_by=self.request.user)
+        return self.queryset.filter(created_by=self.request.user)

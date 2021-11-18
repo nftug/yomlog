@@ -72,11 +72,23 @@ class BookCopyFilter(GenericSearchFilterSet):
         ]
 
     def filter_status(self, queryset, name, value):
-        if value == 'to_be_read':
-            return queryset.filter(status_log=None)
-        elif value == 'reading':
-            return queryset.filter(status_log__position__lt=F('total'))
-        elif value == 'read':
-            return queryset.filter(status_log__position__gte=F('total'))
-        else:
+        # FIXME: 最初のレコードではなくすべてのレコードを走査してしまう
+        # WORKAROUND 1: read→readingになることはないと考える？
+        # WORKAROUND 2: ModelManagerで専用のステータスを作成する
+
+        if not value:
             return queryset
+
+        # TODO: filter_statusと合わせて2回ループを回すので、パフォーマンス面での不安はある
+        query = Q(id=None)
+        for book_copy in queryset:
+            query |= Q(id=book_copy.id)
+
+        if value == 'to_be_read':
+            queryset_tmp = queryset.filter(status_log=None)
+        elif value == 'reading':
+            queryset_tmp = BookCopy.objects.filter_current_status(query, 'reading')
+        elif value == 'read':
+            queryset_tmp = BookCopy.objects.filter_current_status(query, 'read')
+
+        return queryset_tmp.filter(query)

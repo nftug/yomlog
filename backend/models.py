@@ -3,6 +3,7 @@ from django.core.validators import MinLengthValidator
 
 from django.db import models
 from django.utils import timezone
+from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 
@@ -42,6 +43,29 @@ class BookOrigin(models.Model):
         return self.title
 
 
+class StatusLogManager(models.Manager):
+    def filter_current_status(self, query_initial=Q(), status=None):
+        # BookCopyに対してstatus_logの最初のレコードでフィルタリング
+        books_copy = BookCopy.objects.filter(query_initial).prefetch_related('status_log')
+        query = Q(id=None)
+
+        for book_copy in books_copy:
+            status_log = book_copy.status_log
+            if not status_log.exists():
+                # reading or readを指定した場合→status_logが存在しないならqueryは追加しない
+                continue
+
+            position = status_log.first().position
+            total = book_copy.total
+
+            if status == 'reading' and position < total:
+                query |= Q(id=book_copy.id)
+            elif status == 'read' and position >= total:
+                query |= Q(id=book_copy.id)
+
+        return books_copy.filter(query)
+
+
 class BookCopy(models.Model):
 
     class Meta:
@@ -57,9 +81,10 @@ class BookCopy(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(CustomUser, verbose_name='登録したユーザー',
                                    on_delete=models.SET_NULL, null=True, related_name='books_copy')
+    objects = StatusLogManager()
 
     def __str__(self):
-        return self.book_origin.title
+        return '{}->{}'.format(self.book_origin.title, self.created_by)
 
 
 class Note(models.Model):

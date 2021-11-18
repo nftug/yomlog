@@ -131,24 +131,20 @@ class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
 
 
 class StatusLogSerializer(PostSerializer):
-    created_by = serializers.SerializerMethodField()
-    status = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
 
     class Meta:
         model = StatusLog
-        fields = '__all__'
+        exclude = ['created_by']
         extra_kwargs = {
             'created_at': {'required': False, 'read_only': True},
         }
 
-    def get_status(self, instance):
-        if not instance.position:
-            # TODO: ここは現在表示されない。要対策？
-            return 'to_be_read'
-        elif instance.position < instance.book.total:
+    def get_state(self, instance):
+        if instance.position < instance.book.total:
             return 'reading'
         else:
-            return 'done'
+            return 'read'
 
 
 class BookCopySerializer(PostSerializer):
@@ -167,8 +163,11 @@ class BookCopySerializer(PostSerializer):
 
     def get_status(self, instance):
         context = {'request': self.context.get('request')}
-        status = instance.status_log.order_by('-created_at').first()
-        return StatusLogSerializer(status, many=False, read_only=True, context=context).data
+        status_log = instance.status_log.order_by('-created_at')
+        if status_log.exists():
+            return StatusLogSerializer(status_log.first(), many=False, read_only=True, context=context).data
+        else:
+            return {'state': 'to_be_read'}
 
 
 class BookOriginSerializer(PostSerializer):
