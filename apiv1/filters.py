@@ -72,9 +72,8 @@ class BookCopyFilter(GenericSearchFilterSet):
         ]
 
     def filter_status(self, queryset, name, value):
-        # FIXME: 最初のレコードではなくすべてのレコードを走査してしまう
-        # WORKAROUND 1: read→readingになることはないと考える？
-        # WORKAROUND 2: ModelManagerで専用のステータスを作成する
+        # -FIXME: 最初のレコードではなくすべてのレコードを走査してしまう
+        # →status_logの先頭レコードで検索するカスタムフィルタを作成して解決
 
         if not value:
             return queryset
