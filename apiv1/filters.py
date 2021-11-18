@@ -1,11 +1,13 @@
 from django_filters import rest_framework as django_filter
 from django.db.models import Q
+from django.db.models import F
 
 from backend.models import BookOrigin, BookCopy
 
 
 class GenericSearchFilterSet(django_filter.FilterSet):
     """検索用フィルタセット ミックスイン"""
+
     q = django_filter.CharFilter(label='Search', method='filter_search')
 
     class Meta:
@@ -13,7 +15,6 @@ class GenericSearchFilterSet(django_filter.FilterSet):
 
     def filter_search(self, queryset, name, value):
         query = Q()
-
         words = value.split()
 
         for word in words:
@@ -55,9 +56,11 @@ class BookOriginFilter(GenericSearchFilterSet):
 class BookCopyFilter(GenericSearchFilterSet):
     """BookCopy 検索用フィルタ"""
 
+    STATUS_CHOICES = (('to_be_read', 'To be read'), ('reading', 'Reading'), ('read', 'Read'))
+
     title = django_filter.CharFilter(field_name='book_origin__title', lookup_expr='icontains')
     author = django_filter.CharFilter(field_name='book_origin__author', lookup_expr='icontains')
-    # TODO: statusのフィルタを作成
+    status = django_filter.ChoiceFilter(label='Status', choices=STATUS_CHOICES, method='filter_status')
 
     class Meta:
         model = BookCopy
@@ -67,3 +70,13 @@ class BookCopyFilter(GenericSearchFilterSet):
             'book_origin__author__icontains',
             'amazon_dp'
         ]
+
+    def filter_status(self, queryset, name, value):
+        if value == 'to_be_read':
+            return queryset.filter(status_log=None)
+        elif value == 'reading':
+            return queryset.filter(status_log__position__lt=F('total'))
+        elif value == 'read':
+            return queryset.filter(status_log__position__gte=F('total'))
+        else:
+            return queryset

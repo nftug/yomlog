@@ -9,7 +9,7 @@ from backend.models import *
 
 
 class ImageSerializerMixin():
-    def get_thumbnail(self, instance):
+    def _get_thumbnail(self, instance):
         url = None
 
         if hasattr(instance, 'photo') and instance.photo:
@@ -45,7 +45,7 @@ class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
             ret['username'] = user.username
             fullname = '{} {}'.format(user.last_name, user.first_name).strip()
             ret['fullname'] = fullname if fullname else user.username
-            ret['avatar'] = self.get_thumbnail(user)
+            ret['avatar'] = self._get_thumbnail(user)
 
         return ret
 
@@ -82,7 +82,7 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
         return fullname if fullname else instance.username
 
     def get_avatar_thumbnail(self, instance):
-        return self.get_thumbnail(instance)
+        return self._get_thumbnail(instance)
 
 
 class CustomUserListSerializer(CustomUserSerializer):
@@ -98,7 +98,7 @@ class CustomUserListSerializer(CustomUserSerializer):
         )
 
     def get_avatar(self, instance):
-        return self.get_thumbnail(instance)
+        return self._get_thumbnail(instance)
 
 
 class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
@@ -153,9 +153,9 @@ class StatusLogSerializer(PostSerializer):
 
 class BookCopySerializer(PostSerializer):
     created_by = serializers.SerializerMethodField()
-    title = serializers.SerializerMethodField()
-    author = serializers.SerializerMethodField()
-    cover = serializers.SerializerMethodField()
+    title = serializers.CharField(source='book_origin.title')
+    author = serializers.CharField(source='book_origin.author')
+    thumbnail = serializers.CharField(source='book_origin.thumbnail')
     status = serializers.SerializerMethodField()
 
     class Meta:
@@ -165,23 +165,10 @@ class BookCopySerializer(PostSerializer):
             'created_at': {'required': False, 'read_only': True},
         }
 
-    def get_title(self, instance):
-        return BookOrigin.objects.get(books_copy=instance.id).title
-
-    def get_author(self, instance):
-        return BookOrigin.objects.get(books_copy=instance.id).author
-
-    def get_cover(self, instance):
-        return BookOrigin.objects.get(books_copy=instance.id).thumbnail
-
     def get_status(self, instance):
         context = {'request': self.context.get('request')}
-
-        if instance.status_log:
-            status = instance.status_log.order_by('-created_at').first()
-            return StatusLogSerializer(status, many=False, read_only=True, context=context).data
-        else:
-            return None
+        status = instance.status_log.order_by('-created_at').first()
+        return StatusLogSerializer(status, many=False, read_only=True, context=context).data
 
 
 class BookOriginSerializer(PostSerializer):
@@ -196,5 +183,5 @@ class BookOriginSerializer(PostSerializer):
         }
 
     def get_books_copy(self, instance):
-        book_copies = BookCopy.objects.filter(book_origin=instance)
-        return (_.id for _ in book_copies)
+        books_copy = BookCopy.objects.filter(book_origin=instance)
+        return (_.id for _ in books_copy)

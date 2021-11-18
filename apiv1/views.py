@@ -8,19 +8,9 @@ from .serializers import BookOriginSerializer, BookCopySerializer
 from .filters import BookOriginFilter, BookCopyFilter
 
 
-class GlobalViewMixin():
-    def get_obj_for_user(self, pk, request, obj=BookOrigin):
-        if request.user.is_superuser:
-            return obj.objects.get(pk=pk)
-        else:
-            try:
-                return obj.objects.get(pk=pk, created_by=request.user)
-            except obj.DoesNotExist:
-                raise PermissionDenied
-
-
 class CustomPageNumberPagination(pagination.PageNumberPagination):
     """ページネーションクラス"""
+
     page_size = 12
 
     def get_paginated_response(self, data):
@@ -34,7 +24,7 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
         })
 
 
-class BookOriginViewSet(viewsets.ModelViewSet, GlobalViewMixin):
+class BookOriginViewSet(viewsets.ModelViewSet):
     """BookOriginのCRUD用APIクラス"""
 
     queryset = BookOrigin.objects.all()
@@ -53,7 +43,7 @@ class BookOriginViewSet(viewsets.ModelViewSet, GlobalViewMixin):
             return self.queryset
 
 
-class BookCopyViewSet(viewsets.ModelViewSet, GlobalViewMixin):
+class BookCopyViewSet(viewsets.ModelViewSet):
     """BookCopyのCRUD用APIクラス"""
 
     queryset = BookCopy.objects.all()
