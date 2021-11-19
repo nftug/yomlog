@@ -13,6 +13,7 @@ const ProfileSettingsPage = () =>
 const EmailSettingsPage = () => import('@/pages/settings/EmailSettingsPage.vue')
 const PasswordChangePage = () =>
   import('@/pages/settings/PasswordChangePage.vue')
+const BookAddPage = () => import('@/pages/BookAddPage.vue')
 
 Vue.use(VueRouter)
 
@@ -25,19 +26,19 @@ const router = new VueRouter({
       path: '/',
       name: 'home',
       component: HomePage,
-      meta: { requiresAuth: true, title: 'ホーム', isShowMenuButton: true },
+      meta: { title: 'ホーム', requiresAuth: true, isShowMenuButton: true },
     },
     {
       path: '/login',
       name: 'login',
       component: LoginPage,
-      meta: { requiresNotAuth: true, title: 'ログイン' },
+      meta: { title: 'ログイン', requiresNotAuth: true },
     },
     {
       path: '/signup',
       name: 'signup',
       component: SignUpPage,
-      meta: { requiresNotAuth: true, title: 'ユーザー登録' },
+      meta: { title: 'ユーザー登録', requiresNotAuth: true },
     },
     {
       path: '/activate/:uid/:token',
@@ -61,7 +62,7 @@ const router = new VueRouter({
       path: '/settings',
       name: 'settings',
       component: SettingsPage,
-      meta: { requiresAuth: true, title: '設定' },
+      meta: { title: '設定', requiresAuth: true },
       children: [
         {
           path: 'profile/',
@@ -82,6 +83,12 @@ const router = new VueRouter({
           meta: { title: 'パスワードの変更' },
         },
       ],
+    },
+    {
+      path: '/book/add',
+      name: 'book_add',
+      component: BookAddPage,
+      meta: { title: '書籍の追加', requiresAuth: true },
     },
     { path: '*', component: NotFoundPage },
   ],
