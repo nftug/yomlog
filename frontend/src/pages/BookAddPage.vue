@@ -37,7 +37,7 @@
                     item.imageLinks ? item.imageLinks.thumbnail : noImageCover
                   "
                   max-height="185"
-                  min-width="128"
+                  min-height="185"
                 ></v-img>
               </v-col>
             </v-row>
