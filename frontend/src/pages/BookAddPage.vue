@@ -6,7 +6,7 @@
         label="検索キーワード"
         prepend-icon="mdi-magnify"
         clearable
-        @keydown.enter="this.changeQuery('q', searchValue, true)"
+        @keydown.enter="resetInfinite()"
       ></v-text-field>
 
       <v-row>
@@ -42,9 +42,13 @@
         </v-col>
       </v-row>
 
-      <infinite-loading @infinite="infiniteHandler" :identifier="infiniteId">
+      <infinite-loading
+        v-if="searchValue"
+        @infinite="infiniteHandler"
+        :identifier="infiniteId"
+      >
         <div slot="no-more" class="py-4 text-body-2">
-          これ以上通知はありません
+          これ以上データはありません
         </div>
         <div slot="no-results" class="py-4 text-body-2">
           データが見つかりません
@@ -73,21 +77,14 @@ export default {
     searchValue: '',
     items: [],
     total: 0,
-    page: 0,
+    page: 1,
     maxResults: 12,
     infiniteId: +new Date(),
   }),
-  beforeRouteUpdate(to, from, next) {
-    // URLパラメータから値を設定してfetchする
-    this.fetchBookList(to.query)
-    next()
-  },
   methods: {
-    fetchBookList(query) {
+    fetchBookList() {
       // BUG: Google Books APIのtotalItemsの数はあてにならない (非固定)
-      // →ページネーションの割り振りには使えない
-
-      this.searchValue = query.q || ''
+      // →ページ番号の割り振りには使えない
 
       if (this.searchValue) {
         const startIndex = (this.page - 1) * (this.maxResults + 1)
@@ -113,32 +110,24 @@ export default {
           .catch((error) => {
             return Promise.reject(error)
           })
-      }
-    },
-    changeQuery(key, val, isClear = false) {
-      const query = isClear ? {} : Object.assign({}, this.$route.query)
-      query[key] = val
-
-      this.items = []
-
-      if (JSON.stringify(query) != JSON.stringify(this.$route.query)) {
-        this.$router.push({
-          path: this.$route.path,
-          query: query,
-        })
       } else {
-        this.fetchBookList(this.$route.query)
+        return Promise.reject()
       }
     },
     infiniteHandler($state) {
-      this.page++
-      this.fetchBookList(this.$route.query)
+      this.fetchBookList()
         .then(() => {
+          this.page++
           $state.loaded()
         })
         .catch(() => {
           $state.complete()
         })
+    },
+    resetInfinite() {
+      this.page = 1
+      this.items = []
+      this.infiniteId++
     },
   },
 }
