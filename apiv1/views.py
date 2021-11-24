@@ -47,8 +47,8 @@ class BookOriginViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        title = serializer.data['title']
-        author = serializer.data['author']
+        title = serializer.validated_data['title']
+        author = serializer.validated_data['author']
         book_origin = BookOrigin.objects.filter(title=title, author=author)
 
         if book_origin.exists():
@@ -80,7 +80,7 @@ class BookCopyViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        book_origin_id = serializer.data['book_origin']
+        book_origin_id = serializer.validated_data['book_origin']
         book_origin = BookOrigin.objects.filter(created_by=request.user, book_origin=book_origin_id)
 
         if book_origin.exists():
