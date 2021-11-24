@@ -163,10 +163,14 @@ export default {
     async addBookCopy(item) {
       try {
         let bookOrigin, bookCopy, response
-        response = await api.post('/book_origin/', {
-          author: item.authors.join(','),
-          title: item.title,
-          thumbnail: item.thumbnail,
+        response = await api({
+          url: '/book_origin/',
+          method: 'post',
+          data: {
+            author: item.authors.join(','),
+            title: item.title,
+            thumbnail: item.thumbnail,
+          },
         })
         bookOrigin = response.data.id
 
@@ -174,11 +178,15 @@ export default {
         let format_type
         format_type = 0
 
-        response = await api.post('/book_copy/', {
-          book_origin: bookOrigin,
-          total: item.total,
-          amazon_dp: item.amazon_dp,
-          format_type: format_type,
+        response = await api({
+          url: '/book_copy/',
+          method: 'post',
+          data: {
+            book_origin: bookOrigin,
+            total: item.total,
+            amazon_dp: item.amazon_dp,
+            format_type: format_type,
+          },
         })
         bookCopy = response.data.id
 
