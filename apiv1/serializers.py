@@ -49,9 +49,9 @@ class StatusLogSerializer(PostSerializer):
 
 class BookCopySerializer(PostSerializer):
     created_by = serializers.SerializerMethodField()
-    title = serializers.CharField(source='book_origin.title')
-    author = serializers.CharField(source='book_origin.author')
-    thumbnail = serializers.CharField(source='book_origin.thumbnail')
+    title = serializers.ReadOnlyField(source='book_origin.title')
+    author = serializers.ReadOnlyField(source='book_origin.author')
+    thumbnail = serializers.ReadOnlyField(source='book_origin.thumbnail')
     status = serializers.SerializerMethodField()
 
     class Meta:
@@ -69,7 +69,7 @@ class BookCopySerializer(PostSerializer):
             if status_log.count() > 1:
                 context['status_previous'] = status_log[1]
 
-            return StatusLogSerializer(status_log.first(), many=False, read_only=True, context=context).data
+            return StatusLogSerializer(status_log.first(), read_only=True, context=context).data
         else:
             return {
                 'state': 'to_be_read',
@@ -82,7 +82,7 @@ class BookCopySerializer(PostSerializer):
 
 class BookOriginSerializer(PostSerializer):
     created_by = serializers.SerializerMethodField()
-    books_copy = serializers.SerializerMethodField()
+    books_copy = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = BookOrigin
@@ -90,7 +90,3 @@ class BookOriginSerializer(PostSerializer):
         extra_kwargs = {
             'created_at': {'required': False, 'read_only': True}
         }
-
-    def get_books_copy(self, instance):
-        books_copy = BookCopy.objects.filter(book_origin=instance)
-        return (_.id for _ in books_copy)
