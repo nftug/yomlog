@@ -81,10 +81,10 @@ class BookCopyViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         book_origin_id = serializer.validated_data['book_origin']
-        book_origin = BookOrigin.objects.filter(created_by=request.user, book_origin=book_origin_id)
+        book_copy = BookCopy.objects.filter(created_by=request.user, book_origin=book_origin_id)
 
-        if book_origin.exists():
-            serializer = BookOriginSerializer(book_origin.first())
+        if book_copy.exists():
+            serializer = BookCopySerializer(book_copy.first())
             return response.Response(serializer.data, status.HTTP_200_OK)
         else:
             serializer.save()

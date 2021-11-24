@@ -80,7 +80,7 @@ class BookCopySerializer(PostSerializer):
         }
 
 
-class BookOriginSerializer(PostSerializer):
+class BookOriginSerializer(serializers.ModelSerializer):
     # books_copy = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     amazon_dp = serializers.SerializerMethodField()
 
