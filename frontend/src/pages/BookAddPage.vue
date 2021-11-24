@@ -25,14 +25,21 @@
                     ></v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
+
+                <v-list-item>
+                  <v-btn color="green" block @click="addBookCopy(item)">
+                    本を登録
+                  </v-btn>
+                </v-list-item>
+                <v-list-item>
+                  <v-btn color="orange" block>Kindle本を登録</v-btn>
+                </v-list-item>
               </v-col>
 
               <v-col cols="4">
                 <v-img
                   contain
-                  :src="
-                    item.imageLinks ? item.imageLinks.thumbnail : noImageCover
-                  "
+                  :src="item.thumbnail || noImageCover"
                   max-height="185"
                   min-height="185"
                 ></v-img>
@@ -65,6 +72,7 @@
 import axios from 'axios'
 import Spinner from 'vue-simple-spinner'
 import InfiniteLoading from 'vue-infinite-loading'
+import api from '@/services/api'
 
 export default {
   components: {
@@ -100,9 +108,32 @@ export default {
           })
           .then(({ data }) => {
             this.total = data.totalItems
+
             data.items.forEach((item) => {
-              item.volumeInfo.authors = item.volumeInfo.authors || ['不明']
-              this.items.push(item.volumeInfo)
+              const { volumeInfo } = item
+
+              let amazon_dp
+              if (volumeInfo.industryIdentifiers) {
+                // ISBNコードが存在する場合、ISBN_13を優先してamazon_dpに入れる
+                const industryIdentifier =
+                  volumeInfo.industryIdentifiers.find(
+                    (e) => e.type === 'ISBN_13'
+                  ) || volumeInfo.industryIdentifiers[0]
+                amazon_dp = industryIdentifier.identifier
+              } else {
+                // ISBNコードが存在しない場合、amazon_dpにはnullを入れる
+                amazon_dp = null
+              }
+
+              this.items.push({
+                title: volumeInfo.title,
+                authors: volumeInfo.authors || ['不明'],
+                thumbnail: volumeInfo.imageLinks
+                  ? volumeInfo.imageLinks.thumbnail
+                  : null,
+                total: volumeInfo.pageCount || 0,
+                amazon_dp: amazon_dp,
+              })
             })
 
             return Promise.resolve()
@@ -128,6 +159,37 @@ export default {
       this.page = 1
       this.items = []
       this.infiniteId++
+    },
+    async addBookCopy(item) {
+      try {
+        let bookOrigin, bookCopy, response
+        response = await api.post('/book_origin/', {
+          author: item.authors.join(','),
+          title: item.title,
+          thumbnail: item.thumbnail,
+        })
+        bookOrigin = response.data.id
+
+        // TODO: ここにKindle本の場合の処理も入れる (各種データをモーダルで入力)
+        let format_type
+        format_type = 0
+
+        response = await api.post('/book_copy/', {
+          book_origin: bookOrigin,
+          total: item.total,
+          amazon_dp: item.amazon_dp,
+          format_type: format_type,
+        })
+        bookCopy = response.data.id
+
+        // TODO: ここにbookCopyの詳細ページに遷移する処理を記述
+        console.log(bookCopy)
+        this.$store.dispatch('message/setInfoMessage', {
+          message: '書籍を登録しました。',
+        })
+      } catch {
+        console.log('Server Error')
+      }
     },
   },
 }

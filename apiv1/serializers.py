@@ -48,7 +48,7 @@ class StatusLogSerializer(PostSerializer):
 
 
 class BookCopySerializer(PostSerializer):
-    created_by = serializers.SerializerMethodField()
+    # created_by = serializers.SerializerMethodField()
     title = serializers.ReadOnlyField(source='book_origin.title')
     author = serializers.ReadOnlyField(source='book_origin.author')
     thumbnail = serializers.ReadOnlyField(source='book_origin.thumbnail')
@@ -62,26 +62,26 @@ class BookCopySerializer(PostSerializer):
         }
 
     def get_status(self, instance):
-        context = {'request': self.context.get('request')}
-        status_log = instance.status_log.order_by('-created_at')
+        if hasattr(instance, 'status_log'):
+            context = {'request': self.context.get('request')}
+            status_log = instance.status_log.order_by('-created_at')
 
-        if status_log.exists():
-            if status_log.count() > 1:
-                context['status_previous'] = status_log[1]
+            if status_log.exists():
+                if status_log.count() > 1:
+                    context['status_previous'] = status_log[1]
+                return StatusLogSerializer(status_log.first(), read_only=True, context=context).data
 
-            return StatusLogSerializer(status_log.first(), read_only=True, context=context).data
-        else:
-            return {
-                'state': 'to_be_read',
-                'id': None,
-                'position': 0,
-                'created_at': None,
-                'book': instance.id
-            }
+        return {
+            'state': 'to_be_read',
+            'id': None,
+            'position': 0,
+            'created_at': None,
+            'book': instance.id if hasattr(instance, 'id') else None
+        }
 
 
 class BookOriginSerializer(PostSerializer):
-    books_copy = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # books_copy = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     amazon_dp = serializers.SerializerMethodField()
 
     class Meta:
@@ -92,5 +92,8 @@ class BookOriginSerializer(PostSerializer):
         }
 
     def get_amazon_dp(self, instance):
-        books_copy = BookCopy.objects.filter(book_origin=instance).values('amazon_dp')
-        return list(set((_['amazon_dp'] for _ in books_copy)))
+        if hasattr(instance, 'id'):
+            books_copy = BookCopy.objects.filter(book_origin=instance).values('amazon_dp')
+            return list(set((_['amazon_dp'] for _ in books_copy)))
+        else:
+            return []

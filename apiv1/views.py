@@ -1,4 +1,4 @@
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from rest_framework import status, viewsets, filters, pagination, response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters import rest_framework as django_filter
@@ -42,6 +42,22 @@ class BookOriginViewSet(viewsets.ModelViewSet):
             # GETは全ユーザーで可能
             return self.queryset
 
+    def create(self, request, *args, **kwargs):
+        # すでにタイトルと著者名が一致する本が存在する場合、保存せずにそのまま返す
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        title = serializer.data['title']
+        author = serializer.data['author']
+        book_origin = BookOrigin.objects.filter(title=title, author=author)
+
+        if book_origin.exists():
+            serializer = BookOriginSerializer(book_origin.first())
+            return response.Response(serializer.data, status.HTTP_200_OK)
+        else:
+            serializer.save()
+            return response.Response(serializer.data, status.HTTP_201_CREATED)
+
 
 class BookCopyViewSet(viewsets.ModelViewSet):
     """BookCopyのCRUD用APIクラス"""
@@ -58,6 +74,21 @@ class BookCopyViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # プライベートアクセスのみ
         return self.queryset.filter(created_by=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # すでにBookOriginをもとにしたレコードが存在する場合、保存せずにそのまま返す
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        book_origin_id = serializer.data['book_origin']
+        book_origin = BookOrigin.objects.filter(created_by=request.user, book_origin=book_origin_id)
+
+        if book_origin.exists():
+            serializer = BookOriginSerializer(book_origin.first())
+            return response.Response(serializer.data, status.HTTP_200_OK)
+        else:
+            serializer.save()
+            return response.Response(serializer.data, status.HTTP_201_CREATED)
 
 
 class StatusLogViewSet(viewsets.ModelViewSet):
