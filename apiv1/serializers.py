@@ -81,8 +81,8 @@ class BookCopySerializer(PostSerializer):
 
 
 class BookOriginSerializer(PostSerializer):
-    created_by = serializers.SerializerMethodField()
     books_copy = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    amazon_dp = serializers.SerializerMethodField()
 
     class Meta:
         model = BookOrigin
@@ -90,3 +90,7 @@ class BookOriginSerializer(PostSerializer):
         extra_kwargs = {
             'created_at': {'required': False, 'read_only': True}
         }
+
+    def get_amazon_dp(self, instance):
+        books_copy = BookCopy.objects.filter(book_origin=instance).values('amazon_dp')
+        return list(set((_['amazon_dp'] for _ in books_copy)))

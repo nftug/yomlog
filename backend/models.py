@@ -36,8 +36,6 @@ class BookOrigin(models.Model):
     author = models.CharField('著者', max_length=100)
     thumbnail = models.URLField('書影URL', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(CustomUser, verbose_name='登録したユーザー',
-                                   on_delete=models.SET_NULL, null=True, related_name='books_origin')
 
     def __str__(self):
         return self.title
