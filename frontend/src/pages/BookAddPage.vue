@@ -108,8 +108,10 @@ import axios from 'axios'
 import Spinner from 'vue-simple-spinner'
 import InfiniteLoading from 'vue-infinite-loading'
 import api from '@/services/api'
+import Mixin from '@/mixins'
 
 export default {
+  mixins: [Mixin],
   components: {
     Spinner,
     InfiniteLoading,
@@ -205,7 +207,7 @@ export default {
       // ボトムシートの非表示
       this.searchBottomSheet = false
     },
-    async addBookCopy(item) {
+    async addBookCopy(item, kindle) {
       try {
         let bookOrigin, bookCopy, response
         response = await api({
@@ -219,9 +221,13 @@ export default {
         })
         bookOrigin = response.data.id
 
-        // TODO: ここにKindle本の場合の処理も入れる (各種データをモーダルで入力)
         let format_type
-        format_type = 0
+        if (kindle) {
+          // TODO: ここにKindle本の場合の処理も入れる (各種データをモーダルで入力)
+          format_type = 1
+        } else {
+          format_type = 0
+        }
 
         response = await api({
           url: '/book_copy/',
