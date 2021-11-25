@@ -1,14 +1,7 @@
 <template>
   <v-container fluid>
     <div class="col-md-8 col-sm-10 mx-auto">
-      <v-text-field
-        v-model="searchValue"
-        label="検索キーワード"
-        prepend-icon="mdi-magnify"
-        clearable
-        @keydown.enter="resetInfinite()"
-      ></v-text-field>
-
+      <!-- 検索結果リスト -->
       <v-row>
         <v-col v-for="item in items" :key="item.id" cols="12" lg="6">
           <v-card class="mx-auto" height="185">
@@ -49,8 +42,9 @@
         </v-col>
       </v-row>
 
+      <!-- Infinite Loading -->
       <infinite-loading
-        v-if="searchValue"
+        v-if="infiniteId"
         @infinite="infiniteHandler"
         :identifier="infiniteId"
       >
@@ -65,6 +59,47 @@
         </div>
       </infinite-loading>
     </div>
+
+    <!-- 検索用ボトムシート -->
+    <v-bottom-sheet v-model="searchBottomSheet" inset>
+      <template #activator="{ on, attrs }">
+        <v-fab-transition>
+          <v-btn
+            color="pink"
+            dark
+            bottom
+            right
+            fab
+            fixed
+            class="v-btn--search"
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-icon>mdi-magnify</v-icon>
+          </v-btn>
+        </v-fab-transition>
+      </template>
+
+      <v-sheet class="text-center" height="200px">
+        <v-btn
+          class="mt-6"
+          text
+          color="error"
+          @click="searchBottomSheet = !searchBottomSheet"
+        >
+          close
+        </v-btn>
+
+        <v-text-field
+          v-model="searchValue"
+          label="検索キーワード"
+          prepend-icon="mdi-magnify"
+          clearable
+          class="mx-md-10 mx-5"
+          @keypress.enter="resetInfinite()"
+        ></v-text-field>
+      </v-sheet>
+    </v-bottom-sheet>
   </v-container>
 </template>
 
@@ -87,7 +122,8 @@ export default {
     total: 0,
     page: 1,
     maxResults: 12,
-    infiniteId: +new Date(),
+    infiniteId: null,
+    searchBottomSheet: false,
   }),
   methods: {
     fetchBookList() {
@@ -156,9 +192,18 @@ export default {
         })
     },
     resetInfinite() {
+      // infinite-loadingの有効化 or リセット
+      if (this.infiniteId) {
+        this.infiniteId++
+      } else {
+        this.infiniteId = +new Date()
+      }
+
       this.page = 1
       this.items = []
-      this.infiniteId++
+
+      // ボトムシートの非表示
+      this.searchBottomSheet = false
     },
     async addBookCopy(item) {
       try {
@@ -192,13 +237,29 @@ export default {
 
         // TODO: ここにbookCopyの詳細ページに遷移する処理を記述
         console.log(bookCopy)
-        this.$store.dispatch('message/setInfoMessage', {
-          message: '書籍を登録しました。',
-        })
+
+        if (response.status === 201) {
+          this.$store.dispatch('message/setInfoMessage', {
+            message: '書籍を登録しました。',
+          })
+        } else {
+          this.$store.dispatch('message/setInfoMessage', {
+            message: 'この本は既に登録されています。',
+          })
+        }
       } catch {
-        console.log('Server Error')
+        this.$store.dispatch('message/setErrorMessage', {
+          message: 'サーバーエラーが発生しました。',
+        })
       }
     },
   },
 }
 </script>
+
+<style scoped>
+.v-btn--search {
+  bottom: 0;
+  margin: 0 0 24px 48px;
+}
+</style>
