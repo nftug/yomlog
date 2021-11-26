@@ -2,47 +2,20 @@
   <v-container fluid>
     <div class="col-sm-10 mx-auto">
       <!-- 検索結果リスト -->
-      <v-row>
-        <v-col v-for="item in items" :key="item.id" cols="12" md="6" lg="4">
-          <v-card class="mx-auto" height="185">
-            <v-row no-gutters>
-              <v-col cols="8">
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-list-item-title
-                      v-text="item.title"
-                      class="font-weight-medium"
-                    ></v-list-item-title>
-                    <v-list-item-subtitle
-                      v-text="item.authors.join(', ')"
-                    ></v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-btn color="green" block @click="addBookCopy(item)">
-                    本を登録
-                  </v-btn>
-                </v-list-item>
-                <v-list-item>
-                  <v-btn color="orange" block @click="addBookCopy(item, true)">
-                    Kindle本を登録
-                  </v-btn>
-                </v-list-item>
-              </v-col>
-
-              <v-col cols="4">
-                <v-img
-                  contain
-                  :src="item.thumbnail || noImageCover"
-                  max-height="185"
-                  min-height="185"
-                ></v-img>
-              </v-col>
-            </v-row>
-          </v-card>
-        </v-col>
-      </v-row>
+      <BookList :items="items">
+        <template #actions="{ item }">
+          <v-list-item>
+            <v-btn color="green" block @click="addBookCopy(item)">
+              本を登録
+            </v-btn>
+          </v-list-item>
+          <v-list-item>
+            <v-btn color="orange" block @click="addBookCopy(item, true)">
+              Kindle本を登録
+            </v-btn>
+          </v-list-item>
+        </template>
+      </BookList>
 
       <!-- Infinite Loading -->
       <infinite-loading
@@ -155,6 +128,7 @@ import InfiniteLoading from 'vue-infinite-loading'
 import api from '@/services/api'
 import Mixin, { FormRulesMixin } from '@/mixins'
 import Dialog from '@/components/Dialog.vue'
+import BookList from '@/components/BookList.vue'
 
 export default {
   mixins: [Mixin, FormRulesMixin],
@@ -162,10 +136,9 @@ export default {
     Spinner,
     InfiniteLoading,
     Dialog,
+    BookList,
   },
   data: () => ({
-    noImageCover:
-      'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
     searchValue: '',
     items: [],
     total: 0,
@@ -324,7 +297,7 @@ export default {
       } catch (err) {
         console.log(err)
         this.$store.dispatch('message/setErrorMessage', {
-          message: 'サーバーエラーが発生しました。',
+          message: 'エラーが発生しました。',
         })
       }
     },
