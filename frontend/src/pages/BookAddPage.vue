@@ -123,6 +123,16 @@
 
         <v-form ref="formKindle" v-model="formKindle.valid">
           <v-text-field
+            v-model="formKindle.title"
+            label="タイトル"
+            disabled
+          ></v-text-field>
+          <v-text-field
+            v-model="formKindle.author"
+            label="著者"
+            disabled
+          ></v-text-field>
+          <v-text-field
             v-model="formKindle.asin"
             label="ASINコード"
             :rules="formKindle.asinRules"
@@ -180,6 +190,8 @@ export default {
     infiniteId: null,
     searchBottomSheet: true,
     formKindle: {
+      title: '',
+      author: '',
       asin: '',
       total: 0,
       valid: false,
@@ -305,7 +317,7 @@ export default {
         // 書籍データの入力
         if (kindle) {
           // Kindle本の場合、各種データを入力
-          if (!(await this.showKindleDialog())) return
+          if (!(await this.showKindleDialog(item))) return
 
           format_type = 1
           item.amazon_dp = this.formKindle.asin
@@ -361,12 +373,14 @@ export default {
       }
       return this.$refs.dialogISBN.showDialog()
     },
-    showKindleDialog() {
+    showKindleDialog(item) {
       if (this.$refs.formKindle) {
         this.formKindle.asin = ''
         this.formKindle.total = 0
         this.$refs.formKindle.resetValidation()
       }
+      this.formKindle.title = item.title
+      this.formKindle.author = item.authors.join(', ')
       return this.$refs.dialogKindle.showDialog()
     },
   },
