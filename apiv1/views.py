@@ -86,7 +86,7 @@ class BookCopyViewSet(viewsets.ModelViewSet):
         book_copy = BookCopy.objects.filter(
             created_by=request.user,
             book_origin=serializer.validated_data['book_origin'],
-            amazon_dp=serializer.validated_data['amazon_dp']
+            format_type=serializer.validated_data['format_type']
         )
 
         if book_copy.exists():
