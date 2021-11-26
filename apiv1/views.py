@@ -47,9 +47,11 @@ class BookOriginViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        title = serializer.validated_data['title']
-        author = serializer.validated_data['author']
-        book_origin = BookOrigin.objects.filter(title=title, author=author)
+
+        book_origin = BookOrigin.objects.filter(
+            title=serializer.validated_data['title'],
+            author=serializer.validated_data['author']
+        )
 
         if book_origin.exists():
             serializer = BookOriginSerializer(book_origin.first())
@@ -76,12 +78,16 @@ class BookCopyViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(created_by=self.request.user)
 
     def create(self, request, *args, **kwargs):
-        # すでにBookOriginをもとにしたレコードが存在する場合、保存せずにそのまま返す
+        # すでに同一の書籍をもとにしたレコードが存在する場合、保存せずにそのまま返す
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        book_origin_id = serializer.validated_data['book_origin']
-        book_copy = BookCopy.objects.filter(created_by=request.user, book_origin=book_origin_id)
+
+        book_copy = BookCopy.objects.filter(
+            created_by=request.user,
+            book_origin=serializer.validated_data['book_origin'],
+            amazon_dp=serializer.validated_data['amazon_dp']
+        )
 
         if book_copy.exists():
             serializer = BookCopySerializer(book_copy.first())
