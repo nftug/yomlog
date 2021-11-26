@@ -35,27 +35,11 @@
       </infinite-loading>
     </div>
 
+    <!-- スクロール -->
+    <Fab icon="mdi-chevron-up" @click="onClickFab"></Fab>
+
     <!-- 検索用ボトムシート -->
     <v-bottom-sheet v-model="searchBottomSheet" inset>
-      <!-- アクティベーター -->
-      <template #activator="{ on, attrs }">
-        <v-fab-transition>
-          <v-btn
-            color="pink"
-            dark
-            bottom
-            right
-            fab
-            fixed
-            class="v-btn--search"
-            v-bind="attrs"
-            v-on="on"
-          >
-            <v-icon>mdi-magnify</v-icon>
-          </v-btn>
-        </v-fab-transition>
-      </template>
-
       <!-- ボトムシート本体 -->
       <v-sheet class="text-center" height="200px">
         <v-btn
@@ -125,12 +109,12 @@
           <v-text-field
             v-model="formKindle.title"
             label="タイトル"
-            disabled
+            readonly
           ></v-text-field>
           <v-text-field
             v-model="formKindle.author"
             label="著者"
-            disabled
+            readonly
           ></v-text-field>
           <v-text-field
             v-model="formKindle.asin"
@@ -172,6 +156,8 @@ import api from '@/services/api'
 import Mixin, { FormRulesMixin } from '@/mixins'
 import Dialog from '@/components/Dialog.vue'
 import BookList from '@/components/BookList.vue'
+import Fab from '@/components/Fab.vue'
+import VueScrollTo from 'vue-scrollto'
 
 export default {
   mixins: [Mixin, FormRulesMixin],
@@ -180,6 +166,7 @@ export default {
     InfiniteLoading,
     Dialog,
     BookList,
+    Fab,
   },
   data: () => ({
     searchValue: '',
@@ -213,6 +200,12 @@ export default {
       ],
     },
   }),
+  created() {
+    this.$router.app.$on('openSearch', () => (this.searchBottomSheet = true))
+  },
+  beforeDestroy() {
+    this.$router.app.$off('openSearch')
+  },
   methods: {
     fetchBookList() {
       // BUG: Google Books APIのtotalItemsの数はあてにならない (非固定)
@@ -301,19 +294,6 @@ export default {
       try {
         let bookOrigin, bookCopy, response, format_type
 
-        // BookOriginのデータを登録
-        // 既に登録されている場合は該当のデータが返却される (statusは200)
-        response = await api({
-          url: '/book_origin/',
-          method: 'post',
-          data: {
-            author: item.authors.join(','),
-            title: item.title,
-            thumbnail: item.thumbnail,
-          },
-        })
-        bookOrigin = response.data.id
-
         // 書籍データの入力
         if (kindle) {
           // Kindle本の場合、各種データを入力
@@ -332,6 +312,19 @@ export default {
 
           format_type = 0
         }
+
+        // BookOriginのデータを登録
+        // 既に登録されている場合は該当のデータが返却される (statusは200)
+        response = await api({
+          url: '/book_origin/',
+          method: 'post',
+          data: {
+            author: item.authors.join(','),
+            title: item.title,
+            thumbnail: item.thumbnail,
+          },
+        })
+        bookOrigin = response.data.id
 
         // BookCopyのデータを登録
         // 既に登録されている場合は該当のデータが返却される (statusは200)
@@ -383,13 +376,9 @@ export default {
       this.formKindle.author = item.authors.join(', ')
       return this.$refs.dialogKindle.showDialog()
     },
+    onClickFab() {
+      VueScrollTo.scrollTo('#app')
+    },
   },
 }
 </script>
-
-<style scoped>
-.v-btn--search {
-  bottom: 0;
-  margin: 0 0 24px 48px;
-}
-</style>

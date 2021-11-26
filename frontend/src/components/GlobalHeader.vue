@@ -27,7 +27,7 @@
 
     <!-- Right -->
     <template v-if="isLoggedIn">
-      <v-btn icon>
+      <v-btn icon @click="$router.app.$emit('openSearch')">
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
     </template>
