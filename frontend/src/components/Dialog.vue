@@ -1,6 +1,3 @@
-<!-- 参考: https://zukucode.com/2020/04/vue-alert-confirm.html -->
-<!-- TODO: mixinにconfirmDialogを記述 -->
-
 <template>
   <div id="dialog">
     <v-dialog v-model="isShowDialog" :max-width="maxWidth">
