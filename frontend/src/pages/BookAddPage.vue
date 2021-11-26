@@ -1,9 +1,9 @@
 <template>
   <v-container fluid>
-    <div class="col-md-8 col-sm-10 mx-auto">
+    <div class="col-sm-10 mx-auto">
       <!-- 検索結果リスト -->
       <v-row>
-        <v-col v-for="item in items" :key="item.id" cols="12" lg="6">
+        <v-col v-for="item in items" :key="item.id" cols="12" md="6" lg="4">
           <v-card class="mx-auto" height="185">
             <v-row no-gutters>
               <v-col cols="8">

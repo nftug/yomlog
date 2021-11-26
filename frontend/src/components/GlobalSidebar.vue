@@ -23,6 +23,8 @@
         </v-list-item-content>
       </v-list-item>
 
+      <v-divider></v-divider>
+
       <v-list-item link @click="showLogoutDialog()">
         <v-list-item-icon><v-icon>mdi-logout</v-icon></v-list-item-icon>
         <v-list-item-content>
@@ -53,7 +55,15 @@ export default {
     value: Boolean,
   },
   data: () => ({
-    items: [{ title: '設定', icon: 'mdi-cog', path: '/settings' }],
+    items: [
+      {
+        title: '本棚',
+        icon: 'mdi-book-open-blank-variant',
+        path: '/',
+      },
+      { title: '本の追加', icon: 'mdi-book-plus', path: '/book/add' },
+      { title: '設定', icon: 'mdi-cog', path: '/settings' },
+    ],
   }),
   computed: {
     drawer: {

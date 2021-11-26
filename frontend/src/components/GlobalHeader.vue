@@ -30,19 +30,6 @@
       <v-btn icon>
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
-
-      <v-menu left bottom>
-        <template #activator="{ on, attrs }">
-          <v-btn icon v-bind="attrs" v-on="on">
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-        </template>
-
-        <v-list>
-          <v-list-item to="/book/add">本の登録</v-list-item>
-          <v-list-item @click="() => {}">本の削除</v-list-item>
-        </v-list>
-      </v-menu>
     </template>
 
     <template v-else-if="$route.name === 'login' || $route.name === 'signup'">

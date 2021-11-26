@@ -88,7 +88,7 @@ const router = new VueRouter({
       path: '/book/add',
       name: 'book_add',
       component: BookAddPage,
-      meta: { title: '書籍の追加', requiresAuth: true },
+      meta: { title: '本の追加', requiresAuth: true },
     },
     { path: '*', component: NotFoundPage },
   ],
