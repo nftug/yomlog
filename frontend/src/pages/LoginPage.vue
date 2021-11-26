@@ -50,10 +50,7 @@
 </template>
 
 <script>
-import { FormRulesMixin } from '@/mixins'
-
 export default {
-  mixins: [FormRulesMixin],
   data: () => ({
     formLogin: {
       valid: false,

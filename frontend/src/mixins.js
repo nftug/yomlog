@@ -2,7 +2,7 @@ import api from '@/services/api'
 
 export const FormRulesMixin = {
   data: () => ({
-    nameRules: [(v) => !!v || '名前を入力してください'],
+    requiredRules: [(v) => !!v || 'この項目は入力必須です'],
     emailRules: [
       (v) => !!v || 'メールアドレスを入力してください',
       (v) => /.+@.+/.test(v) || '正しいメールアドレスを入力してください',

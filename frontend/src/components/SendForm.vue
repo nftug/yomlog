@@ -99,11 +99,6 @@ export default {
   components: {
     Spinner,
   },
-  watch: {
-    value: function (val) {
-      this.form = val
-    },
-  },
   created() {
     // ファイルフィールドを検索し、フィールド名をimageFieldsNameに追加
     // (複数コラムには未対応)
