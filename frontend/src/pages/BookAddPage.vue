@@ -25,7 +25,9 @@
                   </v-btn>
                 </v-list-item>
                 <v-list-item>
-                  <v-btn color="orange" block>Kindle本を登録</v-btn>
+                  <v-btn color="orange" block @click="addBookCopy(item, true)">
+                    Kindle本を登録
+                  </v-btn>
                 </v-list-item>
               </v-col>
 
@@ -62,6 +64,7 @@
 
     <!-- 検索用ボトムシート -->
     <v-bottom-sheet v-model="searchBottomSheet" inset>
+      <!-- アクティベーター -->
       <template #activator="{ on, attrs }">
         <v-fab-transition>
           <v-btn
@@ -80,6 +83,7 @@
         </v-fab-transition>
       </template>
 
+      <!-- ボトムシート本体 -->
       <v-sheet class="text-center" height="200px">
         <v-btn
           class="mt-6"
@@ -100,6 +104,47 @@
         ></v-text-field>
       </v-sheet>
     </v-bottom-sheet>
+
+    <!-- Kindle本のデータ入力ダイアログ -->
+    <Dialog
+      ref="inputKindle"
+      title="Kindle本のデータ"
+      message="Kindle本のデータを入力してください。"
+      :max-width="400"
+    >
+      <template #content="{ message }">
+        <p>{{ message }}</p>
+
+        <v-form ref="formKindle" v-model="formKindle.valid">
+          <v-text-field
+            v-model="formKindle.asin"
+            label="ASINコード"
+            :rules="formKindle.asinRules"
+            maxlength="10"
+          ></v-text-field>
+          <v-text-field
+            v-model="formKindle.total"
+            label="位置Noの総数"
+            type="number"
+            min="0"
+            :rules="formKindle.totalRules"
+          ></v-text-field>
+        </v-form>
+      </template>
+
+      <template #actions="{ ok, cancel }">
+        <v-spacer></v-spacer>
+        <v-btn
+          color="green darken-1"
+          text
+          @click="ok"
+          :disabled="!formKindle.valid"
+        >
+          OK
+        </v-btn>
+        <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
+      </template>
+    </Dialog>
   </v-container>
 </template>
 
@@ -108,13 +153,15 @@ import axios from 'axios'
 import Spinner from 'vue-simple-spinner'
 import InfiniteLoading from 'vue-infinite-loading'
 import api from '@/services/api'
-import Mixin from '@/mixins'
+import Mixin, { FormRulesMixin } from '@/mixins'
+import Dialog from '@/components/Dialog.vue'
 
 export default {
-  mixins: [Mixin],
+  mixins: [Mixin, FormRulesMixin],
   components: {
     Spinner,
     InfiniteLoading,
+    Dialog,
   },
   data: () => ({
     noImageCover:
@@ -125,7 +172,17 @@ export default {
     page: 1,
     maxResults: 12,
     infiniteId: null,
-    searchBottomSheet: false,
+    searchBottomSheet: true,
+    formKindle: {
+      asin: '',
+      total: 0,
+      valid: false,
+      asinRules: [
+        (v) => !!v || 'この項目は入力必須です',
+        (v) => v.length === 10 || '10文字のコードを入力してください',
+      ],
+      totalRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
+    },
   }),
   methods: {
     fetchBookList() {
@@ -209,7 +266,10 @@ export default {
     },
     async addBookCopy(item, kindle) {
       try {
-        let bookOrigin, bookCopy, response
+        let bookOrigin, bookCopy, response, format_type
+
+        // BookOriginのデータを登録
+        // 既に登録されている場合は該当のデータが返却される (statusは200)
         response = await api({
           url: '/book_origin/',
           method: 'post',
@@ -221,14 +281,22 @@ export default {
         })
         bookOrigin = response.data.id
 
-        let format_type
+        // 書籍データの入力
         if (kindle) {
-          // TODO: ここにKindle本の場合の処理も入れる (各種データをモーダルで入力)
+          // Kindle本の場合、各種データを入力
+          let ret = await this.showKindleDialog()
+          if (!ret) return
+
           format_type = 1
+          item.amazon_dp = this.formKindle.asin
+          item.total = this.formKindle.total
         } else {
+          // 通常の書籍データで登録
           format_type = 0
         }
 
+        // BookCopyのデータを登録
+        // 既に登録されている場合は該当のデータが返却される (statusは200)
         response = await api({
           url: '/book_copy/',
           method: 'post',
@@ -253,11 +321,20 @@ export default {
             message: 'この本は既に登録されています。',
           })
         }
-      } catch {
+      } catch (err) {
+        console.log(err)
         this.$store.dispatch('message/setErrorMessage', {
           message: 'サーバーエラーが発生しました。',
         })
       }
+    },
+    showKindleDialog() {
+      if (this.$refs.formKindle) {
+        this.formKindle.asin = ''
+        this.formKindle.total = 0
+        this.$refs.formKindle.resetValidation()
+      }
+      return this.$refs.inputKindle.showDialog()
     },
   },
 }
