@@ -1,10 +1,10 @@
 <template>
   <v-container fluid>
-    <div class="col-md-8 col-sm-10 mx-auto">
+    <div class="col-sm-10 mx-auto">
       <v-card class="pa-5 text-center">
-        <h1>Hello Vuetify!</h1>
+        <h1>YomLog</h1>
 
-        <p class="mt-2">Vuetifyのテストです。</p>
+        <p class="mt-2">YomLogにようこそ！</p>
       </v-card>
     </div>
   </v-container>
