@@ -78,10 +78,43 @@
       </v-sheet>
     </v-bottom-sheet>
 
+    <!-- ISBNコードの入力ダイアログ -->
+    <Dialog ref="dialogISBN" title="ISBNコードの入力" :max-width="400">
+      <template #content>
+        <p>
+          ISBNコードを取得できません。
+          <br />
+          3桁か10桁のISBNコードを入力してください。
+        </p>
+
+        <v-form ref="formISBN" v-model="formISBN.valid">
+          <v-text-field
+            v-model="formISBN.value"
+            label="ISBNコード"
+            :rules="formISBN.isbnRules"
+            maxlength="13"
+          ></v-text-field>
+        </v-form>
+      </template>
+
+      <template #actions="{ ok, cancel }">
+        <v-spacer></v-spacer>
+        <v-btn
+          color="green darken-1"
+          text
+          @click="ok"
+          :disabled="!formISBN.valid"
+        >
+          OK
+        </v-btn>
+        <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
+      </template>
+    </Dialog>
+
     <!-- Kindle本のデータ入力ダイアログ -->
     <Dialog
-      ref="inputKindle"
-      title="Kindle本のデータ"
+      ref="dialogKindle"
+      title="Kindle本の登録"
       message="Kindle本のデータを入力してください。"
       :max-width="400"
     >
@@ -152,9 +185,20 @@ export default {
       valid: false,
       asinRules: [
         (v) => !!v || 'この項目は入力必須です',
-        (v) => v.length === 10 || '10文字のコードを入力してください',
+        (v) => v.length === 10 || '10桁のコードを入力してください',
       ],
       totalRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
+    },
+    formISBN: {
+      value: '',
+      valid: false,
+      isbnRules: [
+        (v) => !!v || 'この項目は入力必須です',
+        (v) =>
+          v.length === 10 ||
+          v.length === 13 ||
+          '正しい桁数のコードを入力してください',
+      ],
     },
   }),
   methods: {
@@ -179,14 +223,18 @@ export default {
 
             data.items.forEach((item) => {
               const { volumeInfo } = item
-
               let amazon_dp
+
               if (volumeInfo.industryIdentifiers) {
-                // ISBNコードが存在する場合、ISBN_13を優先してamazon_dpに入れる
-                const industryIdentifier =
+                // ISBNコードが存在する場合、ISBN_13→ISBN_10の順番でamazon_dpに入れる
+                let industryIdentifier =
                   volumeInfo.industryIdentifiers.find(
                     (e) => e.type === 'ISBN_13'
-                  ) || volumeInfo.industryIdentifiers[0]
+                  ) ||
+                  volumeInfo.industryIdentifiers.find(
+                    (e) => e.type === 'ISBN_10'
+                  ) ||
+                  ''
                 amazon_dp = industryIdentifier.identifier
               } else {
                 // ISBNコードが存在しない場合、amazon_dpにはnullを入れる
@@ -257,14 +305,19 @@ export default {
         // 書籍データの入力
         if (kindle) {
           // Kindle本の場合、各種データを入力
-          let ret = await this.showKindleDialog()
-          if (!ret) return
+          if (!(await this.showKindleDialog())) return
 
           format_type = 1
           item.amazon_dp = this.formKindle.asin
           item.total = this.formKindle.total
         } else {
           // 通常の書籍データで登録
+          // ISBNコードが空の場合はダイアログで入力を求める
+          if (!item.amazon_dp) {
+            if (!(await this.showISBNDialog())) return
+            item.amazon_dp = this.formISBN.value
+          }
+
           format_type = 0
         }
 
@@ -301,13 +354,20 @@ export default {
         })
       }
     },
+    showISBNDialog() {
+      if (this.$refs.formISBN) {
+        this.formISBN.value = ''
+        this.$refs.formISBN.resetValidation()
+      }
+      return this.$refs.dialogISBN.showDialog()
+    },
     showKindleDialog() {
       if (this.$refs.formKindle) {
         this.formKindle.asin = ''
         this.formKindle.total = 0
         this.$refs.formKindle.resetValidation()
       }
-      return this.$refs.inputKindle.showDialog()
+      return this.$refs.dialogKindle.showDialog()
     },
   },
 }
