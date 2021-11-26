@@ -23,31 +23,38 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item link @click="dialogLogout = true">
+      <v-list-item link @click="showLogoutDialog()">
         <v-list-item-icon><v-icon>mdi-logout</v-icon></v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>ログアウト</v-list-item-title>
         </v-list-item-content>
-        <LogoutDialog v-model="dialogLogout"></LogoutDialog>
       </v-list-item>
     </v-list>
+
+    <Dialog
+      ref="dialogLogout"
+      title="ログアウト"
+      message="ログアウトしますか？"
+      label-ok="ログアウト"
+    ></Dialog>
   </v-navigation-drawer>
 </template>
 
 <script>
-import LogoutDialog from '@/components/LogoutDialog.vue'
 import Mixin from '@/mixins'
+import Dialog from '@/components/Dialog.vue'
 
 export default {
   mixins: [Mixin],
+  components: {
+    Dialog,
+  },
   props: {
     value: Boolean,
   },
   data: () => ({
     items: [{ title: '設定', icon: 'mdi-cog', path: '/settings' }],
-    dialogLogout: false,
   }),
-  components: { LogoutDialog },
   computed: {
     drawer: {
       get() {
@@ -56,6 +63,12 @@ export default {
       set(val) {
         this.$emit('input', val)
       },
+    },
+  },
+  methods: {
+    async showLogoutDialog() {
+      let ret = await this.$refs.dialogLogout.showDialog()
+      if (ret) this.logout()
     },
   },
 }

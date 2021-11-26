@@ -2,22 +2,39 @@
 <!-- TODO: mixinにconfirmDialogを記述 -->
 
 <template>
-  <v-dialog v-model="show" :max-width="400">
-    <v-card>
-      <v-card-title class="text-h5" primary-title>
-        {{ title }}
-      </v-card-title>
-      <v-card-text class="pa-4">
-        <p>{{ message }}</p>
-      </v-card-text>
+  <div id="dialog">
+    <v-dialog v-model="isShowDialog" :max-width="maxWidth">
+      <v-card>
+        <slot name="title" :title="title">
+          <v-card-title class="text-h5" primary-title>
+            {{ title }}
+          </v-card-title>
+        </slot>
 
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn @click="ok">OK</v-btn>
-        <v-btn @click="cancel">キャンセル</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <v-card-text>
+          <slot name="content" :message="message">
+            <p>{{ message }}</p>
+          </slot>
+        </v-card-text>
+
+        <v-card-actions>
+          <slot
+            name="actions"
+            :ok="handleAnswer.bind(null, true)"
+            :cancel="handleAnswer.bind(null, false)"
+          >
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="handleAnswer(true)">
+              {{ labelOk }}
+            </v-btn>
+            <v-btn color="green darken-1" text @click="handleAnswer(false)">
+              {{ labelCancel }}
+            </v-btn>
+          </slot>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -25,29 +42,38 @@ export default {
   props: {
     title: {
       type: String,
-      required: true,
     },
     message: {
       type: String,
-      required: true,
     },
-    okAction: {
-      type: Function,
-      required: true,
+    maxWidth: {
+      type: Number,
+      default: 350,
     },
-    cancelAction: {
-      type: Function,
-      required: true,
+    labelOk: {
+      type: String,
+      default: 'OK',
+    },
+    labelCancel: {
+      type: String,
+      default: 'キャンセル',
     },
   },
+  data: () => ({
+    isShowDialog: false,
+  }),
   methods: {
-    ok() {
-      this.okAction()
-      this.close()
+    showDialog() {
+      this.isShowDialog = true
+      return new Promise((resolve) => {
+        this.$once('answeredDialog', (value) => {
+          this.isShowDialog = false
+          resolve(value)
+        })
+      })
     },
-    cancel() {
-      this.cancelAction()
-      this.close()
+    handleAnswer(val) {
+      this.$emit('answeredDialog', val)
     },
   },
 }
