@@ -5,12 +5,12 @@
       <BookList :items="items">
         <template #actions="{ item }">
           <v-list-item>
-            <v-btn color="green" block @click="addBookCopy(item)">
+            <v-btn color="green" dark block @click="addBookCopy(item)">
               本を登録
             </v-btn>
           </v-list-item>
           <v-list-item>
-            <v-btn color="orange" block @click="addBookCopy(item, true)">
+            <v-btn color="orange" dark block @click="addBookCopy(item, true)">
               Kindle本を登録
             </v-btn>
           </v-list-item>
