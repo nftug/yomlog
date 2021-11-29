@@ -33,7 +33,7 @@ class BookOrigin(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField('タイトル', max_length=100)
-    author = models.CharField('著者', max_length=100)
+    authors = models.CharField('著者', max_length=100)
     thumbnail = models.URLField('書影URL', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 

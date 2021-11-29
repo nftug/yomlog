@@ -42,6 +42,14 @@
         <span class="hidden-md-and-down">Sign Up</span>
       </v-btn>
     </template>
+
+    <template #extension v-if="$route.name === 'shelf'">
+      <v-tabs v-model="selectedTab" centered>
+        <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.path">
+          {{ tab.label }}
+        </v-tab>
+      </v-tabs>
+    </template>
   </v-app-bar>
 </template>
 
@@ -53,6 +61,23 @@ export default {
   props: {
     value: Boolean,
   },
+  data: () => ({
+    selectedTab: null,
+    tabs: [
+      {
+        label: 'あとで読む',
+        path: '/shelf/to_be_read',
+      },
+      {
+        label: '読んでいる本',
+        path: '/shelf/reading',
+      },
+      {
+        label: '読んだ本',
+        path: '/shelf/read',
+      },
+    ],
+  }),
   computed: {
     drawer: {
       get() {

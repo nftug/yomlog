@@ -56,6 +56,7 @@
           label="検索キーワード"
           prepend-icon="mdi-magnify"
           clearable
+          type="search"
           class="mx-md-10 mx-5"
           @keypress.enter="resetInfinite()"
         ></v-text-field>
@@ -68,7 +69,7 @@
         <p>
           ISBNコードを取得できません。
           <br />
-          3桁か10桁のISBNコードを入力してください。
+          13桁か10桁のISBNコードを入力してください。
         </p>
 
         <v-form ref="formISBN" v-model="formISBN.valid">
@@ -319,7 +320,7 @@ export default {
           url: '/book_origin/',
           method: 'post',
           data: {
-            author: item.authors.join(','),
+            authors: item.authors.join(','),
             title: item.title,
             thumbnail: item.thumbnail,
           },

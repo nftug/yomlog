@@ -4,6 +4,7 @@ import store from '@/store'
 
 const LoginPage = () => import('@/pages/LoginPage.vue')
 const HomePage = () => import('@/pages/HomePage.vue')
+const ShelfPage = () => import('@/pages/ShelfPage.vue')
 const SignUpPage = () => import('@/pages/SignUpPage.vue')
 const NotFoundPage = () => import('@/pages/error/NotFoundPage.vue')
 const PasswordResetPage = () => import('@/pages/settings/PasswordResetPage.vue')
@@ -27,6 +28,12 @@ const router = new VueRouter({
       name: 'home',
       component: HomePage,
       meta: { title: 'ホーム', requiresAuth: true, isShowMenuButton: true },
+    },
+    {
+      path: '/shelf/:mode',
+      name: 'shelf',
+      component: ShelfPage,
+      meta: { title: '本棚', requiresAuth: true, isShowMenuButton: true },
     },
     {
       path: '/login',

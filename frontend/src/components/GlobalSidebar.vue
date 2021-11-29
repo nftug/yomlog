@@ -57,12 +57,25 @@ export default {
   data: () => ({
     items: [
       {
-        title: '本棚',
-        icon: 'mdi-book-open-blank-variant',
+        title: 'ホーム',
+        icon: 'mdi-home',
         path: '/',
       },
-      { title: '本の追加', icon: 'mdi-book-plus', path: '/book/add' },
-      { title: '設定', icon: 'mdi-cog', path: '/settings' },
+      {
+        title: '本棚',
+        icon: 'mdi-book-open-blank-variant',
+        path: '/shelf/reading',
+      },
+      {
+        title: '本の追加',
+        icon: 'mdi-book-plus',
+        path: '/book/add',
+      },
+      {
+        title: '設定',
+        icon: 'mdi-cog',
+        path: '/settings',
+      },
     ],
   }),
   computed: {

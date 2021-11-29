@@ -32,7 +32,7 @@ class BookOriginFilter(GenericSearchFilterSet):
     """BookOrigin 検索用フィルタ"""
 
     title = django_filter.CharFilter(field_name='title', lookup_expr='icontains')
-    author = django_filter.CharFilter(field_name='author', lookup_expr='icontains')
+    authors = django_filter.CharFilter(field_name='authors', lookup_expr='icontains')
     amazon_dp = django_filter.CharFilter(field_name='books_copy__amazon_dp')
     can_copy = django_filter.BooleanFilter(label='Can copy', method='filter_can_copy')
 
@@ -41,7 +41,7 @@ class BookOriginFilter(GenericSearchFilterSet):
         exclude = ['thumbnail']
         fields_for_search = [
             'title__icontains',
-            'author__icontains',
+            'authors__icontains',
             'books_copy__amazon_dp'
         ]
 
@@ -59,7 +59,7 @@ class BookCopyFilter(GenericSearchFilterSet):
     STATUS_CHOICES = (('to_be_read', 'To be read'), ('reading', 'Reading'), ('read', 'Read'))
 
     title = django_filter.CharFilter(field_name='book_origin__title', lookup_expr='icontains')
-    author = django_filter.CharFilter(field_name='book_origin__author', lookup_expr='icontains')
+    authors = django_filter.CharFilter(field_name='book_origin__authors', lookup_expr='icontains')
     status = django_filter.ChoiceFilter(label='Status', choices=STATUS_CHOICES, method='filter_status')
 
     class Meta:
@@ -67,7 +67,7 @@ class BookCopyFilter(GenericSearchFilterSet):
         fields = '__all__'
         fields_for_search = [
             'book_origin__title__icontains',
-            'book_origin__author__icontains',
+            'book_origin__authors__icontains',
             'amazon_dp'
         ]
 
@@ -106,6 +106,6 @@ class StatusLogFilter(GenericSearchFilterSet):
         fields = '__all__'
         fields_for_search = [
             'book__title__icontains',
-            'book__author__icontains',
+            'book__authors__icontains',
             'amazon_dp'
         ]
