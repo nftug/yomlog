@@ -112,9 +112,11 @@ export default {
     handleSearch(searchValue) {
       this.$router.push({
         path: this.$route.path,
-        query: {
-          q: encodeURI(searchValue),
-        },
+        query: searchValue
+          ? {
+              q: encodeURI(searchValue),
+            }
+          : null,
       })
     },
     onClickFab() {
