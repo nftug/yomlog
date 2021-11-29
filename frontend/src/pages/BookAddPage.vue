@@ -180,7 +180,7 @@ export default {
     this.$router.app.$on('search', this.handleSearch)
   },
   beforeDestroy() {
-    this.$router.app.$off('search')
+    this.$router.app.$off('search', this.handleSearch)
   },
   methods: {
     fetchBookList() {

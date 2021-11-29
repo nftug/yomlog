@@ -55,7 +55,7 @@ export default {
     this.initPage()
   },
   beforeDestroy() {
-    this.$router.app.$off('search')
+    this.$router.app.$off('search', this.handleSearch)
   },
   methods: {
     initPage(route = this.$route) {

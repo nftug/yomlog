@@ -104,7 +104,7 @@ export default {
     ],
   }),
   created() {
-    // TODO: 値が正常に反映されない→ストアを利用してみる
+    // TODO: 値が正常に反映されない？→ストアを利用してみる
     this.$router.app.$on('changeSearchValue', this.onChangeSearchValue)
   },
   beforeDestroy() {
