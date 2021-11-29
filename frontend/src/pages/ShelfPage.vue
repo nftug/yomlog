@@ -17,6 +17,9 @@
         </div>
       </infinite-loading>
     </div>
+
+    <!-- スクロール -->
+    <Fab icon="mdi-chevron-up" @click="onClickFab"></Fab>
   </v-container>
 </template>
 
@@ -26,6 +29,8 @@ import Spinner from 'vue-simple-spinner'
 import InfiniteLoading from 'vue-infinite-loading'
 import Mixins from '@/mixins'
 import api from '@/services/api'
+import VueScrollTo from 'vue-scrollto'
+import Fab from '@/components/Fab.vue'
 
 export default {
   mixins: [Mixins],
@@ -33,6 +38,7 @@ export default {
     Spinner,
     InfiniteLoading,
     BookList,
+    Fab,
   },
   data() {
     return {
@@ -110,6 +116,9 @@ export default {
           q: encodeURI(searchValue),
         },
       })
+    },
+    onClickFab() {
+      VueScrollTo.scrollTo('#app')
     },
   },
 }

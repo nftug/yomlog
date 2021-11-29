@@ -14,16 +14,18 @@
     </template>
 
     <!-- Title -->
-    <v-toolbar-title style="cursor: pointer">
-      <div class="hidden-lg-and-up">
-        {{ $route.meta.title }}
-      </div>
-      <router-link tag="div" class="hidden-md-and-down" to="/">
-        {{ appName }}
-      </router-link>
-    </v-toolbar-title>
+    <template v-if="!isShowSearch || !isLessThanLg">
+      <v-toolbar-title style="cursor: pointer">
+        <div class="hidden-lg-and-up">
+          {{ $route.meta.title }}
+        </div>
+        <router-link tag="div" class="hidden-md-and-down" to="/">
+          {{ appName }}
+        </router-link>
+      </v-toolbar-title>
 
-    <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
+    </template>
 
     <!-- Right -->
     <template v-if="isLoggedIn">
@@ -108,7 +110,7 @@ export default {
     this.$router.app.$on('changeSearchValue', this.onChangeSearchValue)
   },
   beforeDestroy() {
-    this.$router.app.$off('changeSearchValue')
+    this.$router.app.$off('changeSearchValue', this.onChangeSearchValue)
   },
   computed: {
     drawer: {
