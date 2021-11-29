@@ -47,11 +47,26 @@ export default {
   beforeRouteUpdate(to, from, next) {
     // ナビゲーションガード
     // routeがアップデートされるたびにモードを変更する
-    this.mode = to.params.mode
-    this.resetInfinite()
+    this.initPage(to)
     next()
   },
+  created() {
+    this.$router.app.$on('search', this.handleSearch)
+    this.initPage()
+  },
+  beforeDestroy() {
+    this.$router.app.$off('search')
+  },
   methods: {
+    initPage(route = this.$route) {
+      this.mode = route.params.mode
+      this.searchValue = decodeURI(route.query.q || '')
+      this.$nextTick(() => {
+        this.$router.app.$emit('changeSearchValue', this.searchValue)
+      })
+
+      this.resetInfinite()
+    },
     fetchBookList() {
       return api
         .get('/book_copy/', {
@@ -80,7 +95,6 @@ export default {
           $state.loaded()
         })
         .catch(() => {
-          console.log('Completed')
           $state.complete()
         })
     },
@@ -88,6 +102,14 @@ export default {
       this.infiniteId++
       this.page = 1
       this.items = []
+    },
+    handleSearch(searchValue) {
+      this.$router.push({
+        path: this.$route.path,
+        query: {
+          q: encodeURI(searchValue),
+        },
+      })
     },
   },
 }

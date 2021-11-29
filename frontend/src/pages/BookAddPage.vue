@@ -38,31 +38,6 @@
     <!-- スクロール -->
     <Fab icon="mdi-chevron-up" @click="onClickFab"></Fab>
 
-    <!-- 検索用ボトムシート -->
-    <v-bottom-sheet v-model="searchBottomSheet" inset>
-      <!-- ボトムシート本体 -->
-      <v-sheet class="text-center" height="200px">
-        <v-btn
-          class="mt-6"
-          text
-          color="error"
-          @click="searchBottomSheet = !searchBottomSheet"
-        >
-          close
-        </v-btn>
-
-        <v-text-field
-          v-model="searchValue"
-          label="検索キーワード"
-          prepend-icon="mdi-magnify"
-          clearable
-          type="search"
-          class="mx-md-10 mx-5"
-          @keypress.enter="resetInfinite()"
-        ></v-text-field>
-      </v-sheet>
-    </v-bottom-sheet>
-
     <!-- ISBNコードの入力ダイアログ -->
     <Dialog ref="dialogISBN" title="ISBNコードの入力" :max-width="400">
       <template #content>
@@ -202,10 +177,10 @@ export default {
     },
   }),
   created() {
-    this.$router.app.$on('openSearch', () => (this.searchBottomSheet = true))
+    this.$router.app.$on('search', this.handleSearch)
   },
   beforeDestroy() {
-    this.$router.app.$off('openSearch')
+    this.$router.app.$off('search')
   },
   methods: {
     fetchBookList() {
@@ -379,6 +354,10 @@ export default {
     },
     onClickFab() {
       VueScrollTo.scrollTo('#app')
+    },
+    handleSearch(searchValue) {
+      this.searchValue = searchValue
+      this.resetInfinite()
     },
   },
 }

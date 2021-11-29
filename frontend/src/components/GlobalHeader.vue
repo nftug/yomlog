@@ -27,11 +27,34 @@
 
     <!-- Right -->
     <template v-if="isLoggedIn">
+      <!--
       <v-btn icon @click="$router.app.$emit('openSearch')">
+        <v-icon>mdi-magnify</v-icon>
+      </v-btn>
+      -->
+      <v-expand-x-transition>
+        <v-text-field
+          ref="search"
+          v-model="searchValue"
+          clearable
+          flat
+          placeholder="検索"
+          type="search"
+          prepend-inner-icon="mdi-magnify"
+          solo-inverted
+          single-line
+          hide-details
+          v-show="isShowSearch"
+          @blur="isShowSearch = false"
+          @keydown.enter="handleSearch"
+        ></v-text-field>
+      </v-expand-x-transition>
+      <v-btn icon v-if="!isShowSearch" @click="showSearchBar">
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
     </template>
 
+    <!-- Right (not authed) -->
     <template v-else-if="$route.name === 'login' || $route.name === 'signup'">
       <v-btn to="/login" :icon="isLessThanLg" :text="!isLessThanLg">
         <v-icon class="hidden-lg-and-up">mdi-login</v-icon>
@@ -62,6 +85,8 @@ export default {
     value: Boolean,
   },
   data: () => ({
+    isShowSearch: false,
+    searchValue: '',
     selectedTab: null,
     tabs: [
       {
@@ -78,6 +103,13 @@ export default {
       },
     ],
   }),
+  created() {
+    // TODO: 値が正常に反映されない→ストアを利用してみる
+    this.$router.app.$on('changeSearchValue', this.onChangeSearchValue)
+  },
+  beforeDestroy() {
+    this.$router.app.$off('changeSearchValue')
+  },
   computed: {
     drawer: {
       get() {
@@ -86,6 +118,21 @@ export default {
       set(val) {
         this.$emit('input', val)
       },
+    },
+  },
+  methods: {
+    showSearchBar() {
+      this.isShowSearch = true
+      this.$nextTick(() => {
+        this.$refs.search.focus()
+      })
+    },
+    handleSearch() {
+      this.$router.app.$emit('search', this.searchValue)
+      this.isShowSearch = false
+    },
+    onChangeSearchValue(searchValue) {
+      this.searchValue = searchValue
     },
   },
 }
