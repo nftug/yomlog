@@ -86,7 +86,6 @@ class BookCopySerializer(PostSerializer):
 class BookOriginSerializer(serializers.ModelSerializer):
     # books_copy = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     amazon_dp = serializers.SerializerMethodField()
-    authors = serializers.SerializerMethodField()
 
     class Meta:
         model = BookOrigin
@@ -101,6 +100,3 @@ class BookOriginSerializer(serializers.ModelSerializer):
             return list(set((_['amazon_dp'] for _ in books_copy)))
         else:
             return []
-
-    def get_authors(self, instance):
-        return instance.authors.split(',')

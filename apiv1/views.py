@@ -50,7 +50,7 @@ class BookOriginViewSet(viewsets.ModelViewSet):
 
         book_origin = BookOrigin.objects.filter(
             title=serializer.validated_data['title'],
-            author=serializer.validated_data['author']
+            authors=serializer.validated_data['authors']
         )
 
         if book_origin.exists():
