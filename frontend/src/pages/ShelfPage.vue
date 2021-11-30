@@ -1,44 +1,52 @@
 <template>
   <v-container fluid>
     <div class="col-sm-10 mx-auto">
-      <!-- 本棚 -->
-      <BookList :items="items"></BookList>
+      <!-- 件数 -->
+      <div class="pb-4" v-if="totalItems > 0">
+        <v-card class="mx-auto">
+          <v-list-item>
+            <strong>{{ totalItems }}冊</strong>
+            の本が見つかりました。
+          </v-list-item>
+        </v-card>
+      </div>
 
-      <!-- Infinite Loading -->
-      <infinite-loading @infinite="infiniteHandler" :identifier="infiniteId">
-        <div slot="no-more" class="py-4 text-body-2">
-          これ以上データはありません
-        </div>
-        <div slot="no-results" class="py-4 text-body-2">
-          データが見つかりません
-        </div>
-        <div slot="spinner" class="py-4">
-          <spinner />
-        </div>
-      </infinite-loading>
+      <!-- Spinner -->
+      <spinner v-if="isLoading"></spinner>
+
+      <template v-else>
+        <!-- 本棚 -->
+        <BookList :items="items"></BookList>
+
+        <!-- ページネーション -->
+        <v-row justify="center" v-show="items.length">
+          <v-col cols="8">
+            <v-container class="max-width">
+              <v-pagination
+                v-model="page"
+                class="my-4"
+                :length="totalPages"
+                @input="handlePagination"
+              ></v-pagination>
+            </v-container>
+          </v-col>
+        </v-row>
+      </template>
     </div>
-
-    <!-- スクロール -->
-    <Fab icon="mdi-chevron-up" @click="onClickFab"></Fab>
   </v-container>
 </template>
 
 <script>
 import BookList from '@/components/BookList.vue'
 import Spinner from 'vue-simple-spinner'
-import InfiniteLoading from 'vue-infinite-loading'
 import Mixins from '@/mixins'
 import api from '@/services/api'
-import VueScrollTo from 'vue-scrollto'
-import Fab from '@/components/Fab.vue'
 
 export default {
   mixins: [Mixins],
   components: {
     Spinner,
-    InfiniteLoading,
     BookList,
-    Fab,
   },
   data() {
     return {
@@ -47,7 +55,9 @@ export default {
       page: 1,
       mode: this.$route.params.mode,
       searchValue: '',
-      total: 0,
+      totalItems: 0,
+      totalPages: 0,
+      isLoading: false,
     }
   },
   beforeRouteUpdate(to, from, next) {
@@ -65,15 +75,22 @@ export default {
   },
   methods: {
     initPage(route = this.$route) {
-      this.mode = route.params.mode
+      this.mode = route.params.mode !== 'search' ? route.params.mode : ''
       this.searchValue = decodeURI(route.query.q || '')
+      this.page = Number(route.query.page || 1)
+      this.totalItems = 0
+      this.totalPages = 0
+
+      this.fetchBookList()
+
       this.$nextTick(() => {
         this.$router.app.$emit('changeSearchValue', this.searchValue)
       })
-
-      this.resetInfinite()
     },
     fetchBookList() {
+      this.isLoading = true
+      this.items = []
+
       return api
         .get('/book_copy/', {
           params: {
@@ -83,7 +100,8 @@ export default {
           },
         })
         .then(({ data }) => {
-          this.total = data.totalItems
+          this.totalItems = data.count
+          this.totalPages = data.totalPages
           this.items.push(...data.results)
 
           return Promise.resolve()
@@ -92,6 +110,9 @@ export default {
           // FIXME: 最後のページ数+1が二重に読み込まれてしまうバグあり
           // (動作上問題はない)
           return Promise.reject(err)
+        })
+        .finally(() => {
+          this.isLoading = false
         })
     },
     infiniteHandler($state) {
@@ -104,14 +125,9 @@ export default {
           $state.complete()
         })
     },
-    resetInfinite() {
-      this.infiniteId++
-      this.page = 1
-      this.items = []
-    },
     handleSearch(searchValue) {
       this.$router.push({
-        path: this.$route.path,
+        path: '/shelf/search',
         query: searchValue
           ? {
               q: encodeURI(searchValue),
@@ -119,8 +135,14 @@ export default {
           : null,
       })
     },
-    onClickFab() {
-      VueScrollTo.scrollTo('#app')
+    handlePagination() {
+      const pageQuery = { ...this.$route.query }
+      pageQuery.page = this.page
+
+      this.$router.push({
+        path: this.$route.path,
+        query: pageQuery,
+      })
     },
   },
 }

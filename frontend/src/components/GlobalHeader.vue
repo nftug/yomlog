@@ -69,41 +69,26 @@
     </template>
 
     <template #extension v-if="$route.name === 'shelf'">
-      <v-tabs v-model="selectedTab" centered>
-        <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.path">
-          {{ tab.label }}
-        </v-tab>
-      </v-tabs>
+      <ShelfTabBar :search="searchValue"></ShelfTabBar>
     </template>
   </v-app-bar>
 </template>
 
 <script>
 import Mixin, { WindowResizeMixin } from '@/mixins'
+import ShelfTabBar from '@/components/ShelfTabBar.vue'
 
 export default {
   mixins: [Mixin, WindowResizeMixin],
   props: {
     value: Boolean,
   },
+  components: {
+    ShelfTabBar,
+  },
   data: () => ({
     isShowSearch: false,
     searchValue: '',
-    selectedTab: null,
-    tabs: [
-      {
-        label: 'あとで読む',
-        path: '/shelf/to_be_read',
-      },
-      {
-        label: '読んでいる本',
-        path: '/shelf/reading',
-      },
-      {
-        label: '読んだ本',
-        path: '/shelf/read',
-      },
-    ],
   }),
   created() {
     // TODO: 値が正常に反映されない？→ストアを利用してみる

@@ -1,6 +1,6 @@
 <template>
   <div id="book-list">
-    <v-row>
+    <v-row v-if="items.length">
       <v-col v-for="item in items" :key="item.id" cols="12" md="6" lg="4">
         <v-card class="mx-auto" height="185">
           <v-row no-gutters>
@@ -32,6 +32,10 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <div v-else-if="!loading" class="text-center">
+      <p class="mt-4 mb-5">データが見つかりません</p>
+    </div>
   </div>
 </template>
 
@@ -45,6 +49,10 @@ export default {
     noImage: {
       type: String,
       default: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
+    },
+    loading: {
+      type: Boolean,
+      default: false,
     },
   },
 }

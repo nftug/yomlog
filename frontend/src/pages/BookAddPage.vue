@@ -2,7 +2,7 @@
   <v-container fluid>
     <div class="col-sm-10 mx-auto">
       <!-- 検索結果リスト -->
-      <BookList :items="items">
+      <BookList :items="items" :loading="true">
         <template #actions="{ item }">
           <v-list-item>
             <v-btn color="green" dark block @click="addBookCopy(item)">
