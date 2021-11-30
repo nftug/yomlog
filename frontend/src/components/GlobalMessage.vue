@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container v-if="message.info || message.error">
     <v-snackbar v-model="showInfo">
       {{ message.info }}
       <template #action="{ attrs }">

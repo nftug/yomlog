@@ -29,7 +29,7 @@
       <!-- メインエリア -->
       <div class="col-xl-3 col-lg-5 col-md-6 col-sm-10 mx-auto">
         <p class="text-h4 mt-4 pb-4 d-none d-lg-block">パスワードのリセット</p>
-        <p>パスワードリセット用のメールを送信します。</p>
+        <p class="text-body-2">パスワードリセット用のメールを送信します。</p>
 
         <SendForm
           v-model="formEmailPassword"
