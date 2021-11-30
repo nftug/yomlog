@@ -33,6 +33,14 @@
           <spinner />
         </div>
       </infinite-loading>
+
+      <v-card v-else class="pa-5 text-center">
+        <h2>書籍の追加</h2>
+
+        <p class="mt-2 text-body-2">
+          検索アイコンをクリックして、追加する書籍を検索してください
+        </p>
+      </v-card>
     </div>
 
     <!-- スクロール -->
