@@ -16,7 +16,29 @@
 
       <template v-else>
         <!-- 本棚 -->
-        <BookList :items="items"></BookList>
+        <BookList :items="items">
+          <template #actions="{ item }">
+            <v-card-actions>
+              <v-row class="mx-auto">
+                <v-col cols="3">
+                  <v-btn icon color="gray">
+                    <v-icon>mdi-eye</v-icon>
+                  </v-btn>
+                </v-col>
+                <v-col cols="3">
+                  <v-btn icon color="gray">
+                    <v-icon>mdi-pen-plus</v-icon>
+                  </v-btn>
+                </v-col>
+                <v-col cols="3">
+                  <v-btn icon color="gray">
+                    <v-icon>mdi-bookmark-plus</v-icon>
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-actions>
+          </template>
+        </BookList>
 
         <!-- ページネーション -->
         <v-row justify="center" v-show="items.length">
