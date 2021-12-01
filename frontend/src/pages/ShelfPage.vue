@@ -42,7 +42,13 @@
               <v-col cols="3">
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
-                    <v-btn icon color="success" v-bind="attrs" v-on="on">
+                    <v-btn
+                      icon
+                      color="success"
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="onClickStatusAdd(item)"
+                    >
                       <v-icon>mdi-bookmark-plus</v-icon>
                     </v-btn>
                   </template>
@@ -183,6 +189,9 @@ export default {
         path: this.$route.path,
         query: pageQuery,
       })
+    },
+    onClickStatusAdd(item) {
+      this.$refs.statusAdd.showStatusAdd(item, true)
     },
   },
 }
