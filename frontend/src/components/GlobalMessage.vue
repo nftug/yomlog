@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="message.info || message.error">
+  <div id="global-message">
     <v-snackbar v-model="showInfo">
       {{ message.info }}
       <template #action="{ attrs }">
@@ -8,17 +8,19 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <v-alert
-      v-model="showError"
-      border="left"
-      color="red"
-      dark
-      dismissible
-      class="mb-0"
-    >
-      {{ message.error }}
-    </v-alert>
-  </v-container>
+    <v-container v-if="message.error">
+      <v-alert
+        v-model="showError"
+        border="left"
+        color="red"
+        dark
+        dismissible
+        class="mb-0"
+      >
+        {{ message.error }}
+      </v-alert>
+    </v-container>
+  </div>
 </template>
 
 <script>

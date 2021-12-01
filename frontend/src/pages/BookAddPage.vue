@@ -276,7 +276,7 @@ export default {
     },
     async addBookCopy(item, kindle) {
       try {
-        let bookOrigin, bookCopy, response, format_type
+        let bookOrigin, response, format_type
 
         // 書籍データの入力
         if (kindle) {
@@ -322,10 +322,9 @@ export default {
             format_type: format_type,
           },
         })
-        bookCopy = response.data.id
 
-        // TODO: ここにbookCopyの詳細ページに遷移する処理を記述
-        console.log(bookCopy)
+        // あとで読むのページに遷移
+        this.$router.push('/shelf/to_be_read')
 
         if (response.status === 201) {
           this.$store.dispatch('message/setInfoMessage', {
@@ -337,7 +336,7 @@ export default {
           })
         }
       } catch (err) {
-        console.log(err)
+        console.error(err)
         this.$store.dispatch('message/setErrorMessage', {
           message: 'エラーが発生しました。',
         })
