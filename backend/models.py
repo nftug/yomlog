@@ -51,6 +51,9 @@ class StatusLogManager(models.Manager):
         for book_copy in books_copy:
             status_log = book_copy.status_log
             if not status_log.exists():
+                if status == 'to_be_read':
+                    query |= Q(id=book_copy.id)
+
                 # reading or readを指定した場合→status_logが存在しないならqueryは追加しない
                 continue
 
@@ -65,10 +68,6 @@ class StatusLogManager(models.Manager):
 
             elif status == 'to_be_read':
                 query |= Q(id=book_copy.id)
-
-        # BUG: ステータスが複数だと本が重複してしまうバグあり
-        if status == 'to_be_read':
-            query |= Q(status_log=None)
 
         return books_copy.filter(query)
 
