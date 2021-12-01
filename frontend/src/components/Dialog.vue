@@ -21,11 +21,11 @@
             :cancel="handleAnswer.bind(null, false)"
           >
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="handleAnswer(true)">
-              {{ labelOk }}
-            </v-btn>
             <v-btn color="green darken-1" text @click="handleAnswer(false)">
               {{ labelCancel }}
+            </v-btn>
+            <v-btn color="green darken-1" text @click="handleAnswer(true)">
+              {{ labelOk }}
             </v-btn>
           </slot>
         </v-card-actions>

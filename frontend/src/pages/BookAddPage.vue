@@ -67,6 +67,7 @@
 
       <template #actions="{ ok, cancel }">
         <v-spacer></v-spacer>
+        <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
         <v-btn
           color="green darken-1"
           text
@@ -75,7 +76,6 @@
         >
           OK
         </v-btn>
-        <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
       </template>
     </Dialog>
 
@@ -118,6 +118,7 @@
 
       <template #actions="{ ok, cancel }">
         <v-spacer></v-spacer>
+        <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
         <v-btn
           color="green darken-1"
           text
@@ -126,7 +127,6 @@
         >
           OK
         </v-btn>
-        <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
       </template>
     </Dialog>
   </v-container>
