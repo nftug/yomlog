@@ -76,7 +76,7 @@
     </div>
 
     <!-- ダイアログ -->
-    <StatusAdd ref="statusAdd"></StatusAdd>
+    <StatusAdd ref="statusAdd" :shelf="true" @reload="initPage"></StatusAdd>
   </v-container>
 </template>
 
@@ -191,7 +191,7 @@ export default {
       })
     },
     onClickStatusAdd(item) {
-      this.$refs.statusAdd.showStatusAdd(item, true)
+      this.$refs.statusAdd.showStatusAdd(item)
     },
   },
 }

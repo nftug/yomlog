@@ -1,6 +1,11 @@
 <template>
   <div id="status-add">
-    <Dialog ref="dialogStatusAdd" title="進捗状況の入力" :max-width="400">
+    <Dialog
+      ref="dialogStatusAdd"
+      title="進捗状況の入力"
+      :max-width="350"
+      :ok="postStatus"
+    >
       <template #content>
         <v-form ref="formStatusAdd" v-model="isValid">
           <v-text-field
@@ -9,8 +14,10 @@
             type="number"
             min="0"
             :suffix="` / ${total}`"
-            :rules="pageRules"
+            :rules="positionRules"
             :disabled="to_be_read"
+            :error-messages="positionErrors"
+            @input="positionErrors = []"
           ></v-text-field>
           <v-switch
             v-model="to_be_read"
@@ -36,36 +43,34 @@ import api from '@/services/api'
 import Dialog from '@/components/Dialog.vue'
 
 export default {
+  props: {
+    shelf: {
+      type: Boolean,
+      default: false,
+    },
+  },
   components: {
     Dialog,
   },
   data() {
     return {
+      id: '',
       position: 0,
       total: 0,
       format_type: 0,
       to_be_read: false,
-      pageRules: [
+      positionRules: [
         (v) => v > 0 || '0より大きい数値を入力してください',
         (v) =>
           v <= this.total ||
           (!this.format_type ? 'ページ数' : '位置No') + 'が不正です',
-        (v) => {
-          if (this.to_be_read) {
-            return true
-          } else {
-            return (
-              v != this.defaultValues.position ||
-              '以前と異なる数値を指定してください'
-            )
-          }
-        },
       ],
       toBeReadRules: [
         (v) =>
           !(v && this.defaultValues.to_be_read) ||
           '以前と異なるステータスを入力してください',
       ],
+      positionErrors: [],
       isValid: false,
       defaultValues: {
         position: 0,
@@ -74,13 +79,15 @@ export default {
     }
   },
   methods: {
-    async showStatusAdd(item, shelf) {
+    async showStatusAdd(item) {
       // バリデーションをクリア
       if (this.$refs.formStatusAdd) {
         this.$refs.formStatusAdd.resetValidation()
+        this.positionErrors = []
       }
 
       // 各種データを入力
+      this.id = item.id
       this.format_type = item.format_type
       this.position = item.status.position || 0
       this.total = item.total
@@ -91,31 +98,45 @@ export default {
       this.defaultValues.to_be_read = this.to_be_read
 
       // ダイアログを表示
-      if (!(await this.$refs.dialogStatusAdd.showDialog())) return
-
-      // ステータスを投稿
+      this.$refs.dialogStatusAdd.showDialog()
+    },
+    postStatus() {
       api({
         url: '/status_log/',
         method: 'post',
         data: {
-          book: item.id,
+          book: this.id,
           position: this.to_be_read ? 0 : this.position,
         },
-      }).then(({ data }) => {
-        // positionを更新
-        item.status.position = data.position
-
-        if (shelf) {
-          const fullPath = `/shelf/${data.state}`
-          if (fullPath !== this.$route.fullPath) {
-            this.$router.push(fullPath)
-          }
-        }
-
-        this.$store.dispatch('message/setInfoMessage', {
-          message: '進捗状況を記録しました。',
-        })
       })
+        .then(({ data }) => {
+          // ダイアログを閉じる
+          this.$refs.dialogStatusAdd.hideDialog()
+
+          if (this.shelf) {
+            const fullPath = `/shelf/${data.state}`
+            if (fullPath !== this.$route.fullPath) {
+              this.$router.push(fullPath)
+            } else {
+              this.$emit('reload')
+            }
+          } else {
+            this.$emit('reload')
+          }
+
+          this.$store.dispatch('message/setInfoMessage', {
+            message: '進捗状況を記録しました。',
+          })
+        })
+        .catch(({ response: { data } }) => {
+          if (data.position) {
+            this.positionErrors = data.position
+          } else {
+            this.$store.dispatch('message/setErrorMessage', {
+              message: 'エラーが発生しました',
+            })
+          }
+        })
     },
   },
 }
