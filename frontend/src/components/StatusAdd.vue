@@ -74,20 +74,17 @@ export default {
     }
   },
   methods: {
-    async showStatusAdd(
-      { id, format_type, status: { position, state }, total },
-      shelf
-    ) {
+    async showStatusAdd(item, shelf) {
       // バリデーションをクリア
       if (this.$refs.formStatusAdd) {
         this.$refs.formStatusAdd.resetValidation()
       }
 
       // 各種データを入力
-      this.format_type = format_type
-      this.position = position || 0
-      this.total = total
-      this.to_be_read = state === 'to_be_read'
+      this.format_type = item.format_type
+      this.position = item.status.position || 0
+      this.total = item.total
+      this.to_be_read = item.status.state === 'to_be_read'
 
       // デフォルト値を保存
       this.defaultValues.position = this.position
@@ -101,12 +98,18 @@ export default {
         url: '/status_log/',
         method: 'post',
         data: {
-          book: id,
+          book: item.id,
           position: this.to_be_read ? 0 : this.position,
         },
       }).then(({ data }) => {
+        // positionを更新
+        item.status.position = data.position
+
         if (shelf) {
-          this.$router.push(`/shelf/${data.state}`)
+          const fullPath = `/shelf/${data.state}`
+          if (fullPath !== this.$route.fullPath) {
+            this.$router.push(fullPath)
+          }
         }
 
         this.$store.dispatch('message/setInfoMessage', {
