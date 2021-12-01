@@ -45,7 +45,11 @@ class StatusLogManager(models.Manager):
     def filter_current_status(self, query_initial=Q(), status=None):
         # BookCopyに対してstatus_logの最初のレコードでフィルタリング
         books_copy = BookCopy.objects.filter(query_initial).prefetch_related('status_log')
-        query = Q(id=None)
+
+        if status == 'to_be_read':
+            query = Q(status_log=None)
+        else:
+            query = Q(id=None)
 
         for book_copy in books_copy:
             status_log = book_copy.status_log
@@ -56,9 +60,13 @@ class StatusLogManager(models.Manager):
             position = status_log.first().position
             total = book_copy.total
 
-            if status == 'reading' and position < total:
-                query |= Q(id=book_copy.id)
-            elif status == 'read' and position >= total:
+            if position > 0:
+                if status == 'reading' and position < total:
+                    query |= Q(id=book_copy.id)
+                elif status == 'read' and position >= total:
+                    query |= Q(id=book_copy.id)
+
+            elif status == 'to_be_read':
                 query |= Q(id=book_copy.id)
 
         return books_copy.filter(query)

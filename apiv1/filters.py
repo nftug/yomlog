@@ -84,7 +84,7 @@ class BookCopyFilter(GenericSearchFilterSet):
             query |= Q(id=book_copy.id)
 
         if value == 'to_be_read':
-            queryset_tmp = queryset.filter(status_log=None)
+            queryset_tmp = BookCopy.objects.filter_current_status(query, 'to_be_read')
         elif value == 'reading':
             queryset_tmp = BookCopy.objects.filter_current_status(query, 'reading')
         elif value == 'read':
