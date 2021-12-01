@@ -2,7 +2,7 @@
   <div id="status-add">
     <Dialog ref="dialogStatusAdd" title="進捗状況の入力" :max-width="400">
       <template #content>
-        <v-form ref="formStatusAdd" v-model="isValid" lazy-validation>
+        <v-form ref="formStatusAdd" v-model="isValid">
           <v-text-field
             v-model="position"
             :label="!format_type ? 'ページ数' : '位置No'"
