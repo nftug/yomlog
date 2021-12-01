@@ -13,6 +13,7 @@
           <v-card-text>
             <v-text-field
               ref="email"
+              id="email"
               type="email"
               v-model="formLogin.email.value"
               label="メールアドレス"
@@ -22,6 +23,7 @@
             ></v-text-field>
             <v-text-field
               ref="password"
+              id="password"
               v-model="formLogin.password.value"
               label="パスワード"
               type="password"
