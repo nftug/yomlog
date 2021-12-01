@@ -2,7 +2,7 @@
   <div id="status-add">
     <Dialog ref="dialogStatusAdd" title="進捗状況の入力" :max-width="400">
       <template #content>
-        <v-form ref="formStatusAdd" v-model="isValid">
+        <v-form ref="formStatusAdd" v-model="isValid" lazy-validation>
           <v-text-field
             v-model="position"
             :label="!format_type ? 'ページ数' : '位置No'"
@@ -50,9 +50,16 @@ export default {
         (v) =>
           v <= this.total ||
           (!this.format_type ? 'ページ数' : '位置No') + 'が不正です',
-        (v) =>
-          v != this.defaultValues.position ||
-          '以前と異なる数値を指定してください',
+        (v) => {
+          if (this.to_be_read) {
+            return true
+          } else {
+            return (
+              v != this.defaultValues.position ||
+              '以前と異なる数値を指定してください'
+            )
+          }
+        },
       ],
       toBeReadRules: [
         (v) =>
