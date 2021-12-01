@@ -48,7 +48,20 @@ class StatusLogSerializer(PostSerializer):
         else:
             return 'read'
 
-    # TODO: 自ユーザーの本以外を指定した際、エラーを出す
+    def validate_book(self, data):
+        if data.created_by != self.context['request'].user:
+            raise ValidationError('自ユーザーが作成した本を選択してください')
+
+        return data
+
+    def validate(self, data):
+        status_log = data.get('book').status_log
+        if status_log.exists():
+            current_position = status_log.first().position
+            if data.get('position') == current_position:
+                raise ValidationError('以前と同じ位置情報が指定されています')
+
+        return data
 
 
 class BookCopySerializer(PostSerializer):

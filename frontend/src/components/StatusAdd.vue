@@ -12,7 +12,11 @@
             :rules="pageRules"
             :disabled="to_be_read"
           ></v-text-field>
-          <v-switch v-model="to_be_read" label="あとで読む"></v-switch>
+          <v-switch
+            v-model="to_be_read"
+            label="あとで読む"
+            :rules="toBeReadRules"
+          ></v-switch>
         </v-form>
       </template>
 
@@ -46,8 +50,20 @@ export default {
         (v) =>
           v <= this.total ||
           (!this.format_type ? 'ページ数' : '位置No') + 'が不正です',
+        (v) =>
+          v != this.defaultValues.position ||
+          '以前と異なる数値を指定してください',
+      ],
+      toBeReadRules: [
+        (v) =>
+          !(v && this.defaultValues.to_be_read) ||
+          '以前と異なるステータスを入力してください',
       ],
       isValid: false,
+      defaultValues: {
+        position: 0,
+        to_be_read: false,
+      },
     }
   },
   methods: {
@@ -65,6 +81,10 @@ export default {
       this.position = position || 0
       this.total = total
       this.to_be_read = state === 'to_be_read'
+
+      // デフォルト値を保存
+      this.defaultValues.position = this.position
+      this.defaultValues.to_be_read = this.to_be_read
 
       // ダイアログを表示
       if (!(await this.$refs.dialogStatusAdd.showDialog())) return
