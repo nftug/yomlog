@@ -18,25 +18,38 @@
         <!-- 本棚 -->
         <BookList :items="items">
           <template #actions="{ item }">
-            <v-card-actions>
-              <v-row class="mx-auto">
-                <v-col cols="3">
-                  <v-btn icon color="gray">
-                    <v-icon>mdi-eye</v-icon>
-                  </v-btn>
-                </v-col>
-                <v-col cols="3">
-                  <v-btn icon color="gray">
-                    <v-icon>mdi-pen-plus</v-icon>
-                  </v-btn>
-                </v-col>
-                <v-col cols="3">
-                  <v-btn icon color="gray">
-                    <v-icon>mdi-bookmark-plus</v-icon>
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-card-actions>
+            <v-row class="mx-auto mt-2">
+              <v-col cols="3">
+                <v-tooltip bottom>
+                  <template #activator="{ on, attrs }">
+                    <v-btn icon color="secondary" v-bind="attrs" v-on="on">
+                      <v-icon>mdi-eye</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>詳細</span>
+                </v-tooltip>
+              </v-col>
+              <v-col cols="3">
+                <v-tooltip bottom>
+                  <template #activator="{ on, attrs }">
+                    <v-btn icon color="primary" v-bind="attrs" v-on="on">
+                      <v-icon>mdi-pen-plus</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>メモを追加</span>
+                </v-tooltip>
+              </v-col>
+              <v-col cols="3">
+                <v-tooltip bottom>
+                  <template #activator="{ on, attrs }">
+                    <v-btn icon color="success" v-bind="attrs" v-on="on">
+                      <v-icon>mdi-bookmark-plus</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>進捗を記録</span>
+                </v-tooltip>
+              </v-col>
+            </v-row>
           </template>
         </BookList>
 
@@ -55,6 +68,9 @@
         </v-row>
       </template>
     </div>
+
+    <!-- ダイアログ -->
+    <StatusAdd ref="statusAdd"></StatusAdd>
   </v-container>
 </template>
 
@@ -63,12 +79,14 @@ import BookList from '@/components/BookList.vue'
 import Spinner from 'vue-simple-spinner'
 import Mixins from '@/mixins'
 import api from '@/services/api'
+import StatusAdd from '@/components/StatusAdd.vue'
 
 export default {
   mixins: [Mixins],
   components: {
     Spinner,
     BookList,
+    StatusAdd,
   },
   data() {
     return {
