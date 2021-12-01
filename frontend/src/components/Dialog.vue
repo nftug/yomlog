@@ -55,6 +55,9 @@ export default {
       type: String,
       default: 'キャンセル',
     },
+    ok: {
+      type: Function,
+    },
   },
   data: () => ({
     isShowDialog: false,
@@ -62,15 +65,28 @@ export default {
   methods: {
     showDialog() {
       this.isShowDialog = true
-      return new Promise((resolve) => {
-        this.$once('answeredDialog', (value) => {
-          this.isShowDialog = false
-          resolve(value)
+      if (!this.ok) {
+        return new Promise((resolve) => {
+          this.$once('answeredDialog', (value) => {
+            if (!this.ok) this.isShowDialog = false
+            resolve(value)
+          })
         })
-      })
+      }
+    },
+    hideDialog() {
+      this.isShowDialog = false
     },
     handleAnswer(val) {
-      this.$emit('answeredDialog', val)
+      if (this.ok) {
+        if (val) {
+          this.ok()
+        } else {
+          this.isShowDialog = false
+        }
+      } else {
+        this.$emit('answeredDialog', val)
+      }
     },
   },
 }
