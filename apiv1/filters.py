@@ -1,6 +1,5 @@
 from django_filters import rest_framework as django_filter
-from django.db.models import Q
-from django.db.models import F
+from django.db.models import Q, F, Max
 
 from backend.models import BookOrigin, BookCopy, StatusLog
 
@@ -71,6 +70,10 @@ class BookCopyFilter(GenericSearchFilterSet):
             'amazon_dp'
         ]
 
+    def filter_search(self, queryset, name, value):
+        queryset = super().filter_search(queryset, name, value)
+        return queryset.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')
+
     def filter_status(self, queryset, name, value):
         # -FIXME: 最初のレコードではなくすべてのレコードを走査してしまう
         # →status_logの先頭レコードで検索するカスタムフィルタを作成して解決
@@ -84,13 +87,13 @@ class BookCopyFilter(GenericSearchFilterSet):
             query |= Q(id=book_copy.id)
 
         if value == 'to_be_read':
-            queryset_tmp = BookCopy.objects.filter_current_status(query, 'to_be_read')
+            queryset = BookCopy.objects.filter_current_status(query, 'to_be_read')
         elif value == 'reading':
-            queryset_tmp = BookCopy.objects.filter_current_status(query, 'reading')
+            queryset = BookCopy.objects.filter_current_status(query, 'reading')
         elif value == 'read':
-            queryset_tmp = BookCopy.objects.filter_current_status(query, 'read')
+            queryset = BookCopy.objects.filter_current_status(query, 'read')
 
-        return queryset_tmp.filter(query)
+        return queryset.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')
 
 
 class StatusLogFilter(GenericSearchFilterSet):

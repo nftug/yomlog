@@ -59,7 +59,7 @@ class StatusLogSerializer(PostSerializer):
         if status_log.exists():
             current_position = status_log.first().position
             if data.get('position') == current_position:
-                raise ValidationError('以前と同じ位置情報が指定されています')
+                raise ValidationError({'position': '以前と同じ位置情報が指定されています'})
 
         return data
 

@@ -94,6 +94,9 @@ class BookCopyViewSet(viewsets.ModelViewSet):
             return response.Response(serializer.data, status.HTTP_200_OK)
         else:
             serializer.save()
+
+            # 空のStatusLogも作成
+            StatusLog.objects.create(book=serializer.instance, position=0, created_by=request.user)
             return response.Response(serializer.data, status.HTTP_201_CREATED)
 
 
