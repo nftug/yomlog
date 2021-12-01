@@ -12,6 +12,11 @@
         <v-icon>mdi-arrow-left</v-icon>
       </v-app-bar-nav-icon>
     </template>
+    <template v-else>
+      <v-app-bar-nav-icon class="d-none">
+        <span></span>
+      </v-app-bar-nav-icon>
+    </template>
 
     <!-- Title -->
     <template v-if="!isShowSearch || !isLessThanLg">
