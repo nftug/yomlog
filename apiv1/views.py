@@ -1,6 +1,6 @@
 from django.core.exceptions import PermissionDenied, ValidationError
 from rest_framework import status, viewsets, filters, pagination, response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from django_filters import rest_framework as django_filter
 
 from backend.models import *
@@ -29,7 +29,7 @@ class BookOriginViewSet(viewsets.ModelViewSet):
 
     queryset = BookOrigin.objects.all()
     serializer_class = BookOriginSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = BookOriginFilter
@@ -66,7 +66,7 @@ class BookCopyViewSet(viewsets.ModelViewSet):
 
     queryset = BookCopy.objects.all()
     serializer_class = BookCopySerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = BookCopyFilter
@@ -102,7 +102,7 @@ class StatusLogViewSet(viewsets.ModelViewSet):
 
     queryset = StatusLog.objects.all()
     serializer_class = StatusLogSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = StatusLogFilter

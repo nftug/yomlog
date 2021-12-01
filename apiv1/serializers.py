@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.utils.timezone import localtime
+from rest_framework.exceptions import ValidationError
 
 from .mixins import ImageSerializerMixin
 from backend.models import *
@@ -25,6 +26,7 @@ class StatusLogSerializer(PostSerializer):
         fields = '__all__'
         extra_kwargs = {
             'created_at': {'required': False, 'read_only': True},
+            'created_by': {'required': False, 'read_only': True},
         }
 
     def to_representation(self, instance):
@@ -45,6 +47,8 @@ class StatusLogSerializer(PostSerializer):
             return 'reading'
         else:
             return 'read'
+
+    # TODO: 自ユーザーの本以外を指定した際、エラーを出す
 
 
 class BookCopySerializer(PostSerializer):
