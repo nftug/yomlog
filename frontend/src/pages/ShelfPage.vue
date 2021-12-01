@@ -18,10 +18,11 @@
         <!-- 本棚 -->
         <BookList :items="items">
           <template #content="{ item }">
-            <!-- 情報 -->
+            <!-- 追加の情報 -->
             <v-list-item>
               <v-chip
                 :color="item.format_type ? 'orange' : 'green'"
+                dark
                 small
                 class="mr-2"
                 v-text="item.format_type ? 'Kindle' : 'Book'"

@@ -13,6 +13,7 @@
             :label="!format_type ? 'ページ数' : '位置No'"
             type="number"
             min="0"
+            :max="total"
             :suffix="` / ${total}`"
             :rules="positionRules"
             :disabled="to_be_read"
