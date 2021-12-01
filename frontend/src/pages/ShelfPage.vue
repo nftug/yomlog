@@ -17,8 +17,25 @@
       <template v-else>
         <!-- 本棚 -->
         <BookList :items="items">
-          <template #actions="{ item }">
-            <v-row class="mx-auto mt-2">
+          <template #content="{ item }">
+            <!-- 情報 -->
+            <v-list-item>
+              <v-chip
+                :color="item.format_type ? 'orange' : 'green'"
+                small
+                class="mr-2"
+                v-text="item.format_type ? 'Kindle' : 'Book'"
+              ></v-chip>
+              <v-chip
+                small
+                v-text="
+                  parseInt((item.status.position / item.total) * 100, 10) + '%'
+                "
+              ></v-chip>
+            </v-list-item>
+
+            <!-- メニュー -->
+            <v-row class="col-11" no-gutters>
               <v-col cols="3">
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
@@ -55,6 +72,22 @@
                   <span>進捗を記録</span>
                 </v-tooltip>
               </v-col>
+              <v-col cols="3">
+                <v-tooltip bottom>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      icon
+                      color="error"
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="onClickDeleteBook(item)"
+                    >
+                      <v-icon>mdi-trash-can</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>本を削除</span>
+                </v-tooltip>
+              </v-col>
             </v-row>
           </template>
         </BookList>
@@ -77,6 +110,12 @@
 
     <!-- ダイアログ -->
     <StatusAdd ref="statusAdd" :shelf="true" @reload="initPage"></StatusAdd>
+
+    <Dialog
+      ref="dialogDeleteBook"
+      title="本の削除"
+      message="この本を削除しますか？"
+    ></Dialog>
   </v-container>
 </template>
 
@@ -86,6 +125,7 @@ import Spinner from 'vue-simple-spinner'
 import Mixins from '@/mixins'
 import api from '@/services/api'
 import StatusAdd from '@/components/StatusAdd.vue'
+import Dialog from '@/components/Dialog.vue'
 
 export default {
   mixins: [Mixins],
@@ -93,10 +133,10 @@ export default {
     Spinner,
     BookList,
     StatusAdd,
+    Dialog,
   },
   data() {
     return {
-      infiniteId: +new Date(),
       items: [],
       page: 1,
       mode: this.$route.params.mode,
@@ -153,22 +193,10 @@ export default {
           return Promise.resolve()
         })
         .catch((err) => {
-          // FIXME: 最後のページ数+1が二重に読み込まれてしまうバグあり
-          // (動作上問題はない)
           return Promise.reject(err)
         })
         .finally(() => {
           this.isLoading = false
-        })
-    },
-    infiniteHandler($state) {
-      this.fetchBookList()
-        .then(() => {
-          this.page++
-          $state.loaded()
-        })
-        .catch(() => {
-          $state.complete()
         })
     },
     handleSearch(searchValue) {
@@ -192,6 +220,25 @@ export default {
     },
     onClickStatusAdd(item) {
       this.$refs.statusAdd.showStatusAdd(item)
+    },
+    async onClickDeleteBook(item) {
+      if (!(await this.$refs.dialogDeleteBook.showDialog())) return
+
+      api({
+        url: `/book_copy/${item.id}/`,
+        method: 'delete',
+      })
+        .then(() => {
+          this.fetchBookList()
+          this.$store.dispatch('message/setInfoMessage', {
+            message: '書籍を削除しました。',
+          })
+        })
+        .catch(() => {
+          this.$store.dispatch('message/setErrorMessage', {
+            message: 'エラーが発生しました。',
+          })
+        })
     },
   },
 }

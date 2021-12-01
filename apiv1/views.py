@@ -99,6 +99,16 @@ class BookCopyViewSet(viewsets.ModelViewSet):
             StatusLog.objects.create(book=serializer.instance, position=0, created_by=request.user)
             return response.Response(serializer.data, status.HTTP_201_CREATED)
 
+    def destroy(self, request, *args, **kwargs):
+        book_origin = self.get_object().book_origin
+        ret = super().destroy(request, *args, **kwargs)
+
+        # 一つもコピーが存在しなければ、元データも削除する
+        if not book_origin.books_copy.exists():
+            book_origin.delete()
+
+        return ret
+
 
 class StatusLogViewSet(viewsets.ModelViewSet):
     """StatusLogのCRUD用APIクラス"""

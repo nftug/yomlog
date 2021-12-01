@@ -3,7 +3,7 @@
     <div class="col-sm-10 mx-auto">
       <!-- 検索結果リスト -->
       <BookList :items="items" :loading="true">
-        <template #actions="{ item }">
+        <template #content="{ item }">
           <v-list-item>
             <v-btn color="green" dark block @click="addBookCopy(item)">
               本を登録
