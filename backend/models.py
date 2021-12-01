@@ -46,10 +46,7 @@ class StatusLogManager(models.Manager):
         # BookCopyに対してstatus_logの最初のレコードでフィルタリング
         books_copy = BookCopy.objects.filter(query_initial).prefetch_related('status_log')
 
-        if status == 'to_be_read':
-            query = Q(status_log=None)
-        else:
-            query = Q(id=None)
+        query = Q(id=None)
 
         for book_copy in books_copy:
             status_log = book_copy.status_log
@@ -68,6 +65,10 @@ class StatusLogManager(models.Manager):
 
             elif status == 'to_be_read':
                 query |= Q(id=book_copy.id)
+
+        # BUG: ステータスが複数だと本が重複してしまうバグあり
+        if status == 'to_be_read':
+            query |= Q(status_log=None)
 
         return books_copy.filter(query)
 
