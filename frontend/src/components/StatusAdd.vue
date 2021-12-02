@@ -1,42 +1,31 @@
 <template>
-  <div id="status-add">
-    <Dialog
-      ref="dialogStatusAdd"
-      title="進捗状況の入力"
-      :max-width="350"
-      :ok="postStatus"
-    >
-      <template #content>
-        <v-form ref="formStatusAdd" v-model="isValid">
-          <v-text-field
-            v-model="position"
-            :label="!format_type ? 'ページ数' : '位置No'"
-            type="number"
-            min="0"
-            :max="total"
-            :suffix="` / ${total}`"
-            :rules="positionRules"
-            :disabled="to_be_read"
-            :error-messages="positionErrors"
-            @input="positionErrors = []"
-          ></v-text-field>
-          <v-switch
-            v-model="to_be_read"
-            label="あとで読む"
-            :rules="toBeReadRules"
-          ></v-switch>
-        </v-form>
-      </template>
-
-      <template #actions="{ ok, cancel }">
-        <v-spacer></v-spacer>
-        <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
-        <v-btn color="green darken-1" text @click="ok" :disabled="!isValid">
-          OK
-        </v-btn>
-      </template>
-    </Dialog>
-  </div>
+  <Dialog
+    ref="dialogStatusAdd"
+    title="進捗状況の入力"
+    :max-width="350"
+    :ok="postStatus"
+    :form-valid="isValid"
+  >
+    <v-form ref="formStatusAdd" v-model="isValid">
+      <v-text-field
+        v-model="position"
+        :label="!format_type ? 'ページ数' : '位置No'"
+        type="number"
+        min="0"
+        :max="total"
+        :suffix="` / ${total}`"
+        :rules="positionRules"
+        :disabled="to_be_read"
+        :error-messages="positionErrors"
+        @input="positionErrors = []"
+      ></v-text-field>
+      <v-switch
+        v-model="to_be_read"
+        label="あとで読む"
+        :rules="toBeReadRules"
+      ></v-switch>
+    </v-form>
+  </Dialog>
 </template>
 
 <script>

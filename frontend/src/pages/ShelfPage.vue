@@ -53,11 +53,17 @@
               <v-col cols="3">
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
-                    <v-btn icon color="primary" v-bind="attrs" v-on="on">
+                    <v-btn
+                      icon
+                      color="primary"
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="onClickNoteAdd(item)"
+                    >
                       <v-icon>mdi-pen-plus</v-icon>
                     </v-btn>
                   </template>
-                  <span>メモを追加</span>
+                  <span>ノートを追加</span>
                 </v-tooltip>
               </v-col>
               <v-col cols="3">
@@ -113,7 +119,9 @@
     </div>
 
     <!-- ダイアログ -->
-    <StatusAdd ref="statusAdd" :shelf="true" @reload="initPage"></StatusAdd>
+    <StatusAdd ref="statusAdd" shelf @reload="initPage"></StatusAdd>
+
+    <NoteAdd ref="noteAdd" shelf></NoteAdd>
 
     <Dialog
       ref="dialogDeleteBook"
@@ -129,6 +137,7 @@ import Spinner from 'vue-simple-spinner'
 import Mixins from '@/mixins'
 import api from '@/services/api'
 import StatusAdd from '@/components/StatusAdd.vue'
+import NoteAdd from '@/components/NoteAdd.vue'
 import Dialog from '@/components/Dialog.vue'
 
 export default {
@@ -138,6 +147,7 @@ export default {
     BookList,
     StatusAdd,
     Dialog,
+    NoteAdd,
   },
   data() {
     return {
@@ -224,6 +234,9 @@ export default {
     },
     onClickStatusAdd(item) {
       this.$refs.statusAdd.showStatusAdd(item)
+    },
+    onClickNoteAdd(item) {
+      this.$refs.noteAdd.showNoteAdd(item)
     },
     async onClickDeleteBook(item) {
       if (!(await this.$refs.dialogDeleteBook.showDialog())) return

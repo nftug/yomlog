@@ -47,88 +47,63 @@
     <Fab icon="mdi-chevron-up" @click="onClickFab"></Fab>
 
     <!-- ページ数入力のダイアログ -->
-    <Dialog ref="dialogPages" title="ページ数の入力" :max-width="400">
-      <template #content>
-        <p>
-          ページ数を取得できません。
-          <br />
-          この本のページ数を入力してください。
-        </p>
+    <Dialog
+      ref="dialogPages"
+      title="ページ数の入力"
+      :max-width="400"
+      :form-valid="formPages.valid"
+    >
+      <p>
+        ページ数を取得できません。
+        <br />
+        この本のページ数を入力してください。
+      </p>
 
-        <v-form ref="formPages" v-model="formPages.valid">
-          <v-text-field
-            v-model="formPages.value"
-            label="ページ数"
-            type="number"
-            min="0"
-            :rules="formPages.pagesRules"
-          ></v-text-field>
-        </v-form>
-      </template>
-
-      <template #actions="{ ok, cancel }">
-        <v-spacer></v-spacer>
-        <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
-        <v-btn
-          color="green darken-1"
-          text
-          @click="ok"
-          :disabled="!formPages.valid"
-        >
-          OK
-        </v-btn>
-      </template>
+      <v-form ref="formPages" v-model="formPages.valid">
+        <v-text-field
+          v-model="formPages.value"
+          label="ページ数"
+          type="number"
+          min="0"
+          :rules="formPages.pagesRules"
+        ></v-text-field>
+      </v-form>
     </Dialog>
 
     <!-- Kindle本のデータ入力ダイアログ -->
     <Dialog
       ref="dialogKindle"
       title="Kindle本の登録"
-      message="Kindle本のデータを入力してください。"
       :max-width="400"
+      :form-valid="formKindle.valid"
     >
-      <template #content="{ message }">
-        <p>{{ message }}</p>
+      <p>Kindle本のデータを入力してください。</p>
 
-        <v-form ref="formKindle" v-model="formKindle.valid">
-          <v-text-field
-            v-model="formKindle.title"
-            label="タイトル"
-            readonly
-          ></v-text-field>
-          <v-text-field
-            v-model="formKindle.author"
-            label="著者"
-            readonly
-          ></v-text-field>
-          <v-text-field
-            v-model="formKindle.asin"
-            label="ASINコード"
-            :rules="formKindle.asinRules"
-            maxlength="10"
-          ></v-text-field>
-          <v-text-field
-            v-model="formKindle.total"
-            label="位置Noの総数"
-            type="number"
-            min="0"
-            :rules="formKindle.totalRules"
-          ></v-text-field>
-        </v-form>
-      </template>
-
-      <template #actions="{ ok, cancel }">
-        <v-spacer></v-spacer>
-        <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
-        <v-btn
-          color="green darken-1"
-          text
-          @click="ok"
-          :disabled="!formKindle.valid"
-        >
-          OK
-        </v-btn>
-      </template>
+      <v-form ref="formKindle" v-model="formKindle.valid">
+        <v-text-field
+          v-model="formKindle.title"
+          label="タイトル"
+          readonly
+        ></v-text-field>
+        <v-text-field
+          v-model="formKindle.author"
+          label="著者"
+          readonly
+        ></v-text-field>
+        <v-text-field
+          v-model="formKindle.asin"
+          label="ASINコード"
+          :rules="formKindle.asinRules"
+          maxlength="10"
+        ></v-text-field>
+        <v-text-field
+          v-model="formKindle.total"
+          label="位置Noの総数"
+          type="number"
+          min="0"
+          :rules="formKindle.totalRules"
+        ></v-text-field>
+      </v-form>
     </Dialog>
   </v-container>
 </template>
