@@ -23,10 +23,9 @@ class StatusLogSerializer(PostSerializer):
 
     class Meta:
         model = StatusLog
-        fields = '__all__'
+        exclude = ['created_by']
         extra_kwargs = {
             'created_at': {'required': False, 'read_only': True},
-            'created_by': {'required': False, 'read_only': True},
         }
 
     def to_representation(self, instance):
@@ -64,12 +63,24 @@ class StatusLogSerializer(PostSerializer):
         return data
 
 
+class NoteSerializer(PostSerializer):
+    class Meta:
+        model = Note
+        exclude = ['created_by']
+        extra_kwargs = {
+            'created_at': {'required': False, 'read_only': True},
+            'quote_text': {'required': False},
+            'quote_image': {'required': False},
+        }
+
+
 class BookCopySerializer(PostSerializer):
     # created_by = serializers.SerializerMethodField()
     title = serializers.ReadOnlyField(source='book_origin.title')
     authors = serializers.SerializerMethodField()
     thumbnail = serializers.ReadOnlyField(source='book_origin.thumbnail')
     status = serializers.SerializerMethodField()
+    notes = serializers.SerializerMethodField()
 
     class Meta:
         model = BookCopy
@@ -107,6 +118,13 @@ class BookCopySerializer(PostSerializer):
 
     def get_authors(self, instance):
         return instance.book_origin.authors.split(',')
+
+    def get_notes(self, instance):
+        if self.context['view'].action == 'retrieve':
+            notes = instance.notes.order_by('position')
+            return NoteSerializer(notes, many=True, read_only=True).data
+        else:
+            return None
 
 
 class BookOriginSerializer(serializers.ModelSerializer):

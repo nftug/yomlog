@@ -1,7 +1,7 @@
 from django_filters import rest_framework as django_filter
 from django.db.models import Q, F, Max
 
-from backend.models import BookOrigin, BookCopy, StatusLog
+from backend.models import BookOrigin, BookCopy, StatusLog, Note
 
 
 class GenericSearchFilterSet(django_filter.FilterSet):
@@ -99,8 +99,8 @@ class BookCopyFilter(GenericSearchFilterSet):
 class StatusLogFilter(GenericSearchFilterSet):
     """StatusLog 検索用フィルタ"""
 
-    title = django_filter.CharFilter(field_name='book__title', lookup_expr='icontains')
-    author = django_filter.CharFilter(field_name='book__author', lookup_expr='icontains')
+    title = django_filter.CharFilter(field_name='book__book_origin__title', lookup_expr='icontains')
+    authors = django_filter.CharFilter(field_name='book__book_origin__authors', lookup_expr='icontains')
     amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
     created_by = django_filter.CharFilter(field_name='created_by__username')
 
@@ -111,4 +111,23 @@ class StatusLogFilter(GenericSearchFilterSet):
             'book__title__icontains',
             'book__authors__icontains',
             'amazon_dp'
+        ]
+
+
+class NoteFilter(GenericSearchFilterSet):
+    """Note 検索用フィルタ"""
+
+    title = django_filter.CharFilter(field_name='book__book_origin__title', lookup_expr='icontains')
+    authors = django_filter.CharFilter(field_name='book__book_origin__authors', lookup_expr='icontains')
+    amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
+    created_by = django_filter.CharFilter(field_name='created_by__username')
+
+    class Meta:
+        model = Note
+        exclude = ['quote_image']
+        fields_for_search = [
+            'book__title__icontains',
+            'book__authors__icontains',
+            'quote_text__icontains',
+            'content__icontains'
         ]

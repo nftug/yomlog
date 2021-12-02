@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters import rest_framework as django_filter
 
 from backend.models import *
-from .serializers import BookOriginSerializer, BookCopySerializer, StatusLogSerializer
-from .filters import BookOriginFilter, BookCopyFilter, StatusLogFilter
+from .serializers import BookOriginSerializer, BookCopySerializer, NoteSerializer, StatusLogSerializer
+from .filters import BookOriginFilter, BookCopyFilter, StatusLogFilter, NoteFilter
 
 
 class CustomPageNumberPagination(pagination.PageNumberPagination):
@@ -22,6 +22,12 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
             'currentPage': self.page.number,
             'results': data
         })
+
+
+class LogPagination(CustomPageNumberPagination):
+    """ページネーションクラス (ログ用)"""
+
+    page_size = 24
 
 
 class BookOriginViewSet(viewsets.ModelViewSet):
@@ -113,19 +119,32 @@ class BookCopyViewSet(viewsets.ModelViewSet):
 class StatusLogViewSet(viewsets.ModelViewSet):
     """StatusLogのCRUD用APIクラス"""
 
-    queryset = StatusLog.objects.all()
+    queryset = StatusLog.objects.all().select_related('book__book_origin')
     serializer_class = StatusLogSerializer
     permission_classes = [IsAuthenticated]
 
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = StatusLogFilter
 
-    pagination_class = CustomPageNumberPagination
+    pagination_class = LogPagination
 
     def get_queryset(self):
-        if self.request.method != 'GET':
-            # 編集や削除は作成したユーザーに限る
-            return self.queryset.filter(created_by=self.request.user)
-        else:
-            # GETは全ユーザーで可能
-            return self.queryset
+        # プライベートアクセスのみ
+        return self.queryset.filter(created_by=self.request.user)
+
+
+class NoteViewSet(viewsets.ModelViewSet):
+    """NoteのCRUD用APIクラス"""
+
+    queryset = Note.objects.all().select_related('book__book_origin')
+    serializer_class = NoteSerializer
+    permission_class = [IsAuthenticated]
+
+    filter_backends = [django_filter.DjangoFilterBackend]
+    filterset_class = NoteFilter
+
+    pagination_class = LogPagination
+
+    def get_queryset(self):
+        # プライベートアクセスのみ
+        return self.queryset.filter(created_by=self.request.user)
