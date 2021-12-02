@@ -46,21 +46,22 @@
     <!-- スクロール -->
     <Fab icon="mdi-chevron-up" @click="onClickFab"></Fab>
 
-    <!-- ISBNコードの入力ダイアログ -->
-    <Dialog ref="dialogISBN" title="ISBNコードの入力" :max-width="400">
+    <!-- ページ数入力のダイアログ -->
+    <Dialog ref="dialogPages" title="ページ数の入力" :max-width="400">
       <template #content>
         <p>
-          ISBNコードを取得できません。
+          ページ数を取得できません。
           <br />
-          13桁か10桁のISBNコードを入力してください。
+          この本のページ数を入力してください。
         </p>
 
-        <v-form ref="formISBN" v-model="formISBN.valid">
+        <v-form ref="formPages" v-model="formPages.valid">
           <v-text-field
-            v-model="formISBN.value"
-            label="ISBNコード"
-            :rules="formISBN.isbnRules"
-            maxlength="13"
+            v-model="formPages.value"
+            label="ページ数"
+            type="number"
+            min="0"
+            :rules="formPages.pagesRules"
           ></v-text-field>
         </v-form>
       </template>
@@ -72,7 +73,7 @@
           color="green darken-1"
           text
           @click="ok"
-          :disabled="!formISBN.valid"
+          :disabled="!formPages.valid"
         >
           OK
         </v-btn>
@@ -172,16 +173,10 @@ export default {
       ],
       totalRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
     },
-    formISBN: {
-      value: '',
+    formPages: {
+      value: 0,
       valid: false,
-      isbnRules: [
-        (v) => !!v || 'この項目は入力必須です',
-        (v) =>
-          v.length === 10 ||
-          v.length === 13 ||
-          '正しい桁数のコードを入力してください',
-      ],
+      pagesRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
     },
   }),
   created() {
@@ -288,10 +283,11 @@ export default {
           item.total = this.formKindle.total
         } else {
           // 通常の書籍データで登録
-          // ISBNコードが空の場合はダイアログで入力を求める
-          if (!item.amazon_dp) {
-            if (!(await this.showISBNDialog())) return
-            item.amazon_dp = this.formISBN.value
+
+          // ページ数が空の場合はダイアログで入力を求める
+          if (!item.total) {
+            if (!(await this.showPagesDialog())) return
+            item.total = this.formPages.value
           }
 
           format_type = 0
@@ -342,13 +338,6 @@ export default {
         })
       }
     },
-    showISBNDialog() {
-      if (this.$refs.formISBN) {
-        this.formISBN.value = ''
-        this.$refs.formISBN.resetValidation()
-      }
-      return this.$refs.dialogISBN.showDialog()
-    },
     showKindleDialog(item) {
       if (this.$refs.formKindle) {
         this.formKindle.asin = ''
@@ -358,6 +347,13 @@ export default {
       this.formKindle.title = item.title
       this.formKindle.author = item.authors.join(', ')
       return this.$refs.dialogKindle.showDialog()
+    },
+    showPagesDialog() {
+      if (this.$refs.formPages) {
+        this.formPages.value = 0
+        this.$refs.formPages.resetValidation()
+      }
+      return this.$refs.dialogPages.showDialog()
     },
     onClickFab() {
       VueScrollTo.scrollTo('#app')

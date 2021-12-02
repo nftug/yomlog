@@ -30,7 +30,8 @@
               <v-chip
                 small
                 v-text="
-                  parseInt((item.status.position / item.total) * 100, 10) + '%'
+                  parseInt((item.status.position || 0 / item.total) * 100, 10) +
+                  '%'
                 "
               ></v-chip>
             </v-list-item>
