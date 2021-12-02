@@ -59,13 +59,13 @@ class StatusLogSerializer(PostSerializer):
         if status_log.exists():
             current_position = status_log.first().position
             if data.get('position') == current_position:
-                raise ValidationError({'position': '以前と同じ位置情報が指定されています'})
+                raise ValidationError({'position': '以前と同じ位置が指定されています'})
 
         return data
 
 
 class BookCopySerializer(PostSerializer):
-    created_by = serializers.SerializerMethodField()
+    # created_by = serializers.SerializerMethodField()
     title = serializers.ReadOnlyField(source='book_origin.title')
     authors = serializers.SerializerMethodField()
     thumbnail = serializers.ReadOnlyField(source='book_origin.thumbnail')
@@ -73,28 +73,37 @@ class BookCopySerializer(PostSerializer):
 
     class Meta:
         model = BookCopy
-        fields = '__all__'
+        exclude = ['created_by']
         extra_kwargs = {
             'created_at': {'required': False, 'read_only': True},
         }
 
     def get_status(self, instance):
-        if hasattr(instance, 'status_log'):
-            context = {'request': self.context.get('request')}
-            status_log = instance.status_log.order_by('-created_at')
+        if self.context['view'].action == 'list':
+            # リストの場合: 最新のステータスを一件表示
+            if hasattr(instance, 'status_log'):
+                context = {'request': self.context.get('request')}
+                status_log = instance.status_log.order_by('-created_at')
 
-            if status_log.exists():
-                if status_log.count() > 1:
-                    context['status_previous'] = status_log[1]
-                return StatusLogSerializer(status_log.first(), read_only=True, context=context).data
+                if status_log.exists():
+                    if status_log.count() > 1:
+                        context['status_previous'] = status_log[1]
+                    return StatusLogSerializer(status_log.first(), read_only=True, context=context).data
 
-        return {
-            'state': 'to_be_read',
-            'id': None,
-            'position': 0,
-            'created_at': None,
-            'book': instance.id if hasattr(instance, 'id') else None
-        }
+            return {
+                'state': 'to_be_read',
+                'id': None,
+                'position': 0,
+                'created_at': None,
+                'book': instance.id if hasattr(instance, 'id') else None
+            }
+
+        else:
+            # 詳細の場合: ステータスのリストを表示
+            # NOTE: 積読状態の時、最新のpositionは0になる (クライアント側で次のレコードから取得する必要あり)
+            if hasattr(instance, 'status_log'):
+                status_log = instance.status_log.order_by('-created_at')
+                return StatusLogSerializer(status_log, many=True, read_only=True).data
 
     def get_authors(self, instance):
         return instance.book_origin.authors.split(',')

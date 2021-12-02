@@ -168,8 +168,7 @@ export default {
       total: 0,
       valid: false,
       asinRules: [
-        (v) => !!v || 'この項目は入力必須です',
-        (v) => v.length === 10 || '10桁のコードを入力してください',
+        (v) => !v || v.length === 10 || '10桁のコードを入力してください',
       ],
       totalRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
     },
