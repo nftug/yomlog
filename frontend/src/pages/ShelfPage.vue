@@ -2,7 +2,7 @@
   <v-container fluid>
     <div class="col-sm-10 mx-auto">
       <!-- 件数 -->
-      <div class="pb-4" v-if="totalItems > 0">
+      <div class="pb-4">
         <v-card class="mx-auto text-body-2" outlined>
           <div class="ma-4">
             <strong>{{ totalItems }}冊</strong>
@@ -10,22 +10,23 @@
           </div>
           <div class="ma-4">
             <v-icon>mdi-magnify</v-icon>
-            <template v-if="Object.keys(query).length">
-              <v-chip
-                class="ma-1"
-                v-for="(q, key) in query"
-                :key="key"
-                close
-                small
-                @click:close="removeQuery(key)"
-              >
-                <template v-if="key === 'authors'">著者:</template>
-                {{ q }}
-              </v-chip>
-            </template>
-            <v-chip v-else small class="ma-1">全て表示</v-chip>
+            <v-chip
+              class="ma-1"
+              v-for="(q, key) in query"
+              :key="key"
+              close
+              small
+              @click:close="removeQuery(key)"
+            >
+              <template v-if="key === 'title'">書名:</template>
+              <template v-if="key === 'authors'">著者:</template>
+              <template v-if="key === 'amazon_dp'">DP:</template>
+              {{ q }}
+            </v-chip>
 
-            <v-btn small class="ma-1" icon><v-icon>mdi-plus</v-icon></v-btn>
+            <v-btn small class="ma-1" icon @click="onClickQueryAdd">
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
           </div>
         </v-card>
       </div>
@@ -142,6 +143,8 @@
 
     <NoteAdd ref="noteAdd" shelf></NoteAdd>
 
+    <ShelfSearch ref="shelfSearch"></ShelfSearch>
+
     <Dialog
       ref="dialogDeleteBook"
       title="本の削除"
@@ -157,6 +160,7 @@ import Mixins from '@/mixins'
 import api from '@/services/api'
 import StatusAdd from '@/components/StatusAdd.vue'
 import NoteAdd from '@/components/NoteAdd.vue'
+import ShelfSearch from '@/components/ShelfSearch.vue'
 import Dialog from '@/components/Dialog.vue'
 
 export default {
@@ -167,6 +171,7 @@ export default {
     StatusAdd,
     Dialog,
     NoteAdd,
+    ShelfSearch,
   },
   data() {
     return {
@@ -275,6 +280,9 @@ export default {
         path: this.$route.path,
         query: query,
       })
+    },
+    onClickQueryAdd() {
+      this.$refs.shelfSearch.showShelfSearch()
     },
     onClickStatusAdd(item) {
       this.$refs.statusAdd.showStatusAdd(item)
