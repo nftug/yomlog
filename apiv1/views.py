@@ -6,6 +6,7 @@ from django_filters import rest_framework as django_filter
 from backend.models import *
 from .serializers import BookOriginSerializer, BookCopySerializer, NoteSerializer, StatusLogSerializer
 from .filters import BookOriginFilter, BookCopyFilter, StatusLogFilter, NoteFilter
+from rest_framework.parsers import FileUploadParser, FormParser
 
 
 class CustomPageNumberPagination(pagination.PageNumberPagination):
@@ -139,6 +140,7 @@ class NoteViewSet(viewsets.ModelViewSet):
     queryset = Note.objects.all().select_related('book__book_origin')
     serializer_class = NoteSerializer
     permission_class = [IsAuthenticated]
+    parser_class = (FileUploadParser, FormParser)
 
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = NoteFilter

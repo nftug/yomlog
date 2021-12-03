@@ -25,11 +25,11 @@
               <v-toolbar-items>
                 <v-btn
                   dark
-                  text
+                  icon
                   @click="handleAnswer(true)"
                   :disabled="!formValid"
                 >
-                  保存
+                  <v-icon>mdi-content-save</v-icon>
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
