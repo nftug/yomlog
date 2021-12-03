@@ -10,9 +10,14 @@
                   v-text="item.title"
                   class="font-weight-medium"
                 ></v-list-item-title>
-                <v-list-item-subtitle
-                  v-text="item.authors.join(', ')"
-                ></v-list-item-subtitle>
+                <v-list-item-subtitle>
+                  <span v-for="(author, index) in item.authors" :key="index">
+                    <router-link :to="`/shelf/all/?authors=${author}`">
+                      {{ author }}
+                    </router-link>
+                    <span v-if="index + 1 < item.authors.length">,</span>
+                  </span>
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
 
@@ -35,7 +40,7 @@
       </v-col>
     </v-row>
 
-    <div v-else-if="!loading" class="text-center">
+    <div v-else-if="!loading" class="text-center text-body-2">
       <p class="mt-4 mb-5">データが見つかりません</p>
     </div>
   </div>

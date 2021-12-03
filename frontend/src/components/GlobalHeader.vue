@@ -34,11 +34,6 @@
 
     <!-- Right -->
     <template v-if="isLoggedIn">
-      <!--
-      <v-btn icon @click="$router.app.$emit('openSearch')">
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-      -->
       <v-expand-x-transition>
         <v-text-field
           ref="search"
@@ -74,7 +69,7 @@
     </template>
 
     <template #extension v-if="$route.name === 'shelf'">
-      <ShelfTabBar :search="searchValue"></ShelfTabBar>
+      <ShelfTabBar></ShelfTabBar>
     </template>
   </v-app-bar>
 </template>

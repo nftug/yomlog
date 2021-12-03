@@ -3,11 +3,30 @@
     <div class="col-sm-10 mx-auto">
       <!-- 件数 -->
       <div class="pb-4" v-if="totalItems > 0">
-        <v-card class="mx-auto">
-          <v-list-item>
+        <v-card class="mx-auto text-body-2" outlined>
+          <div class="ma-4">
             <strong>{{ totalItems }}冊</strong>
             の本が見つかりました。
-          </v-list-item>
+          </div>
+          <div class="ma-4">
+            <v-icon>mdi-magnify</v-icon>
+            <template v-if="Object.keys(query).length">
+              <v-chip
+                class="ma-1"
+                v-for="(q, key) in query"
+                :key="key"
+                close
+                small
+                @click:close="removeQuery(key)"
+              >
+                <template v-if="key === 'authors'">著者:</template>
+                {{ q }}
+              </v-chip>
+            </template>
+            <v-chip v-else small class="ma-1">全て表示</v-chip>
+
+            <v-btn small class="ma-1" icon><v-icon>mdi-plus</v-icon></v-btn>
+          </div>
         </v-card>
       </div>
 
@@ -154,7 +173,7 @@ export default {
       items: [],
       page: 1,
       mode: this.$route.params.mode,
-      searchValue: '',
+      query: {},
       totalItems: 0,
       totalPages: 0,
       isLoading: false,
@@ -175,11 +194,10 @@ export default {
   },
   methods: {
     initPage(route = this.$route) {
-      this.mode = route.params.mode !== 'search' ? route.params.mode : ''
-      this.searchValue = decodeURI(route.query.q || '')
+      this.mode = route.params.mode !== 'all' ? route.params.mode : ''
+      this.query = { ...route.query }
+      delete this.query.page
       this.page = Number(route.query.page || 1)
-      this.totalItems = 0
-      this.totalPages = 0
 
       this.fetchBookList()
 
@@ -196,7 +214,7 @@ export default {
           params: {
             page: this.page,
             status: this.mode,
-            q: this.searchValue,
+            ...this.query,
           },
         })
         .then(({ data }) => {
@@ -206,30 +224,56 @@ export default {
 
           return Promise.resolve()
         })
-        .catch((err) => {
-          return Promise.reject(err)
+        .catch(({ response }) => {
+          if (response.status === 404) {
+            // ページ数超過の場合、最終ページに遷移
+            let params = { ...response.config.params }
+            delete params.page
+
+            api
+              .get('/book_copy/', {
+                params: params,
+              })
+              .then(({ data: { totalPages } }) => {
+                params.page = totalPages
+                this.$router.replace({
+                  path: this.$route.path,
+                  query: params,
+                })
+              })
+          } else {
+            return Promise.reject(response)
+          }
         })
         .finally(() => {
           this.isLoading = false
         })
     },
+    removeQuery(key) {
+      let query = { ...this.query }
+      delete query[key]
+      this.$router.push({
+        path: this.$route.path,
+        query: query,
+      })
+    },
     handleSearch(searchValue) {
       this.$router.push({
-        path: '/shelf/search',
+        path: this.$route.path,
         query: searchValue
           ? {
-              q: encodeURI(searchValue),
+              q: searchValue,
             }
           : null,
       })
     },
     handlePagination() {
-      const pageQuery = { ...this.$route.query }
-      pageQuery.page = this.page
+      let query = { ...this.$route.query }
+      query.page = this.page
 
       this.$router.push({
         path: this.$route.path,
-        query: pageQuery,
+        query: query,
       })
     },
     onClickStatusAdd(item) {
