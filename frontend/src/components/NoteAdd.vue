@@ -103,6 +103,7 @@ export default {
       this.content = ''
       this.quoteText = ''
       this.quoteImage = null
+      this.prevSrc = ''
 
       // ダイアログを表示
       if (!(await this.$refs.dialogNoteAdd.showDialog())) return
