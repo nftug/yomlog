@@ -177,7 +177,7 @@
 <script>
 import BookList from '@/components/BookList.vue'
 import Spinner from 'vue-simple-spinner'
-import Mixins, { BookListMixin } from '@/mixins'
+import Mixins, { BookListMixin, ShelfSearchFromHeaderMixin } from '@/mixins'
 import api from '@/services/api'
 import StatusAdd from '@/components/StatusAdd.vue'
 import NoteAdd from '@/components/NoteAdd.vue'
@@ -185,7 +185,7 @@ import ShelfSearch from '@/components/ShelfSearch.vue'
 import Dialog from '@/components/Dialog.vue'
 
 export default {
-  mixins: [BookListMixin, Mixins],
+  mixins: [BookListMixin, ShelfSearchFromHeaderMixin, Mixins],
   components: {
     Spinner,
     BookList,
@@ -209,11 +209,7 @@ export default {
     next()
   },
   created() {
-    this.$router.app.$on('search', this.handleSearch)
     this.initPage()
-  },
-  beforeDestroy() {
-    this.$router.app.$off('search', this.handleSearch)
   },
   methods: {
     initPage(route = this.$route) {
@@ -281,16 +277,6 @@ export default {
       this.$router.push({
         path: this.$route.path,
         query: query,
-      })
-    },
-    handleSearch(searchValue) {
-      this.$router.push({
-        path: this.$route.path,
-        query: searchValue
-          ? {
-              q: searchValue,
-            }
-          : null,
       })
     },
     handlePagination() {
