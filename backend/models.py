@@ -42,9 +42,9 @@ class BookOrigin(models.Model):
 
 
 class StatusLogManager(models.Manager):
-    def filter_current_status(self, query_initial=Q(), status=None):
+    def filter_current_status(self, queryset, status=None):
         # BookCopyに対してstatus_logの最初のレコードでフィルタリング
-        books_copy = BookCopy.objects.filter(query_initial).prefetch_related('status_log')
+        books_copy = queryset.prefetch_related('status_log')
 
         query = Q(id=None)
 
