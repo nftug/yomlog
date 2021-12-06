@@ -40,7 +40,7 @@ const router = new VueRouter({
       path: '/book/detail/:id',
       name: 'book_detail',
       component: BookDetailPage,
-      meta: { title: '本の詳細', requiresAuth: true, isShowMenuButton: true },
+      meta: { title: '本の詳細', requiresAuth: true, isShowMenuButton: false },
     },
     {
       path: '/book/add',
