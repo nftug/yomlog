@@ -22,6 +22,9 @@ export const WindowResizeMixin = {
     window.removeEventListener('resize', this.onWindowResize)
   },
   computed: {
+    isLessThanSm: function () {
+      return this.windowSize < 600
+    },
     isLessThanMd: function () {
       return this.windowSize < 960
     },

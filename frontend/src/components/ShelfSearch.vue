@@ -2,25 +2,32 @@
   <Dialog
     ref="dialogShelfSearch"
     title="検索条件の追加"
-    :max-width="500"
+    :max-width="600"
     label-ok="検索"
   >
     <p>指定した条件でAND/OR検索を行います。</p>
-    <v-select label="モード" :items="modes" v-model="mode"></v-select>
+    <v-select
+      label="モード"
+      :items="modes"
+      v-model="mode"
+      :dense="isLessThanSm"
+    ></v-select>
 
     <div v-for="(field, index) in formSearch" :key="index">
-      <v-row>
-        <v-col cols="9">
+      <v-row :no-gutters="isLessThanSm">
+        <v-col sm="9" cols="12">
           <v-text-field
             v-model="field.value"
             :label="field.label"
             :maxlength="field.maxlength"
+            :dense="isLessThanSm"
           ></v-text-field>
         </v-col>
-        <v-col cols="3">
+        <v-col sm="3" cols="12">
           <v-select
             :items="andOrList"
             v-model="field.or"
+            :dense="isLessThanSm"
             :disabled="
               index === formSearch.length - 1 ||
               !field.value ||
@@ -35,8 +42,10 @@
 
 <script>
 import Dialog from '@/components/Dialog.vue'
+import { WindowResizeMixin } from '@/mixins'
 
 export default {
+  mixins: [WindowResizeMixin],
   components: {
     Dialog,
   },
