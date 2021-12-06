@@ -198,7 +198,7 @@ export default {
     next()
   },
   created() {
-    this.initPage({ isReload: false })
+    this.initPage({ isReload: !this.$isBrowserBack })
   },
   methods: {
     initPage({ isReload, route = this.$route }) {
