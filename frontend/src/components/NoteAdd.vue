@@ -114,7 +114,7 @@ export default {
       quoteImage: null,
       prevSrc: '',
       isSending: false,
-      tab: null,
+      tab: 0,
     }
   },
   methods: {

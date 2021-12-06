@@ -121,6 +121,11 @@ export default {
   data: () => ({
     isShowDialog: false,
   }),
+  watch: {
+    $route() {
+      this.isShowDialog = false
+    },
+  },
   methods: {
     showDialog() {
       this.isShowDialog = true
