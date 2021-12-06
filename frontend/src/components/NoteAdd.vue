@@ -129,7 +129,7 @@ export default {
       this.format_type = item.format_type
       this.total = item.total
 
-      this.position = item.status.position || 0
+      this.position = item.status[0].position || 0
       this.content = ''
       this.quoteText = ''
       this.quoteImage = null

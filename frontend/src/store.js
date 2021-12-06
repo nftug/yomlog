@@ -145,10 +145,56 @@ const messageModule = {
   },
 }
 
+// 本棚モジュール
+const bookListModule = {
+  strict: process.env.NODE_ENV !== 'production',
+  namespaced: true,
+  state: {
+    items: [],
+    totalItems: 0,
+    totalPages: 0,
+    isLoading: false,
+  },
+  mutations: {
+    setLoading(state, val) {
+      state.isLoading = val
+    },
+    setPageProps(state, payload) {
+      state.totalItems = payload.totalItems
+      state.totalPages = payload.totalPages
+    },
+    add(state, items) {
+      try {
+        console.log(items)
+
+        // 積読中のステータス修正
+        items.forEach((item) => {
+          if (item.status.length > 1 && item.status[0].state === 'to_be_read') {
+            item.status[0].position = item.status[1].position
+          }
+        })
+
+        state.items.push(...items)
+      } catch (err) {
+        console.error(err)
+      }
+    },
+    clear(state) {
+      state.items = []
+    },
+  },
+  actions: {
+    getBookItem({ state }, id) {
+      return { ...state.items.find((e) => e.id === id) }
+    },
+  },
+}
+
 const store = new Vuex.Store({
   modules: {
     auth: authModule,
     message: messageModule,
+    bookList: bookListModule,
   },
 })
 

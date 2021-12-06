@@ -5,7 +5,7 @@
       <div class="pb-4">
         <v-card class="mx-auto text-body-2" outlined>
           <div class="ma-4">
-            <strong>{{ totalItems }}冊</strong>
+            <strong>{{ bookList.totalItems }}冊</strong>
             の本が見つかりました。
           </div>
           <div class="ma-4">
@@ -32,11 +32,32 @@
       </div>
 
       <!-- Spinner -->
-      <spinner v-if="isLoading"></spinner>
+      <spinner v-if="bookList.isLoading"></spinner>
 
       <template v-else>
         <!-- 本棚 -->
-        <BookList :items="items">
+        <BookList :items="bookList.items">
+          <template #header="{ item }">
+            <v-list-item-content>
+              <v-list-item-title class="font-weight-medium">
+                <router-link
+                  :to="`/book/detail/${item.id}`"
+                  class="black--text"
+                >
+                  {{ item.title }}
+                </router-link>
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                <span v-for="(author, index) in item.authors" :key="index">
+                  <router-link :to="`/shelf/all/?authors=${author}`">
+                    {{ author }}
+                  </router-link>
+                  <span v-if="index + 1 < item.authors.length">,</span>
+                </span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </template>
+
           <template #content="{ item }">
             <!-- 追加の情報 -->
             <v-list-item>
@@ -51,7 +72,7 @@
                 small
                 v-text="
                   parseInt(
-                    ((item.status.position || 0) / item.total) * 100,
+                    ((item.status[0].position || 0) / item.total) * 100,
                     10
                   ) + '%'
                 "
@@ -123,13 +144,13 @@
         </BookList>
 
         <!-- ページネーション -->
-        <v-row justify="center" v-show="items.length">
+        <v-row justify="center" v-show="bookList.items.length">
           <v-col cols="8">
             <v-container class="max-width">
               <v-pagination
                 v-model="page"
                 class="my-4"
-                :length="totalPages"
+                :length="bookList.totalPages"
                 @input="handlePagination"
               ></v-pagination>
             </v-container>
@@ -156,7 +177,7 @@
 <script>
 import BookList from '@/components/BookList.vue'
 import Spinner from 'vue-simple-spinner'
-import Mixins from '@/mixins'
+import Mixins, { BookListMixin } from '@/mixins'
 import api from '@/services/api'
 import StatusAdd from '@/components/StatusAdd.vue'
 import NoteAdd from '@/components/NoteAdd.vue'
@@ -164,7 +185,7 @@ import ShelfSearch from '@/components/ShelfSearch.vue'
 import Dialog from '@/components/Dialog.vue'
 
 export default {
-  mixins: [Mixins],
+  mixins: [BookListMixin, Mixins],
   components: {
     Spinner,
     BookList,
@@ -175,13 +196,10 @@ export default {
   },
   data() {
     return {
-      items: [],
       page: 1,
       mode: this.$route.params.mode,
       query: {},
-      totalItems: 0,
-      totalPages: 0,
-      isLoading: false,
+      searchValue: '',
     }
   },
   beforeRouteUpdate(to, from, next) {
@@ -211,8 +229,8 @@ export default {
       })
     },
     fetchBookList() {
-      this.isLoading = true
-      this.items = []
+      this.$store.commit('bookList/setLoading', true)
+      this.$store.commit('bookList/clear')
 
       return api
         .get('/book_copy/', {
@@ -223,9 +241,12 @@ export default {
           },
         })
         .then(({ data }) => {
-          this.totalItems = data.count
-          this.totalPages = data.totalPages
-          this.items.push(...data.results)
+          this.$store.commit('bookList/setPageProps', {
+            totalItems: data.count,
+            totalPages: data.totalPages,
+          })
+
+          this.$store.commit('bookList/add', [...data.results])
 
           return Promise.resolve()
         })
@@ -251,7 +272,7 @@ export default {
           }
         })
         .finally(() => {
-          this.isLoading = false
+          this.$store.commit('bookList/setLoading', false)
         })
     },
     removeQuery(key) {

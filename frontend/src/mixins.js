@@ -36,6 +36,14 @@ export const WindowResizeMixin = {
   },
 }
 
+export const BookListMixin = {
+  computed: {
+    bookList() {
+      return this.$store.state.bookList
+    },
+  },
+}
+
 export default {
   filters: {
     isoToDateTime: function (value) {

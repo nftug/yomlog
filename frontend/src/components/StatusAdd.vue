@@ -79,9 +79,9 @@ export default {
       // 各種データを入力
       this.id = item.id
       this.format_type = item.format_type
-      this.position = item.status.position || 0
+      this.position = item.status[0].position || 0
       this.total = item.total
-      this.to_be_read = item.status.state === 'to_be_read'
+      this.to_be_read = item.status[0].state === 'to_be_read'
 
       // デフォルト値を保存
       this.defaultValues.position = this.position

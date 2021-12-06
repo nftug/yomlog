@@ -5,20 +5,22 @@
         <v-card class="mx-auto">
           <v-card-text>
             <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title
-                  v-text="item.title"
-                  class="font-weight-medium"
-                ></v-list-item-title>
-                <v-list-item-subtitle>
-                  <span v-for="(author, index) in item.authors" :key="index">
-                    <router-link :to="`/shelf/all/?authors=${author}`">
-                      {{ author }}
-                    </router-link>
-                    <span v-if="index + 1 < item.authors.length">,</span>
-                  </span>
-                </v-list-item-subtitle>
-              </v-list-item-content>
+              <slot name="header" :item="item">
+                <v-list-item-content>
+                  <v-list-item-title
+                    v-text="item.title"
+                    class="font-weight-medium"
+                  ></v-list-item-title>
+                  <v-list-item-subtitle>
+                    <span v-for="(author, index) in item.authors" :key="index">
+                      <router-link :to="`/shelf/all/?authors=${author}`">
+                        {{ author }}
+                      </router-link>
+                      <span v-if="index + 1 < item.authors.length">,</span>
+                    </span>
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </slot>
             </v-list-item>
 
             <v-row no-gutters>
