@@ -14,13 +14,17 @@ class GenericSearchFilterSet(django_filter.FilterSet):
 
     def filter_search(self, queryset, name, value):
         query = Q()
+        value = value.replace("　", " ")
         words = value.split()
 
         for word in words:
             query_tmp = Q()
 
-            for field in self.Meta.fields_for_search:
-                query_tmp |= Q(**{field: word})
+            if name == 'q':
+                for field in self.Meta.fields_for_search:
+                    query_tmp |= Q(**{field: word})
+            else:
+                query_tmp |= Q(**{name + '__icontains': word})
 
             query &= query_tmp
 
@@ -30,8 +34,8 @@ class GenericSearchFilterSet(django_filter.FilterSet):
 class BookOriginFilter(GenericSearchFilterSet):
     """BookOrigin 検索用フィルタ"""
 
-    title = django_filter.CharFilter(field_name='title', lookup_expr='icontains')
-    authors = django_filter.CharFilter(field_name='authors', lookup_expr='icontains')
+    title = django_filter.CharFilter(field_name='title', method='filter_search')
+    authors = django_filter.CharFilter(field_name='authors', method='filter_search')
     amazon_dp = django_filter.CharFilter(field_name='books_copy__amazon_dp')
     can_copy = django_filter.BooleanFilter(label='Can copy', method='filter_can_copy')
 
@@ -57,8 +61,8 @@ class BookCopyFilter(GenericSearchFilterSet):
 
     STATUS_CHOICES = (('to_be_read', 'To be read'), ('reading', 'Reading'), ('read', 'Read'))
 
-    title = django_filter.CharFilter(field_name='book_origin__title', lookup_expr='icontains')
-    authors = django_filter.CharFilter(field_name='book_origin__authors', lookup_expr='icontains')
+    title = django_filter.CharFilter(field_name='book_origin__title', method='filter_search')
+    authors = django_filter.CharFilter(field_name='book_origin__authors', method='filter_search')
     status = django_filter.ChoiceFilter(label='Status', choices=STATUS_CHOICES, method='filter_status')
 
     class Meta:
@@ -99,8 +103,8 @@ class BookCopyFilter(GenericSearchFilterSet):
 class StatusLogFilter(GenericSearchFilterSet):
     """StatusLog 検索用フィルタ"""
 
-    title = django_filter.CharFilter(field_name='book__book_origin__title', lookup_expr='icontains')
-    authors = django_filter.CharFilter(field_name='book__book_origin__authors', lookup_expr='icontains')
+    title = django_filter.CharFilter(field_name='book__book_origin__title', method='filter_search')
+    authors = django_filter.CharFilter(field_name='book__book_origin__authors', method='filter_search')
     amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
     created_by = django_filter.CharFilter(field_name='created_by__username')
 
@@ -117,8 +121,10 @@ class StatusLogFilter(GenericSearchFilterSet):
 class NoteFilter(GenericSearchFilterSet):
     """Note 検索用フィルタ"""
 
-    title = django_filter.CharFilter(field_name='book__book_origin__title', lookup_expr='icontains')
-    authors = django_filter.CharFilter(field_name='book__book_origin__authors', lookup_expr='icontains')
+    title = django_filter.CharFilter(field_name='book__book_origin__title', method='filter_search')
+    authors = django_filter.CharFilter(field_name='book__book_origin__authors', method='filter_search')
+    content = django_filter.CharFilter(field_name='content', method='filter_search')
+    quote_text = django_filter.CharFilter(field_name='quote_text', method='filter_search')
     amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
     created_by = django_filter.CharFilter(field_name='created_by__username')
 
