@@ -186,7 +186,6 @@ export default {
       page: 1,
       mode: this.$route.params.mode,
       query: {},
-      searchValue: '',
     }
   },
   beforeRouteUpdate(to, from, next) {
@@ -229,7 +228,7 @@ export default {
       }
 
       this.$nextTick(() => {
-        this.$router.app.$emit('changeSearchValue', this.searchValue)
+        this.$router.app.$emit('changeSearchValue', route.query.q || '')
       })
     },
     fetchBookList() {
