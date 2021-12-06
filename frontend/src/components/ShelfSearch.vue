@@ -90,6 +90,12 @@ export default {
     },
     async showShelfSearch() {
       // フィールドのデフォルト値設定
+      // 初期化: すべてのフィールドを初期値に戻す
+      this.formSearch.forEach((e) => {
+        e.value = ''
+      })
+
+      // クエリに従ってフィールドの値を設定
       Object.keys(this.$route.query).forEach((key) => {
         const keyName = key.replace(/_or$/, '')
 
@@ -105,6 +111,12 @@ export default {
       })
 
       // ORフラグの設定
+      // 初期化: すべてのORフラグをANDに戻す
+      this.formSearch.forEach((e) => {
+        e.or = false
+      })
+
+      // クエリに従ってフィールドのORフラグを設定
       Object.keys(this.$route.query).forEach((key) => {
         const keyName = key.replace(/_or$/, '')
 

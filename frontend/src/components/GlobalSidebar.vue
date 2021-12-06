@@ -69,7 +69,7 @@ export default {
       {
         title: '本棚',
         icon: 'mdi-book-open-blank-variant',
-        path: '/shelf/',
+        path: '/shelf/reading',
       },
       {
         title: '本の追加',
@@ -94,11 +94,17 @@ export default {
     },
     menuItems() {
       const items = [...this.items]
-      const itemShelf = items.find((e) => e.title === '本棚')
 
-      itemShelf.path = `/shelf/${
-        this.$route.name === 'shelf' ? this.$route.params.mode : 'reading'
-      }`
+      if (this.$route.name === 'shelf') {
+        const itemShelf = items.find((e) => e.title === '本棚')
+        itemShelf.path = {
+          name: 'shelf',
+          params: {
+            mode: this.$route.params.mode,
+          },
+          query: this.$route.query,
+        }
+      }
 
       return items
     },
