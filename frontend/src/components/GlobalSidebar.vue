@@ -13,7 +13,12 @@
     <v-divider></v-divider>
 
     <v-list nav>
-      <v-list-item v-for="item in items" :key="item.title" :to="item.path" link>
+      <v-list-item
+        v-for="item in menuItems"
+        :key="item.title"
+        :to="item.path"
+        link
+      >
         <v-list-item-icon>
           <v-icon>{{ item.icon }}</v-icon>
         </v-list-item-icon>
@@ -64,7 +69,7 @@ export default {
       {
         title: '本棚',
         icon: 'mdi-book-open-blank-variant',
-        path: '/shelf/reading',
+        path: '/shelf/',
       },
       {
         title: '本の追加',
@@ -86,6 +91,16 @@ export default {
       set(val) {
         this.$emit('input', val)
       },
+    },
+    menuItems() {
+      const items = [...this.items]
+      const itemShelf = items.find((e) => e.title === '本棚')
+
+      itemShelf.path = `/shelf/${
+        this.$route.name === 'shelf' ? this.$route.params.mode : 'reading'
+      }`
+
+      return items
     },
   },
   methods: {
