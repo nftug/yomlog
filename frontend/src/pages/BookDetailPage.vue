@@ -35,18 +35,21 @@
                   </span>
                 </v-list-item-subtitle>
 
-                <div class="mt-3 mx-auto">
-                  <v-progress-circular
-                    :size="100"
-                    :width="15"
-                    :value="getProgress(item)"
-                    color="teal"
-                    class="text-center"
-                  >
-                    進捗度
-                    <br />
-                    {{ getProgress(item) }}%
-                  </v-progress-circular>
+                <div class="text-center">
+                  <div class="pt-5 mx-auto d-flex flex-row">
+                    <v-progress-circular
+                      :size="100"
+                      :width="15"
+                      :rotate="-90"
+                      :value="getProgress(item)"
+                      color="teal"
+                      class="text-center"
+                    >
+                      進捗度
+                      <br />
+                      {{ getProgress(item) }}%
+                    </v-progress-circular>
+                  </div>
                 </div>
               </v-list-item-content>
             </v-list-item>
@@ -75,6 +78,7 @@ export default {
     item: {},
     isLoading: false,
     error: null,
+    noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
   }),
   async created() {
     this.item = await this.$store.dispatch(
@@ -89,7 +93,12 @@ export default {
   computed: {
     getProgress() {
       return function (item) {
-        return parseInt(((item.status[0].position || 0) / item.total) * 100, 10)
+        if (item.status) {
+          return parseInt(
+            ((item.status[0].position || 0) / item.total) * 100,
+            10
+          )
+        }
       }
     },
   },

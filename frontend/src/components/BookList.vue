@@ -1,7 +1,7 @@
 <template>
   <div id="book-list">
     <v-row v-if="items.length">
-      <v-col v-for="item in items" :key="item.id" cols="12" md="6" lg="4">
+      <v-col v-for="item in items" :key="item.id" cols="12" md="6" xl="4">
         <v-card class="mx-auto">
           <v-card-text>
             <v-list-item>
