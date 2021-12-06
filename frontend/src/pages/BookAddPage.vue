@@ -59,7 +59,7 @@
         この本のページ数を入力してください。
       </p>
 
-      <v-form ref="formPages" v-model="formPages.valid">
+      <v-form ref="formPages" v-model="formPages.valid" @submit.prevent>
         <v-text-field
           v-model="formPages.value"
           label="ページ数"

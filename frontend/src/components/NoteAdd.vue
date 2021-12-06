@@ -31,7 +31,7 @@
 
     <spinner size="large" v-if="isSending" />
 
-    <v-form v-else ref="formNoteAdd" v-model="isValid">
+    <v-form v-else ref="formNoteAdd" v-model="isValid" @submit.prevent>
       <v-col cols="11" lg="5" md="6" sm="10" class="mx-auto mt-5">
         <v-tabs-items v-model="tab">
           <v-tab-item class="mt-3">

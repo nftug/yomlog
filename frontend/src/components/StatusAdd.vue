@@ -6,7 +6,7 @@
     :ok="postStatus"
     :form-valid="isValid"
   >
-    <v-form ref="formStatusAdd" v-model="isValid">
+    <v-form ref="formStatusAdd" v-model="isValid" @submit.prevent>
       <v-text-field
         v-model="position"
         :label="!format_type ? 'ページ数' : '位置No'"
