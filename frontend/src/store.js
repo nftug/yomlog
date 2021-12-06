@@ -165,8 +165,6 @@ const bookListModule = {
     },
     add(state, items) {
       try {
-        console.log(items)
-
         // 積読中のステータス修正
         items.forEach((item) => {
           if (item.status.length > 1 && item.status[0].state === 'to_be_read') {

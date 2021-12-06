@@ -50,14 +50,18 @@ export default {
 
       if (!(await this.$refs.dialogShelfSearch.showDialog())) return
 
+      this.doSearch()
+    },
+    doSearch() {
+      this.$refs.dialogShelfSearch.hideDialog()
+
       let query = { ...this.formSearch }
       for (const key in query) {
         if (!query[key]) delete query[key]
       }
 
       this.$router.push({
-        name: 'shelf',
-        params: { mode: this.mode },
+        path: `/shelf/${this.mode}/`,
         query: query,
       })
     },
