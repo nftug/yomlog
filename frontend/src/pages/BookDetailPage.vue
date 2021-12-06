@@ -8,7 +8,35 @@
 
     <template v-else>
       <v-col sm="10" class="mx-auto">
-        {{ item.title }}
+        <v-card class="mx-auto" outlined>
+          <v-card-text>
+            <div class="d-flex flex-row">
+              <v-img
+                contain
+                :src="item.thumbnail || noImage"
+                max-height="185"
+                min-height="185"
+              ></v-img>
+
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title
+                    v-text="item.title"
+                    class="font-weight-medium"
+                  ></v-list-item-title>
+                  <v-list-item-subtitle>
+                    <span v-for="(author, index) in item.authors" :key="index">
+                      <router-link :to="`/shelf/all/?authors=${author}`">
+                        {{ author }}
+                      </router-link>
+                      <span v-if="index + 1 < item.authors.length">,</span>
+                    </span>
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </div>
+          </v-card-text>
+        </v-card>
       </v-col>
     </template>
   </v-container>
