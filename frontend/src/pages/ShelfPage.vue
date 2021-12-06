@@ -36,28 +36,7 @@
 
       <template v-else>
         <!-- 本棚 -->
-        <BookList :items="bookList.items">
-          <template #header="{ item }">
-            <v-list-item-content>
-              <v-list-item-title class="font-weight-medium">
-                <router-link
-                  :to="`/book/detail/${item.id}`"
-                  class="black--text"
-                >
-                  {{ item.title }}
-                </router-link>
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                <span v-for="(author, index) in item.authors" :key="index">
-                  <router-link :to="`/shelf/all/?authors=${author}`">
-                    {{ author }}
-                  </router-link>
-                  <span v-if="index + 1 < item.authors.length">,</span>
-                </span>
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </template>
-
+        <BookList :items="bookList.items" detail-link>
           <template #content="{ item }">
             <!-- 追加の情報 -->
             <v-list-item>
@@ -84,7 +63,13 @@
               <v-col cols="3">
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
-                    <v-btn icon color="secondary" v-bind="attrs" v-on="on">
+                    <v-btn
+                      icon
+                      color="secondary"
+                      v-bind="attrs"
+                      v-on="on"
+                      :to="`/book/detail/${item.id}`"
+                    >
                       <v-icon>mdi-eye</v-icon>
                     </v-btn>
                   </template>

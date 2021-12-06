@@ -7,10 +7,18 @@
             <v-list-item>
               <slot name="header" :item="item">
                 <v-list-item-content>
-                  <v-list-item-title
-                    v-text="item.title"
-                    class="font-weight-medium"
-                  ></v-list-item-title>
+                  <v-list-item-title class="font-weight-medium">
+                    <router-link
+                      v-if="detailLink"
+                      :to="`/book/detail/${item.id}`"
+                      class="black--text"
+                    >
+                      {{ item.title }}
+                    </router-link>
+                    <template v-else>
+                      {{ item.title }}
+                    </template>
+                  </v-list-item-title>
                   <v-list-item-subtitle>
                     <span v-for="(author, index) in item.authors" :key="index">
                       <router-link :to="`/shelf/all/?authors=${author}`">
@@ -29,12 +37,22 @@
               </v-col>
 
               <v-col cols="4">
-                <v-img
-                  contain
-                  :src="item.thumbnail || noImage"
-                  max-height="185"
-                  min-height="185"
-                ></v-img>
+                <router-link v-if="detailLink" :to="`/book/detail/${item.id}`">
+                  <v-img
+                    contain
+                    :src="item.thumbnail || noImage"
+                    max-height="185"
+                    min-height="185"
+                  ></v-img>
+                </router-link>
+                <template v-else>
+                  <v-img
+                    contain
+                    :src="item.thumbnail || noImage"
+                    max-height="185"
+                    min-height="185"
+                  ></v-img>
+                </template>
               </v-col>
             </v-row>
           </v-card-text>
@@ -60,6 +78,10 @@ export default {
       default: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
     },
     loading: {
+      type: Boolean,
+      default: false,
+    },
+    detailLink: {
       type: Boolean,
       default: false,
     },
