@@ -28,17 +28,6 @@ class StatusLogSerializer(PostSerializer):
             'created_at': {'required': False, 'read_only': True},
         }
 
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-
-        status_previous = self.context.get('status_previous')
-        if instance.position == 0 and status_previous:
-            # 積読中で前のレコードが存在する場合、前のレコードの値を返す
-            ret['position'] = status_previous.position
-            ret['created_at'] = localtime(status_previous.created_at)
-
-        return ret
-
     def get_state(self, instance):
         if instance.position == 0:
             return 'to_be_read'
@@ -90,41 +79,26 @@ class BookCopySerializer(PostSerializer):
         }
 
     def get_status(self, instance):
-        if self.context['view'].action == 'list':
-            # リストの場合: 最新のステータスを一件表示
-            if hasattr(instance, 'status_log'):
-                context = {'request': self.context.get('request')}
-                status_log = instance.status_log.order_by('-created_at')
-
-                if status_log.exists():
-                    if status_log.count() > 1:
-                        context['status_previous'] = status_log[1]
-                    return StatusLogSerializer(status_log.first(), read_only=True, context=context).data
-
-            return {
+        # 詳細の場合: ステータスのリストを表示
+        # NOTE: 積読状態の時、最新のpositionは0になる (クライアント側で次のレコードから取得する必要あり)
+        if hasattr(instance, 'status_log'):
+            status_log = instance.status_log.order_by('-created_at')
+            return StatusLogSerializer(status_log, many=True, read_only=True).data
+        else:
+            return [{
                 'state': 'to_be_read',
                 'id': None,
                 'position': 0,
                 'created_at': None,
                 'book': instance.id if hasattr(instance, 'id') else None
-            }
-
-        else:
-            # 詳細の場合: ステータスのリストを表示
-            # NOTE: 積読状態の時、最新のpositionは0になる (クライアント側で次のレコードから取得する必要あり)
-            if hasattr(instance, 'status_log'):
-                status_log = instance.status_log.order_by('-created_at')
-                return StatusLogSerializer(status_log, many=True, read_only=True).data
+            }]
 
     def get_authors(self, instance):
         return instance.book_origin.authors.split(',')
 
     def get_notes(self, instance):
-        if self.context['view'].action == 'retrieve':
-            notes = instance.notes.order_by('position')
-            return NoteSerializer(notes, many=True, read_only=True).data
-        else:
-            return None
+        notes = instance.notes.order_by('position')
+        return NoteSerializer(notes, many=True, read_only=True).data
 
 
 class BookOriginSerializer(serializers.ModelSerializer):
