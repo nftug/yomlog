@@ -26,8 +26,13 @@ export default {
     Dialog,
   },
   data: () => ({
-    mode: '',
-    modes: ['あとで読む', '読んでいる本', '読んだ本', '全ての本'],
+    mode: null,
+    modes: [
+      { text: 'あとで読む', value: 'to_be_read' },
+      { text: '読んでいる本', value: 'reading' },
+      { text: '読んだ本', value: 'read' },
+      { text: '全ての本', value: 'all' },
+    ],
     formSearch: {
       q: '',
       title: '',
@@ -41,8 +46,7 @@ export default {
       this.formSearch.title = this.$route.query.title || ''
       this.formSearch.authors = this.$route.query.authors || ''
       this.formSearch.amazon_dp = this.$route.query.amazon_dp || ''
-
-      // TODO: モードの切り替えを実装する
+      this.mode = this.$route.params.mode
 
       if (!(await this.$refs.dialogShelfSearch.showDialog())) return
 
@@ -52,7 +56,8 @@ export default {
       }
 
       this.$router.push({
-        path: this.$route.path,
+        name: 'shelf',
+        params: { mode: this.mode },
         query: query,
       })
     },
