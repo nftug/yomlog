@@ -9,7 +9,7 @@
     <v-col v-else sm="10" class="mx-auto">
       <v-card class="mx-auto" outlined>
         <v-card-text>
-          <div class="d-flex flex-row">
+          <div class="d-sm-flex flex-row">
             <v-img
               contain
               :src="item.thumbnail || noImage"
@@ -34,27 +34,27 @@
                     <span v-if="index + 1 < item.authors.length">,</span>
                   </span>
                 </v-list-item-subtitle>
+
+                <div class="mt-3 mx-auto">
+                  <v-progress-circular
+                    :size="100"
+                    :width="15"
+                    :value="getProgress(item)"
+                    color="teal"
+                    class="text-center"
+                  >
+                    進捗度
+                    <br />
+                    {{ getProgress(item) }}%
+                  </v-progress-circular>
+                </div>
               </v-list-item-content>
             </v-list-item>
           </div>
         </v-card-text>
       </v-card>
 
-      <div class="text-center">
-        <v-card-text>
-          <v-progress-circular
-            :size="120"
-            :width="15"
-            :value="getProgress(item)"
-            color="teal"
-            class="text-center"
-          >
-            進捗度
-            <br />
-            {{ getProgress(item) }}%
-          </v-progress-circular>
-        </v-card-text>
-      </div>
+      <div class="text-center"></div>
     </v-col>
   </v-container>
 </template>
