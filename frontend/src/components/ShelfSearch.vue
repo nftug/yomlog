@@ -2,19 +2,34 @@
   <Dialog
     ref="dialogShelfSearch"
     title="検索条件の追加"
-    :max-width="400"
+    :max-width="500"
     label-ok="検索"
   >
-    <p>指定した条件でAND検索を行います。</p>
+    <p>指定した条件でAND/OR検索を行います。</p>
     <v-select label="モード" :items="modes" v-model="mode"></v-select>
-    <v-text-field v-model="formSearch.q" label="フリーワード"></v-text-field>
-    <v-text-field v-model="formSearch.title" label="タイトル"></v-text-field>
-    <v-text-field v-model="formSearch.authors" label="著者名"></v-text-field>
-    <v-text-field
-      v-model="formSearch.amazon_dp"
-      label="ISBN/ASIN"
-      maxlength="13"
-    ></v-text-field>
+
+    <div v-for="(field, index) in formSearch" :key="index">
+      <v-row>
+        <v-col cols="9">
+          <v-text-field
+            v-model="field.value"
+            :label="field.label"
+            :maxlength="field.maxlength"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="3">
+          <v-select
+            :items="andOrList"
+            v-model="field.or"
+            :disabled="
+              index === formSearch.length - 1 ||
+              !field.value ||
+              !hasNextFilledField(index)
+            "
+          ></v-select>
+        </v-col>
+      </v-row>
+    </div>
   </Dialog>
 </template>
 
@@ -33,19 +48,80 @@ export default {
       { text: '読んだ本', value: 'read' },
       { text: '全ての本', value: 'all' },
     ],
-    formSearch: {
-      q: '',
-      title: '',
-      authors: '',
-      amazon_dp: '',
-    },
+    andOrList: [
+      { text: 'AND', value: false },
+      { text: 'OR', value: true },
+    ],
+    formSearch: [
+      {
+        name: 'q',
+        label: 'フリーワード',
+        value: '',
+        maxlength: null,
+        or: false,
+      },
+      {
+        name: 'title',
+        label: 'タイトル',
+        value: '',
+        maxlength: null,
+        or: false,
+      },
+      {
+        name: 'authors',
+        label: '著者名',
+        value: '',
+        maxlength: null,
+        or: false,
+      },
+      {
+        name: 'amazon_dp',
+        label: 'ISBN/ASIN',
+        value: '',
+        maxlength: 13,
+        or: false,
+      },
+    ],
   }),
   methods: {
+    hasNextFilledField(index) {
+      const nextFields = this.formSearch.slice(index + 1)
+      return nextFields.findIndex((e) => e.value) !== -1
+    },
     async showShelfSearch() {
-      this.formSearch.q = this.$route.query.q || ''
-      this.formSearch.title = this.$route.query.title || ''
-      this.formSearch.authors = this.$route.query.authors || ''
-      this.formSearch.amazon_dp = this.$route.query.amazon_dp || ''
+      // フィールドのデフォルト値設定
+      Object.keys(this.$route.query).forEach((key) => {
+        const keyName = key.replace(/_or$/, '')
+
+        const index = this.formSearch.findIndex((e) => e.name === keyName)
+        if (index !== -1) {
+          // NOTE: 配列をリアクティブに対応させるために、array.splice(index, 1, value)を利用すること
+          const field = { ...this.formSearch[index] }
+          this.formSearch.splice(index, 1, {
+            ...field,
+            value: this.$route.query[key],
+          })
+        }
+      })
+
+      // ORフラグの設定
+      Object.keys(this.$route.query).forEach((key) => {
+        const keyName = key.replace(/_or$/, '')
+
+        if (keyName !== key) {
+          let index = this.formSearch.findIndex((e) => e.name === keyName)
+          index = this.formSearch.slice(0, index).findIndex((e) => e.value)
+
+          if (index !== -1) {
+            const field = { ...this.formSearch[index] }
+            this.formSearch.splice(index, 1, {
+              ...field,
+              or: true,
+            })
+          }
+        }
+      })
+
       this.mode = this.$route.params.mode
 
       if (!(await this.$refs.dialogShelfSearch.showDialog())) return
@@ -55,9 +131,17 @@ export default {
     doSearch() {
       this.$refs.dialogShelfSearch.hideDialog()
 
-      let query = { ...this.formSearch }
-      for (const key in query) {
-        if (!query[key]) delete query[key]
+      let query = {}
+      let or = false
+      for (const key in this.formSearch) {
+        const value = this.formSearch[key]['value']
+        let name = this.formSearch[key]['name']
+        name = or ? `${name}_or` : name
+
+        if (value) {
+          query[name] = value
+          or = this.formSearch[key]['or']
+        }
       }
 
       this.$router.push({
