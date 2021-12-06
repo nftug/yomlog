@@ -281,6 +281,20 @@ export default {
     removeQuery(key) {
       let query = { ...this.query }
       delete query[key]
+
+      // OR検索だけになったらAND検索に置換
+      const keys = Object.keys(query)
+      const hasAnd = keys.some((e) => e.match(/^(?!.*_or).*$/) !== null)
+
+      if (!hasAnd) {
+        query = {}
+        keys.forEach((key) => {
+          const value = this.query[key]
+          const keyName = key.replace(/_or$/, '')
+          query[keyName] = value
+        })
+      }
+
       this.$router.push({
         path: this.$route.path,
         query: query,
