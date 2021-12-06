@@ -94,9 +94,9 @@ export default {
     },
     menuItems() {
       const items = [...this.items]
+      const itemShelf = items.find((e) => e.title === '本棚')
 
       if (this.$route.name === 'shelf') {
-        const itemShelf = items.find((e) => e.title === '本棚')
         itemShelf.path = {
           name: 'shelf',
           params: {
@@ -104,6 +104,8 @@ export default {
           },
           query: this.$route.query,
         }
+      } else {
+        itemShelf.path = '/shelf/reading'
       }
 
       return items
