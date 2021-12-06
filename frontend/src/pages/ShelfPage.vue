@@ -160,7 +160,11 @@
     </div>
 
     <!-- ダイアログ -->
-    <StatusAdd ref="statusAdd" shelf @reload="initPage"></StatusAdd>
+    <StatusAdd
+      ref="statusAdd"
+      shelf
+      @reload="initPage({ isReload: true })"
+    ></StatusAdd>
 
     <NoteAdd ref="noteAdd" shelf></NoteAdd>
 
@@ -205,20 +209,22 @@ export default {
   beforeRouteUpdate(to, from, next) {
     // ナビゲーションガード
     // routeがアップデートされるたびにモードを変更する
-    this.initPage(to)
+    this.initPage({ isReload: true, route: to })
     next()
   },
   created() {
-    this.initPage()
+    this.initPage({ isReload: false })
   },
   methods: {
-    initPage(route = this.$route) {
+    initPage({ isReload, route = this.$route }) {
       this.mode = route.params.mode !== 'all' ? route.params.mode : ''
       this.query = { ...route.query }
       delete this.query.page
       this.page = Number(route.query.page || 1)
 
-      this.fetchBookList()
+      if (isReload || !this.bookList.items.length) {
+        this.fetchBookList()
+      }
 
       this.$nextTick(() => {
         this.$router.app.$emit('changeSearchValue', this.searchValue)
