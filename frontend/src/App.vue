@@ -42,12 +42,3 @@ export default {
   }),
 }
 </script>
-
-<style>
-a {
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-}
-</style>

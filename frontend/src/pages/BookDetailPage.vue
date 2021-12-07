@@ -6,55 +6,36 @@
     <!-- Spinner -->
     <spinner v-if="isLoading"></spinner>
 
-    <v-col v-else sm="10" class="mx-auto">
-      <v-card class="mx-auto" outlined>
-        <v-card-text>
-          <div class="d-sm-flex flex-row">
-            <v-img
-              contain
-              :src="item.thumbnail || noImage"
-              max-height="185"
-              min-height="185"
-            ></v-img>
-
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title
-                  v-text="item.title"
-                  class="font-weight-medium"
-                ></v-list-item-title>
-                <v-list-item-subtitle>
-                  <span v-for="(author, index) in item.authors" :key="index">
-                    <router-link :to="`/shelf/all/?authors=${author}`">
-                      {{ author }}
-                    </router-link>
-                    <span v-if="index + 1 < item.authors.length">,</span>
-                  </span>
-                </v-list-item-subtitle>
-
-                <div class="text-center">
-                  <div class="pt-5 mx-auto d-flex flex-row">
-                    <v-progress-circular
-                      :size="100"
-                      :width="15"
-                      :rotate="-90"
-                      :value="getProgress(item)"
-                      color="teal"
-                      class="text-center"
-                    >
-                      進捗度
-                      <br />
-                      {{ getProgress(item) }}%
-                    </v-progress-circular>
-                  </div>
-                </div>
-              </v-list-item-content>
-            </v-list-item>
+    <v-col v-else sm="10" md="9" class="mx-auto">
+      <v-row class="pb-5">
+        <v-col cols="12" sm="8">
+          <!-- 書籍情報 -->
+          <div class="text-h5 pb-2 font-weight-bold" v-text="item.title"></div>
+          <div class="text-body-2 pb-sm-5">
+            <span v-for="(author, index) in item.authors" :key="index">
+              <router-link
+                :to="`/shelf/all/?authors=${author}`"
+                v-text="author"
+              ></router-link>
+              <span v-if="index + 1 < item.authors.length" v-text="', '"></span>
+            </span>
           </div>
-        </v-card-text>
-      </v-card>
 
-      <div class="text-center"></div>
+          <BookDetailMenu :item="item" class="px-4 py-2"></BookDetailMenu>
+        </v-col>
+
+        <v-col cols="12" sm="4">
+          <v-img
+            contain
+            :src="item.thumbnail || noImage"
+            max-height="185"
+            min-height="185"
+          ></v-img>
+        </v-col>
+      </v-row>
+
+      <!-- 状態表示 (Mobile) -->
+      <BookDetailInfo :item="item"></BookDetailInfo>
     </v-col>
   </v-container>
 </template>
@@ -64,12 +45,16 @@ import api from '@/services/api'
 import Spinner from 'vue-simple-spinner'
 import NotFoundPage from '@/pages/error/NotFoundPage.vue'
 import Mixins, { BookListMixin, ShelfSearchFromHeaderMixin } from '@/mixins'
+import BookDetailInfo from '@/components/BookDetailInfo.vue'
+import BookDetailMenu from '@/components/BookDetailMenu.vue'
 
 export default {
   mixins: [Mixins, BookListMixin, ShelfSearchFromHeaderMixin],
   components: {
     NotFoundPage,
     Spinner,
+    BookDetailInfo,
+    BookDetailMenu,
   },
   data: () => ({
     item: {},
@@ -86,18 +71,6 @@ export default {
     if (!Object.keys(this.item).length) {
       this.fetchBookData()
     }
-  },
-  computed: {
-    getProgress() {
-      return function (item) {
-        if (item.status) {
-          return parseInt(
-            ((item.status[0].position || 0) / item.total) * 100,
-            10
-          )
-        }
-      }
-    },
   },
   methods: {
     fetchBookData() {

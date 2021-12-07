@@ -21,10 +21,14 @@
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     <span v-for="(author, index) in item.authors" :key="index">
-                      <router-link :to="`/shelf/all/?authors=${author}`">
-                        {{ author }}
-                      </router-link>
-                      <span v-if="index + 1 < item.authors.length">,</span>
+                      <router-link
+                        :to="`/shelf/all/?authors=${author}`"
+                        v-text="author"
+                      ></router-link>
+                      <span
+                        v-if="index + 1 < item.authors.length"
+                        v-text="', '"
+                      ></span>
                     </span>
                   </v-list-item-subtitle>
                 </v-list-item-content>
