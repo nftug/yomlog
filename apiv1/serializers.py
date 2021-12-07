@@ -85,13 +85,7 @@ class BookCopySerializer(PostSerializer):
             status_log = instance.status_log.order_by('-created_at')
             return StatusLogSerializer(status_log, many=True, read_only=True).data
         else:
-            return [{
-                'state': 'to_be_read',
-                'id': None,
-                'position': 0,
-                'created_at': None,
-                'book': instance.id if hasattr(instance, 'id') else None
-            }]
+            return None
 
     def get_authors(self, instance):
         return instance.book_origin.authors.split(',')

@@ -167,7 +167,20 @@ const bookListModule = {
       try {
         // 積読中のステータス修正
         items.forEach((item) => {
-          if (item.status.length > 1 && item.status[0].state === 'to_be_read') {
+          if (!item.status.length) {
+            item.status = [
+              {
+                state: 'to_be_read',
+                id: null,
+                position: 0,
+                created_at: null,
+                book: item.id,
+              },
+            ]
+          } else if (
+            item.status.length > 1 &&
+            item.status[0].state === 'to_be_read'
+          ) {
             item.status[0].position = item.status[1].position
           }
         })
