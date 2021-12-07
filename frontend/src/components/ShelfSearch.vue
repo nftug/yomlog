@@ -111,9 +111,8 @@ export default {
         const index = this.formSearch.findIndex((e) => e.name === keyName)
         if (index !== -1) {
           // NOTE: 配列をリアクティブに対応させるために、array.splice(index, 1, value)を利用すること
-          const field = { ...this.formSearch[index] }
           this.formSearch.splice(index, 1, {
-            ...field,
+            ...this.formSearch[index],
             value: this.$route.query[key],
           })
         }
@@ -134,9 +133,8 @@ export default {
           index = this.formSearch.slice(0, index).findIndex((e) => e.value)
 
           if (index !== -1) {
-            const field = { ...this.formSearch[index] }
             this.formSearch.splice(index, 1, {
-              ...field,
+              ...this.formSearch[index],
               or: true,
             })
           }
@@ -156,10 +154,9 @@ export default {
       let or = false
       for (const key in this.formSearch) {
         const value = this.formSearch[key]['value']
-        let name = this.formSearch[key]['name']
-        name = or ? `${name}_or` : name
-
         if (value) {
+          let name = this.formSearch[key]['name']
+          name = or ? `${name}_or` : name
           query[name] = value
           or = this.formSearch[key]['or']
         }
