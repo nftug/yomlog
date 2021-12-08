@@ -92,18 +92,20 @@ export default {
 
           if (this.bookList.items.length) {
             // this.$store.commit('bookList/set', data)
-            const isDiffStatus =
+
+            if (
+              !this.item.status ||
               JSON.stringify(this.item.status[0]) !==
-              JSON.stringify(data.status[0])
-            if (!this.item.status || isDiffStatus) {
+                JSON.stringify(data.status[0])
+            ) {
               this.$store.commit('bookList/setDirty', true)
             }
           }
 
           this.item = data
         })
-        .catch(({ response }) => {
-          this.error = response.status
+        .catch((error) => {
+          if (error.response) this.error = error.response.status
         })
         .finally(() => {
           this.isLoading = false

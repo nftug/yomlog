@@ -105,13 +105,16 @@ export default {
             message: '進捗状況を記録しました。',
           })
         })
-        .catch(({ response: { data } }) => {
-          if (data.position) {
-            this.positionErrors = data.position
-          } else {
-            this.$store.dispatch('message/setErrorMessage', {
-              message: 'エラーが発生しました',
-            })
+        .catch((error) => {
+          if (error.data) {
+            const { data } = error
+            if (data.position) {
+              this.positionErrors = data.position
+            } else {
+              this.$store.dispatch('message/setErrorMessage', {
+                message: 'エラーが発生しました',
+              })
+            }
           }
         })
     },

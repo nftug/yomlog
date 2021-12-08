@@ -250,13 +250,16 @@ export default {
 
           return Promise.resolve()
         })
-        .catch(({ response }) => {
-          if (response.status === 404) {
-            // ページ数超過の場合、最終ページに遷移
-            let params = { ...response.config.params }
-            this.replaceWithFinalPage('/book/', params)
-          } else {
-            return Promise.reject(response)
+        .catch((error) => {
+          if (error.response) {
+            const { response } = error
+            if (response.status === 404) {
+              // ページ数超過の場合、最終ページに遷移
+              let params = { ...response.config.params }
+              this.replaceWithFinalPage('/book/', params)
+            } else {
+              return Promise.reject(response)
+            }
           }
         })
         .finally(() => {
