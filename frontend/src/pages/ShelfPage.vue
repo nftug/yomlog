@@ -179,7 +179,13 @@ export default {
     next()
   },
   created() {
-    this.initPage({ isReload: !this.$isBrowserBack })
+    this.initPage({
+      isReload: this.bookList.isReload || !this.$isBrowserBack,
+    })
+
+    if (this.bookList.isReload) {
+      this.$store.commit('bookList/setReload', false)
+    }
   },
   filters: {
     searchLabel(key) {

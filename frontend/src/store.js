@@ -154,6 +154,7 @@ const bookListModule = {
     totalItems: 0,
     totalPages: 0,
     isLoading: false,
+    isReload: false,
   },
   mutations: {
     setLoading(state, val) {
@@ -163,8 +164,15 @@ const bookListModule = {
       state.totalItems = payload.totalItems
       state.totalPages = payload.totalPages
     },
+    setReload(state, val) {
+      state.isReload = val
+    },
     add(state, item) {
       state.items.push(item)
+    },
+    set(state, item) {
+      const index = state.items.findIndex((e) => e.id === item.id)
+      state.items[index] = { ...item }
     },
     clear(state) {
       state.items = []

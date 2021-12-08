@@ -89,6 +89,11 @@ export default {
         .get(`/book_copy/${this.$route.params.id}/`)
         .then(({ data }) => {
           this.fixStatus(data)
+          this.$store.commit('bookList/set', data)
+          if (this.item.status[0].state !== data.status[0].state) {
+            this.$store.commit('bookList/setReload', true)
+          }
+
           this.item = data
         })
         .catch(({ response }) => {
