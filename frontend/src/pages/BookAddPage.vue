@@ -5,12 +5,12 @@
       <BookList :items="items" :loading="true">
         <template #content="{ item }">
           <v-list-item>
-            <v-btn color="green" dark block @click="addBookCopy(item)">
+            <v-btn color="green" dark block @click="addBook(item)">
               本を登録
             </v-btn>
           </v-list-item>
           <v-list-item>
-            <v-btn color="orange" dark block @click="addBookCopy(item, true)">
+            <v-btn color="orange" dark block @click="addBook(item, true)">
               Kindle本を登録
             </v-btn>
           </v-list-item>
@@ -180,7 +180,7 @@ export default {
             this.total = data.totalItems
 
             data.items.forEach((item) => {
-              const { volumeInfo } = item
+              const { volumeInfo, id } = item
               let amazon_dp
 
               if (volumeInfo.industryIdentifiers) {
@@ -207,6 +207,7 @@ export default {
                   : null,
                 total: volumeInfo.pageCount || 0,
                 amazon_dp: amazon_dp,
+                id_google: id,
               })
             })
 
@@ -243,9 +244,9 @@ export default {
       // ボトムシートの非表示
       this.searchBottomSheet = false
     },
-    async addBookCopy(item, kindle) {
+    async addBook(item, kindle) {
       try {
-        let bookOrigin, response, format_type
+        let response, format_type
 
         // 書籍データの入力
         if (kindle) {
@@ -267,26 +268,16 @@ export default {
           format_type = 0
         }
 
-        // BookOriginのデータを登録
+        // Bookのデータを登録
         // 既に登録されている場合は該当のデータが返却される (statusは200)
         response = await api({
-          url: '/book_origin/',
+          url: '/book/',
           method: 'post',
           data: {
+            id_google: item.id_google,
             authors: item.authors.join(','),
             title: item.title,
             thumbnail: item.thumbnail,
-          },
-        })
-        bookOrigin = response.data.id
-
-        // BookCopyのデータを登録
-        // 既に登録されている場合は該当のデータが返却される (statusは200)
-        response = await api({
-          url: '/book_copy/',
-          method: 'post',
-          data: {
-            book_origin: bookOrigin,
             total: item.total,
             amazon_dp: item.amazon_dp,
             format_type: format_type,

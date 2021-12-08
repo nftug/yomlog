@@ -63,20 +63,23 @@ class NoteSerializer(PostSerializer):
         }
 
 
-class BookCopySerializer(PostSerializer):
+class BookSerializer(PostSerializer):
     # created_by = serializers.SerializerMethodField()
-    title = serializers.ReadOnlyField(source='book_origin.title')
-    authors = serializers.SerializerMethodField()
-    thumbnail = serializers.ReadOnlyField(source='book_origin.thumbnail')
+    # authors = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     notes = serializers.SerializerMethodField()
 
     class Meta:
-        model = BookCopy
+        model = Book
         exclude = ['created_by']
         extra_kwargs = {
             'created_at': {'required': False, 'read_only': True},
         }
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['authors'] = self.get_authors(instance)
+        return ret
 
     def get_status(self, instance):
         # 詳細の場合: ステータスのリストを表示
@@ -88,27 +91,8 @@ class BookCopySerializer(PostSerializer):
             return None
 
     def get_authors(self, instance):
-        return instance.book_origin.authors.split(',')
+        return instance.authors.split(',')
 
     def get_notes(self, instance):
         notes = instance.notes.order_by('position')
         return NoteSerializer(notes, many=True, read_only=True).data
-
-
-class BookOriginSerializer(serializers.ModelSerializer):
-    # books_copy = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    amazon_dp = serializers.SerializerMethodField()
-
-    class Meta:
-        model = BookOrigin
-        fields = '__all__'
-        extra_kwargs = {
-            'created_at': {'required': False, 'read_only': True}
-        }
-
-    def get_amazon_dp(self, instance):
-        if hasattr(instance, 'id'):
-            books_copy = BookCopy.objects.filter(book_origin=instance).values('amazon_dp')
-            return list(set((_['amazon_dp'] for _ in books_copy)))
-        else:
-            return []

@@ -230,7 +230,7 @@ export default {
       this.$store.commit('bookList/clear')
 
       return api
-        .get('/book_copy/', {
+        .get('/book/', {
           params: {
             page: this.page,
             status: this.mode,
@@ -254,7 +254,7 @@ export default {
           if (response.status === 404) {
             // ページ数超過の場合、最終ページに遷移
             let params = { ...response.config.params }
-            this.replaceWithFinalPage('/book_copy/', params)
+            this.replaceWithFinalPage('/book/', params)
           } else {
             return Promise.reject(response)
           }

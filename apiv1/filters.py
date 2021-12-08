@@ -2,7 +2,7 @@ from django.db.models.query import QuerySet
 from django_filters import rest_framework as django_filter
 from django.db.models import Q, F, Max
 
-from backend.models import BookOrigin, BookCopy, StatusLog, Note
+from backend.models import Book, StatusLog, Note
 import re
 
 
@@ -49,48 +49,23 @@ class GenericSearchFilterSet(django_filter.FilterSet):
         return queryset | self.filter_search(queryset.model.objects.all(), name, value)
 
 
-class BookOriginFilter(GenericSearchFilterSet):
-    """BookOrigin 検索用フィルタ"""
-
-    title = django_filter.CharFilter(field_name='title', method='filter_search')
-    authors = django_filter.CharFilter(field_name='authors', method='filter_search')
-    amazon_dp = django_filter.CharFilter(field_name='books_copy__amazon_dp')
-    can_copy = django_filter.BooleanFilter(label='Can copy', method='filter_can_copy')
-
-    class Meta:
-        model = BookOrigin
-        exclude = ['thumbnail']
-        fields_for_search = [
-            'title__icontains',
-            'authors__icontains',
-            'books_copy__amazon_dp'
-        ]
-
-    def filter_can_copy(self, queryset, name, value):
-        # BookCopyを所持していない = BookCopyが作成可能なレコードのみ表示
-        if value:
-            return queryset.exclude(books_copy__created_by=self.request.user)
-        else:
-            return queryset
-
-
-class BookCopyFilter(GenericSearchFilterSet):
-    """BookCopy 検索用フィルタ"""
+class BookFilter(GenericSearchFilterSet):
+    """Book 検索用フィルタ"""
 
     STATUS_CHOICES = (('to_be_read', 'To be read'), ('reading', 'Reading'), ('read', 'Read'))
 
-    title = django_filter.CharFilter(field_name='book_origin__title', method='filter_search')
-    authors = django_filter.CharFilter(field_name='book_origin__authors', method='filter_search')
-    title_or = django_filter.CharFilter(field_name='book_origin__title', label='Title (OR)', method='filter_search_or')
-    authors_or = django_filter.CharFilter(field_name='book_origin__authors', label='Authors (OR)', method='filter_search_or')
+    title = django_filter.CharFilter(field_name='title', method='filter_search')
+    authors = django_filter.CharFilter(field_name='authors', method='filter_search')
+    title_or = django_filter.CharFilter(field_name='title', label='Title (OR)', method='filter_search_or')
+    authors_or = django_filter.CharFilter(field_name='authors', label='Authors (OR)', method='filter_search_or')
     status = django_filter.ChoiceFilter(label='Status', choices=STATUS_CHOICES, method='filter_status')
 
     class Meta:
-        model = BookCopy
+        model = Book
         fields = '__all__'
         fields_for_search = [
-            'book_origin__title__icontains',
-            'book_origin__authors__icontains',
+            'title__icontains',
+            'authors__icontains',
             'amazon_dp'
         ]
 
@@ -110,11 +85,11 @@ class BookCopyFilter(GenericSearchFilterSet):
             return queryset
 
         if value == 'to_be_read':
-            queryset = BookCopy.objects.filter_current_status(queryset, 'to_be_read')
+            queryset = Book.objects.filter_current_status(queryset, 'to_be_read')
         elif value == 'reading':
-            queryset = BookCopy.objects.filter_current_status(queryset, 'reading')
+            queryset = Book.objects.filter_current_status(queryset, 'reading')
         elif value == 'read':
-            queryset = BookCopy.objects.filter_current_status(queryset, 'read')
+            queryset = Book.objects.filter_current_status(queryset, 'read')
 
         return queryset.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')
 
@@ -122,10 +97,10 @@ class BookCopyFilter(GenericSearchFilterSet):
 class StatusLogFilter(GenericSearchFilterSet):
     """StatusLog 検索用フィルタ"""
 
-    title = django_filter.CharFilter(field_name='book__book_origin__title', method='filter_search')
-    authors = django_filter.CharFilter(field_name='book__book_origin__authors', method='filter_search')
-    title_or = django_filter.CharFilter(field_name='book__book_origin__title', label='Title (OR)', method='filter_search_or')
-    authors_or = django_filter.CharFilter(field_name='book__book_origin__authors', label='Authors (OR)', method='filter_search_or')
+    title = django_filter.CharFilter(field_name='book__title', method='filter_search')
+    authors = django_filter.CharFilter(field_name='book__authors', method='filter_search')
+    title_or = django_filter.CharFilter(field_name='book__title', label='Title (OR)', method='filter_search_or')
+    authors_or = django_filter.CharFilter(field_name='book__authors', label='Authors (OR)', method='filter_search_or')
     amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
     created_by = django_filter.CharFilter(field_name='created_by__username')
 
@@ -142,12 +117,12 @@ class StatusLogFilter(GenericSearchFilterSet):
 class NoteFilter(GenericSearchFilterSet):
     """Note 検索用フィルタ"""
 
-    title = django_filter.CharFilter(field_name='book__book_origin__title', method='filter_search')
-    authors = django_filter.CharFilter(field_name='book__book_origin__authors', method='filter_search')
+    title = django_filter.CharFilter(field_name='book__title', method='filter_search')
+    authors = django_filter.CharFilter(field_name='book__authors', method='filter_search')
     content = django_filter.CharFilter(field_name='content', method='filter_search')
     quote_text = django_filter.CharFilter(field_name='quote_text', method='filter_search')
-    title_or = django_filter.CharFilter(field_name='book__book_origin__title', label='Title (OR)', method='filter_search_or')
-    authors_or = django_filter.CharFilter(field_name='book__book_origin__authors', label='Authors (OR)', method='filter_search_or')
+    title_or = django_filter.CharFilter(field_name='book__title', label='Title (OR)', method='filter_search_or')
+    authors_or = django_filter.CharFilter(field_name='book__authors', label='Authors (OR)', method='filter_search_or')
     content_or = django_filter.CharFilter(field_name='content', label='Content (OR)', method='filter_search_or')
     quote_text_or = django_filter.CharFilter(field_name='quote_text', label='Quote (OR)', method='filter_search_or')
     amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')

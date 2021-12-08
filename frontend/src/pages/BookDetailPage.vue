@@ -86,7 +86,7 @@ export default {
     fetchBookData() {
       this.isLoading = true
       api
-        .get(`/book_copy/${this.$route.params.id}/`)
+        .get(`/book/${this.$route.params.id}/`)
         .then(({ data }) => {
           this.fixStatus(data)
 

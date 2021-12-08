@@ -19,7 +19,7 @@ export default {
       if (!(await this.$refs.dialogDeleteBook.showDialog())) return
 
       api({
-        url: `/book_copy/${item.id}/`,
+        url: `/book/${item.id}/`,
         method: 'delete',
       })
         .then(() => {

@@ -41,6 +41,7 @@
 
       <v-col xl="3" cols="6">
         <v-btn
+          v-show="item.amazon_dp"
           color="orange"
           small
           dark
