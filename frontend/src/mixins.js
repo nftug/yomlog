@@ -45,6 +45,26 @@ export const BookListMixin = {
       return this.$store.state.bookList
     },
   },
+  methods: {
+    fixStatus(item) {
+      const length = item.status.length
+      if (!length) {
+        // ステータスが空の場合の処理
+        item.status = [
+          {
+            state: 'to_be_read',
+            id: null,
+            position: 0,
+            created_at: null,
+            book: item.id,
+          },
+        ]
+      } else if (length > 1 && item.status[0].state === 'to_be_read') {
+        // 積読中で前のステータスレコードが存在する場合、現在の進捗を修正
+        item.status[0].position = item.status[1].position
+      }
+    },
+  },
 }
 
 export const ShelfSearchFromHeaderMixin = {

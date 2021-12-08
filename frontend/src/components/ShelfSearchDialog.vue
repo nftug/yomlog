@@ -97,7 +97,7 @@ export default {
       const nextFields = this.formSearch.slice(index + 1)
       return nextFields.findIndex((e) => e.value) !== -1
     },
-    async showShelfSearch() {
+    async showShelfSearchDialog() {
       // フィールドのデフォルト値設定
       // 初期化: すべてのフィールドを初期値に戻す
       this.formSearch.forEach((e) => {

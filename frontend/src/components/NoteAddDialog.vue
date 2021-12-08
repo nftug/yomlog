@@ -85,12 +85,6 @@ import Dialog from '@/components/Dialog.vue'
 import Spinner from 'vue-simple-spinner'
 
 export default {
-  props: {
-    shelf: {
-      type: Boolean,
-      default: false,
-    },
-  },
   components: {
     Dialog,
     Spinner,
@@ -118,7 +112,7 @@ export default {
     }
   },
   methods: {
-    async showNoteAdd(item) {
+    async showNoteAddDialog(item) {
       // バリデーションをクリア
       if (this.$refs.formNoteAdd) {
         this.$refs.formNoteAdd.resetValidation()
@@ -166,9 +160,7 @@ export default {
           // ダイアログを閉じる
           this.$refs.dialogNoteAdd.hideDialog()
 
-          if (!this.shelf) {
-            this.$emit('reload')
-          }
+          this.$emit('reload')
 
           this.$store.dispatch('message/setInfoMessage', {
             message: 'ノートを追加しました。',

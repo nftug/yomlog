@@ -33,12 +33,6 @@ import api from '@/services/api'
 import Dialog from '@/components/Dialog.vue'
 
 export default {
-  props: {
-    shelf: {
-      type: Boolean,
-      default: false,
-    },
-  },
   components: {
     Dialog,
   },
@@ -69,7 +63,7 @@ export default {
     }
   },
   methods: {
-    async showStatusAdd(item) {
+    async showStatusAddDialog(item) {
       // バリデーションをクリア
       if (this.$refs.formStatusAdd) {
         this.$refs.formStatusAdd.resetValidation()
@@ -103,16 +97,7 @@ export default {
           // ダイアログを閉じる
           this.$refs.dialogStatusAdd.hideDialog()
 
-          if (this.shelf) {
-            const fullPath = `/shelf/${data.state}`
-            if (fullPath !== this.$route.fullPath) {
-              this.$router.push(fullPath)
-            } else {
-              this.$emit('reload')
-            }
-          } else {
-            this.$emit('reload')
-          }
+          this.$emit('reload', data.state)
 
           this.$store.dispatch('message/setInfoMessage', {
             message: '進捗状況を記録しました。',

@@ -163,27 +163,8 @@ const bookListModule = {
       state.totalItems = payload.totalItems
       state.totalPages = payload.totalPages
     },
-    add(state, items) {
-      items.forEach((item) => {
-        const length = item.status.length
-        if (!length) {
-          // ステータスが空の場合の処理
-          item.status = [
-            {
-              state: 'to_be_read',
-              id: null,
-              position: 0,
-              created_at: null,
-              book: item.id,
-            },
-          ]
-        } else if (length > 1 && item.status[0].state === 'to_be_read') {
-          // 積読中で前のステータスレコードが存在する場合、現在の進捗を修正
-          item.status[0].position = item.status[1].position
-        }
-      })
-
-      state.items.push(...items)
+    add(state, item) {
+      state.items.push(item)
     },
     clear(state) {
       state.items = []

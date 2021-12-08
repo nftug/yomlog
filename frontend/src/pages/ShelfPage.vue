@@ -143,21 +143,13 @@
     </div>
 
     <!-- ダイアログ -->
-    <StatusAdd
-      ref="statusAdd"
-      shelf
-      @reload="initPage({ isReload: true })"
-    ></StatusAdd>
-
-    <NoteAdd ref="noteAdd" shelf></NoteAdd>
-
-    <ShelfSearch ref="shelfSearch"></ShelfSearch>
-
-    <Dialog
-      ref="dialogDeleteBook"
-      title="本の削除"
-      message="この本を削除しますか？"
-    ></Dialog>
+    <StatusAddDialog ref="statusAdd" @reload="handleReload"></StatusAddDialog>
+    <NoteAddDialog ref="noteAdd"></NoteAddDialog>
+    <ShelfSearchDialog ref="shelfSearch"></ShelfSearchDialog>
+    <BookDeleteDialog
+      ref="bookDelete"
+      @delete-book="handleReload"
+    ></BookDeleteDialog>
   </v-container>
 </template>
 
@@ -166,20 +158,20 @@ import BookList from '@/components/BookList.vue'
 import Spinner from 'vue-simple-spinner'
 import Mixins, { BookListMixin, ShelfSearchFromHeaderMixin } from '@/mixins'
 import api from '@/services/api'
-import StatusAdd from '@/components/StatusAdd.vue'
-import NoteAdd from '@/components/NoteAdd.vue'
-import ShelfSearch from '@/components/ShelfSearch.vue'
-import Dialog from '@/components/Dialog.vue'
+import StatusAddDialog from '@/components/StatusAddDialog.vue'
+import NoteAddDialog from '@/components/NoteAddDialog.vue'
+import ShelfSearchDialog from '@/components/ShelfSearchDialog.vue'
+import BookDeleteDialog from '@/components/BookDeleteDialog.vue'
 
 export default {
   mixins: [BookListMixin, ShelfSearchFromHeaderMixin, Mixins],
   components: {
     Spinner,
     BookList,
-    StatusAdd,
-    Dialog,
-    NoteAdd,
-    ShelfSearch,
+    StatusAddDialog,
+    BookDeleteDialog,
+    NoteAddDialog,
+    ShelfSearchDialog,
   },
   data() {
     return {
@@ -249,7 +241,10 @@ export default {
             totalPages: data.totalPages,
           })
 
-          this.$store.commit('bookList/add', [...data.results])
+          data.results.forEach((item) => {
+            this.fixStatus(item)
+            this.$store.commit('bookList/add', item)
+          })
 
           return Promise.resolve()
         })
@@ -309,33 +304,27 @@ export default {
         query: query,
       })
     },
+    handleReload(state) {
+      if (!state) this.initPage({ isReload: true })
+
+      const fullPath = `/shelf/${state}`
+      if (fullPath !== this.$route.fullPath) {
+        this.$router.push(fullPath)
+      } else {
+        this.initPage({ isReload: true })
+      }
+    },
     onClickQueryAdd() {
-      this.$refs.shelfSearch.showShelfSearch()
+      this.$refs.shelfSearch.showShelfSearchDialog()
     },
     onClickStatusAdd(item) {
-      this.$refs.statusAdd.showStatusAdd(item)
+      this.$refs.statusAdd.showStatusAddDialog(item)
     },
     onClickNoteAdd(item) {
-      this.$refs.noteAdd.showNoteAdd(item)
+      this.$refs.noteAdd.showNoteAddDialog(item)
     },
-    async onClickDeleteBook(item) {
-      if (!(await this.$refs.dialogDeleteBook.showDialog())) return
-
-      api({
-        url: `/book_copy/${item.id}/`,
-        method: 'delete',
-      })
-        .then(() => {
-          this.fetchBookList()
-          this.$store.dispatch('message/setInfoMessage', {
-            message: '書籍を削除しました。',
-          })
-        })
-        .catch(() => {
-          this.$store.dispatch('message/setErrorMessage', {
-            message: 'エラーが発生しました。',
-          })
-        })
+    onClickDeleteBook(item) {
+      this.$refs.bookDelete.showBookDeleteDialog(item)
     },
   },
 }
