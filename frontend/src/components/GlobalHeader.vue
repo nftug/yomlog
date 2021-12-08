@@ -4,7 +4,7 @@
     <template v-if="isLoggedIn && isShowMenuButton">
       <v-app-bar-nav-icon
         class="hidden-lg-and-up"
-        @click.stop="drawer = !drawer"
+        @click.stop="$store.commit('drawer/toggle')"
       ></v-app-bar-nav-icon>
     </template>
     <template v-else-if="$route.name != 'login'">

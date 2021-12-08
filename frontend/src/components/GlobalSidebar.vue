@@ -56,9 +56,6 @@ export default {
   components: {
     Dialog,
   },
-  props: {
-    value: Boolean,
-  },
   data: () => ({
     items: [
       {
@@ -86,10 +83,10 @@ export default {
   computed: {
     drawer: {
       get() {
-        return this.value
+        return this.$store.state.drawer.drawer
       },
       set(val) {
-        this.$emit('input', val)
+        this.$store.commit('drawer/set', val)
       },
     },
     menuItems() {

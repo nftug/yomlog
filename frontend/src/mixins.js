@@ -158,50 +158,58 @@ export default {
     isoToDateTime: function (value) {
       if (!value) return
 
-      let dateStr = ''
-      const dt = new Date(Date.parse(value))
-      const dt_now = new Date()
+      let dateStr
+      const date = new Date(Date.parse(value))
+      const dateNow = new Date()
 
-      let year = dt.getFullYear()
-      let month = dt.getMonth() + 1
-      let day = dt.getDate()
-      let hour = dt.getHours()
-      let minute = dt.getMinutes()
-
-      if (year === dt_now.getFullYear()) {
-        const d_value = new Date(year, month - 1, day).getTime()
-        const d_today = new Date(
-          dt_now.getFullYear(),
-          dt_now.getMonth(),
-          dt_now.getDate()
-        ).getTime()
-        const d_yesterday = new Date(
-          dt_now.getFullYear(),
-          dt_now.getMonth(),
-          dt_now.getDate() - 1
-        ).getTime()
-        const d_twoDaysAgo = new Date(
-          dt_now.getFullYear(),
-          dt_now.getMonth(),
-          dt_now.getDate() - 2
-        ).getTime()
-
-        if (d_value === d_today) {
-          dateStr = '今日'
-        } else if (d_value === d_yesterday) {
-          dateStr = '昨日'
-        } else if (d_value === d_twoDaysAgo) {
-          dateStr = '一昨日'
-        } else {
-          dateStr = `${month}/${day}`
-        }
-      } else {
-        dateStr = `${year}/${month}/${day}`
+      const dt = {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+        hour: date.getHours(),
+        minute: date.getMinutes(),
       }
 
-      minute = ('00' + minute).slice(-2)
+      const dtNow = {
+        year: dateNow.getFullYear(),
+        month: dateNow.getMonth() + 1,
+        day: dateNow.getDate(),
+        hour: dateNow.getHours(),
+        minute: dateNow.getMinutes(),
+      }
 
-      return `${dateStr} ${hour}:${minute}`
+      if (dtNow.year === dt.year) {
+        const dayTime = new Date(dt.year, dt.month - 1, dt.day).getTime()
+        const dayTimeNow = new Date(
+          dtNow.year,
+          dtNow.month - 1,
+          dtNow.day
+        ).getTime()
+        const dayTimeYesterday = new Date(
+          dtNow.year,
+          dtNow.month - 1,
+          dtNow.day - 1
+        ).getTime()
+        const dayTimeTwoDaysAgo = new Date(
+          dtNow.year,
+          dtNow.month - 1,
+          dtNow.day - 2
+        ).getTime()
+
+        if (dayTime === dayTimeNow) {
+          dateStr = '今日'
+        } else if (dayTime === dayTimeYesterday) {
+          dateStr = '昨日'
+        } else if (dayTime === dayTimeTwoDaysAgo) {
+          dateStr = '一昨日'
+        } else {
+          dateStr = `${dt.month}/${dt.day}`
+        }
+      } else {
+        dateStr = `${dt.year}/${dt.month}/${dt.day}`
+      }
+
+      return `${dateStr} ${dt.hour}:${('00' + dt.minute).slice(-2)}`
     },
   },
   computed: {

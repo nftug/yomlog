@@ -1,14 +1,11 @@
 <template>
   <v-app>
     <header>
-      <GlobalHeader v-model="drawer"></GlobalHeader>
+      <GlobalHeader></GlobalHeader>
     </header>
 
     <aside>
-      <GlobalSidebar
-        v-if="$store.state.auth.isLoggedIn"
-        v-model="drawer"
-      ></GlobalSidebar>
+      <GlobalSidebar v-if="$store.state.auth.isLoggedIn"></GlobalSidebar>
     </aside>
 
     <v-main>
@@ -37,8 +34,5 @@ export default {
         : process.env.VUE_APP_APPNAME,
     }
   },
-  data: () => ({
-    drawer: null,
-  }),
 }
 </script>

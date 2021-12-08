@@ -145,6 +145,23 @@ const messageModule = {
   },
 }
 
+// ドロワーモジュール
+const drawerModule = {
+  strict: process.env.NODE_ENV !== 'production',
+  namespaced: true,
+  state: {
+    drawer: null,
+  },
+  mutations: {
+    set(state, val) {
+      state.drawer = val
+    },
+    toggle(state) {
+      state.drawer = !state.drawer
+    },
+  },
+}
+
 // 本棚モジュール
 const bookListModule = {
   strict: process.env.NODE_ENV !== 'production',
@@ -189,6 +206,7 @@ const store = new Vuex.Store({
   modules: {
     auth: authModule,
     message: messageModule,
+    drawer: drawerModule,
     bookList: bookListModule,
   },
 })
