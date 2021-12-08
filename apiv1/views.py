@@ -51,7 +51,7 @@ class BookViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        book = self.queryset.filter(id_google=serializer.validated_data['id_google'])
+        book = Book.objects.filter(created_by=request.user, id_google=serializer.validated_data['id_google'])
 
         if book.exists():
             serializer = BookSerializer(book.first())

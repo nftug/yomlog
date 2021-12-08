@@ -92,10 +92,10 @@ export default {
 
           if (this.bookList.items.length) {
             // this.$store.commit('bookList/set', data)
-            if (
+            const isDiffStatus =
               JSON.stringify(this.item.status[0]) !==
               JSON.stringify(data.status[0])
-            ) {
+            if (!this.item.status || isDiffStatus) {
               this.$store.commit('bookList/setDirty', true)
             }
           }

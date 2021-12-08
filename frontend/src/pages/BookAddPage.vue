@@ -284,8 +284,13 @@ export default {
           },
         })
 
-        // あとで読むのページに遷移
-        this.$router.push('/shelf/to_be_read')
+        // 書籍の詳細ページに遷移
+        this.$router.replace({
+          name: 'book_detail',
+          params: {
+            id: response.data.id,
+          },
+        })
 
         if (response.status === 201) {
           this.$store.dispatch('message/setInfoMessage', {
