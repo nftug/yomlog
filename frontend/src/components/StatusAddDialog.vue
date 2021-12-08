@@ -12,12 +12,14 @@
         :label="!format_type ? 'ページ数' : '位置No'"
         type="number"
         min="0"
+        autofocus
         :max="total"
         :suffix="` / ${total}`"
         :rules="positionRules"
         :disabled="to_be_read"
         :error-messages="positionErrors"
         @input="positionErrors = []"
+        @keydown.enter="handleKeydownEnter"
       ></v-text-field>
       <v-switch
         v-model="to_be_read"
@@ -112,6 +114,10 @@ export default {
             })
           }
         })
+    },
+    handleKeydownEnter() {
+      if (!this.$refs.formStatusAdd.validate()) return
+      this.postStatus()
     },
   },
 }

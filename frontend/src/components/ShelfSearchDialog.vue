@@ -18,7 +18,9 @@
         <v-col sm="9" cols="12">
           <v-text-field
             v-model="field.value"
+            @keydown.enter="doSearch"
             :label="field.label"
+            :autofocus="field.autofocus"
             :maxlength="field.maxlength"
             :dense="isLessThanSm"
           ></v-text-field>
@@ -67,6 +69,7 @@ export default {
         label: 'フリーワード',
         value: '',
         maxlength: null,
+        autofocus: true,
         or: false,
       },
       {
@@ -74,6 +77,7 @@ export default {
         label: 'タイトル',
         value: '',
         maxlength: null,
+        autofocus: false,
         or: false,
       },
       {
@@ -81,6 +85,7 @@ export default {
         label: '著者名',
         value: '',
         maxlength: null,
+        autofocus: false,
         or: false,
       },
       {
@@ -88,6 +93,7 @@ export default {
         label: 'ISBN/ASIN',
         value: '',
         maxlength: 13,
+        autofocus: false,
         or: false,
       },
     ],
