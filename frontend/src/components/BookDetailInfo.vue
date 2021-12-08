@@ -1,5 +1,5 @@
 <template>
-  <v-card id="book-detail-info" outlined>
+  <v-card id="book-detail-info" outlined v-if="item.status">
     <v-card-text>
       <v-row class="col-lg-8 mx-auto text-center">
         <v-col sm="6" cols="12">
