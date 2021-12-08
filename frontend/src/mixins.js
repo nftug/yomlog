@@ -44,6 +44,16 @@ export const BookListMixin = {
     bookList() {
       return this.$store.state.bookList
     },
+    progress() {
+      return function (item) {
+        if (item.status) {
+          return parseInt(
+            ((item.status[0].position || 0) / item.total) * 100,
+            10
+          )
+        }
+      }
+    },
   },
   methods: {
     fixStatus(item) {

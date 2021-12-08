@@ -45,15 +45,7 @@
                 class="mr-2"
                 v-text="item.format_type ? 'Kindle' : 'Book'"
               ></v-chip>
-              <v-chip
-                small
-                v-text="
-                  parseInt(
-                    ((item.status[0].position || 0) / item.total) * 100,
-                    10
-                  ) + '%'
-                "
-              ></v-chip>
+              <v-chip small v-text="`${progress(item)}%`"></v-chip>
             </v-list-item>
 
             <!-- メニュー -->
