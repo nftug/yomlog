@@ -1,5 +1,4 @@
-from django.core.exceptions import PermissionDenied, ValidationError
-from rest_framework import status, viewsets, filters, pagination, response
+from rest_framework import status, viewsets, pagination, response
 from rest_framework.permissions import IsAuthenticated
 from django_filters import rest_framework as django_filter
 
@@ -45,26 +44,20 @@ class BookViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # プライベートアクセスのみ
-        return self.queryset.filter(created_by=self.request.user)
+        return self.queryset.filter(created_by=self.request.user).sort_by_state()
 
     def create(self, request, *args, **kwargs):
         # すでに同一のGoogle Books IDで登録されたレコードが存在する場合、保存せずにそのまま返す
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        book = Book.objects.filter(
-            created_by=request.user,
-            id_google=serializer.validated_data['id_google']
-        )
+        book = self.queryset.filter(id_google=serializer.validated_data['id_google'])
 
         if book.exists():
             serializer = BookSerializer(book.first())
             return response.Response(serializer.data, status.HTTP_200_OK)
         else:
             serializer.save()
-
-            # 空のStatusLogも作成
-            StatusLog.objects.create(book=serializer.instance, position=0, created_by=request.user)
             return response.Response(serializer.data, status.HTTP_201_CREATED)
 
 

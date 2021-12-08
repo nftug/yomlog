@@ -65,7 +65,6 @@ class NoteSerializer(PostSerializer):
 
 class BookSerializer(PostSerializer):
     # created_by = serializers.SerializerMethodField()
-    # authors = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     notes = serializers.SerializerMethodField()
 

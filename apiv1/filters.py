@@ -1,6 +1,6 @@
 from django.db.models.query import QuerySet
 from django_filters import rest_framework as django_filter
-from django.db.models import Q, F, Max
+from django.db.models import Q
 
 from backend.models import Book, StatusLog, Note
 import re
@@ -69,29 +69,11 @@ class BookFilter(GenericSearchFilterSet):
             'amazon_dp'
         ]
 
-    def filter_search(self, queryset, name, value):
-        queryset = super().filter_search(queryset, name, value)
-        return queryset.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')
-
-    def filter_search_or(self, queryset, name, value):
-        queryset = super().filter_search_or(queryset, name, value)
-        return queryset.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')
-
     def filter_status(self, queryset, name, value):
-        # -FIXME: 最初のレコードではなくすべてのレコードを走査してしまう
-        # →status_logの先頭レコードで検索するカスタムフィルタを作成して解決
-
         if not value:
             return queryset
 
-        if value == 'to_be_read':
-            queryset = Book.objects.filter_current_status(queryset, 'to_be_read')
-        elif value == 'reading':
-            queryset = Book.objects.filter_current_status(queryset, 'reading')
-        elif value == 'read':
-            queryset = Book.objects.filter_current_status(queryset, 'read')
-
-        return queryset.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')
+        return queryset.filter_by_state(value)
 
 
 class StatusLogFilter(GenericSearchFilterSet):

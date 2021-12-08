@@ -3,7 +3,7 @@ from django.core.validators import MinLengthValidator
 
 from django.db import models
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 
@@ -25,35 +25,30 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
 
-class StatusLogManager(models.Manager):
-    def filter_current_status(self, queryset, status=None):
-        # Bookに対してstatus_logの最初のレコードでフィルタリング
-        books = queryset.prefetch_related('status_log')
-
+class BookQuerySet(models.QuerySet):
+    def filter_by_state(self, state):
+        queryset = self.prefetch_related('status_log')
         query = Q(id=None)
 
-        for book in books:
+        for book in queryset:
             status_log = book.status_log
-            if not status_log.exists():
-                if status == 'to_be_read':
+            position = status_log.first().position if status_log.exists() else 0
+
+            if position <= 0:
+                if state == 'to_be_read':
+                    query |= Q(id=book.id)
+                else:
+                    continue
+            else:
+                if state == 'reading' and position < book.total:
+                    query |= Q(id=book.id)
+                elif state == 'read' and position >= book.total:
                     query |= Q(id=book.id)
 
-                # reading or readを指定した場合→status_logが存在しないならqueryは追加しない
-                continue
+        return queryset.filter(query)
 
-            position = status_log.first().position
-            total = book.total
-
-            if position > 0:
-                if status == 'reading' and position < total:
-                    query |= Q(id=book.id)
-                elif status == 'read' and position >= total:
-                    query |= Q(id=book.id)
-
-            elif status == 'to_be_read':
-                query |= Q(id=book.id)
-
-        return books.filter(query)
+    def sort_by_state(self):
+        return self.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')
 
 
 class Book(models.Model):
@@ -73,7 +68,7 @@ class Book(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(CustomUser, verbose_name='登録したユーザー',
                                    on_delete=models.SET_NULL, null=True, related_name='books')
-    objects = StatusLogManager()
+    objects = BookQuerySet.as_manager()
 
     def __str__(self):
         return '{}: {}'.format(self.created_by, self.title)
