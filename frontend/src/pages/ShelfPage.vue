@@ -214,7 +214,6 @@ export default {
     initPage({ isReload, route = this.$route }) {
       this.mode = route.params.mode !== 'all' ? route.params.mode : ''
       this.query = { ...route.query }
-      delete this.query.page
       this.page = Number(route.query.page || 1)
 
       if (isReload || !this.bookList.items.length) {
@@ -232,9 +231,9 @@ export default {
       return api
         .get('/book/', {
           params: {
+            ...this.query,
             page: this.page,
             status: this.mode,
-            ...this.query,
           },
         })
         .then(({ data }) => {
@@ -257,6 +256,7 @@ export default {
               // ページ数超過の場合、最終ページに遷移
               let params = { ...response.config.params }
               this.replaceWithFinalPage('/book/', params)
+              return Promise.resolve()
             } else {
               return Promise.reject(response)
             }
