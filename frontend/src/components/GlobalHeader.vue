@@ -80,9 +80,6 @@ import ShelfTabBar from '@/components/ShelfTabBar.vue'
 
 export default {
   mixins: [Mixin, WindowResizeMixin],
-  props: {
-    value: Boolean,
-  },
   components: {
     ShelfTabBar,
   },
@@ -96,16 +93,6 @@ export default {
   },
   beforeDestroy() {
     this.$router.app.$off('changeSearchValue', this.onChangeSearchValue)
-  },
-  computed: {
-    drawer: {
-      get() {
-        return this.value
-      },
-      set(val) {
-        this.$emit('input', val)
-      },
-    },
   },
   methods: {
     showSearchBar() {
