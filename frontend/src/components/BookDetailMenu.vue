@@ -1,25 +1,26 @@
 <template>
   <v-col>
     <v-row>
-      <v-col lg="3" cols="6">
-        <v-btn
-          color="orange"
-          small
-          dark
-          block
-          :href="amazonLink"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Amazon
+      <v-col xl="3" cols="6">
+        <v-btn color="primary" small dark block @click="onClickNoteAdd(item)">
+          <v-icon small>mdi-pen-plus</v-icon>
+          ノートを追加
         </v-btn>
       </v-col>
 
-      <v-col lg="3" cols="6">
+      <v-col xl="3" cols="6">
+        <v-btn color="success" small dark block @click="onClickStatusAdd(item)">
+          <v-icon small>mdi-bookmark-plus</v-icon>
+          進捗を追加
+        </v-btn>
+      </v-col>
+
+      <v-col xl="3" cols="6">
         <v-menu offset-y close-on-click>
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="secondary" dark v-bind="attrs" v-on="on" small block>
               <v-spacer></v-spacer>
+              <v-icon small>mdi-book-edit</v-icon>
               編集
               <v-spacer></v-spacer>
               <v-icon small>mdi-chevron-down</v-icon>
@@ -38,14 +39,18 @@
         </v-menu>
       </v-col>
 
-      <v-col lg="3" cols="6">
-        <v-btn color="primary" small dark block @click="onClickNoteAdd(item)">
-          ノートを追加
-        </v-btn>
-      </v-col>
-      <v-col lg="3" cols="6">
-        <v-btn color="success" small dark block @click="onClickStatusAdd(item)">
-          進捗を追加
+      <v-col xl="3" cols="6">
+        <v-btn
+          color="orange"
+          small
+          dark
+          block
+          :href="amazonLink"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <v-icon small>mdi-shopping</v-icon>
+          Amazon
         </v-btn>
       </v-col>
     </v-row>

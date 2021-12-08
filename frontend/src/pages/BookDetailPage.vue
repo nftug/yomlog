@@ -8,7 +8,7 @@
 
     <v-col v-else sm="10" md="8" class="mx-auto">
       <v-row class="pb-5">
-        <v-col cols="12" sm="8">
+        <v-col cols="12" sm="9">
           <!-- 書籍情報 -->
           <div class="text-h5 pb-2 font-weight-bold" v-text="item.title"></div>
           <div class="text-body-2 pb-sm-5">
@@ -23,12 +23,12 @@
 
           <BookDetailMenu
             :item="item"
-            class="py-2"
+            class="my-2 hidden-xs-only"
             @reload="fetchBookData"
           ></BookDetailMenu>
         </v-col>
 
-        <v-col cols="12" sm="4">
+        <v-col cols="12" sm="3">
           <v-img
             contain
             :src="item.thumbnail || noImage"
@@ -38,8 +38,14 @@
         </v-col>
       </v-row>
 
+      <BookDetailMenu
+        :item="item"
+        class="my-2 hidden-sm-and-up"
+        @reload="fetchBookData"
+      ></BookDetailMenu>
+
       <!-- 状態表示 -->
-      <BookDetailInfo :item="item"></BookDetailInfo>
+      <BookDetailInfo :item="item" class="my-4"></BookDetailInfo>
     </v-col>
   </v-container>
 </template>
