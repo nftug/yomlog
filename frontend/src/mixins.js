@@ -44,7 +44,7 @@ export const BookListMixin = {
     bookList() {
       return this.$store.state.bookList
     },
-    progress() {
+    bookProgress() {
       return function (item) {
         if (item.status) {
           return parseInt(
@@ -73,6 +73,61 @@ export const BookListMixin = {
         // 積読中で前のステータスレコードが存在する場合、現在の進捗を修正
         item.status[0].position = item.status[1].position
       }
+    },
+  },
+}
+
+export const ListViewMixin = {
+  data: () => ({
+    page: 1,
+  }),
+  methods: {
+    removeQuery(key) {
+      let query = { ...this.query }
+      delete query[key]
+
+      // OR検索だけになったらAND検索に置換
+      const keys = Object.keys(query)
+      const hasAnd = keys.some((e) => e.match(/^(?!.*_or).*$/) !== null)
+
+      if (!hasAnd) {
+        query = {}
+        keys.forEach((key) => {
+          const value = this.query[key]
+          const keyName = key.replace(/_or$/, '')
+          query[keyName] = value
+        })
+      }
+
+      this.$router.push({
+        path: this.$route.path,
+        query: query,
+      })
+    },
+    handlePagination() {
+      let query = { ...this.$route.query }
+      query.page = this.page
+
+      this.$router.push({
+        path: this.$route.path,
+        query: query,
+      })
+    },
+    replaceWithFinalPage(url, params) {
+      const routeQuery = { ...this.$route.query }
+      delete params.page
+
+      api
+        .get(url, {
+          params: params,
+        })
+        .then(({ data: { totalPages } }) => {
+          routeQuery.page = totalPages
+          this.$router.replace({
+            path: this.$route.path,
+            query: routeQuery,
+          })
+        })
     },
   },
 }

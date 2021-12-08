@@ -93,7 +93,7 @@ export default {
           if (this.bookList.items.length) {
             this.$store.commit('bookList/set', data)
             if (this.item.status[0].state !== data.status[0].state) {
-              this.$store.commit('bookList/setReload', true)
+              this.$store.commit('bookList/setDirty', true)
             }
           }
 

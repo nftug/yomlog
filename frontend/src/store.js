@@ -154,18 +154,18 @@ const bookListModule = {
     totalItems: 0,
     totalPages: 0,
     isLoading: false,
-    isReload: false,
+    isDirty: false,
   },
   mutations: {
     setLoading(state, val) {
       state.isLoading = val
     },
-    setPageProps(state, payload) {
+    setProps(state, payload) {
       state.totalItems = payload.totalItems
       state.totalPages = payload.totalPages
     },
-    setReload(state, val) {
-      state.isReload = val
+    setDirty(state, val) {
+      state.isDirty = val
     },
     add(state, item) {
       state.items.push(item)

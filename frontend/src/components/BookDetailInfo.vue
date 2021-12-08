@@ -17,11 +17,11 @@
             :size="100"
             :width="15"
             :rotate="-90"
-            :value="progress(item)"
+            :value="bookProgress(item)"
             color="teal"
             class="text-center text-body-2"
           >
-            {{ progress(item) }}%
+            {{ bookProgress(item) }}%
           </v-progress-circular>
         </v-col>
       </v-row>

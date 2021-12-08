@@ -45,7 +45,7 @@
                 class="mr-2"
                 v-text="item.format_type ? 'Kindle' : 'Book'"
               ></v-chip>
-              <v-chip small v-text="`${progress(item)}%`"></v-chip>
+              <v-chip small v-text="`${bookProgress(item)}%`"></v-chip>
             </v-list-item>
 
             <!-- メニュー -->
@@ -126,6 +126,7 @@
                 v-model="page"
                 class="my-4"
                 :length="bookList.totalPages"
+                :total-visible="5"
                 @input="handlePagination"
               ></v-pagination>
             </v-container>
@@ -148,7 +149,11 @@
 <script>
 import BookList from '@/components/BookList.vue'
 import Spinner from 'vue-simple-spinner'
-import Mixins, { BookListMixin, ShelfSearchFromHeaderMixin } from '@/mixins'
+import Mixins, {
+  BookListMixin,
+  ShelfSearchFromHeaderMixin,
+  ListViewMixin,
+} from '@/mixins'
 import api from '@/services/api'
 import StatusAddDialog from '@/components/StatusAddDialog.vue'
 import NoteAddDialog from '@/components/NoteAddDialog.vue'
@@ -156,7 +161,7 @@ import ShelfSearchDialog from '@/components/ShelfSearchDialog.vue'
 import BookDeleteDialog from '@/components/BookDeleteDialog.vue'
 
 export default {
-  mixins: [BookListMixin, ShelfSearchFromHeaderMixin, Mixins],
+  mixins: [BookListMixin, ShelfSearchFromHeaderMixin, ListViewMixin, Mixins],
   components: {
     Spinner,
     BookList,
@@ -167,7 +172,6 @@ export default {
   },
   data() {
     return {
-      page: 1,
       mode: this.$route.params.mode,
       query: {},
     }
@@ -180,11 +184,11 @@ export default {
   },
   created() {
     this.initPage({
-      isReload: this.bookList.isReload || !this.$isBrowserBack,
+      isReload: this.bookList.isDirty || !this.$isBrowserBack,
     })
 
-    if (this.bookList.isReload) {
-      this.$store.commit('bookList/setReload', false)
+    if (this.bookList.isDirty) {
+      this.$store.commit('bookList/setDirty', false)
     }
   },
   filters: {
@@ -234,7 +238,7 @@ export default {
           },
         })
         .then(({ data }) => {
-          this.$store.commit('bookList/setPageProps', {
+          this.$store.commit('bookList/setProps', {
             totalItems: data.count,
             totalPages: data.totalPages,
           })
@@ -250,19 +254,7 @@ export default {
           if (response.status === 404) {
             // ページ数超過の場合、最終ページに遷移
             let params = { ...response.config.params }
-            delete params.page
-
-            api
-              .get('/book_copy/', {
-                params: params,
-              })
-              .then(({ data: { totalPages } }) => {
-                params.page = totalPages
-                this.$router.replace({
-                  path: this.$route.path,
-                  query: params,
-                })
-              })
+            this.replaceWithFinalPage('/book_copy/', params)
           } else {
             return Promise.reject(response)
           }
@@ -270,37 +262,6 @@ export default {
         .finally(() => {
           this.$store.commit('bookList/setLoading', false)
         })
-    },
-    removeQuery(key) {
-      let query = { ...this.query }
-      delete query[key]
-
-      // OR検索だけになったらAND検索に置換
-      const keys = Object.keys(query)
-      const hasAnd = keys.some((e) => e.match(/^(?!.*_or).*$/) !== null)
-
-      if (!hasAnd) {
-        query = {}
-        keys.forEach((key) => {
-          const value = this.query[key]
-          const keyName = key.replace(/_or$/, '')
-          query[keyName] = value
-        })
-      }
-
-      this.$router.push({
-        path: this.$route.path,
-        query: query,
-      })
-    },
-    handlePagination() {
-      let query = { ...this.$route.query }
-      query.page = this.page
-
-      this.$router.push({
-        path: this.$route.path,
-        query: query,
-      })
     },
     handleReload(state) {
       if (!state) this.initPage({ isReload: true })
