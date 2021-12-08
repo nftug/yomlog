@@ -6,7 +6,7 @@
     <!-- Spinner -->
     <spinner v-if="isLoading"></spinner>
 
-    <v-col v-else sm="10" md="9" class="mx-auto">
+    <v-col v-else sm="10" md="8" class="mx-auto">
       <v-row class="pb-5">
         <v-col cols="12" sm="8">
           <!-- 書籍情報 -->
@@ -21,7 +21,11 @@
             </span>
           </div>
 
-          <BookDetailMenu :item="item" class="px-4 py-2"></BookDetailMenu>
+          <BookDetailMenu
+            :item="item"
+            class="py-2"
+            @reload="fetchBookData"
+          ></BookDetailMenu>
         </v-col>
 
         <v-col cols="12" sm="4">
@@ -34,7 +38,7 @@
         </v-col>
       </v-row>
 
-      <!-- 状態表示 (Mobile) -->
+      <!-- 状態表示 -->
       <BookDetailInfo :item="item"></BookDetailInfo>
     </v-col>
   </v-container>
@@ -78,6 +82,7 @@ export default {
       api
         .get(`/book_copy/${this.$route.params.id}/`)
         .then(({ data }) => {
+          this.fixStatus(data)
           this.item = data
         })
         .catch(({ response }) => {
