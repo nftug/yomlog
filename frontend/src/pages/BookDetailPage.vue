@@ -10,8 +10,8 @@
       <v-row class="pb-5">
         <v-col cols="12" sm="9">
           <!-- 書籍情報 -->
-          <div class="text-h5 pb-2 font-weight-bold" v-text="item.title"></div>
-          <div class="text-body-2 pb-sm-5">
+          <div class="text-h6 my-2 font-weight-bold" v-text="item.title"></div>
+          <div class="text-body-2 mb-sm-5">
             <span v-for="(author, index) in item.authors" :key="index">
               <router-link
                 :to="`/shelf/all/?authors=${author}`"
