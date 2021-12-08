@@ -102,6 +102,7 @@ export default {
       // 初期化: すべてのフィールドを初期値に戻す
       this.formSearch.forEach((e) => {
         e.value = ''
+        e.or = false
       })
 
       // クエリに従ってフィールドの値を設定
@@ -116,12 +117,6 @@ export default {
             value: this.$route.query[key],
           })
         }
-      })
-
-      // ORフラグの設定
-      // 初期化: すべてのORフラグをANDに戻す
-      this.formSearch.forEach((e) => {
-        e.or = false
       })
 
       // クエリに従ってフィールドのORフラグを設定
@@ -152,13 +147,14 @@ export default {
 
       let query = {}
       let or = false
-      for (const key in this.formSearch) {
-        const value = this.formSearch[key]['value']
+      for (const field of this.formSearch) {
+        const value = field.value
         if (value) {
-          let name = this.formSearch[key]['name']
+          let name = field.name
           name = or ? `${name}_or` : name
           query[name] = value
-          or = this.formSearch[key]['or']
+          // 次のフィールドのORフラグを設定
+          or = field.or
         }
       }
 
