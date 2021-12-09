@@ -28,6 +28,18 @@ class StatusLogSerializer(PostSerializer):
             'created_at': {'required': False, 'read_only': True},
         }
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+
+        if instance.position == 0:
+            # 積読中の場合、進捗の位置はその本の直前のステータスを参照する
+            prev_status = StatusLog.objects.filter(book=instance.book, created_at__lt=instance.created_at).order_by('-created_at').first()
+
+            if prev_status:
+                ret['position'] = prev_status.position
+
+        return ret
+
     def get_state(self, instance):
         if instance.position == 0:
             return 'to_be_read'
@@ -81,10 +93,18 @@ class BookSerializer(PostSerializer):
         return ret
 
     def get_status(self, instance):
-        # 詳細の場合: ステータスのリストを表示
-        # NOTE: 積読状態の時、最新のpositionは0になる (クライアント側で次のレコードから取得する必要あり)
         status_log = instance.status_log.order_by('-created_at')
         data = StatusLogSerializer(status_log, many=True, read_only=True).data
+
+        if not data:
+            data = [{
+                'id': None,
+                'state': 'to_be_read',
+                'position': 0,
+                'created_at': instance.created_at,
+                'book': instance.id,
+            }]
+
         return data
 
     def get_authors(self, instance):

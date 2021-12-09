@@ -55,31 +55,6 @@ export const BookListMixin = {
       }
     },
   },
-  methods: {
-    fixStatus(item) {
-      const length = item.status.length
-      if (!length) {
-        // ステータスが空の場合の処理
-        item.status = [
-          {
-            state: 'to_be_read',
-            id: null,
-            position: 0,
-            created_at: null,
-            book: item.id,
-          },
-        ]
-      } else {
-        // 積読中で前のステータスレコードが存在する場合、現在の進捗を修正
-        const len = item.status.length
-        for (let i = 0; i + 1 < len; i++) {
-          if (item.status[i].state === 'to_be_read') {
-            item.status[i].position = item.status[i + 1].position
-          }
-        }
-      }
-    },
-  },
 }
 
 export const ListViewMixin = {

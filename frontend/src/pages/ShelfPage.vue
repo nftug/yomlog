@@ -243,7 +243,6 @@ export default {
           })
 
           data.results.forEach((item) => {
-            this.fixStatus(item)
             this.$store.commit('bookList/add', item)
           })
 

@@ -93,8 +93,6 @@ export default {
       api
         .get(`/book/${this.$route.params.id}/`)
         .then(({ data }) => {
-          this.fixStatus(data)
-
           if (this.bookList.items.length) {
             // this.$store.commit('bookList/set', data)
 
