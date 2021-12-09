@@ -6,7 +6,7 @@
     <!-- Spinner -->
     <spinner v-if="isLoading"></spinner>
 
-    <v-col v-else sm="10" md="8" class="mx-auto">
+    <v-col v-else sm="10" md="8" xl="7" class="mx-auto">
       <v-row class="pb-5">
         <v-col cols="12" sm="9">
           <!-- 書籍情報 -->
@@ -46,6 +46,9 @@
 
       <!-- 状態表示 -->
       <BookDetailInfo :item="item" class="my-4"></BookDetailInfo>
+
+      <!-- 進捗とメモ -->
+      <StatusLog :item="item" class="my-4"></StatusLog>
     </v-col>
   </v-container>
 </template>
@@ -57,6 +60,7 @@ import NotFoundPage from '@/pages/error/NotFoundPage.vue'
 import Mixins, { BookListMixin, ShelfSearchFromHeaderMixin } from '@/mixins'
 import BookDetailInfo from '@/components/BookDetailInfo.vue'
 import BookDetailMenu from '@/components/BookDetailMenu.vue'
+import StatusLog from '@/components/StatusLog.vue'
 
 export default {
   mixins: [Mixins, BookListMixin, ShelfSearchFromHeaderMixin],
@@ -65,6 +69,7 @@ export default {
     Spinner,
     BookDetailInfo,
     BookDetailMenu,
+    StatusLog,
   },
   data: () => ({
     item: {},

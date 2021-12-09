@@ -69,9 +69,14 @@ export const BookListMixin = {
             book: item.id,
           },
         ]
-      } else if (length > 1 && item.status[0].state === 'to_be_read') {
+      } else {
         // 積読中で前のステータスレコードが存在する場合、現在の進捗を修正
-        item.status[0].position = item.status[1].position
+        const len = item.status.length
+        for (let i = 0; i + 1 < len; i++) {
+          if (item.status[i].state === 'to_be_read') {
+            item.status[i].position = item.status[i + 1].position
+          }
+        }
       }
     },
   },

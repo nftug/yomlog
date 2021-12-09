@@ -83,11 +83,9 @@ class BookSerializer(PostSerializer):
     def get_status(self, instance):
         # 詳細の場合: ステータスのリストを表示
         # NOTE: 積読状態の時、最新のpositionは0になる (クライアント側で次のレコードから取得する必要あり)
-        if hasattr(instance, 'status_log'):
-            status_log = instance.status_log.order_by('-created_at')
-            return StatusLogSerializer(status_log, many=True, read_only=True).data
-        else:
-            return None
+        status_log = instance.status_log.order_by('-created_at')
+        data = StatusLogSerializer(status_log, many=True, read_only=True).data
+        return data
 
     def get_authors(self, instance):
         return instance.authors.split(',')

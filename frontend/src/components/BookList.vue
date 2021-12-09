@@ -4,7 +4,7 @@
       <v-col v-for="item in items" :key="item.id" cols="12" md="6" xl="4">
         <v-card class="mx-auto">
           <v-card-text>
-            <v-list-item>
+            <v-list-item two-line>
               <slot name="header" :item="item">
                 <v-list-item-content>
                   <v-list-item-title class="font-weight-medium">
