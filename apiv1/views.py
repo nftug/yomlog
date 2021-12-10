@@ -35,6 +35,7 @@ class BookViewSet(viewsets.ModelViewSet):
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    # lookup_field = 'id_google'
     permission_classes = [IsAuthenticated]
 
     filter_backends = [django_filter.DjangoFilterBackend]

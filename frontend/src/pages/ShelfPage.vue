@@ -45,7 +45,7 @@
                 class="mr-2"
                 v-text="item.format_type ? 'Kindle' : 'Book'"
               ></v-chip>
-              <v-chip small v-text="`${bookProgress(item)}%`"></v-chip>
+              <v-chip small>{{ item | bookProgress }}%</v-chip>
             </v-list-item>
 
             <!-- メニュー -->

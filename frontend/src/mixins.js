@@ -44,14 +44,29 @@ export const BookListMixin = {
     bookList() {
       return this.$store.state.bookList
     },
-    bookProgress() {
-      return function (item) {
-        if (item.status) {
-          return parseInt(
-            ((item.status[0].position || 0) / item.total) * 100,
-            10
-          )
-        }
+  },
+  filters: {
+    stateName(state) {
+      if (state === 'to_be_read') {
+        return '積読中'
+      } else if (state === 'reading') {
+        return '読書中'
+      } else {
+        return '読了'
+      }
+    },
+    stateColor(state) {
+      if (state === 'to_be_read') {
+        return ''
+      } else if (state === 'reading') {
+        return 'primary'
+      } else {
+        return 'success'
+      }
+    },
+    bookProgress(item) {
+      if (item.status) {
+        return parseInt(((item.status[0].position || 0) / item.total) * 100, 10)
       }
     },
   },

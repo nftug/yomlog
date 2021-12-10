@@ -7,7 +7,7 @@
     <spinner v-if="isLoading"></spinner>
 
     <v-col v-else sm="10" md="8" xl="7" class="mx-auto">
-      <v-row class="pb-5">
+      <v-row class="pb-4">
         <v-col cols="12" sm="9">
           <!-- 書籍情報 -->
           <div class="text-h6 my-2 font-weight-bold" v-text="item.title"></div>
@@ -45,10 +45,25 @@
       ></BookDetailMenu>
 
       <!-- 状態表示 -->
-      <BookDetailInfo :item="item" class="my-4"></BookDetailInfo>
+      <div class="pb-4">
+        <BookDetailInfo :item="item"></BookDetailInfo>
+      </div>
 
       <!-- 進捗とメモ -->
-      <StatusLog :item="item" class="my-4"></StatusLog>
+      <div class="pb-5">
+        <v-tabs v-model="tab" background-color="transparent" grow>
+          <v-tab v-for="item in tabs" :key="item">
+            {{ item }}
+          </v-tab>
+        </v-tabs>
+        <v-tabs-items v-model="tab">
+          <v-tab-item>
+            <StatusLog :item="item" height="600"></StatusLog>
+          </v-tab-item>
+          <v-tab-item>Notes</v-tab-item>
+          <v-tab-item>Calender</v-tab-item>
+        </v-tabs-items>
+      </div>
     </v-col>
   </v-container>
 </template>
@@ -76,6 +91,8 @@ export default {
     isLoading: false,
     error: null,
     noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
+    tab: 0,
+    tabs: ['進捗', 'メモ', 'カレンダー'],
   }),
   async created() {
     this.item = await this.$store.dispatch(
