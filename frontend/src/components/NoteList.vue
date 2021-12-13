@@ -1,7 +1,8 @@
 <template>
   <div id="note-list">
-    <v-card outlined class="mx-auto">
+    <v-card outlined class="mx-auto" :height="height">
       <v-virtual-scroll
+        v-if="item.notes.length"
         :height="height"
         :item-height="itemHeight"
         :bench="benched"
@@ -23,6 +24,10 @@
           <v-divider v-if="index + 1 < item.notes.length"></v-divider>
         </template>
       </v-virtual-scroll>
+
+      <template v-else>
+        <div class="text-center text-body-2 py-5">ノートが見つかりません。</div>
+      </template>
     </v-card>
 
     <ItemDeleteDialog

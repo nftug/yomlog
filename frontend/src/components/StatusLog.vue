@@ -1,7 +1,8 @@
 <template>
   <div id="status-log">
-    <v-card outlined class="mx-auto">
+    <v-card outlined class="mx-auto" :height="height">
       <v-virtual-scroll
+        v-if="item.status.length && item.status[0].id"
         :height="height"
         :item-height="itemHeight"
         :bench="benched"
@@ -32,7 +33,13 @@
                 <v-list-item-action>
                   <v-menu offset-y>
                     <template #activator="{ on, attrs }">
-                      <v-btn small icon v-bind="attrs" v-on="on">
+                      <v-btn
+                        small
+                        icon
+                        v-bind="attrs"
+                        v-on="on"
+                        :disabled="!state.id"
+                      >
                         <v-icon small>mdi-dots-vertical</v-icon>
                       </v-btn>
                     </template>
@@ -56,6 +63,10 @@
           <v-divider v-if="index + 1 < item.status.length"></v-divider>
         </template>
       </v-virtual-scroll>
+
+      <template v-else>
+        <div class="text-center text-body-2 py-5">記録が見つかりません。</div>
+      </template>
     </v-card>
 
     <ItemDeleteDialog
