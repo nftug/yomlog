@@ -40,6 +40,7 @@
                       <v-list-item
                         link
                         @click="onClickEditStatus(item, state.id)"
+                        :disabled="state.state === 'to_be_read'"
                       >
                         <v-list-item-title>編集</v-list-item-title>
                       </v-list-item>
@@ -108,7 +109,9 @@ export default {
     onEditStatus(data) {
       this.setDirtyWithDiffState(this.item, () => {
         const index = this.item.status.findIndex((e) => e.id === data.id)
-        this.item.status.splice(index, 1, data)
+        if (index !== -1) {
+          this.item.status.splice(index, 1, data)
+        }
       })
     },
   },

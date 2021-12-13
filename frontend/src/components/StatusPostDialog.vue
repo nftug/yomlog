@@ -24,6 +24,7 @@
       <v-switch
         v-model="to_be_read"
         label="あとで読む"
+        :disabled="!!statusId"
         :rules="toBeReadRules"
       ></v-switch>
     </v-form>
