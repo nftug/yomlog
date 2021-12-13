@@ -22,13 +22,9 @@
               <div v-show="field.prevSrc">
                 <img :src="field.prevSrc" alt="" width="150" />
                 <div>
-                  <a
-                    href="javascript:void(0)"
-                    @click="clearFile(key)"
-                    class="text-body-2"
-                  >
-                    ファイルをクリア
-                  </a>
+                  <v-btn text small color="primary" @click="clearFile(key)">
+                    クリア
+                  </v-btn>
                 </div>
               </div>
             </template>

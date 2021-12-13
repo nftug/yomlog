@@ -57,7 +57,7 @@
       @delete-book="onDeleteBook(item)"
     ></ItemDeleteDialog>
     <StatusAddDialog ref="statusAdd" @post="onAddStatus"></StatusAddDialog>
-    <NoteAddDialog ref="noteAdd"></NoteAddDialog>
+    <NoteAddDialog ref="noteAdd" @post="onAddNote"></NoteAddDialog>
   </v-row>
 </template>
 
@@ -92,7 +92,7 @@ export default {
       this.$refs.noteAdd.showNotePostDialog({ book: item })
     },
     onClickBookDelete(item) {
-      this.$refs.bookDelete.showItemDeleteDialog(item)
+      this.$refs.bookDelete.showItemDeleteDialog(item.id, 'book')
     },
     onDeleteBook(item) {
       this.$router.replace({
@@ -103,10 +103,10 @@ export default {
       })
     },
     onAddStatus(data) {
-      this.setDirtyWithDiffState(this.item, () => {
-        this.item.status.unshift(data)
-      })
-      this.$emit('post', data)
+      this.$emit('post-status', data)
+    },
+    onAddNote(data) {
+      this.$emit('post-note', data)
     },
   },
 }

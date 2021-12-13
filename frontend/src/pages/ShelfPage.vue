@@ -288,7 +288,7 @@ export default {
       this.$refs.noteAdd.showNotePostDialog({ book: item })
     },
     onClickDeleteBook(item) {
-      this.$refs.bookDelete.showItemDeleteDialog(item)
+      this.$refs.bookDelete.showItemDeleteDialog(item.id, 'book')
     },
   },
 }

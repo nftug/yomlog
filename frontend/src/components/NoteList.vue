@@ -30,18 +30,16 @@
       </template>
     </v-card>
 
-    <ItemDeleteDialog
-      ref="noteDelete"
-      type="note"
-      @delete-note="onDeleteNote"
-    ></ItemDeleteDialog>
-    <NotePostDialog ref="noteEdit" @post="onEditNote"></NotePostDialog>
+    <NotePostDialog
+      ref="noteEdit"
+      @post="onEditNote"
+      @delete="onDeleteNote"
+    ></NotePostDialog>
   </div>
 </template>
 
 <script>
 import Mixins, { BookListMixin } from '@/mixins'
-import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import NotePostDialog from '@/components/NotePostDialog.vue'
 
 export default {
@@ -56,7 +54,6 @@ export default {
     },
   },
   components: {
-    ItemDeleteDialog,
     NotePostDialog,
   },
   data: () => ({
@@ -68,19 +65,14 @@ export default {
     },
   },
   methods: {
-    onClickDeleteStatus(item) {
-      this.$refs.noteDelete.showItemDeleteDialog(item)
-    },
-    onDeleteNote({ id }) {
-      const index = this.item.notes.findIndex((e) => e.id === id)
-      this.item.notes.splice(index, 1)
-    },
     onClickEditNote(book, id) {
       this.$refs.noteEdit.showNotePostDialog({ book: book, id: id })
     },
     onEditNote(data) {
-      const index = this.item.notes.findIndex((e) => e.id === data.id)
-      this.item.notes.splice(index, 1, data)
+      this.$emit('edit', data)
+    },
+    onDeleteNote(id) {
+      this.$emit('delete', id)
     },
   },
 }

@@ -11,15 +11,12 @@ import api from '@/services/api'
 import Dialog from '@/components/Dialog.vue'
 
 export default {
-  props: {
-    type: {
-      type: String,
-      default: 'book',
-    },
-  },
   components: {
     Dialog,
   },
+  data: () => ({
+    type: '',
+  }),
   computed: {
     typeStr() {
       if (this.type === 'book') {
@@ -34,23 +31,27 @@ export default {
     },
   },
   methods: {
-    async showItemDeleteDialog(item) {
-      if (!(await this.$refs.dialogDeleteBook.showDialog())) return
+    async showItemDeleteDialog(id, type = 'book') {
+      this.type = type
 
-      api({
-        url: `/${this.type}/${item.id}/`,
+      if (!(await this.$refs.dialogDeleteBook.showDialog())) return false
+
+      return api({
+        url: `/${this.type}/${id}/`,
         method: 'delete',
       })
         .then(() => {
-          this.$emit(`delete-${this.type}`, { id: item.id })
+          this.$emit(`delete-${this.type}`, id)
           this.$store.dispatch('message/setInfoMessage', {
             message: `${this.typeStr}を削除しました。`,
           })
+          return Promise.resolve(true)
         })
         .catch(() => {
           this.$store.dispatch('message/setErrorMessage', {
             message: 'エラーが発生しました。',
           })
+          return Promise.resolve(false)
         })
     },
   },

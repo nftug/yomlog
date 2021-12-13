@@ -1,20 +1,30 @@
 <template>
   <Dialog
     ref="dialogNoteAdd"
-    title="ノートの追加"
     fullscreen
     hide-overlay
     transition="dialog-bottom-transition"
     :form-valid="isValid"
   >
-    <template #toolbar="{ ok, cancel, title }">
+    <template #toolbar="{ ok, cancel }">
       <v-toolbar dark color="primary">
         <v-btn icon dark @click="cancel">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <v-toolbar-title>{{ title }}</v-toolbar-title>
+        <v-toolbar-title
+          v-text="`ノートの${noteId ? '編集' : '追加'}`"
+        ></v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
+          <v-btn
+            v-show="!!noteId"
+            dark
+            icon
+            @click="onClickDeleteNote(cancel)"
+            :disabled="!isValid"
+          >
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
           <v-btn dark icon @click="ok" :disabled="!isValid">
             <v-icon>mdi-content-save</v-icon>
           </v-btn>
@@ -71,12 +81,16 @@
 
             <div v-show="prevSrc" class="mb-4 mx-4">
               <v-img :src="prevSrc" alt="" width="150" />
-              <!-- TODO: ファイルクリアを追加 -->
+              <v-btn text small color="primary" @click="clearQuoteImage">
+                クリア
+              </v-btn>
             </div>
           </v-tab-item>
         </v-tabs-items>
       </v-col>
     </v-form>
+
+    <ItemDeleteDialog ref="noteDelete"></ItemDeleteDialog>
   </Dialog>
 </template>
 
@@ -84,15 +98,18 @@
 import api from '@/services/api'
 import Dialog from '@/components/Dialog.vue'
 import Spinner from 'vue-simple-spinner'
+import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 
 export default {
   components: {
     Dialog,
     Spinner,
+    ItemDeleteDialog,
   },
   data() {
     return {
-      id: '',
+      bookId: '',
+      noteId: '',
       format_type: 0,
       position: 0,
       total: 0,
@@ -122,7 +139,7 @@ export default {
       }
 
       // 各種データを入力
-      this.id = book.id
+      this.bookId = book.id
       this.format_type = book.format_type
       this.total = book.total
       this.quoteImage = null
@@ -133,21 +150,23 @@ export default {
         this.content = note.content
         this.quoteText = note.quote_text
         this.prevSrc = note.quote_image
+        this.noteId = note.id
       } else {
         this.position = book.status[0].position || 0
         this.content = ''
         this.quoteText = ''
         this.prevSrc = ''
+        this.noteId = ''
       }
 
       // ダイアログを表示
       if (!(await this.$refs.dialogNoteAdd.showDialog())) return
 
-      this.postNote(id)
+      this.postNote()
     },
-    postNote(id) {
+    postNote() {
       let data = new FormData()
-      data.append('book', this.id)
+      data.append('book', this.bookId)
       data.append('position', this.position)
       data.append('content', this.content)
       data.append('quote_text', this.quoteText)
@@ -161,9 +180,9 @@ export default {
 
       // POST/PATCHの切り替え
       let method, url
-      if (id) {
+      if (this.noteId) {
         method = 'patch'
-        url = `/note/${id}/`
+        url = `/note/${this.noteId}/`
       } else {
         method = 'post'
         url = '/note/'
@@ -183,7 +202,7 @@ export default {
           this.$emit('post', data)
 
           this.$store.dispatch('message/setInfoMessage', {
-            message: `ノートを${id ? '編集' : '追加'}しました。`,
+            message: `ノートを${this.noteId ? '編集' : '追加'}しました。`,
           })
         })
         .catch(() => {
@@ -201,6 +220,21 @@ export default {
         this.quoteImage = event
       } else {
         this.prevSrc = ''
+      }
+    },
+    clearQuoteImage() {
+      this.quoteImage = null
+      this.prevSrc = ''
+    },
+    async onClickDeleteNote(callback) {
+      const ret = await this.$refs.noteDelete.showItemDeleteDialog(
+        this.noteId,
+        'note'
+      )
+
+      if (ret) {
+        this.$emit('delete', this.noteId)
+        callback()
       }
     },
   },

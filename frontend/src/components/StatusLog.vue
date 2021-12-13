@@ -108,22 +108,16 @@ export default {
   },
   methods: {
     onClickDeleteStatus(item) {
-      this.$refs.statusDelete.showItemDeleteDialog(item)
+      this.$refs.statusDelete.showItemDeleteDialog(item.id, 'status_log')
     },
-    onDeleteStatus({ id }) {
-      const index = this.item.status.findIndex((e) => e.id === id)
-      this.item.status.splice(index, 1)
+    onDeleteStatus(id) {
+      this.$emit('delete', id)
     },
     onClickEditStatus(book, id) {
       this.$refs.statusEdit.showStatusPostDialog({ book: book, id: id })
     },
     onEditStatus(data) {
-      this.setDirtyWithDiffState(this.item, () => {
-        const index = this.item.status.findIndex((e) => e.id === data.id)
-        if (index !== -1) {
-          this.item.status.splice(index, 1, data)
-        }
-      })
+      this.$emit('edit', data)
     },
   },
 }

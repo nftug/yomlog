@@ -24,6 +24,8 @@
           <BookDetailMenu
             :item="item"
             class="my-2 hidden-xs-only"
+            @post-status="onAddStatus"
+            @post-note="onAddNote"
           ></BookDetailMenu>
         </v-col>
 
@@ -56,10 +58,22 @@
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item>
-            <StatusLog :item="item" height="600"></StatusLog>
+            <StatusLog
+              v-if="item.status"
+              :item="item"
+              height="600"
+              @edit="onEditStatus"
+              @delete="onDeleteStatus"
+            ></StatusLog>
           </v-tab-item>
           <v-tab-item>
-            <NoteList :item="item" height="600"></NoteList>
+            <NoteList
+              v-if="item.notes"
+              :item="item"
+              height="600"
+              @edit="onEditNote"
+              @delete="onDeleteNote"
+            ></NoteList>
           </v-tab-item>
           <v-tab-item>Calender</v-tab-item>
         </v-tabs-items>
@@ -120,6 +134,34 @@ export default {
         .finally(() => {
           this.isLoading = false
         })
+    },
+    onAddStatus(data) {
+      this.setDirtyWithDiffState(this.item, () => {
+        this.item.status.unshift(data)
+      })
+    },
+    onDeleteStatus(id) {
+      this.setDirtyWithDiffState(this.item, () => {
+        const index = this.item.status.findIndex((e) => e.id === id)
+        this.item.status.splice(index, 1)
+      })
+    },
+    onEditStatus(data) {
+      this.setDirtyWithDiffState(this.item, () => {
+        const index = this.item.status.findIndex((e) => e.id === data.id)
+        this.item.status.splice(index, 1, data)
+      })
+    },
+    onAddNote(data) {
+      this.item.notes.unshift(data)
+    },
+    onDeleteNote(id) {
+      const index = this.item.notes.findIndex((e) => e.id === id)
+      this.item.notes.splice(index, 1)
+    },
+    onEditNote(data) {
+      const index = this.item.notes.findIndex((e) => e.id === data.id)
+      this.item.notes.splice(index, 1, data)
     },
   },
 }
