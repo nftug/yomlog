@@ -106,8 +106,10 @@ export default {
       this.$refs.statusEdit.showStatusPostDialog({ book: book, id: id })
     },
     onEditStatus(data) {
-      const index = this.item.status.findIndex((e) => e.id === data.id)
-      this.item.status.splice(index, 1, data)
+      this.setDirtyWithDiffState(this.item, () => {
+        const index = this.item.status.findIndex((e) => e.id === data.id)
+        this.item.status.splice(index, 1, data)
+      })
     },
   },
 }

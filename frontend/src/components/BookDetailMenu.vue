@@ -65,10 +65,10 @@
 import StatusAddDialog from '@/components/StatusPostDialog.vue'
 import NoteAddDialog from '@/components/NotePostDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
-import { WindowResizeMixin } from '@/mixins'
+import { WindowResizeMixin, BookListMixin } from '@/mixins'
 
 export default {
-  mixins: [WindowResizeMixin],
+  mixins: [WindowResizeMixin, BookListMixin],
   props: {
     item: {
       type: Object,
@@ -103,7 +103,10 @@ export default {
       })
     },
     onAddStatus(data) {
-      this.item.status.unshift(data)
+      this.setDirtyWithDiffState(this.item, () => {
+        this.item.status.unshift(data)
+      })
+      this.$emit('post', data)
     },
   },
 }

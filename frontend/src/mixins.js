@@ -70,6 +70,20 @@ export const BookListMixin = {
       }
     },
   },
+  methods: {
+    setDirtyWithDiffState(book, callback) {
+      const oldState = JSON.stringify(book.status[0])
+      callback()
+      const newState = JSON.stringify(book.status[0])
+
+      if (oldState !== newState) {
+        this.$store.commit('bookList/setDirty', true)
+        return true
+      } else {
+        return false
+      }
+    },
+  },
 }
 
 export const ListViewMixin = {
