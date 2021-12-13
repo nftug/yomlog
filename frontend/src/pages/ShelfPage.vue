@@ -27,6 +27,7 @@
             </v-btn>
           </div>
         </v-card>
+        <ShelfSearchDialog ref="shelfSearch"></ShelfSearchDialog>
       </div>
 
       <!-- Spinner -->
@@ -138,7 +139,6 @@
     <!-- ダイアログ -->
     <StatusAddDialog ref="statusAdd" @post="handleReload"></StatusAddDialog>
     <NoteAddDialog ref="noteAdd"></NoteAddDialog>
-    <ShelfSearchDialog ref="shelfSearch"></ShelfSearchDialog>
     <ItemDeleteDialog
       ref="bookDelete"
       @delete-book="handleReload"
@@ -214,6 +214,7 @@ export default {
     initPage({ isReload, route = this.$route }) {
       this.mode = route.params.mode !== 'all' ? route.params.mode : ''
       this.query = { ...route.query }
+      delete this.query.page
       this.page = Number(route.query.page || 1)
 
       if (isReload || !this.bookList.items.length) {
