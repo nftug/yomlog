@@ -206,6 +206,13 @@ export default {
 
       return `${dateStr} ${dt.hour}:${('00' + dt.minute).slice(-2)}`
     },
+    sliceContent(content, num = 30) {
+      if (content.length < num) {
+        return content
+      } else {
+        return `${content.slice(0, num)}...`
+      }
+    },
   },
   computed: {
     isLoggedIn: function () {

@@ -71,6 +71,7 @@
 
             <div v-show="prevSrc" class="mb-4 mx-4">
               <v-img :src="prevSrc" alt="" width="150" />
+              <!-- TODO: ファイルクリアを追加 -->
             </div>
           </v-tab-item>
         </v-tabs-items>
@@ -113,6 +114,8 @@ export default {
   },
   methods: {
     async showNotePostDialog({ book, id }) {
+      this.tab = 0
+
       // バリデーションをクリア
       if (this.$refs.formNoteAdd) {
         this.$refs.formNoteAdd.resetValidation()
@@ -150,7 +153,6 @@ export default {
       data.append('quote_text', this.quoteText)
 
       // ファイルのアップロード可否判定
-      // TODO: 更新時にファイルが残るか、あとで要検証
       if (this.quoteImage) {
         data.append('quote_image', this.quoteImage)
       } else if (!this.prevSrc) {
@@ -174,11 +176,11 @@ export default {
         method: method,
         data: data,
       })
-        .then(() => {
+        .then(({ data }) => {
           // ダイアログを閉じる
           this.$refs.dialogNoteAdd.hideDialog()
 
-          this.$emit('post')
+          this.$emit('post', data)
 
           this.$store.dispatch('message/setInfoMessage', {
             message: `ノートを${id ? '編集' : '追加'}しました。`,

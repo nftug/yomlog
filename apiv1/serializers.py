@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.utils.timezone import localtime
 from rest_framework.exceptions import ValidationError
+from django.conf import settings
 
 from .mixins import ImageSerializerMixin
 from backend.models import *
@@ -64,6 +65,13 @@ class NoteSerializer(PostSerializer):
             'quote_text': {'required': False},
             'quote_image': {'required': False},
         }
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        quote_image = ret['quote_image']
+        if quote_image and quote_image.startswith('/'):
+            ret['quote_image'] = '{}{}'.format(settings.HOST_URL, quote_image)
+        return ret
 
 
 class BookSerializer(PostSerializer):

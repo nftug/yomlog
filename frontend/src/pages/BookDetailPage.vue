@@ -58,7 +58,9 @@
           <v-tab-item>
             <StatusLog :item="item" height="600"></StatusLog>
           </v-tab-item>
-          <v-tab-item>Notes</v-tab-item>
+          <v-tab-item>
+            <NoteList :item="item" height="600"></NoteList>
+          </v-tab-item>
           <v-tab-item>Calender</v-tab-item>
         </v-tabs-items>
       </div>
@@ -74,6 +76,7 @@ import Mixins, { BookListMixin, ShelfSearchFromHeaderMixin } from '@/mixins'
 import BookDetailInfo from '@/components/BookDetailInfo.vue'
 import BookDetailMenu from '@/components/BookDetailMenu.vue'
 import StatusLog from '@/components/StatusLog.vue'
+import NoteList from '@/components/NoteList.vue'
 
 export default {
   mixins: [Mixins, BookListMixin, ShelfSearchFromHeaderMixin],
@@ -83,6 +86,7 @@ export default {
     BookDetailInfo,
     BookDetailMenu,
     StatusLog,
+    NoteList,
   },
   data: () => ({
     item: {},
@@ -90,7 +94,7 @@ export default {
     error: null,
     noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
     tab: 0,
-    tabs: ['進捗', 'メモ', 'カレンダー'],
+    tabs: ['進捗', 'ノート', 'カレンダー'],
   }),
   async created() {
     this.item = await this.$store.dispatch(
