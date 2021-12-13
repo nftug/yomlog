@@ -136,7 +136,7 @@
     </div>
 
     <!-- ダイアログ -->
-    <StatusAddDialog ref="statusAdd" @reload="handleReload"></StatusAddDialog>
+    <StatusAddDialog ref="statusAdd" @post="handleReload"></StatusAddDialog>
     <NoteAddDialog ref="noteAdd"></NoteAddDialog>
     <ShelfSearchDialog ref="shelfSearch"></ShelfSearchDialog>
     <ItemDeleteDialog

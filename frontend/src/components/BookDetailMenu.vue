@@ -58,11 +58,8 @@
       ref="bookDelete"
       @delete-book="onDeleteBook(item)"
     ></ItemDeleteDialog>
-    <StatusAddDialog
-      ref="statusAdd"
-      @reload="$emit('reload')"
-    ></StatusAddDialog>
-    <NoteAddDialog ref="noteAdd" @reload="$emit('reload')"></NoteAddDialog>
+    <StatusAddDialog ref="statusAdd" @post="onAddStatus"></StatusAddDialog>
+    <NoteAddDialog ref="noteAdd"></NoteAddDialog>
   </v-row>
 </template>
 
@@ -106,6 +103,9 @@ export default {
           mode: item.status[0].state,
         },
       })
+    },
+    onAddStatus(data) {
+      this.item.status.unshift(data)
     },
   },
 }

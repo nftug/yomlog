@@ -120,7 +120,7 @@ export default {
           // ダイアログを閉じる
           this.$refs.dialogStatusAdd.hideDialog()
 
-          this.$emit('reload', data)
+          this.$emit('post', data)
 
           this.$store.dispatch('message/setInfoMessage', {
             message: '進捗状況を記録しました。',

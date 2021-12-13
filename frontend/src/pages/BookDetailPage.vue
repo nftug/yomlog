@@ -24,7 +24,6 @@
           <BookDetailMenu
             :item="item"
             class="my-2 hidden-xs-only"
-            @reload="fetchBookData"
           ></BookDetailMenu>
         </v-col>
 
@@ -41,7 +40,6 @@
       <BookDetailMenu
         :item="item"
         class="my-2 hidden-sm-and-up"
-        @reload="fetchBookData"
       ></BookDetailMenu>
 
       <!-- 状態表示 -->

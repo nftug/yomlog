@@ -62,7 +62,7 @@
       type="status_log"
       @delete-status_log="onDeleteStatus"
     ></ItemDeleteDialog>
-    <StatusEditDialog ref="statusEdit" @reload="handleEdit"></StatusEditDialog>
+    <StatusEditDialog ref="statusEdit" @post="onEditStatus"></StatusEditDialog>
   </div>
 </template>
 
@@ -105,7 +105,7 @@ export default {
     onClickEditStatus(book, id) {
       this.$refs.statusEdit.showStatusAddEditDialog({ book: book, id: id })
     },
-    handleEdit(data) {
+    onEditStatus(data) {
       const index = this.item.status.findIndex((e) => e.id === data.id)
       this.item.status.splice(index, 1, data)
     },
