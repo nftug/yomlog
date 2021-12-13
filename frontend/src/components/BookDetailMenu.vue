@@ -54,10 +54,10 @@
     </v-col>
 
     <!-- ダイアログ -->
-    <BookDeleteDialog
+    <ItemDeleteDialog
       ref="bookDelete"
       @delete-book="onDeleteBook(item)"
-    ></BookDeleteDialog>
+    ></ItemDeleteDialog>
     <StatusAddDialog
       ref="statusAdd"
       @reload="$emit('reload')"
@@ -67,9 +67,9 @@
 </template>
 
 <script>
-import StatusAddDialog from '@/components/StatusAddDialog.vue'
+import StatusAddDialog from '@/components/StatusAddEditDialog.vue'
 import NoteAddDialog from '@/components/NoteAddDialog.vue'
-import BookDeleteDialog from '@/components/BookDeleteDialog.vue'
+import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import { WindowResizeMixin } from '@/mixins'
 
 export default {
@@ -82,7 +82,7 @@ export default {
   components: {
     StatusAddDialog,
     NoteAddDialog,
-    BookDeleteDialog,
+    ItemDeleteDialog,
   },
   computed: {
     googleLink() {
@@ -91,13 +91,13 @@ export default {
   },
   methods: {
     onClickStatusAdd(item) {
-      this.$refs.statusAdd.showStatusAddDialog(item)
+      this.$refs.statusAdd.showStatusAddEditDialog({ book: item })
     },
     onClickNoteAdd(item) {
       this.$refs.noteAdd.showNoteAddDialog(item)
     },
     onClickBookDelete(item) {
-      this.$refs.bookDelete.showBookDeleteDialog(item)
+      this.$refs.bookDelete.showItemDeleteDialog(item)
     },
     onDeleteBook(item) {
       this.$router.replace({

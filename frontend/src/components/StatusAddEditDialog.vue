@@ -40,7 +40,8 @@ export default {
   },
   data() {
     return {
-      id: '',
+      statusId: '',
+      bookId: '',
       position: 0,
       total: 0,
       format_type: 0,
@@ -65,19 +66,24 @@ export default {
     }
   },
   methods: {
-    async showStatusAddDialog(item) {
-      // バリデーションをクリア
-      if (this.$refs.formStatusAdd) {
-        this.$refs.formStatusAdd.resetValidation()
-        this.positionErrors = []
-      }
+    showStatusAddEditDialog({ book, id }) {
+      this.resetValidation()
 
       // 各種データを入力
-      this.id = item.id
-      this.format_type = item.format_type
-      this.position = item.status[0].position || 0
-      this.total = item.total
-      this.to_be_read = item.status[0].state === 'to_be_read'
+      this.bookId = book.id
+      this.format_type = book.format_type
+      this.total = book.total
+
+      if (id) {
+        const status = book.status.find((e) => e.id === id)
+        this.statusId = id
+        this.position = status.position
+        this.to_be_read = status.state === 'to_be_read'
+      } else {
+        this.statusId = ''
+        this.position = book.status[0].position || 0
+        this.to_be_read = book.status[0].state === 'to_be_read'
+      }
 
       // デフォルト値を保存
       this.defaultValues.position = this.position
@@ -86,20 +92,35 @@ export default {
       // ダイアログを表示
       this.$refs.dialogStatusAdd.showDialog()
     },
+    resetValidation() {
+      if (this.$refs.formStatusAdd) {
+        this.$refs.formStatusAdd.resetValidation()
+        this.positionErrors = []
+      }
+    },
     postStatus() {
+      let params = { position: this.to_be_read ? 0 : this.position }
+      let method, url
+
+      if (this.statusId) {
+        method = 'patch'
+        url = `/status_log/${this.statusId}/`
+      } else {
+        params.book = this.bookId
+        method = 'post'
+        url = '/status_log/'
+      }
+
       api({
-        url: '/status_log/',
-        method: 'post',
-        data: {
-          book: this.id,
-          position: this.to_be_read ? 0 : this.position,
-        },
+        url: url,
+        method: method,
+        data: params,
       })
         .then(({ data }) => {
           // ダイアログを閉じる
           this.$refs.dialogStatusAdd.hideDialog()
 
-          this.$emit('reload', data.state)
+          this.$emit('reload', data)
 
           this.$store.dispatch('message/setInfoMessage', {
             message: '進捗状況を記録しました。',

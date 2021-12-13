@@ -139,10 +139,10 @@
     <StatusAddDialog ref="statusAdd" @reload="handleReload"></StatusAddDialog>
     <NoteAddDialog ref="noteAdd"></NoteAddDialog>
     <ShelfSearchDialog ref="shelfSearch"></ShelfSearchDialog>
-    <BookDeleteDialog
+    <ItemDeleteDialog
       ref="bookDelete"
       @delete-book="handleReload"
-    ></BookDeleteDialog>
+    ></ItemDeleteDialog>
   </v-container>
 </template>
 
@@ -155,10 +155,10 @@ import Mixins, {
   ListViewMixin,
 } from '@/mixins'
 import api from '@/services/api'
-import StatusAddDialog from '@/components/StatusAddDialog.vue'
+import StatusAddDialog from '@/components/StatusAddEditDialog.vue'
 import NoteAddDialog from '@/components/NoteAddDialog.vue'
 import ShelfSearchDialog from '@/components/ShelfSearchDialog.vue'
-import BookDeleteDialog from '@/components/BookDeleteDialog.vue'
+import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 
 export default {
   mixins: [BookListMixin, ShelfSearchFromHeaderMixin, ListViewMixin, Mixins],
@@ -166,7 +166,7 @@ export default {
     Spinner,
     BookList,
     StatusAddDialog,
-    BookDeleteDialog,
+    ItemDeleteDialog,
     NoteAddDialog,
     ShelfSearchDialog,
   },
@@ -265,10 +265,13 @@ export default {
           this.$store.commit('bookList/setLoading', false)
         })
     },
-    handleReload(state) {
-      if (!state) this.initPage({ isReload: true })
+    handleReload(data) {
+      if (!data.state) {
+        this.initPage({ isReload: true })
+        return
+      }
 
-      const fullPath = `/shelf/${state}`
+      const fullPath = `/shelf/${data.state}`
       if (fullPath !== this.$route.fullPath) {
         this.$router.push(fullPath)
       } else {
@@ -279,13 +282,13 @@ export default {
       this.$refs.shelfSearch.showShelfSearchDialog()
     },
     onClickStatusAdd(item) {
-      this.$refs.statusAdd.showStatusAddDialog(item)
+      this.$refs.statusAdd.showStatusAddEditDialog({ book: item })
     },
     onClickNoteAdd(item) {
       this.$refs.noteAdd.showNoteAddDialog(item)
     },
     onClickDeleteBook(item) {
-      this.$refs.bookDelete.showBookDeleteDialog(item)
+      this.$refs.bookDelete.showItemDeleteDialog(item)
     },
   },
 }
