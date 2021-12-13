@@ -29,10 +29,8 @@
           <v-list-item link>
             <v-list-item-title>書籍の編集</v-list-item-title>
           </v-list-item>
-          <v-list-item link>
-            <v-list-item-title @click="onClickBookDelete(item)">
-              書籍の削除
-            </v-list-item-title>
+          <v-list-item link @click="onClickBookDelete(item)">
+            <v-list-item-title>書籍の削除</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
