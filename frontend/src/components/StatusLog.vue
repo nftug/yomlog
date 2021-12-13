@@ -69,7 +69,7 @@
 <script>
 import Mixins, { BookListMixin } from '@/mixins'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
-import StatusEditDialog from '@/components/StatusAddEditDialog.vue'
+import StatusEditDialog from '@/components/StatusPostDialog.vue'
 
 export default {
   mixins: [Mixins, BookListMixin],
@@ -103,7 +103,7 @@ export default {
       this.item.status.splice(index, 1)
     },
     onClickEditStatus(book, id) {
-      this.$refs.statusEdit.showStatusAddEditDialog({ book: book, id: id })
+      this.$refs.statusEdit.showStatusPostDialog({ book: book, id: id })
     },
     onEditStatus(data) {
       const index = this.item.status.findIndex((e) => e.id === data.id)

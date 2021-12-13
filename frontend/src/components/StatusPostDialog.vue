@@ -66,7 +66,7 @@ export default {
     }
   },
   methods: {
-    showStatusAddEditDialog({ book, id }) {
+    showStatusPostDialog({ book, id }) {
       this.resetValidation()
 
       // 各種データを入力

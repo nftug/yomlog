@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import StatusAddDialog from '@/components/StatusAddEditDialog.vue'
-import NoteAddDialog from '@/components/NoteAddDialog.vue'
+import StatusAddDialog from '@/components/StatusPostDialog.vue'
+import NoteAddDialog from '@/components/NotePostDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import { WindowResizeMixin } from '@/mixins'
 
@@ -88,10 +88,10 @@ export default {
   },
   methods: {
     onClickStatusAdd(item) {
-      this.$refs.statusAdd.showStatusAddEditDialog({ book: item })
+      this.$refs.statusAdd.showStatusPostDialog({ book: item })
     },
     onClickNoteAdd(item) {
-      this.$refs.noteAdd.showNoteAddDialog(item)
+      this.$refs.noteAdd.showNotePostDialog({ book: item })
     },
     onClickBookDelete(item) {
       this.$refs.bookDelete.showItemDeleteDialog(item)

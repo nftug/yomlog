@@ -112,29 +112,37 @@ export default {
     }
   },
   methods: {
-    async showNoteAddDialog(item) {
+    async showNotePostDialog({ book, id }) {
       // バリデーションをクリア
       if (this.$refs.formNoteAdd) {
         this.$refs.formNoteAdd.resetValidation()
       }
 
       // 各種データを入力
-      this.id = item.id
-      this.format_type = item.format_type
-      this.total = item.total
-
-      this.position = item.status[0].position || 0
-      this.content = ''
-      this.quoteText = ''
+      this.id = book.id
+      this.format_type = book.format_type
+      this.total = book.total
       this.quoteImage = null
-      this.prevSrc = ''
+
+      if (id) {
+        const note = book.notes.find((e) => e.id === id)
+        this.position = note.position
+        this.content = note.content
+        this.quoteText = note.quote_text
+        this.prevSrc = note.quote_image
+      } else {
+        this.position = book.status[0].position || 0
+        this.content = ''
+        this.quoteText = ''
+        this.prevSrc = ''
+      }
 
       // ダイアログを表示
       if (!(await this.$refs.dialogNoteAdd.showDialog())) return
 
-      this.postNote()
+      this.postNote(id)
     },
-    postNote() {
+    postNote(id) {
       let data = new FormData()
       data.append('book', this.id)
       data.append('position', this.position)
@@ -149,11 +157,21 @@ export default {
         data.append('quote_image', new File([], ''))
       }
 
+      // POST/PATCHの切り替え
+      let method, url
+      if (id) {
+        method = 'patch'
+        url = `/note/${id}/`
+      } else {
+        method = 'post'
+        url = '/note/'
+      }
+
       // フォーム送信
       this.isSending = true
       api({
-        url: '/note/',
-        method: 'post',
+        url: url,
+        method: method,
         data: data,
       })
         .then(() => {
@@ -163,7 +181,7 @@ export default {
           this.$emit('post')
 
           this.$store.dispatch('message/setInfoMessage', {
-            message: 'ノートを追加しました。',
+            message: `ノートを${id ? '編集' : '追加'}しました。`,
           })
         })
         .catch(() => {

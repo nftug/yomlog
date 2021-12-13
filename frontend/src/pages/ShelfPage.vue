@@ -155,8 +155,8 @@ import Mixins, {
   ListViewMixin,
 } from '@/mixins'
 import api from '@/services/api'
-import StatusAddDialog from '@/components/StatusAddEditDialog.vue'
-import NoteAddDialog from '@/components/NoteAddDialog.vue'
+import StatusAddDialog from '@/components/StatusPostDialog.vue'
+import NoteAddDialog from '@/components/NotePostDialog.vue'
 import ShelfSearchDialog from '@/components/ShelfSearchDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 
@@ -282,10 +282,10 @@ export default {
       this.$refs.shelfSearch.showShelfSearchDialog()
     },
     onClickStatusAdd(item) {
-      this.$refs.statusAdd.showStatusAddEditDialog({ book: item })
+      this.$refs.statusAdd.showStatusPostDialog({ book: item })
     },
     onClickNoteAdd(item) {
-      this.$refs.noteAdd.showNoteAddDialog(item)
+      this.$refs.noteAdd.showNotePostDialog({ book: item })
     },
     onClickDeleteBook(item) {
       this.$refs.bookDelete.showItemDeleteDialog(item)
