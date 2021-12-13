@@ -42,6 +42,8 @@
       <BookDetailMenu
         :item="item"
         class="my-2 hidden-sm-and-up"
+        @post-status="onAddStatus"
+        @post-note="onAddNote"
       ></BookDetailMenu>
 
       <!-- 状態表示 -->
