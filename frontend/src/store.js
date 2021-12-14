@@ -189,7 +189,11 @@ const bookListModule = {
     },
     set(state, item) {
       const index = state.items.findIndex((e) => e.id === item.id)
-      state.items[index] = { ...item }
+      state.items.splice(index, 1, { ...item })
+    },
+    delete(state, item) {
+      const index = state.items.findIndex((e) => e.id === item.id)
+      state.items.splice(index, 1)
     },
     clear(state) {
       state.items = []

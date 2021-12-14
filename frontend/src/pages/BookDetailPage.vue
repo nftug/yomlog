@@ -24,8 +24,8 @@
           <BookDetailMenu
             :item="item"
             class="my-2 hidden-xs-only"
-            @post-status="onAddStatus"
-            @post-note="onAddNote"
+            @post-status="onAddProp('status', $event)"
+            @post-note="onAddProp('notes', $event)"
           ></BookDetailMenu>
         </v-col>
 
@@ -42,8 +42,8 @@
       <BookDetailMenu
         :item="item"
         class="my-2 hidden-sm-and-up"
-        @post-status="onAddStatus"
-        @post-note="onAddNote"
+        @post-status="onAddProp('status', $event)"
+        @post-note="onAddProp('notes', $event)"
       ></BookDetailMenu>
 
       <!-- 状態表示 -->
@@ -64,8 +64,8 @@
               v-if="item.status"
               :item="item"
               height="600"
-              @edit="onEditStatus"
-              @delete="onDeleteStatus"
+              @edit="onEditProp('status', $event)"
+              @delete="onDeleteProp('status', $event)"
             ></StatusLog>
           </v-tab-item>
           <v-tab-item>
@@ -73,8 +73,8 @@
               v-if="item.notes"
               :item="item"
               height="600"
-              @edit="onEditNote"
-              @delete="onDeleteNote"
+              @edit="onEditProp('notes', $event)"
+              @delete="onDeleteProp('notes', $event)"
             ></NoteList>
           </v-tab-item>
           <v-tab-item>Calender</v-tab-item>
@@ -137,33 +137,22 @@ export default {
           this.isLoading = false
         })
     },
-    onAddStatus(data) {
-      this.setDirtyWithDiffState(this.item, () => {
-        this.item.status.unshift(data)
+    onAddProp(prop, data) {
+      this.setDirtyWithDiffState(this.item, (item) => {
+        item[prop].unshift(data)
       })
     },
-    onDeleteStatus(id) {
-      this.setDirtyWithDiffState(this.item, () => {
-        const index = this.item.status.findIndex((e) => e.id === id)
-        this.item.status.splice(index, 1)
+    onDeleteProp(prop, id) {
+      this.setDirtyWithDiffState(this.item, (item) => {
+        const index = item[prop].findIndex((e) => e.id === id)
+        item[prop].splice(index, 1)
       })
     },
-    onEditStatus(data) {
-      this.setDirtyWithDiffState(this.item, () => {
-        const index = this.item.status.findIndex((e) => e.id === data.id)
-        this.item.status.splice(index, 1, data)
+    onEditProp(prop, data) {
+      this.setDirtyWithDiffState(this.item, (item) => {
+        const index = item[prop].findIndex((e) => e.id === data.id)
+        item[prop].splice(index, 1, data)
       })
-    },
-    onAddNote(data) {
-      this.item.notes.unshift(data)
-    },
-    onDeleteNote(id) {
-      const index = this.item.notes.findIndex((e) => e.id === id)
-      this.item.notes.splice(index, 1)
-    },
-    onEditNote(data) {
-      const index = this.item.notes.findIndex((e) => e.id === data.id)
-      this.item.notes.splice(index, 1, data)
     },
   },
 }

@@ -73,7 +73,7 @@ export const BookListMixin = {
   methods: {
     setDirtyWithDiffState(book, callback) {
       const oldState = JSON.stringify(book.status[0])
-      callback()
+      callback(book)
       const newState = JSON.stringify(book.status[0])
 
       if (oldState !== newState) {
