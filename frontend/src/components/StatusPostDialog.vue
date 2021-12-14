@@ -68,7 +68,11 @@ export default {
   },
   methods: {
     showStatusPostDialog({ book, id }) {
-      this.resetValidation()
+      // バリデーションをリセット
+      if (this.$refs.formStatusAdd) {
+        this.$refs.formStatusAdd.resetValidation()
+        this.positionErrors = []
+      }
 
       // 各種データを入力
       this.bookId = book.id
@@ -92,12 +96,6 @@ export default {
 
       // ダイアログを表示
       this.$refs.dialogStatusAdd.showDialog()
-    },
-    resetValidation() {
-      if (this.$refs.formStatusAdd) {
-        this.$refs.formStatusAdd.resetValidation()
-        this.positionErrors = []
-      }
     },
     postStatus() {
       let params = { position: this.to_be_read ? 0 : this.position }

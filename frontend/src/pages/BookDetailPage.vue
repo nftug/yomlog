@@ -26,6 +26,7 @@
             class="my-2 hidden-xs-only"
             @post-status="onAddProp('status', $event)"
             @post-note="onAddProp('notes', $event)"
+            @edit-book="onEditBook"
           ></BookDetailMenu>
         </v-col>
 
@@ -44,6 +45,7 @@
         class="my-2 hidden-sm-and-up"
         @post-status="onAddProp('status', $event)"
         @post-note="onAddProp('notes', $event)"
+        @edit-book="onEditBook"
       ></BookDetailMenu>
 
       <!-- 状態表示 -->
@@ -113,6 +115,9 @@ export default {
     tabs: ['進捗', 'ノート', 'カレンダー'],
   }),
   async created() {
+    // NOTE: ストアから取得するのはアイテムのコピーになる
+    // ⇒ページ内情報の更新とbookListストアの更新処理は別々に行うこと
+
     this.item = await this.$store.dispatch(
       'bookList/getBookItem',
       this.$route.params.id
@@ -153,6 +158,10 @@ export default {
         const index = item[prop].findIndex((e) => e.id === data.id)
         item[prop].splice(index, 1, data)
       })
+    },
+    onEditBook(data) {
+      this.item = data
+      this.$store.commit('bookList/set', data)
     },
   },
 }

@@ -26,7 +26,7 @@
           </v-btn>
         </template>
         <v-list dense>
-          <v-list-item link>
+          <v-list-item link @click="onClickBookEdit(item)">
             <v-list-item-title>書籍の編集</v-list-item-title>
           </v-list-item>
           <v-list-item link @click="onClickBookDelete(item)">
@@ -52,6 +52,7 @@
     </v-col>
 
     <!-- ダイアログ -->
+    <BookEditDialog ref="bookEdit" @post="onEditBook"></BookEditDialog>
     <ItemDeleteDialog
       ref="bookDelete"
       @delete-book="onDeleteBook(item)"
@@ -64,6 +65,7 @@
 <script>
 import StatusAddDialog from '@/components/StatusPostDialog.vue'
 import NoteAddDialog from '@/components/NotePostDialog.vue'
+import BookEditDialog from '@/components/BookEditDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import { WindowResizeMixin, BookListMixin } from '@/mixins'
 
@@ -78,6 +80,7 @@ export default {
     StatusAddDialog,
     NoteAddDialog,
     ItemDeleteDialog,
+    BookEditDialog,
   },
   computed: {
     googleLink() {
@@ -90,6 +93,9 @@ export default {
     },
     onClickNoteAdd(item) {
       this.$refs.noteAdd.showNotePostDialog({ book: item })
+    },
+    onClickBookEdit(item) {
+      this.$refs.bookEdit.showBookEditDialog({ book: item, post: true })
     },
     onClickBookDelete(item) {
       this.$refs.bookDelete.showItemDeleteDialog(item.id, 'book')
@@ -107,6 +113,9 @@ export default {
     },
     onAddNote(data) {
       this.$emit('post-note', data)
+    },
+    onEditBook(data) {
+      this.$emit('edit-book', data)
     },
   },
 }

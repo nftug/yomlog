@@ -5,12 +5,12 @@
       <BookList :items="items" :loading="true">
         <template #content="{ item }">
           <v-list-item>
-            <v-btn color="green" dark block @click="addBook(item)">
+            <v-btn color="green" dark block @click="addBook(item, 0)">
               本を登録
             </v-btn>
           </v-list-item>
           <v-list-item>
-            <v-btn color="orange" dark block @click="addBook(item, true)">
+            <v-btn color="orange" dark block @click="addBook(item, 1)">
               Kindle本を登録
             </v-btn>
           </v-list-item>
@@ -71,40 +71,7 @@
     </Dialog>
 
     <!-- Kindle本のデータ入力ダイアログ -->
-    <Dialog
-      ref="dialogKindle"
-      title="Kindle本の登録"
-      :max-width="400"
-      :form-valid="formKindle.valid"
-    >
-      <p>Kindle本のデータを入力してください。</p>
-
-      <v-form ref="formKindle" v-model="formKindle.valid">
-        <v-text-field
-          v-model="formKindle.title"
-          label="タイトル"
-          readonly
-        ></v-text-field>
-        <v-text-field
-          v-model="formKindle.author"
-          label="著者"
-          readonly
-        ></v-text-field>
-        <v-text-field
-          v-model="formKindle.asin"
-          label="ASINコード"
-          :rules="formKindle.asinRules"
-          maxlength="10"
-        ></v-text-field>
-        <v-text-field
-          v-model="formKindle.total"
-          label="位置Noの総数"
-          type="number"
-          min="0"
-          :rules="formKindle.totalRules"
-        ></v-text-field>
-      </v-form>
-    </Dialog>
+    <BookEditDialog ref="bookEdit"></BookEditDialog>
   </v-container>
 </template>
 
@@ -116,6 +83,7 @@ import api from '@/services/api'
 import Mixin, { FormRulesMixin } from '@/mixins'
 import Dialog from '@/components/Dialog.vue'
 import BookList from '@/components/BookList.vue'
+import BookEditDialog from '@/components/BookEditDialog.vue'
 import Fab from '@/components/Fab.vue'
 import VueScrollTo from 'vue-scrollto'
 
@@ -126,6 +94,7 @@ export default {
     InfiniteLoading,
     Dialog,
     BookList,
+    BookEditDialog,
     Fab,
   },
   data: () => ({
@@ -136,17 +105,6 @@ export default {
     maxResults: 12,
     infiniteId: null,
     searchBottomSheet: true,
-    formKindle: {
-      title: '',
-      author: '',
-      asin: '',
-      total: 0,
-      valid: false,
-      asinRules: [
-        (v) => !v || v.length === 10 || '10桁のコードを入力してください',
-      ],
-      totalRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
-    },
     formPages: {
       value: 0,
       valid: false,
@@ -244,79 +202,67 @@ export default {
       // ボトムシートの非表示
       this.searchBottomSheet = false
     },
-    async addBook(item, kindle) {
-      try {
-        let response, format_type
+    async addBook(book, format_type) {
+      let item = { ...book }
 
-        // 書籍データの入力
-        if (kindle) {
-          // Kindle本の場合、各種データを入力
-          if (!(await this.showKindleDialog(item))) return
+      item.format_type = format_type
 
-          format_type = 1
-          item.amazon_dp = this.formKindle.asin
-          item.total = this.formKindle.total
-        } else {
-          // 通常の書籍データで登録
-
-          // ページ数が空の場合はダイアログで入力を求める
-          if (!item.total) {
-            if (!(await this.showPagesDialog())) return
-            item.total = this.formPages.value
-          }
-
-          format_type = 0
-        }
-
-        // Bookのデータを登録
-        // 既に登録されている場合は該当のデータが返却される (statusは200)
-        response = await api({
-          url: '/book/',
-          method: 'post',
-          data: {
-            id_google: item.id_google,
-            authors: item.authors.join(','),
-            title: item.title,
-            thumbnail: item.thumbnail,
-            total: item.total,
-            amazon_dp: item.amazon_dp,
-            format_type: format_type,
-          },
-        })
-
-        // 書籍の詳細ページに遷移
-        this.$router.replace({
-          name: 'book_detail',
-          params: {
-            id: response.data.id,
-          },
-        })
-
-        if (response.status === 201) {
-          this.$store.dispatch('message/setInfoMessage', {
-            message: '書籍を登録しました。',
+      // 書籍データの入力
+      if (format_type === 1) {
+        // Kindle本の場合、各種データを入力
+        try {
+          item.total = 0
+          item = await this.$refs.bookEdit.showBookEditDialog({
+            book: item,
+            post: false,
           })
-        } else {
-          this.$store.dispatch('message/setInfoMessage', {
-            message: 'この本は既に登録されています。',
-          })
+        } catch {
+          // ダイアログがキャンセルの場合の処理
+          return
         }
-      } catch (err) {
-        console.error(err)
-        this.$store.dispatch('message/setErrorMessage', {
-          message: 'エラーが発生しました。',
+      } else {
+        // 通常の書籍データで登録
+        // ページ数が空の場合はダイアログで入力を求める
+        if (!item.total) {
+          if (!(await this.showPagesDialog())) return
+          item.total = this.formPages.value
+        }
+      }
+
+      // Bookのデータを登録
+      // 既に登録されている場合は該当のデータが返却される (statusは200)
+      let response
+      response = await api({
+        url: '/book/',
+        method: 'post',
+        data: {
+          id_google: item.id_google,
+          authors: item.authors.join(','),
+          title: item.title,
+          thumbnail: item.thumbnail,
+          total: item.total,
+          amazon_dp: item.amazon_dp,
+          format_type: item.format_type,
+        },
+      })
+
+      // 書籍の詳細ページに遷移
+      this.$router.replace({
+        name: 'book_detail',
+        params: {
+          id: response.data.id,
+        },
+      })
+
+      if (response.status === 201) {
+        this.$store.dispatch('message/setInfoMessage', {
+          message: '書籍を登録しました。',
+        })
+      } else {
+        this.$store.dispatch('message/setInfoMessage', {
+          message: 'この本は既に登録されています。',
         })
       }
-    },
-    showKindleDialog(item) {
-      if (this.$refs.formKindle) {
-        this.formKindle.asin = ''
-        this.formKindle.total = 0
-        this.$refs.formKindle.resetValidation()
-      }
-      this.formKindle.title = item.title
-      this.formKindle.author = item.authors.join(', ')
-      return this.$refs.dialogKindle.showDialog()
     },
     showPagesDialog() {
       if (this.$refs.formPages) {
