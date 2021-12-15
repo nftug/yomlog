@@ -48,13 +48,13 @@ const router = new VueRouter({
           path: '/',
           name: 'book_detail_status',
           component: StatusLog,
-          meta: { title: '本の詳細', isShowMenuButton: false },
+          meta: { title: '本の詳細', isShowMenuButton: false, hash: '#tab' },
         },
         {
           path: 'note/',
           name: 'book_detail_note',
           component: NoteList,
-          meta: { title: '本の詳細', isShowMenuButton: false },
+          meta: { title: '本の詳細', isShowMenuButton: false, hash: '#tab' },
         },
       ],
     },
@@ -123,15 +123,13 @@ const router = new VueRouter({
     { path: '*', component: NotFoundPage },
   ],
   // 画面遷移時のスクロール
-  scrollBehavior: async (to, from, savedPosition) => {
+  scrollBehavior: (to, from, savedPosition) => {
     if (savedPosition) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(savedPosition)
-        })
-      })
+      return savedPosition
     } else if (to.hash) {
       return { selector: to.hash }
+    } else if (to.meta.hash) {
+      return { selector: to.meta.hash }
     } else {
       return { x: 0, y: 0 }
     }

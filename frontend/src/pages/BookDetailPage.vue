@@ -52,7 +52,7 @@
       </div>
 
       <!-- 進捗とメモ -->
-      <div class="pb-5">
+      <div class="pb-5" id="tab">
         <v-tabs v-model="activeTab" background-color="transparent" grow>
           <v-tab v-for="tab in tabs" :key="tab.label" :to="tab.path">
             {{ tab.label }}
@@ -61,13 +61,15 @@
         <v-tabs-items v-model="activeTab">
           <v-tab-item v-for="tab in tabs" :key="tab.label" :value="tab.path">
             <!-- TODO: タブ切替時のスクロール制御 -->
-            <router-view
-              v-if="activeTab === tab.path"
-              :item="item"
-              height="600"
-              @edit="onEditProp"
-              @delete="onDeleteProp"
-            ></router-view>
+            <div style="height: 600px">
+              <router-view
+                v-if="activeTab === tab.path"
+                :item="item"
+                height="600"
+                @edit="onEditProp"
+                @delete="onDeleteProp"
+              ></router-view>
+            </div>
           </v-tab-item>
         </v-tabs-items>
       </div>
@@ -99,7 +101,10 @@ export default {
       noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
       activeTab: null,
       tabs: [
-        { label: '進捗', path: `/book/detail/${this.$route.params.id}` },
+        {
+          label: '進捗',
+          path: `/book/detail/${this.$route.params.id}`,
+        },
         {
           label: 'ノート',
           path: `/book/detail/${this.$route.params.id}/note`,
