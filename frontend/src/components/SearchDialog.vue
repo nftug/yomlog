@@ -1,20 +1,17 @@
 <template>
-  <Dialog
-    ref="dialogShelfSearch"
-    title="検索条件の追加"
-    :max-width="600"
-    label-ok="検索"
-  >
-    <template #activator="{ on, attrs }">
+  <Dialog ref="dialogSearch" :title="title" :max-width="600" label-ok="検索">
+    <template #activator="{ attrs }">
       <slot
         name="activator"
-        :on="{ click: showShelfSearchDialog }"
+        :on="{ click: showSearchDialog }"
         :attrs="attrs"
       ></slot>
     </template>
 
     <p>指定した条件でAND/OR検索を行います。</p>
+
     <v-select
+      v-if="type === 'book'"
       label="モード"
       :items="modes"
       v-model="mode"
@@ -59,6 +56,22 @@ export default {
   components: {
     Dialog,
   },
+  props: {
+    type: {
+      type: String,
+      default: 'book',
+      validator: function (value) {
+        return ['book', 'note'].indexOf(value) !== -1
+      },
+    },
+    bookId: {
+      type: String,
+    },
+    title: {
+      type: String,
+      default: '検索条件の追加',
+    },
+  },
   data: () => ({
     mode: null,
     modes: [
@@ -71,7 +84,7 @@ export default {
       { text: 'AND', value: false },
       { text: 'OR', value: true },
     ],
-    formSearch: [
+    formSearchBook: [
       {
         name: 'q',
         label: 'フリーワード',
@@ -105,13 +118,50 @@ export default {
         or: false,
       },
     ],
+    formSearchBookNote: [
+      {
+        name: 'q',
+        label: 'フリーワード',
+        value: '',
+        maxlength: null,
+        autofocus: true,
+        or: false,
+      },
+      {
+        name: 'content',
+        label: 'ノートの内容',
+        value: '',
+        maxlength: null,
+        autofocus: false,
+        or: false,
+      },
+      {
+        name: 'quote_text',
+        label: '引用の内容',
+        value: '',
+        maxlength: null,
+        autofocus: false,
+        or: false,
+      },
+    ],
   }),
+  computed: {
+    formSearch() {
+      if (this.type === 'book') {
+        return this.formSearchBook
+      } else if (this.type === 'note' && this.bookId) {
+        return this.formSearchBookNote
+      } else {
+        return [{}]
+      }
+    },
+  },
   methods: {
     hasNextFilledField(index) {
       const nextFields = this.formSearch.slice(index + 1)
       return nextFields.findIndex((e) => e.value) !== -1
     },
-    async showShelfSearchDialog() {
+    async showSearchDialog() {
       // フィールドのデフォルト値設定
       // 初期化: すべてのフィールドを初期値に戻す
       this.formSearch.forEach((e) => {
@@ -152,12 +202,12 @@ export default {
 
       this.mode = this.$route.params.mode
 
-      if (!(await this.$refs.dialogShelfSearch.showDialog())) return
+      if (!(await this.$refs.dialogSearch.showDialog())) return
 
       this.doSearch()
     },
     doSearch() {
-      this.$refs.dialogShelfSearch.hideDialog()
+      this.$refs.dialogSearch.hideDialog()
 
       let query = {}
       let or = false
@@ -172,10 +222,13 @@ export default {
         }
       }
 
-      this.$router.push({
-        path: `/shelf/${this.mode}/`,
-        query: query,
-      })
+      if (this.type === 'book') {
+        this.$router.push({
+          path: `/shelf/${this.mode}/`,
+          query: query,
+        })
+      }
+      // TODO: ノートの検索処理
     },
   },
 }

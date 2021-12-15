@@ -22,13 +22,13 @@
               {{ q }}
             </v-chip>
 
-            <ShelfSearchDialog ref="shelfSearch">
+            <SearchDialog type="book">
               <template #activator="{ on, attrs }">
                 <v-btn small class="ma-1" icon v-on="on" v-bind="attrs">
                   <v-icon>mdi-plus</v-icon>
                 </v-btn>
               </template>
-            </ShelfSearchDialog>
+            </SearchDialog>
           </div>
         </v-card>
       </div>
@@ -160,7 +160,7 @@ import Mixins, {
 import api from '@/services/api'
 import StatusAddDialog from '@/components/StatusPostDialog.vue'
 import NoteAddDialog from '@/components/NotePostDialog.vue'
-import ShelfSearchDialog from '@/components/ShelfSearchDialog.vue'
+import SearchDialog from '@/components/SearchDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 
 export default {
@@ -171,7 +171,7 @@ export default {
     StatusAddDialog,
     ItemDeleteDialog,
     NoteAddDialog,
-    ShelfSearchDialog,
+    SearchDialog,
   },
   data() {
     return {

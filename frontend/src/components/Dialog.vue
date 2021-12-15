@@ -151,6 +151,7 @@ export default {
           this.isShowDialog = false
         }
       } else {
+        if (!val) this.isShowDialog = false
         this.$emit('answeredDialog', val)
       }
     },
