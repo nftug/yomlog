@@ -23,7 +23,7 @@
       "label": "Run Django server",
       "detail": "python manage.py runserver 0.0.0.0:8000",
       "type": "shell",
-      "command": "source ./venv/bin/activate; ${config:python.pythonPath} manage.py runserver 0.0.0.0:8000",
+      "command": "source ./.venv/bin/activate; ${config:python.pythonPath} manage.py runserver 0.0.0.0:8000",
       "group": "build",
       "presentation": {
         "reveal": "always",
