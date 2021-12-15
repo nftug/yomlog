@@ -46,13 +46,13 @@ const router = new VueRouter({
       children: [
         {
           path: '/',
-          name: 'book_status',
+          name: 'book_detail_status',
           component: StatusLog,
           meta: { title: '本の詳細', isShowMenuButton: false },
         },
         {
           path: 'note/',
-          name: 'book_note',
+          name: 'book_detail_note',
           component: NoteList,
           meta: { title: '本の詳細', isShowMenuButton: false },
         },

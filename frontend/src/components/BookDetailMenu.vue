@@ -55,7 +55,7 @@
     <BookEditDialog ref="bookEdit" @post="onEditBook"></BookEditDialog>
     <ItemDeleteDialog
       ref="bookDelete"
-      @delete-book="onDeleteBook(item)"
+      @delete="onDeleteBook(item)"
     ></ItemDeleteDialog>
     <StatusAddDialog ref="statusAdd" @post="onAddStatus"></StatusAddDialog>
     <NoteAddDialog ref="noteAdd" @post="onAddNote"></NoteAddDialog>
@@ -108,11 +108,11 @@ export default {
         },
       })
     },
-    onAddStatus(data) {
-      this.$emit('post-status', data)
+    onAddStatus(type, data) {
+      this.$emit('post', 'status', data)
     },
-    onAddNote(data) {
-      this.$emit('post-note', data)
+    onAddNote(type, data) {
+      this.$emit('post', 'note', data)
     },
     onEditBook(data) {
       this.$emit('edit-book', data)

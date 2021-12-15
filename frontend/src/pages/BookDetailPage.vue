@@ -24,8 +24,7 @@
           <BookDetailMenu
             :item="item"
             class="my-2 hidden-xs-only"
-            @post-status="onAddProp('status', $event)"
-            @post-note="onAddProp('note', $event)"
+            @post="onAddProp"
             @edit-book="onEditBook"
           ></BookDetailMenu>
         </v-col>
@@ -43,8 +42,7 @@
       <BookDetailMenu
         :item="item"
         class="my-2 hidden-sm-and-up"
-        @post-status="onAddProp('status', $event)"
-        @post-note="onAddProp('note', $event)"
+        @post="onAddProp"
         @edit-book="onEditBook"
       ></BookDetailMenu>
 
@@ -62,6 +60,7 @@
         </v-tabs>
         <v-tabs-items v-model="activeTab">
           <v-tab-item v-for="tab in tabs" :key="tab.label" :value="tab.path">
+            <!-- TODO: タブ切替時のスクロール制御 -->
             <router-view
               v-if="activeTab === tab.path"
               :item="item"
