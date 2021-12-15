@@ -1,5 +1,5 @@
 <template>
-  <div id="status-log">
+  <div id="status-log" v-if="item.status">
     <v-card outlined class="mx-auto" :height="height">
       <v-virtual-scroll
         v-if="item.status.length && item.status[0].id"
@@ -71,20 +71,20 @@
 
     <ItemDeleteDialog
       ref="statusDelete"
-      type="status_log"
-      @delete-status_log="onDeleteStatus"
+      type="status"
+      @delete="sendDeleteProp"
     ></ItemDeleteDialog>
-    <StatusEditDialog ref="statusEdit" @post="onEditStatus"></StatusEditDialog>
+    <StatusEditDialog ref="statusEdit" @post="sendEditProp"></StatusEditDialog>
   </div>
 </template>
 
 <script>
-import Mixins, { BookListMixin } from '@/mixins'
+import Mixins, { BookListMixin, BookDetailChildMixin } from '@/mixins'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import StatusEditDialog from '@/components/StatusPostDialog.vue'
 
 export default {
-  mixins: [Mixins, BookListMixin],
+  mixins: [Mixins, BookListMixin, BookDetailChildMixin],
   props: {
     item: {
       type: Object,
@@ -108,16 +108,10 @@ export default {
   },
   methods: {
     onClickDeleteStatus(item) {
-      this.$refs.statusDelete.showItemDeleteDialog(item.id, 'status_log')
-    },
-    onDeleteStatus(id) {
-      this.$emit('delete', id)
+      this.$refs.statusDelete.showItemDeleteDialog(item.id, 'status')
     },
     onClickEditStatus(book, id) {
       this.$refs.statusEdit.showStatusPostDialog({ book: book, id: id })
-    },
-    onEditStatus(data) {
-      this.$emit('edit', data)
     },
   },
 }

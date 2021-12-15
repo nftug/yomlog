@@ -21,7 +21,7 @@ export default {
     typeStr() {
       if (this.type === 'book') {
         return '本'
-      } else if (this.type === 'status_log') {
+      } else if (this.type === 'status') {
         return '記録'
       } else if (this.type === 'note') {
         return 'ノート'
@@ -41,7 +41,7 @@ export default {
         method: 'delete',
       })
         .then(() => {
-          this.$emit(`delete-${this.type}`, id)
+          this.$emit('delete', this.type, id)
           this.$store.dispatch('message/setInfoMessage', {
             message: `${this.typeStr}を削除しました。`,
           })

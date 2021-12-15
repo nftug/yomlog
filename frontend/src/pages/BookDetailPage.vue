@@ -25,7 +25,7 @@
             :item="item"
             class="my-2 hidden-xs-only"
             @post-status="onAddProp('status', $event)"
-            @post-note="onAddProp('notes', $event)"
+            @post-note="onAddProp('note', $event)"
             @edit-book="onEditBook"
           ></BookDetailMenu>
         </v-col>
@@ -44,7 +44,7 @@
         :item="item"
         class="my-2 hidden-sm-and-up"
         @post-status="onAddProp('status', $event)"
-        @post-note="onAddProp('notes', $event)"
+        @post-note="onAddProp('note', $event)"
         @edit-book="onEditBook"
       ></BookDetailMenu>
 
@@ -55,31 +55,21 @@
 
       <!-- 進捗とメモ -->
       <div class="pb-5">
-        <v-tabs v-model="tab" background-color="transparent" grow>
-          <v-tab v-for="item in tabs" :key="item">
-            {{ item }}
+        <v-tabs v-model="activeTab" background-color="transparent" grow>
+          <v-tab v-for="tab in tabs" :key="tab.label" :to="tab.path">
+            {{ tab.label }}
           </v-tab>
         </v-tabs>
-        <v-tabs-items v-model="tab">
-          <v-tab-item>
-            <StatusLog
-              v-if="item.status"
+        <v-tabs-items v-model="activeTab">
+          <v-tab-item v-for="tab in tabs" :key="tab.label" :value="tab.path">
+            <router-view
+              v-if="activeTab === tab.path"
               :item="item"
               height="600"
-              @edit="onEditProp('status', $event)"
-              @delete="onDeleteProp('status', $event)"
-            ></StatusLog>
+              @edit="onEditProp"
+              @delete="onDeleteProp"
+            ></router-view>
           </v-tab-item>
-          <v-tab-item>
-            <NoteList
-              v-if="item.notes"
-              :item="item"
-              height="600"
-              @edit="onEditProp('notes', $event)"
-              @delete="onDeleteProp('notes', $event)"
-            ></NoteList>
-          </v-tab-item>
-          <v-tab-item>Calender</v-tab-item>
         </v-tabs-items>
       </div>
     </v-col>
@@ -93,8 +83,6 @@ import NotFoundPage from '@/pages/error/NotFoundPage.vue'
 import Mixins, { BookListMixin, ShelfSearchFromHeaderMixin } from '@/mixins'
 import BookDetailInfo from '@/components/BookDetailInfo.vue'
 import BookDetailMenu from '@/components/BookDetailMenu.vue'
-import StatusLog from '@/components/StatusLog.vue'
-import NoteList from '@/components/NoteList.vue'
 
 export default {
   mixins: [Mixins, BookListMixin, ShelfSearchFromHeaderMixin],
@@ -103,17 +91,23 @@ export default {
     Spinner,
     BookDetailInfo,
     BookDetailMenu,
-    StatusLog,
-    NoteList,
   },
-  data: () => ({
-    item: {},
-    isLoading: false,
-    error: null,
-    noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
-    tab: 0,
-    tabs: ['進捗', 'ノート', 'カレンダー'],
-  }),
+  data() {
+    return {
+      item: {},
+      isLoading: false,
+      error: null,
+      noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
+      activeTab: null,
+      tabs: [
+        { label: '進捗', path: `/book/detail/${this.$route.params.id}` },
+        {
+          label: 'ノート',
+          path: `/book/detail/${this.$route.params.id}/note`,
+        },
+      ],
+    }
+  },
   async created() {
     // NOTE: ストアから取得するのはアイテムのコピーになる
     // ⇒ページ内情報の更新とbookListストアの更新処理は別々に行うこと

@@ -162,6 +162,17 @@ export const ShelfSearchFromHeaderMixin = {
   },
 }
 
+export const BookDetailChildMixin = {
+  methods: {
+    sendDeleteProp(type, id) {
+      this.$emit('delete', type, id)
+    },
+    sendEditProp(type, data) {
+      this.$emit('edit', type, data)
+    },
+  },
+}
+
 export default {
   filters: {
     isoToDateTime: function (value) {

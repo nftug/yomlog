@@ -1,12 +1,12 @@
 <template>
-  <div id="note-list">
+  <div id="note-list" v-if="item.note">
     <v-card outlined class="mx-auto" :height="height">
       <v-virtual-scroll
-        v-if="item.notes.length"
+        v-if="item.note.length"
         :height="height"
         :item-height="itemHeight"
         :bench="benched"
-        :items="item.notes"
+        :items="item.note"
       >
         <template #default="{ item: note, index }">
           <v-list-item two-line link @click="onClickEditNote(item, note.id)">
@@ -21,7 +21,7 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-divider v-if="index + 1 < item.notes.length"></v-divider>
+          <v-divider v-if="index + 1 < item.note.length"></v-divider>
         </template>
       </v-virtual-scroll>
 
@@ -51,19 +51,19 @@
 
     <NotePostDialog
       ref="noteEdit"
-      @post="onEditNote"
-      @delete="onDeleteNote"
+      @post="sendEditProp"
+      @delete="sendDeleteProp"
     ></NotePostDialog>
   </div>
 </template>
 
 <script>
-import Mixins, { BookListMixin } from '@/mixins'
+import Mixins, { BookListMixin, BookDetailChildMixin } from '@/mixins'
 import NotePostDialog from '@/components/NotePostDialog.vue'
 import SearchDialog from '@/components/SearchDialog.vue'
 
 export default {
-  mixins: [Mixins, BookListMixin],
+  mixins: [Mixins, BookListMixin, BookDetailChildMixin],
   props: {
     item: {
       type: Object,
@@ -88,12 +88,6 @@ export default {
   methods: {
     onClickEditNote(book, id) {
       this.$refs.noteEdit.showNotePostDialog({ book: book, id: id })
-    },
-    onEditNote(data) {
-      this.$emit('edit', data)
-    },
-    onDeleteNote(id) {
-      this.$emit('delete', id)
     },
   },
 }

@@ -145,7 +145,7 @@ export default {
       this.quoteImage = null
 
       if (id) {
-        const note = book.notes.find((e) => e.id === id)
+        const note = book.note.find((e) => e.id === id)
         this.position = note.position
         this.content = note.content
         this.quoteText = note.quote_text
@@ -199,7 +199,7 @@ export default {
           // ダイアログを閉じる
           this.$refs.dialogNoteAdd.hideDialog()
 
-          this.$emit('post', data)
+          this.$emit('post', 'note', data)
 
           this.$store.dispatch('message/setInfoMessage', {
             message: `ノートを${this.noteId ? '編集' : '追加'}しました。`,
@@ -233,7 +233,7 @@ export default {
       )
 
       if (ret) {
-        this.$emit('delete', this.noteId)
+        this.$emit('delete', 'note', this.noteId)
         callback()
       }
     },

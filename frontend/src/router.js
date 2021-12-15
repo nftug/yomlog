@@ -16,6 +16,8 @@ const PasswordChangePage = () =>
   import('@/pages/settings/PasswordChangePage.vue')
 const BookAddPage = () => import('@/pages/BookAddPage.vue')
 const BookDetailPage = () => import('@/pages/BookDetailPage.vue')
+const StatusLog = () => import('@/components/StatusLog.vue')
+const NoteList = () => import('@/components/NoteList.vue')
 
 Vue.use(VueRouter)
 
@@ -41,6 +43,20 @@ const router = new VueRouter({
       name: 'book_detail',
       component: BookDetailPage,
       meta: { title: '本の詳細', requiresAuth: true, isShowMenuButton: false },
+      children: [
+        {
+          path: '/',
+          name: 'book_status',
+          component: StatusLog,
+          meta: { title: '本の詳細', isShowMenuButton: false },
+        },
+        {
+          path: 'note/',
+          name: 'book_note',
+          component: NoteList,
+          meta: { title: '本の詳細', isShowMenuButton: false },
+        },
+      ],
     },
     {
       path: '/book/add',

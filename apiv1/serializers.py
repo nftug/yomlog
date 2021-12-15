@@ -77,7 +77,7 @@ class NoteSerializer(PostSerializer):
 class BookSerializer(PostSerializer):
     # created_by = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
-    notes = serializers.SerializerMethodField()
+    note = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
@@ -109,6 +109,6 @@ class BookSerializer(PostSerializer):
     def get_authors(self, instance):
         return instance.authors.split(',')
 
-    def get_notes(self, instance):
+    def get_note(self, instance):
         notes = instance.notes.order_by('position')
         return NoteSerializer(notes, many=True, read_only=True).data

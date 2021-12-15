@@ -103,11 +103,11 @@ export default {
 
       if (this.statusId) {
         method = 'patch'
-        url = `/status_log/${this.statusId}/`
+        url = `/status/${this.statusId}/`
       } else {
         params.book = this.bookId
         method = 'post'
-        url = '/status_log/'
+        url = '/status/'
       }
 
       api({
@@ -119,7 +119,7 @@ export default {
           // ダイアログを閉じる
           this.$refs.dialogStatusAdd.hideDialog()
 
-          this.$emit('post', data)
+          this.$emit('post', 'status', data)
 
           this.$store.dispatch('message/setInfoMessage', {
             message: '進捗状況を記録しました。',
