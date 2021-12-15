@@ -22,12 +22,15 @@
               {{ q }}
             </v-chip>
 
-            <v-btn small class="ma-1" icon @click="onClickQueryAdd">
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
+            <ShelfSearchDialog ref="shelfSearch">
+              <template #activator="{ on, attrs }">
+                <v-btn small class="ma-1" icon v-on="on" v-bind="attrs">
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </template>
+            </ShelfSearchDialog>
           </div>
         </v-card>
-        <ShelfSearchDialog ref="shelfSearch"></ShelfSearchDialog>
       </div>
 
       <!-- Spinner -->
@@ -278,9 +281,6 @@ export default {
       } else {
         this.initPage({ isReload: true })
       }
-    },
-    onClickQueryAdd() {
-      this.$refs.shelfSearch.showShelfSearchDialog()
     },
     onClickStatusAdd(item) {
       this.$refs.statusAdd.showStatusPostDialog({ book: item })

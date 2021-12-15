@@ -5,6 +5,14 @@
     :max-width="600"
     label-ok="検索"
   >
+    <template #activator="{ on, attrs }">
+      <slot
+        name="activator"
+        :on="{ click: showShelfSearchDialog }"
+        :attrs="attrs"
+      ></slot>
+    </template>
+
     <p>指定した条件でAND/OR検索を行います。</p>
     <v-select
       label="モード"
