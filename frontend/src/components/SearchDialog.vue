@@ -214,21 +214,23 @@ export default {
       for (const field of this.formSearch) {
         const value = field.value
         if (value) {
-          let name = field.name
-          name = or ? `${name}_or` : name
+          const name = or ? `${field.name}_or` : field.name
           query[name] = value
           // 次のフィールドのORフラグを設定
           or = field.or
         }
       }
 
+      const to = {}
       if (this.type === 'book') {
-        this.$router.push({
-          path: `/shelf/${this.mode}/`,
-          query: query,
-        })
+        to.name = 'shelf'
+        to.params = { mode: this.mode }
+      } else if (this.type === 'note' && this.bookId) {
+        to.name = 'book_detail_note'
+        to.params = { id: this.$route.params.id }
       }
-      // TODO: ノートの検索処理
+
+      this.$router.push({ ...to, query: query })
     },
   },
 }

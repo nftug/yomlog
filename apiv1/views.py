@@ -93,5 +93,9 @@ class NoteViewSet(viewsets.ModelViewSet):
     pagination_class = LogPagination
 
     def get_queryset(self):
+        # ページネーションなしのオプションの場合
+        if self.request.GET.get('no_pagination'):
+            self.pagination_class = None
+
         # プライベートアクセスのみ
         return self.queryset.filter(created_by=self.request.user)

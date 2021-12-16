@@ -53,20 +53,45 @@
 
       <!-- 進捗とメモ -->
       <div class="pb-5" id="tab">
-        <v-tabs v-model="activeTab" background-color="transparent" grow>
-          <v-tab v-for="tab in tabs" :key="tab.label" :to="tab.path">
+        <v-toolbar v-if="isShowToolbar" flat dense>
+          <v-app-bar-nav-icon @click.stop="disableToolbar">
+            <v-icon>mdi-arrow-left</v-icon>
+          </v-app-bar-nav-icon>
+          <v-chip
+            class="ma-1"
+            v-for="(q, key) in toolbar.query"
+            :key="key"
+            close
+            small
+            @click:close="removeQuery(key)"
+          >
+            {{ key | searchLabel }}
+            {{ q }}
+          </v-chip>
+        </v-toolbar>
+
+        <v-tabs v-else v-model="activeTab" background-color="transparent" grow>
+          <v-tab v-for="tab in tabs" :key="tab.prop" :to="tab.path">
             {{ tab.label }}
+            <div class="px-2">
+              <v-chip small color="grey darken-1" dark>
+                {{ item[tab.prop].length }}
+              </v-chip>
+            </div>
           </v-tab>
         </v-tabs>
+
         <v-tabs-items v-model="activeTab">
-          <v-tab-item v-for="tab in tabs" :key="tab.label" :value="tab.path">
-            <div style="height: 600px">
+          <v-tab-item v-for="tab in tabs" :key="tab.prop" :value="tab.path">
+            <div style="height: 500px">
               <router-view
                 v-if="activeTab === tab.path"
                 :item="item"
-                height="600"
+                height="500"
                 @edit="onEditProp"
                 @delete="onDeleteProp"
+                @set="onSetProp"
+                @set-toolbar="setToolbar"
               ></router-view>
             </div>
           </v-tab-item>
@@ -80,12 +105,16 @@
 import api from '@/services/api'
 import Spinner from 'vue-simple-spinner'
 import NotFoundPage from '@/pages/error/NotFoundPage.vue'
-import Mixins, { BookListMixin, ShelfSearchFromHeaderMixin } from '@/mixins'
+import Mixins, {
+  BookListMixin,
+  ShelfSearchFromHeaderMixin,
+  ListViewMixin,
+} from '@/mixins'
 import BookDetailInfo from '@/components/BookDetailInfo.vue'
 import BookDetailMenu from '@/components/BookDetailMenu.vue'
 
 export default {
-  mixins: [Mixins, BookListMixin, ShelfSearchFromHeaderMixin],
+  mixins: [Mixins, BookListMixin, ShelfSearchFromHeaderMixin, ListViewMixin],
   components: {
     NotFoundPage,
     Spinner,
@@ -99,13 +128,16 @@ export default {
       error: null,
       noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
       activeTab: null,
+      toolbar: {},
       tabs: [
         {
           label: '進捗',
+          prop: 'status',
           path: `/book/detail/${this.$route.params.id}`,
         },
         {
           label: 'ノート',
+          prop: 'note',
           path: `/book/detail/${this.$route.params.id}/note`,
         },
       ],
@@ -123,6 +155,11 @@ export default {
     if (!Object.keys(this.item).length) {
       this.fetchBookData()
     }
+  },
+  computed: {
+    isShowToolbar() {
+      return !!Object.keys(this.toolbar).length
+    },
   },
   methods: {
     fetchBookData() {
@@ -155,6 +192,21 @@ export default {
         const index = item[prop].findIndex((e) => e.id === data.id)
         item[prop].splice(index, 1, data)
       })
+    },
+    onSetProp(prop, data) {
+      this.setDirtyWithDiffState(this.item, (item) => {
+        item[prop] = data
+      })
+    },
+    setToolbar(val) {
+      this.toolbar = val
+    },
+    disableToolbar() {
+      if (this.$route.query) {
+        this.removeQuery()
+      } else {
+        this.$route.go(-1)
+      }
     },
     onEditBook(data) {
       this.item = data

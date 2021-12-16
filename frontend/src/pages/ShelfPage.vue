@@ -194,25 +194,6 @@ export default {
       this.$store.commit('bookList/setDirty', false)
     }
   },
-  filters: {
-    searchLabel(key) {
-      const keyName = key.replace(/_or$/, '')
-      let or = keyName !== key
-      let label
-
-      if (keyName === 'title') {
-        label = '書名'
-      } else if (keyName === 'authors') {
-        label = '著者名'
-      } else if (keyName === 'amazon_dp') {
-        label = 'ISBN/ASIN'
-      } else {
-        label = '検索'
-      }
-
-      return or ? `${label} (OR):` : `${label}:`
-    },
-  },
   methods: {
     initPage({ isReload, route = this.$route }) {
       this.mode = route.params.mode !== 'all' ? route.params.mode : ''
