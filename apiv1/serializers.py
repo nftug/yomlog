@@ -21,6 +21,7 @@ class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
 class StatusLogSerializer(PostSerializer):
     # created_by = serializers.SerializerMethodField()
     state = serializers.SerializerMethodField()
+    diff = serializers.SerializerMethodField()
 
     class Meta:
         model = StatusLog
@@ -34,7 +35,9 @@ class StatusLogSerializer(PostSerializer):
 
         if instance.position == 0:
             # 積読中の場合、進捗の位置はその本の直前のステータスを参照する
-            prev_status = StatusLog.objects.filter(book=instance.book, created_at__lt=instance.created_at).order_by('-created_at').first()
+            prev_status = StatusLog.objects.filter(
+                book=instance.book, created_at__lt=instance.created_at
+            ).order_by('-created_at').first()
 
             if prev_status:
                 ret['position'] = prev_status.position
@@ -48,6 +51,27 @@ class StatusLogSerializer(PostSerializer):
             return 'reading'
         else:
             return 'read'
+
+    def get_diff(self, instance):
+        # 前回までに進んだページ数 or 位置No
+        base_status = instance
+
+        while True:
+            prev_status = StatusLog.objects.filter(
+                book=instance.book, created_at__lt=base_status.created_at
+            ).order_by('-created_at').first()
+
+            if not prev_status or prev_status.position > 0:
+                break
+
+            base_status = prev_status
+
+        if prev_status and instance.position > prev_status.position:
+            return instance.position - prev_status.position
+        elif not prev_status:
+            return instance.position
+        else:
+            return 0
 
     def validate_book(self, data):
         if data.created_by != self.context['request'].user:
