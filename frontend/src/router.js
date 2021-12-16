@@ -48,13 +48,13 @@ const router = new VueRouter({
           path: '/',
           name: 'book_detail_status',
           component: StatusLog,
-          meta: { title: '本の詳細', isShowMenuButton: false, hash: '#tab' },
+          meta: { title: '本の詳細', isShowMenuButton: false, noScroll: true },
         },
         {
           path: 'note/',
           name: 'book_detail_note',
           component: NoteList,
-          meta: { title: '本の詳細', isShowMenuButton: false, hash: '#tab' },
+          meta: { title: '本の詳細', isShowMenuButton: false, noScroll: true },
         },
       ],
     },
@@ -128,8 +128,8 @@ const router = new VueRouter({
       return savedPosition
     } else if (to.hash) {
       return { selector: to.hash }
-    } else if (to.meta.hash) {
-      return { selector: to.meta.hash }
+    } else if (to.meta.noScroll) {
+      return {}
     } else {
       return { x: 0, y: 0 }
     }

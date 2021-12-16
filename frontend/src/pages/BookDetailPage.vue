@@ -60,7 +60,6 @@
         </v-tabs>
         <v-tabs-items v-model="activeTab">
           <v-tab-item v-for="tab in tabs" :key="tab.label" :value="tab.path">
-            <!-- TODO: タブ切替時のスクロール制御 -->
             <div style="height: 600px">
               <router-view
                 v-if="activeTab === tab.path"
