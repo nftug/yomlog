@@ -79,8 +79,8 @@
           </template>
         </v-toolbar>
 
-        <v-tabs v-else v-model="activeTab" background-color="transparent" grow>
-          <v-tab v-for="tab in tabs" :key="tab.type" :to="tab.path">
+        <v-tabs v-else v-model="activeTab" grow>
+          <v-tab v-for="tab in tabs" :key="tab.type" :to="tab.path" replace>
             {{ tab.label }}
             <div class="px-2">
               <v-chip small color="grey darken-1" dark>
@@ -142,7 +142,7 @@ export default {
         {
           label: '進捗',
           type: 'status',
-          path: `/book/detail/${this.$route.params.id}/status`,
+          path: `/book/detail/${this.$route.params.id}/`,
         },
         {
           label: 'ノート',
@@ -164,6 +164,7 @@ export default {
     if (!Object.keys(this.item).length) {
       await this.fetchBookData()
     }
+
     this.isLoading = false
   },
   computed: {
@@ -220,11 +221,7 @@ export default {
       if (mode === 'checked') {
         this.$router.app.$emit('clear-checkbox', type)
       } else if (mode === 'search') {
-        if (this.$route.query) {
-          this.removeQuery()
-        } else {
-          this.$route.go(-1)
-        }
+        this.removeQuery(null, true)
       }
     },
     deleteItems() {

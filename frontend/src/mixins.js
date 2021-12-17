@@ -118,7 +118,7 @@ export const ListViewMixin = {
     },
   },
   methods: {
-    removeQuery(key) {
+    removeQuery(key, replace = false) {
       let query = { ...this.query }
 
       if (key) {
@@ -140,10 +140,17 @@ export const ListViewMixin = {
         })
       }
 
-      this.$router.push({
-        path: this.$route.path,
-        query: query,
-      })
+      if (replace) {
+        this.$router.replace({
+          path: this.$route.path,
+          query: query,
+        })
+      } else {
+        this.$router.push({
+          path: this.$route.path,
+          query: query,
+        })
+      }
     },
     handlePagination() {
       let query = { ...this.$route.query }

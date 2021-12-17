@@ -45,8 +45,7 @@ const router = new VueRouter({
       meta: { title: '本の詳細', requiresAuth: true, isShowMenuButton: false },
       children: [
         {
-          path: 'status/',
-          alias: '/',
+          path: '/',
           name: 'book_detail_status',
           component: StatusLog,
           meta: { title: '本の詳細', isShowMenuButton: false, noScroll: true },
@@ -130,7 +129,12 @@ const router = new VueRouter({
     } else if (to.hash) {
       return { selector: to.hash }
     } else if (to.meta.noScroll) {
-      return {}
+      const parent = from.matched[0].path
+      if (parent === to.matched[0].path) {
+        return {}
+      } else {
+        return { x: 0, y: 0 }
+      }
     } else {
       return { x: 0, y: 0 }
     }
