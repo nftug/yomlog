@@ -78,7 +78,7 @@ export default {
     mode: null,
     modes: [
       { text: 'あとで読む', value: 'to_be_read' },
-      { text: '読んでいる本', vtalue: 'reading' },
+      { text: '読んでいる本', value: 'reading' },
       { text: '読んだ本', value: 'read' },
       { text: '全ての本', value: 'all' },
     ],
