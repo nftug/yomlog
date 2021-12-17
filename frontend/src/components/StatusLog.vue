@@ -17,7 +17,7 @@
               ></v-checkbox>
             </v-list-item-action>
 
-            <v-list-item-content @click="onClickEditStatus(item, state.id)">
+            <v-list-item-content @click="onClickEditStatus(state.id)">
               <div>
                 {{ state.position }}{{ item.format_type ? '' : 'ページ' }}
               </div>
@@ -25,11 +25,11 @@
                 v-if="state.diff"
                 class="text-body-2 grey--text text--darken-2"
               >
-                +{{ state.diff }}{{ item.format_type ? '' : 'ページ' }}
+                +{{ getDiff(state.diff) }}
               </div>
             </v-list-item-content>
 
-            <v-list-item-action @click="onClickEditStatus(item, state.id)">
+            <v-list-item-action @click="onClickEditStatus(state.id)">
               <div class="text-body-2">
                 {{ state.created_at | isoToDateTime }}
               </div>
@@ -73,12 +73,23 @@ export default {
   created() {
     this.initCheckbox('status')
   },
+  computed: {
+    getDiff() {
+      return function (diff) {
+        if (!this.item.format_type) {
+          return diff + 'ページ'
+        } else {
+          return parseInt((diff / this.item.total) * 100, 10) + '%'
+        }
+      }
+    },
+  },
   methods: {
     onClickDeleteStatus(item) {
       this.$refs.itemDelete.showItemDeleteDialog(item.id)
     },
-    onClickEditStatus(book, id) {
-      this.$refs.statusEdit.showStatusPostDialog({ book: book, id: id })
+    onClickEditStatus(id) {
+      this.$refs.statusEdit.showStatusPostDialog({ book: this.item, id: id })
     },
   },
 }
