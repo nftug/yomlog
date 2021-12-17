@@ -23,7 +23,7 @@
               </div>
             </v-list-item-content>
 
-            <v-list-item-action>
+            <v-list-item-action @click="onClickEditStatus(item, state.id)">
               <div class="text-body-2">
                 {{ state.created_at | isoToDateTime }}
               </div>
