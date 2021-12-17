@@ -26,8 +26,7 @@
 
             <v-list-item-content @click="onClickEditNote(note.id)">
               <v-list-item-title>
-                {{ note.position }} / {{ item.total }}
-                {{ item.format_type ? '' : 'ページ' }}
+                {{ note.position }}{{ item.format_type ? '' : 'ページ' }}
               </v-list-item-title>
               <v-list-item-subtitle>
                 {{ note.content }}

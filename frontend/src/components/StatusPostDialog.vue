@@ -15,7 +15,7 @@
         autofocus
         :max="total"
         :suffix="` / ${total}`"
-        :rules="positionRules"
+        :rules="to_be_read ? [] : positionRules"
         :disabled="to_be_read"
         :error-messages="positionErrors"
         @input="positionErrors = []"

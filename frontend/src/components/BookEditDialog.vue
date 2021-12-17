@@ -26,7 +26,7 @@
       ></v-text-field>
       <v-text-field
         v-model="book.total"
-        label="位置Noの総数"
+        :label="book.format_type ? '位置Noの総数' : 'ページ数'"
         type="number"
         min="0"
         :rules="totalRules"
