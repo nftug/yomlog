@@ -147,14 +147,15 @@ export default {
     // NOTE: ストアから取得するのはアイテムのコピーになる
     // ⇒ページ内情報の更新とbookListストアの更新処理は別々に行うこと
 
+    this.isLoading = true
     this.item = await this.$store.dispatch(
       'bookList/getBookItem',
       this.$route.params.id
     )
-
     if (!Object.keys(this.item).length) {
-      this.fetchBookData()
+      await this.fetchBookData()
     }
+    this.isLoading = false
   },
   computed: {
     isShowToolbar() {
@@ -162,19 +163,15 @@ export default {
     },
   },
   methods: {
-    fetchBookData() {
-      this.isLoading = true
-      api
-        .get(`/book/${this.$route.params.id}/`)
-        .then(({ data }) => {
-          this.item = data
-        })
-        .catch((error) => {
-          if (error.response) this.error = error.response.status
-        })
-        .finally(() => {
-          this.isLoading = false
-        })
+    async fetchBookData() {
+      try {
+        const { data } = await api.get(`/book/${this.$route.params.id}/`)
+        this.item = data
+        return Promise.resolve()
+      } catch (error) {
+        if (error.response) this.error = error.response.status
+        return Promise.reject()
+      }
     },
     onAddProp(prop, data) {
       this.setDirtyWithDiffState(this.item, (item) => {
