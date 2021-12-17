@@ -142,7 +142,7 @@ export default {
         {
           label: '進捗',
           type: 'status',
-          path: `/book/detail/${this.$route.params.id}`,
+          path: `/book/detail/${this.$route.params.id}/status`,
         },
         {
           label: 'ノート',

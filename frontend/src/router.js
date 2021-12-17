@@ -45,7 +45,8 @@ const router = new VueRouter({
       meta: { title: '本の詳細', requiresAuth: true, isShowMenuButton: false },
       children: [
         {
-          path: '/',
+          path: 'status/',
+          alias: '/',
           name: 'book_detail_status',
           component: StatusLog,
           meta: { title: '本の詳細', isShowMenuButton: false, noScroll: true },
