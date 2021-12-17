@@ -213,15 +213,15 @@ export default {
       this.toolbar = val
     },
     disableToolbar() {
-      const mode = this.toolbar.mode
       const type = this.toolbar.type
+      const mode = this.toolbar.mode
 
       this.toolbar = {}
 
-      if (mode === 'checked') {
-        this.$router.app.$emit('clear-checkbox', type)
-      } else if (mode === 'search') {
-        this.removeQuery(null, true)
+      this.$router.app.$emit('clear-checkbox', type)
+
+      if (mode === 'search') {
+        this.removeQuery()
       }
     },
     deleteItems() {

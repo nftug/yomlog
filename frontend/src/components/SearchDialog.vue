@@ -8,42 +8,44 @@
       ></slot>
     </template>
 
-    <p>指定した条件でAND/OR検索を行います。</p>
+    <template #default="{ ok }">
+      <p>指定した条件でAND/OR検索を行います。</p>
 
-    <v-select
-      v-if="type === 'book'"
-      label="モード"
-      :items="modes"
-      v-model="mode"
-      :dense="isLessThanSm"
-    ></v-select>
+      <v-select
+        v-if="type === 'book'"
+        label="モード"
+        :items="modes"
+        v-model="mode"
+        :dense="isLessThanSm"
+      ></v-select>
 
-    <div v-for="(field, index) in formSearch" :key="index">
-      <v-row :no-gutters="isLessThanSm">
-        <v-col sm="9" cols="12">
-          <v-text-field
-            v-model="field.value"
-            @keydown.enter="doSearch"
-            :label="field.label"
-            :autofocus="field.autofocus"
-            :maxlength="field.maxlength"
-            :dense="isLessThanSm"
-          ></v-text-field>
-        </v-col>
-        <v-col sm="3" cols="12">
-          <v-select
-            :items="andOrList"
-            v-model="field.or"
-            :dense="isLessThanSm"
-            :disabled="
-              index === formSearch.length - 1 ||
-              !field.value ||
-              !hasNextFilledField(index)
-            "
-          ></v-select>
-        </v-col>
-      </v-row>
-    </div>
+      <div v-for="(field, index) in formSearch" :key="index">
+        <v-row :no-gutters="isLessThanSm">
+          <v-col sm="9" cols="12">
+            <v-text-field
+              v-model="field.value"
+              @keypress.enter="ok"
+              :label="field.label"
+              :autofocus="field.autofocus"
+              :maxlength="field.maxlength"
+              :dense="isLessThanSm"
+            ></v-text-field>
+          </v-col>
+          <v-col sm="3" cols="12">
+            <v-select
+              :items="andOrList"
+              v-model="field.or"
+              :dense="isLessThanSm"
+              :disabled="
+                index === formSearch.length - 1 ||
+                !field.value ||
+                !hasNextFilledField(index)
+              "
+            ></v-select>
+          </v-col>
+        </v-row>
+      </div>
+    </template>
   </Dialog>
 </template>
 
@@ -76,7 +78,7 @@ export default {
     mode: null,
     modes: [
       { text: 'あとで読む', value: 'to_be_read' },
-      { text: '読んでいる本', value: 'reading' },
+      { text: '読んでいる本', vtalue: 'reading' },
       { text: '読んだ本', value: 'read' },
       { text: '全ての本', value: 'all' },
     ],
@@ -207,7 +209,7 @@ export default {
       this.doSearch()
     },
     doSearch() {
-      this.$refs.dialogSearch.hideDialog()
+      // this.$refs.dialogSearch.hideDialog()
 
       let query = {}
       let or = false

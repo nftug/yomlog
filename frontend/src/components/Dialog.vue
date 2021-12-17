@@ -52,7 +52,12 @@
         </slot>
 
         <v-card-text>
-          <slot name="default" :message="message">
+          <slot
+            name="default"
+            :message="message"
+            :ok="handleAnswer.bind(null, true)"
+            :cancel="handleAnswer.bind(null, false)"
+          >
             <p>{{ message }}</p>
           </slot>
         </v-card-text>
