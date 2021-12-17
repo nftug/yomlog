@@ -242,10 +242,11 @@ export const BookDetailChildMixin = {
       this.$emit('edit', type, data)
     },
     setToolbar(type) {
-      const toolbar = {}
+      let toolbar = {}
       if (this.checkbox.some((e) => e)) {
-        toolbar.type = type
-        toolbar.mode = 'checked'
+        toolbar = { type: type, mode: 'checked' }
+      } else if (Object.keys(this.$route.query).length) {
+        toolbar = { type: type, mode: 'search' }
       }
       this.$emit('set-toolbar', toolbar)
     },

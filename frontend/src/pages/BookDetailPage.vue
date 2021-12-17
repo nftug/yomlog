@@ -67,7 +67,7 @@
           <template v-else-if="toolbar.mode === 'search'">
             <v-chip
               class="ma-1"
-              v-for="(q, key) in toolbar.query"
+              v-for="(q, key) in $route.query"
               :key="key"
               close
               small

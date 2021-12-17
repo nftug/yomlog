@@ -9,7 +9,7 @@
       </div>
 
       <v-virtual-scroll
-        v-if="item.note.length"
+        v-else-if="item.note.length"
         :height="height"
         :item-height="itemHeight"
         :bench="benched"
@@ -128,7 +128,6 @@ export default {
         if (Object.keys(this.$route.query).length) {
           toolbar.type = 'note'
           toolbar.mode = 'search'
-          toolbar.query = this.$route.query
         }
         this.$emit('set-toolbar', toolbar)
       } finally {
