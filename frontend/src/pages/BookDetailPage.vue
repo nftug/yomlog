@@ -57,32 +57,41 @@
           <v-app-bar-nav-icon @click.stop="disableToolbar">
             <v-icon>mdi-arrow-left</v-icon>
           </v-app-bar-nav-icon>
-          <v-chip
-            class="ma-1"
-            v-for="(q, key) in toolbar.query"
-            :key="key"
-            close
-            small
-            @click:close="removeQuery(key)"
-          >
-            {{ key | searchLabel }}
-            {{ q }}
-          </v-chip>
+
+          <div class="ma-2"></div>
+
+          <template v-if="toolbar.mode === 'checked'">
+            <v-btn icon @click="deleteItems"><v-icon>mdi-delete</v-icon></v-btn>
+          </template>
+
+          <template v-else-if="toolbar.mode === 'search'">
+            <v-chip
+              class="ma-1"
+              v-for="(q, key) in toolbar.query"
+              :key="key"
+              close
+              small
+              @click:close="removeQuery(key)"
+            >
+              {{ key | searchLabel }}
+              {{ q }}
+            </v-chip>
+          </template>
         </v-toolbar>
 
         <v-tabs v-else v-model="activeTab" background-color="transparent" grow>
-          <v-tab v-for="tab in tabs" :key="tab.prop" :to="tab.path">
+          <v-tab v-for="tab in tabs" :key="tab.type" :to="tab.path">
             {{ tab.label }}
             <div class="px-2">
               <v-chip small color="grey darken-1" dark>
-                {{ item[tab.prop].length }}
+                {{ item[tab.type].length }}
               </v-chip>
             </div>
           </v-tab>
         </v-tabs>
 
         <v-tabs-items v-model="activeTab">
-          <v-tab-item v-for="tab in tabs" :key="tab.prop" :value="tab.path">
+          <v-tab-item v-for="tab in tabs" :key="tab.type" :value="tab.path">
             <div style="height: 500px">
               <router-view
                 v-if="activeTab === tab.path"
@@ -132,12 +141,12 @@ export default {
       tabs: [
         {
           label: '進捗',
-          prop: 'status',
+          type: 'status',
           path: `/book/detail/${this.$route.params.id}`,
         },
         {
           label: 'ノート',
-          prop: 'note',
+          type: 'note',
           path: `/book/detail/${this.$route.params.id}/note`,
         },
       ],
@@ -195,19 +204,32 @@ export default {
         item[prop] = data
       })
     },
+    onEditBook(data) {
+      this.item = data
+      this.$store.commit('bookList/set', data)
+    },
     setToolbar(val) {
       this.toolbar = val
     },
     disableToolbar() {
-      if (this.$route.query) {
-        this.removeQuery()
-      } else {
-        this.$route.go(-1)
+      const mode = this.toolbar.mode
+      const type = this.toolbar.type
+
+      this.toolbar = {}
+
+      if (mode === 'checked') {
+        this.$router.app.$emit('clear-checkbox', type)
+      } else if (mode === 'search') {
+        if (this.$route.query) {
+          this.removeQuery()
+        } else {
+          this.$route.go(-1)
+        }
       }
     },
-    onEditBook(data) {
-      this.item = data
-      this.$store.commit('bookList/set', data)
+    deleteItems() {
+      const type = this.toolbar.type
+      this.$router.app.$emit('delete-items', type)
     },
   },
 }

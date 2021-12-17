@@ -14,9 +14,15 @@ export default {
   components: {
     Dialog,
   },
-  data: () => ({
-    type: '',
-  }),
+  props: {
+    type: {
+      type: String,
+      default: 'book',
+      validator(value) {
+        return ['book', 'status', 'note'].indexOf(value) !== -1
+      },
+    },
+  },
   computed: {
     typeStr() {
       if (this.type === 'book') {
@@ -31,28 +37,34 @@ export default {
     },
   },
   methods: {
-    async showItemDeleteDialog(id, type = 'book') {
-      this.type = type
-
+    async showItemDeleteDialog(id) {
       if (!(await this.$refs.dialogDeleteBook.showDialog())) return false
 
-      return api({
-        url: `/${this.type}/${id}/`,
-        method: 'delete',
-      })
-        .then(() => {
-          this.$emit('delete', this.type, id)
-          this.$store.dispatch('message/setInfoMessage', {
-            message: `${this.typeStr}を削除しました。`,
-          })
-          return Promise.resolve(true)
+      try {
+        if (Array.isArray(id)) {
+          const promises = id.map((e) => this.deleteItem(e))
+          return Promise.all(promises)
+        } else {
+          return this.deleteItem(id)
+        }
+      } finally {
+        this.$store.dispatch('message/setInfoMessage', {
+          message: `${this.typeStr}を削除しました。`,
         })
-        .catch(() => {
-          this.$store.dispatch('message/setErrorMessage', {
-            message: 'エラーが発生しました。',
-          })
-          return Promise.resolve(false)
+      }
+    },
+    async deleteItem(id) {
+      try {
+        await api({
+          url: `/${this.type}/${id}/`,
+          method: 'delete',
         })
+
+        this.$emit('delete', this.type, id)
+        return Promise.resolve(true)
+      } catch (error) {
+        return Promise.reject(false)
+      }
     },
   },
 }

@@ -144,6 +144,7 @@
     <NoteAddDialog ref="noteAdd"></NoteAddDialog>
     <ItemDeleteDialog
       ref="bookDelete"
+      type="book"
       @delete-book="handleReload"
     ></ItemDeleteDialog>
   </v-container>
@@ -270,7 +271,7 @@ export default {
       this.$refs.noteAdd.showNotePostDialog({ book: item })
     },
     onClickDeleteBook(item) {
-      this.$refs.bookDelete.showItemDeleteDialog(item.id, 'book')
+      this.$refs.bookDelete.showItemDeleteDialog(item.id)
     },
   },
 }

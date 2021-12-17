@@ -195,12 +195,61 @@ export const ShelfSearchFromHeaderMixin = {
 }
 
 export const BookDetailChildMixin = {
+  props: {
+    item: {
+      type: Object,
+    },
+    height: {
+      type: String,
+      default: '400',
+    },
+  },
+  data: () => ({
+    itemHeight: 0,
+    checkbox: [],
+  }),
+  computed: {
+    benched() {
+      return Math.ceil(this.height / this.itemHeight)
+    },
+  },
+  created() {
+    this.$router.app.$off('clear-checkbox')
+    this.$router.app.$on('clear-checkbox', this.initCheckbox)
+    this.$router.app.$off('delete-items')
+    this.$router.app.$on('delete-items', this.onDeleteItems)
+  },
   methods: {
+    initCheckbox(type) {
+      this.checkbox.splice(0, this.checkbox.length)
+      this.item[type].forEach(() => this.checkbox.push(false))
+    },
     sendDeleteProp(type, id) {
+      const index = this.item[type].findIndex((e) => e.id === id)
+      this.checkbox.splice(index, 1)
+      this.setToolbar(type)
+
       this.$emit('delete', type, id)
     },
     sendEditProp(type, data) {
       this.$emit('edit', type, data)
+    },
+    setToolbar(type) {
+      const toolbar = {}
+      if (this.checkbox.some((e) => e)) {
+        toolbar.type = type
+        toolbar.mode = 'checked'
+      }
+      this.$emit('set-toolbar', toolbar)
+    },
+    onDeleteItems(type) {
+      const ids = []
+      this.checkbox.forEach((checked, index) => {
+        if (checked) {
+          ids.push(this.item[type][index].id)
+        }
+      })
+      this.$refs.itemDelete.showItemDeleteDialog(ids)
     },
   },
 }

@@ -55,6 +55,7 @@
     <BookEditDialog ref="bookEdit" @post="onEditBook"></BookEditDialog>
     <ItemDeleteDialog
       ref="bookDelete"
+      type="book"
       @delete="onDeleteBook(item)"
     ></ItemDeleteDialog>
     <StatusAddDialog ref="statusAdd" @post="onAddStatus"></StatusAddDialog>
@@ -98,7 +99,7 @@ export default {
       this.$refs.bookEdit.showBookEditDialog({ book: item, post: true })
     },
     onClickBookDelete(item) {
-      this.$refs.bookDelete.showItemDeleteDialog(item.id, 'book')
+      this.$refs.bookDelete.showItemDeleteDialog(item.id)
     },
     onDeleteBook(item) {
       this.$router.replace({

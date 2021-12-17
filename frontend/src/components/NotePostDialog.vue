@@ -90,7 +90,7 @@
       </v-col>
     </v-form>
 
-    <ItemDeleteDialog ref="noteDelete"></ItemDeleteDialog>
+    <ItemDeleteDialog ref="noteDelete" type="note"></ItemDeleteDialog>
   </Dialog>
 </template>
 
@@ -227,10 +227,7 @@ export default {
       this.prevSrc = ''
     },
     async onClickDeleteNote(callback) {
-      const ret = await this.$refs.noteDelete.showItemDeleteDialog(
-        this.noteId,
-        'note'
-      )
+      const ret = await this.$refs.noteDelete.showItemDeleteDialog(this.noteId)
 
       if (ret) {
         this.$emit('delete', 'note', this.noteId)

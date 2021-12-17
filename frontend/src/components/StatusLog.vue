@@ -9,57 +9,29 @@
         :items="item.status"
       >
         <template #default="{ item: state, index }">
-          <v-row class="col-lg-8 mx-auto">
-            <v-list-item class="py-3">
-              <v-row align="center">
-                <v-list-item-content>
-                  <div class="text-lg-h5 text-h6">
-                    {{ state.position }} / {{ item.total }}
-                    <span class="text-body-2">
-                      {{ item.format_type ? '' : 'ページ' }}
-                    </span>
-                  </div>
-                </v-list-item-content>
+          <v-list-item link>
+            <v-list-item-action>
+              <v-checkbox
+                v-model="checkbox[index]"
+                @change="setToolbar('status')"
+              ></v-checkbox>
+            </v-list-item-action>
 
-                <v-list-item-action>
-                  <div class="text-body-2">
-                    {{ state.created_at | isoToDateTime }}
-                  </div>
-                  <v-chip small class="mt-2" :color="state.state | stateColor">
-                    {{ state.state | stateName }}
-                  </v-chip>
-                </v-list-item-action>
+            <v-list-item-content @click="onClickEditStatus(item, state.id)">
+              <div class="text-lg-h5 text-h6">
+                {{ state.position }} / {{ item.total }}
+              </div>
+            </v-list-item-content>
 
-                <v-list-item-action>
-                  <v-menu offset-y>
-                    <template #activator="{ on, attrs }">
-                      <v-btn
-                        small
-                        icon
-                        v-bind="attrs"
-                        v-on="on"
-                        :disabled="!state.id"
-                      >
-                        <v-icon small>mdi-dots-vertical</v-icon>
-                      </v-btn>
-                    </template>
-                    <v-list dense close-on-click>
-                      <v-list-item
-                        link
-                        @click="onClickEditStatus(item, state.id)"
-                        :disabled="state.state === 'to_be_read'"
-                      >
-                        <v-list-item-title>編集</v-list-item-title>
-                      </v-list-item>
-                      <v-list-item link @click="onClickDeleteStatus(state)">
-                        <v-list-item-title>削除</v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-list-item-action>
-              </v-row>
-            </v-list-item>
-          </v-row>
+            <v-list-item-action>
+              <div class="text-body-2">
+                {{ state.created_at | isoToDateTime }}
+              </div>
+              <v-chip small class="mt-2" :color="state.state | stateColor">
+                {{ state.state | stateName }}
+              </v-chip>
+            </v-list-item-action>
+          </v-list-item>
           <v-divider v-if="index + 1 < item.status.length"></v-divider>
         </template>
       </v-virtual-scroll>
@@ -70,7 +42,7 @@
     </v-card>
 
     <ItemDeleteDialog
-      ref="statusDelete"
+      ref="itemDelete"
       type="status"
       @delete="sendDeleteProp"
     ></ItemDeleteDialog>
@@ -85,15 +57,6 @@ import StatusEditDialog from '@/components/StatusPostDialog.vue'
 
 export default {
   mixins: [Mixins, BookListMixin, BookDetailChildMixin],
-  props: {
-    item: {
-      type: Object,
-    },
-    height: {
-      type: String,
-      default: '400',
-    },
-  },
   components: {
     ItemDeleteDialog,
     StatusEditDialog,
@@ -101,14 +64,12 @@ export default {
   data: () => ({
     itemHeight: 76,
   }),
-  computed: {
-    benched() {
-      return Math.ceil(this.height / this.itemHeight)
-    },
+  created() {
+    this.initCheckbox('status')
   },
   methods: {
     onClickDeleteStatus(item) {
-      this.$refs.statusDelete.showItemDeleteDialog(item.id, 'status')
+      this.$refs.itemDelete.showItemDeleteDialog(item.id)
     },
     onClickEditStatus(book, id) {
       this.$refs.statusEdit.showStatusPostDialog({ book: book, id: id })

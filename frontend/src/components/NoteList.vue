@@ -16,8 +16,15 @@
         :items="item.note"
       >
         <template #default="{ item: note, index }">
-          <v-list-item two-line link @click="onClickEditNote(note.id)">
-            <v-list-item-content>
+          <v-list-item two-line link>
+            <v-list-item-action>
+              <v-checkbox
+                v-model="checkbox[index]"
+                @change="setToolbar('note')"
+              ></v-checkbox>
+            </v-list-item-action>
+
+            <v-list-item-content @click="onClickEditNote(note.id)">
               <v-list-item-title>
                 {{ note.position }} / {{ item.total }}
                 {{ item.format_type ? '' : 'ページ' }}
@@ -61,6 +68,12 @@
       @post="sendEditProp"
       @delete="sendDeleteProp"
     ></NotePostDialog>
+
+    <ItemDeleteDialog
+      ref="itemDelete"
+      type="note"
+      @delete="sendDeleteProp"
+    ></ItemDeleteDialog>
   </div>
 </template>
 
@@ -68,22 +81,15 @@
 import Mixins, { BookListMixin, BookDetailChildMixin } from '@/mixins'
 import NotePostDialog from '@/components/NotePostDialog.vue'
 import SearchDialog from '@/components/SearchDialog.vue'
+import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import api from '@/services/api'
 
 export default {
   mixins: [Mixins, BookListMixin, BookDetailChildMixin],
-  props: {
-    item: {
-      type: Object,
-    },
-    height: {
-      type: String,
-      default: '400',
-    },
-  },
   components: {
     NotePostDialog,
     SearchDialog,
+    ItemDeleteDialog,
   },
   data: () => ({
     itemHeight: 64,
@@ -120,12 +126,14 @@ export default {
         // ツールバーの制御
         const toolbar = {}
         if (Object.keys(this.$route.query).length) {
-          toolbar.title = 'ノートの検索結果'
+          toolbar.type = 'note'
+          toolbar.mode = 'search'
           toolbar.query = this.$route.query
         }
         this.$emit('set-toolbar', toolbar)
       } finally {
         this.isLoading = false
+        this.initCheckbox('note')
       }
     },
   },
