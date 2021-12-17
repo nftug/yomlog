@@ -54,6 +54,9 @@ export default {
         (v) =>
           v <= this.total ||
           (!this.format_type ? 'ページ数' : '位置No') + 'が不正です',
+        (v) =>
+          v !== this.defaultValues.position ||
+          '以前と異なる数値を入力してください',
       ],
       toBeReadRules: [
         (v) =>

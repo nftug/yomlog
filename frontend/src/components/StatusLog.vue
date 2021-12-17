@@ -18,8 +18,14 @@
             </v-list-item-action>
 
             <v-list-item-content @click="onClickEditStatus(item, state.id)">
-              <div class="text-lg-h5 text-h6">
-                {{ state.position }} / {{ item.total }}
+              <div>
+                {{ state.position }}{{ item.format_type ? '' : 'ページ' }}
+              </div>
+              <div
+                v-if="state.diff"
+                class="text-body-2 grey--text text--darken-2"
+              >
+                +{{ state.diff }}{{ item.format_type ? '' : 'ページ' }}
               </div>
             </v-list-item-content>
 
