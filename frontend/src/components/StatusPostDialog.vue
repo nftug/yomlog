@@ -34,11 +34,13 @@
 <script>
 import api from '@/services/api'
 import Dialog from '@/components/Dialog.vue'
+import { BookListMixin } from '@/mixins'
 
 export default {
   components: {
     Dialog,
   },
+  mixins: [BookListMixin],
   data() {
     return {
       statusId: '',
@@ -86,8 +88,8 @@ export default {
         this.to_be_read = status.state === 'to_be_read'
       } else {
         this.statusId = ''
-        this.position = book.status[0].position || 0
-        this.to_be_read = book.status[0].state === 'to_be_read'
+        this.position = this.currentState(book).position || 0
+        this.to_be_read = this.currentState(book).state === 'to_be_read'
       }
 
       // デフォルト値を保存

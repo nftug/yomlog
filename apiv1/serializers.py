@@ -118,16 +118,6 @@ class BookSerializer(PostSerializer):
     def get_status(self, instance):
         status_log = instance.status_log.order_by('-created_at')
         data = StatusLogSerializer(status_log, many=True, read_only=True).data
-
-        if not data:
-            data = [{
-                'id': None,
-                'state': 'to_be_read',
-                'position': 0,
-                'created_at': instance.created_at,
-                'book': instance.id,
-            }]
-
         return data
 
     def get_authors(self, instance):

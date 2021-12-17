@@ -105,7 +105,7 @@ export default {
       this.$router.replace({
         name: 'shelf',
         params: {
-          mode: item.status[0].state,
+          mode: this.currentState(item).state,
         },
       })
     },

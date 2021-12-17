@@ -99,8 +99,10 @@ import api from '@/services/api'
 import Dialog from '@/components/Dialog.vue'
 import Spinner from 'vue-simple-spinner'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
+import { BookListMixin } from '@/mixins'
 
 export default {
+  mixins: [BookListMixin],
   components: {
     Dialog,
     Spinner,
@@ -152,7 +154,7 @@ export default {
         this.prevSrc = note.quote_image
         this.noteId = note.id
       } else {
-        this.position = book.status[0].position || 0
+        this.position = this.currentState(book).position || 0
         this.content = ''
         this.quoteText = ''
         this.prevSrc = ''

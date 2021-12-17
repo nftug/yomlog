@@ -2,7 +2,7 @@
   <div id="status-log" v-if="item.status">
     <v-card outlined class="mx-auto" :height="height">
       <v-virtual-scroll
-        v-if="item.status.length && item.status[0].id"
+        v-if="item.status.length"
         :height="height"
         :item-height="itemHeight"
         :bench="benched"

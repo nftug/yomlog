@@ -5,13 +5,13 @@
         <v-col sm="6" cols="12">
           現在の進捗
           <div class="text-h5">
-            {{ item.status[0].position }} / {{ item.total }}
+            {{ currentState(item).position }} / {{ item.total }}
             <span class="text-body-2">
               {{ item.format_type ? '' : 'ページ' }}
             </span>
           </div>
-          <v-chip class="mt-3" :color="item.status[0].state | stateColor">
-            {{ item.status[0].state | stateName }}
+          <v-chip class="mt-3" :color="currentState(item).state | stateColor">
+            {{ currentState(item).state | stateName }}
           </v-chip>
         </v-col>
         <v-col sm="6" cols="12">
@@ -19,11 +19,11 @@
             :size="100"
             :width="15"
             :rotate="-90"
-            :value="item | bookProgress"
+            :value="bookProgress(item)"
             color="teal"
             class="text-center"
           >
-            {{ item | bookProgress }}%
+            {{ bookProgress(item) }}%
           </v-progress-circular>
         </v-col>
       </v-row>

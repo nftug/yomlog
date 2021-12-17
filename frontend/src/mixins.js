@@ -44,6 +44,27 @@ export const BookListMixin = {
     bookList() {
       return this.$store.state.bookList
     },
+    currentState() {
+      return function (item) {
+        if (item.status.length) {
+          return item.status[0]
+        } else {
+          return {
+            id: null,
+            state: 'to_be_read',
+            position: 0,
+          }
+        }
+      }
+    },
+    bookProgress() {
+      return function (item) {
+        return parseInt(
+          (this.currentState(item).position / item.total) * 100,
+          10
+        )
+      }
+    },
   },
   filters: {
     stateName(state) {
@@ -62,11 +83,6 @@ export const BookListMixin = {
         return 'primary'
       } else {
         return 'success'
-      }
-    },
-    bookProgress(item) {
-      if (item.status) {
-        return parseInt(((item.status[0].position || 0) / item.total) * 100, 10)
       }
     },
   },
