@@ -71,7 +71,7 @@
               :key="key"
               close
               small
-              @click:close="removeQuery(key)"
+              @click:close="removeQuery(key, { ...$route.query })"
             >
               {{ key | searchLabel }}
               {{ q }}

@@ -120,7 +120,7 @@ export const ListViewMixin = {
         label = 'ISBN/ASIN'
       } else if (keyName === 'content') {
         label = '内容'
-      } else if (keyName === 'text_quote') {
+      } else if (keyName === 'quote_text') {
         label = '引用'
       } else {
         label = ''
@@ -134,9 +134,7 @@ export const ListViewMixin = {
     },
   },
   methods: {
-    removeQuery(key, replace = false) {
-      let query = { ...this.query }
-
+    removeQuery(key, query = this.query) {
       if (key) {
         delete query[key]
       } else {
@@ -156,17 +154,10 @@ export const ListViewMixin = {
         })
       }
 
-      if (replace) {
-        this.$router.replace({
-          path: this.$route.path,
-          query: query,
-        })
-      } else {
-        this.$router.push({
-          path: this.$route.path,
-          query: query,
-        })
-      }
+      this.$router.push({
+        path: this.$route.path,
+        query: query,
+      })
     },
     handlePagination() {
       let query = { ...this.$route.query }
