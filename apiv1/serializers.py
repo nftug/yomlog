@@ -17,7 +17,9 @@ class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
         return {
             'id': book.id,
             'title': book.title,
-            'authors': book.authors
+            'authors': book.authors,
+            'format_type': book.format_type,
+            'total': book.total
         }
 
     def to_representation(self, instance):

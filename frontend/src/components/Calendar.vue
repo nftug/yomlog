@@ -50,8 +50,8 @@
       >
         <v-card
           color="grey lighten-4"
-          min-width="350px"
-          max-height="300px"
+          width="350px"
+          max-height="320px"
           flat
           class="overflow-y-auto"
         >
@@ -134,7 +134,9 @@ export default {
   },
   filters: {
     getSubtitle(item) {
-      return `${item.position}${!item.book.format_type ? 'ページ' : ''}`
+      let ret = `${item.position}${!item.book.format_type ? 'ページ' : ''}`
+      if (item.diff) ret += ` (+${item.diff.percent})`
+      return ret
     },
   },
   methods: {
@@ -181,7 +183,15 @@ export default {
       }
     },
     showEvent({ event, nativeEvent }) {
-      console.log(event.item)
+      const bookId = event.item.book.id
+      const type = event.item.diff ? 'status' : 'note'
+
+      this.$router.push({
+        name: `book_detail_${type}`,
+        params: {
+          id: bookId,
+        },
+      })
 
       nativeEvent.stopPropagation()
     },
