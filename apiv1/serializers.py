@@ -12,6 +12,21 @@ class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
     def get_created_by(self, instance):
         return CustomUserListSerializer(instance.created_by, many=False, read_only=True).data
 
+    def get_book(self, instance):
+        book = instance.book
+        return {
+            'id': book.id,
+            'title': book.title,
+            'authors': book.authors
+        }
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if super().context.get('inside'):
+            del ret['book']
+
+        return ret
+
     def create(self, validated_data):
         user = super().context['request'].user
         validated_data['created_by'] = user
@@ -22,6 +37,7 @@ class StatusLogSerializer(PostSerializer):
     # created_by = serializers.SerializerMethodField()
     state = serializers.SerializerMethodField()
     diff = serializers.SerializerMethodField()
+    book = serializers.SerializerMethodField()
 
     class Meta:
         model = StatusLog
@@ -67,11 +83,15 @@ class StatusLogSerializer(PostSerializer):
             base_status = prev_status
 
         if prev_status and instance.position > prev_status.position:
-            return instance.position - prev_status.position
+            diff = instance.position - prev_status.position
         elif not prev_status:
-            return instance.position
+            diff = instance.position
         else:
-            return 0
+            diff = 0
+
+        percent = '{}%'.format(int((diff / instance.book.total) * 100))
+
+        return {'value': diff, 'percent': percent}
 
     def validate_book(self, data):
         if data.created_by != self.context['request'].user:
@@ -81,6 +101,8 @@ class StatusLogSerializer(PostSerializer):
 
 
 class NoteSerializer(PostSerializer):
+    book = serializers.SerializerMethodField()
+
     class Meta:
         model = Note
         exclude = ['created_by']
@@ -117,7 +139,8 @@ class BookSerializer(PostSerializer):
 
     def get_status(self, instance):
         status_log = instance.status_log.order_by('-created_at')
-        data = StatusLogSerializer(status_log, many=True, read_only=True).data
+        context = {'inside': True}
+        data = StatusLogSerializer(status_log, many=True, read_only=True, context=context).data
         return data
 
     def get_authors(self, instance):
@@ -125,4 +148,5 @@ class BookSerializer(PostSerializer):
 
     def get_note(self, instance):
         notes = instance.notes.order_by('position')
-        return NoteSerializer(notes, many=True, read_only=True).data
+        context = {'inside': True}
+        return NoteSerializer(notes, many=True, read_only=True, context=context).data

@@ -18,6 +18,7 @@ const BookAddPage = () => import('@/pages/BookAddPage.vue')
 const BookDetailPage = () => import('@/pages/BookDetailPage.vue')
 const StatusLog = () => import('@/components/StatusLog.vue')
 const NoteList = () => import('@/components/NoteList.vue')
+const CalendarPage = () => import('@/pages/CalendarPage.vue')
 
 Vue.use(VueRouter)
 
@@ -63,6 +64,12 @@ const router = new VueRouter({
       name: 'book_add',
       component: BookAddPage,
       meta: { title: '本の追加', requiresAuth: true, isShowMenuButton: true },
+    },
+    {
+      path: '/calendar',
+      name: 'calendar',
+      component: CalendarPage,
+      meta: { title: 'カレンダー', requiresAuth: true, isShowMenuButton: true },
     },
     {
       path: '/login',

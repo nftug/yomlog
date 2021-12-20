@@ -22,10 +22,10 @@
                 {{ state.position }}{{ item.format_type ? '' : 'ページ' }}
               </div>
               <div
-                v-if="state.diff"
+                v-if="state.diff.value"
                 class="text-body-2 grey--text text--darken-2"
               >
-                +{{ getDiff(state.diff) }}
+                {{ getDiff(state.diff) }}
               </div>
             </v-list-item-content>
 
@@ -76,11 +76,9 @@ export default {
   computed: {
     getDiff() {
       return function (diff) {
-        if (!this.item.format_type) {
-          return diff + 'ページ'
-        } else {
-          return parseInt((diff / this.item.total) * 100, 10) + '%'
-        }
+        let ret = `+${diff.value}${!this.item.format_type ? 'ページ' : ''}`
+        ret += ` (+${diff.percent})`
+        return ret
       }
     },
   },

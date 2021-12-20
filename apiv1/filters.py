@@ -49,6 +49,13 @@ class GenericSearchFilterSet(django_filter.FilterSet):
         return queryset | self.filter_search(queryset.model.objects.all(), name, value)
 
 
+class GenericEventFilterSet(django_filter.FilterSet):
+    """イベント用フィルタ ミックスイン"""
+
+    created_at__gte = django_filter.DateTimeFilter(field_name='created_at', lookup_expr='gte')
+    created_at__lte = django_filter.DateTimeFilter(field_name='created_at', lookup_expr='lte')
+
+
 class BookFilter(GenericSearchFilterSet):
     """Book 検索用フィルタ"""
 
@@ -76,7 +83,7 @@ class BookFilter(GenericSearchFilterSet):
         return queryset.filter_by_state(value)
 
 
-class StatusLogFilter(GenericSearchFilterSet):
+class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
     """StatusLog 検索用フィルタ"""
 
     title = django_filter.CharFilter(field_name='book__title', method='filter_search')
@@ -96,7 +103,7 @@ class StatusLogFilter(GenericSearchFilterSet):
         ]
 
 
-class NoteFilter(GenericSearchFilterSet):
+class NoteFilter(GenericSearchFilterSet, GenericEventFilterSet):
     """Note 検索用フィルタ"""
 
     title = django_filter.CharFilter(field_name='book__title', method='filter_search')
