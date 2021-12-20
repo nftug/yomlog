@@ -151,7 +151,7 @@ export default {
         }
         const events = []
 
-        const { data: status } = await api.get('/status/', { params: params })
+        const { data: status } = await api.get('/status/', { params })
         status.forEach((item) => {
           events.push({
             name: `${item.book.title} (+${item.diff.percent})`,
@@ -164,7 +164,7 @@ export default {
           })
         })
 
-        const { data: note } = await api.get('/note/', { params: params })
+        const { data: note } = await api.get('/note/', { params })
         note.forEach((item) => {
           events.push({
             name: `${item.book.title} (${item.position})`,

@@ -232,7 +232,7 @@ export default {
         to.params = { id: this.$route.params.id }
       }
 
-      this.$router.push({ ...to, query: query })
+      this.$router.push({ ...to, query })
     },
   },
 }

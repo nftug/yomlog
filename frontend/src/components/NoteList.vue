@@ -119,7 +119,7 @@ export default {
           book: this.item.id,
           no_pagination: true,
         }
-        const { data } = await api.get('/note/', { params: params })
+        const { data } = await api.get('/note/', { params })
         this.$emit('set', 'note', data)
 
         // ツールバーの制御

@@ -156,7 +156,7 @@ export const ListViewMixin = {
 
       this.$router.push({
         path: this.$route.path,
-        query: query,
+        query,
       })
     },
     handlePagination() {
@@ -165,24 +165,20 @@ export const ListViewMixin = {
 
       this.$router.push({
         path: this.$route.path,
-        query: query,
+        query,
       })
     },
     replaceWithFinalPage(url, params) {
       const routeQuery = { ...this.$route.query }
       delete params.page
 
-      api
-        .get(url, {
-          params: params,
+      api.get(url, { params }).then(({ data: { totalPages } }) => {
+        routeQuery.page = totalPages
+        this.$router.replace({
+          path: this.$route.path,
+          query: routeQuery,
         })
-        .then(({ data: { totalPages } }) => {
-          routeQuery.page = totalPages
-          this.$router.replace({
-            path: this.$route.path,
-            query: routeQuery,
-          })
-        })
+      })
     },
   },
 }
