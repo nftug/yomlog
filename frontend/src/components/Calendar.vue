@@ -24,6 +24,7 @@
           width="5"
         ></v-progress-circular>
       </v-overlay>
+
       <v-calendar
         ref="calendar"
         v-model="value"
@@ -37,7 +38,61 @@
         event-more-text="+{0}件の記録"
         @change="getEvents"
         @click:event="showEvent"
+        @click:more="showMore"
+        @click:date="showMore"
       ></v-calendar>
+
+      <v-menu
+        v-model="selectedOpen"
+        :close-on-content-click="false"
+        :activator="selectedElement"
+        offset-x
+      >
+        <v-card
+          color="grey lighten-4"
+          min-width="350px"
+          max-height="300px"
+          flat
+          class="overflow-y-auto"
+        >
+          <v-toolbar color="primary" dark>
+            <v-btn icon @click="selectedOpen = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title v-html="selectedDate"></v-toolbar-title>
+          </v-toolbar>
+          <v-card-text>
+            <div v-for="(item, key) in selectedEvents" :key="key" class="pb-3">
+              <template v-if="item.events.length">
+                <v-list dense :color="item.events[0].color" dark two-line>
+                  <v-subheader>
+                    {{ item.label }}
+                    <v-chip small class="ma-2" light>
+                      {{ item.events.length }}
+                    </v-chip>
+                  </v-subheader>
+                  <v-list-item
+                    v-for="(event, i) in item.events"
+                    :key="i"
+                    :color="getEventColor(event)"
+                    link
+                    @click="showEvent({ event: event, nativeEvent: $event })"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{ event.item | getSubtitle }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle>
+                        {{ event.item.book.title }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </template>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-menu>
     </v-sheet>
   </div>
 </template>
@@ -57,11 +112,29 @@ export default {
     isLoading: false,
     events: [],
     value: moment().format('yyyy-MM-DD'),
-    categories: { status: 'status', note: 'note' },
+    selectedEvent: {},
+    selectedEvents: {
+      status: {
+        label: '進捗',
+        events: [],
+      },
+      note: {
+        label: 'ノート',
+        events: [],
+      },
+    },
+    selectedDate: null,
+    selectedElement: null,
+    selectedOpen: false,
   }),
   computed: {
     title() {
       return moment(this.value).format('yyyy年 M月')
+    },
+  },
+  filters: {
+    getSubtitle(item) {
+      return `${item.position}${!item.book.format_type ? 'ページ' : ''}`
     },
   },
   methods: {
@@ -81,8 +154,9 @@ export default {
           events.push({
             name: `${item.book.title} (+${item.diff.percent})`,
             start: new Date(item.created_at),
+            end: new Date(item.created_at),
             color: 'blue',
-            category: this.categories.status,
+            category: 'status',
             item: item,
             timed: false,
           })
@@ -93,8 +167,9 @@ export default {
           events.push({
             name: `${item.book.title} (${item.position})`,
             start: new Date(item.created_at),
+            end: new Date(item.created_at),
             color: 'green',
-            category: this.categories.note,
+            category: 'note',
             item: item,
             timed: false,
           })
@@ -107,6 +182,34 @@ export default {
     },
     showEvent({ event, nativeEvent }) {
       console.log(event.item)
+
+      nativeEvent.stopPropagation()
+    },
+    showMore({ date, nativeEvent }) {
+      const open = () => {
+        this.selectedDate = date
+        this.selectedElement = nativeEvent.target
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => (this.selectedOpen = true))
+        )
+      }
+
+      if (this.selectedOpen) {
+        this.selectedOpen = false
+        requestAnimationFrame(() => requestAnimationFrame(() => open()))
+      } else {
+        open()
+      }
+
+      const events = this.events.filter((event) =>
+        event.item.created_at.startsWith(date)
+      )
+      Object.keys(this.selectedEvents).forEach((key) => {
+        this.selectedEvents[key].events = events.filter(
+          (event) => event.category === key
+        )
+      })
+
       nativeEvent.stopPropagation()
     },
     getEventColor(event) {

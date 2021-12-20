@@ -74,6 +74,11 @@ export default {
         path: '/book/add',
       },
       {
+        title: 'カレンダー',
+        icon: 'mdi-calendar',
+        path: '/calendar',
+      },
+      {
         title: '設定',
         icon: 'mdi-cog',
         path: '/settings',
