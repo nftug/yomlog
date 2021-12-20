@@ -121,8 +121,6 @@ class NoteFilter(GenericSearchFilterSet, GenericEventFilterSet):
         model = Note
         exclude = ['quote_image']
         fields_for_search = [
-            'book__title__icontains',
-            'book__authors__icontains',
             'quote_text__icontains',
             'content__icontains'
         ]
