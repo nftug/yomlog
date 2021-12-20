@@ -12,6 +12,13 @@ class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
     def get_created_by(self, instance):
         return CustomUserListSerializer(instance.created_by, many=False, read_only=True).data
 
+    def create(self, validated_data):
+        user = super().context['request'].user
+        validated_data['created_by'] = user
+        return super().create(validated_data)
+
+
+class BookIncludedSerializer(PostSerializer):
     def get_book(self, instance):
         book = instance.book
         return {
@@ -24,22 +31,16 @@ class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        if super().context.get('inside'):
-            del ret['book']
+        if not super().context.get('inside'):
+            ret['book'] = self.get_book(instance)
 
         return ret
 
-    def create(self, validated_data):
-        user = super().context['request'].user
-        validated_data['created_by'] = user
-        return super().create(validated_data)
 
-
-class StatusLogSerializer(PostSerializer):
+class StatusLogSerializer(BookIncludedSerializer):
     # created_by = serializers.SerializerMethodField()
     state = serializers.SerializerMethodField()
     diff = serializers.SerializerMethodField()
-    book = serializers.SerializerMethodField()
 
     class Meta:
         model = StatusLog
@@ -102,9 +103,7 @@ class StatusLogSerializer(PostSerializer):
         return data
 
 
-class NoteSerializer(PostSerializer):
-    book = serializers.SerializerMethodField()
-
+class NoteSerializer(BookIncludedSerializer):
     class Meta:
         model = Note
         exclude = ['created_by']
