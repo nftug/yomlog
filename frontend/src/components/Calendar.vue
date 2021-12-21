@@ -59,7 +59,7 @@
             <v-btn icon @click="selectedOpen = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title v-html="selectedDate"></v-toolbar-title>
+            <v-toolbar-title>{{ selectedDate }}</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
             <template v-if="!isEventsEmpty">
@@ -76,13 +76,7 @@
                         {{ item.events.length }}
                       </v-chip>
                     </v-subheader>
-                    <v-list-item
-                      v-for="(event, i) in item.events"
-                      :key="i"
-                      :color="getEventColor(event)"
-                      link
-                      @click="showEvent({ event: event, nativeEvent: $event })"
-                    >
+                    <v-list-item v-for="(event, i) in item.events" :key="i">
                       <v-list-item-content>
                         <v-list-item-title>
                           {{ event.item | getSubtitle }}
@@ -91,6 +85,27 @@
                           {{ event.item.book.title }}
                         </v-list-item-subtitle>
                       </v-list-item-content>
+
+                      <v-list-item-action>
+                        <v-btn
+                          icon
+                          small
+                          :to="`/book/detail/${event.item.book.id}`"
+                        >
+                          <v-icon>mdi-book</v-icon>
+                        </v-btn>
+                      </v-list-item-action>
+                      <v-list-item-action>
+                        <v-btn
+                          icon
+                          small
+                          @click="
+                            showEvent({ event: event, nativeEvent: $event })
+                          "
+                        >
+                          <v-icon>mdi-pen</v-icon>
+                        </v-btn>
+                      </v-list-item-action>
                     </v-list-item>
                   </v-list>
                 </template>
