@@ -48,73 +48,76 @@
         :activator="selectedElement"
         offset-x
       >
-        <v-card
-          color="grey lighten-4"
-          width="350px"
-          max-height="320px"
-          flat
-          class="overflow-y-auto"
-        >
-          <v-toolbar color="primary" dark>
+        <v-card class="overflow-hidden">
+          <v-toolbar color="primary" dark fixed dense>
             <v-btn icon @click="selectedOpen = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-toolbar-title>{{ selectedDate }}</v-toolbar-title>
           </v-toolbar>
-          <v-card-text>
-            <template v-if="!isEventsEmpty">
-              <div
-                v-for="(item, key) in selectedEvents"
-                :key="key"
-                class="pb-3"
-              >
-                <template v-if="item.events.length">
-                  <v-list dense :color="item.events[0].color" dark two-line>
-                    <v-subheader>
-                      {{ item.label }}
-                      <v-chip small class="ma-2" light>
-                        {{ item.events.length }}
-                      </v-chip>
-                    </v-subheader>
-                    <v-list-item v-for="(event, i) in item.events" :key="i">
-                      <v-list-item-content>
-                        <v-list-item-title>
-                          {{ event.item | getSubtitle }}
-                        </v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ event.item.book.title }}
-                        </v-list-item-subtitle>
-                      </v-list-item-content>
 
-                      <v-list-item-action>
-                        <v-btn
-                          icon
-                          small
-                          :to="`/book/detail/${event.item.book.id}`"
-                        >
-                          <v-icon>mdi-book</v-icon>
-                        </v-btn>
-                      </v-list-item-action>
-                      <v-list-item-action>
-                        <v-btn
-                          icon
-                          small
-                          @click="
-                            showEvent({ event: event, nativeEvent: $event })
-                          "
-                        >
-                          <v-icon>mdi-pen</v-icon>
-                        </v-btn>
-                      </v-list-item-action>
-                    </v-list-item>
-                  </v-list>
-                </template>
-              </div>
-            </template>
-            <template v-else>
-              <div class="text-center py-5">記録が見つかりません。</div>
-            </template>
-          </v-card-text>
+          <v-sheet
+            color="grey lighten-4"
+            max-width="350px"
+            max-height="320px"
+            flat
+            class="overflow-y-auto"
+          >
+            <v-card-text>
+              <template v-if="!isEventsEmpty">
+                <div
+                  v-for="(item, key) in selectedEvents"
+                  :key="key"
+                  class="pb-3"
+                >
+                  <template v-if="item.events.length">
+                    <v-list dense :color="item.events[0].color" dark two-line>
+                      <v-subheader>
+                        {{ item.label }}
+                        <v-chip x-small class="ma-2" light>
+                          {{ item.events.length }}
+                        </v-chip>
+                      </v-subheader>
+                      <v-list-item v-for="(event, i) in item.events" :key="i">
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            {{ event.item | getSubtitle }}
+                          </v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ event.item.book.title }}
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+
+                        <v-list-item-action>
+                          <v-btn
+                            icon
+                            small
+                            :to="`/book/detail/${event.item.book.id}`"
+                          >
+                            <v-icon>mdi-book</v-icon>
+                          </v-btn>
+                        </v-list-item-action>
+                        <v-list-item-action>
+                          <v-btn
+                            icon
+                            small
+                            @click="
+                              showEvent({ event: event, nativeEvent: $event })
+                            "
+                          >
+                            <v-icon>mdi-pen</v-icon>
+                          </v-btn>
+                        </v-list-item-action>
+                      </v-list-item>
+                    </v-list>
+                  </template>
+                </div>
+              </template>
+              <template v-else>
+                <div class="text-center py-5">記録が見つかりません。</div>
+              </template>
+            </v-card-text>
+          </v-sheet>
         </v-card>
       </v-menu>
     </v-sheet>
