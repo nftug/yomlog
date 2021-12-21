@@ -190,6 +190,7 @@ const bookListModule = {
     set(state, item) {
       const index = state.items.findIndex((e) => e.id === item.id)
       state.items.splice(index, 1, { ...item })
+      state.isDirty = true
     },
     delete(state, item) {
       const index = state.items.findIndex((e) => e.id === item.id)
@@ -200,8 +201,64 @@ const bookListModule = {
     },
   },
   actions: {
-    getBookItem({ state }, id) {
-      return { ...state.items.find((e) => e.id === id) }
+    async getBookItem({ state }, id) {
+      const ret = { ...state.items.find((e) => e.id === id) }
+      if (Object.keys(ret).length) {
+        return ret
+      } else {
+        try {
+          const { data } = await api.get(`/book/${id}/`)
+          return data
+        } catch (error) {
+          return Promise.reject(error)
+        }
+      }
+    },
+    setDirtyWithDiffState({ commit }, { book, callback }) {
+      const oldState = JSON.stringify(book.status[0])
+      callback(book)
+      const newState = JSON.stringify(book.status[0])
+
+      if (oldState !== newState) {
+        commit('setDirty', true)
+        return true
+      } else {
+        return false
+      }
+    },
+    addProp({ dispatch }, { book, prop, data }) {
+      return dispatch('setDirtyWithDiffState', {
+        book,
+        callback: (newBook) => {
+          newBook[prop].unshift(data)
+        },
+      })
+    },
+    editProp({ dispatch }, { book, prop, data }) {
+      return dispatch('setDirtyWithDiffState', {
+        book,
+        callback: (newBook) => {
+          const index = newBook[prop].findIndex((e) => e.id === data.id)
+          newBook[prop].splice(index, 1, data)
+        },
+      })
+    },
+    deleteProp({ dispatch }, { book, prop, id }) {
+      return dispatch('setDirtyWithDiffState', {
+        book,
+        callback: (newBook) => {
+          const index = newBook[prop].findIndex((e) => e.id === id)
+          newBook[prop].splice(index, 1)
+        },
+      })
+    },
+    setProp({ dispatch }, { book, prop, data }) {
+      return dispatch('setDirtyWithDiffState', {
+        book,
+        callback: (newBook) => {
+          newBook[prop] = data
+        },
+      })
     },
   },
 }

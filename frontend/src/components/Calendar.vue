@@ -62,44 +62,62 @@
             <v-toolbar-title v-html="selectedDate"></v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <div v-for="(item, key) in selectedEvents" :key="key" class="pb-3">
-              <template v-if="item.events.length">
-                <v-list dense :color="item.events[0].color" dark two-line>
-                  <v-subheader>
-                    {{ item.label }}
-                    <v-chip small class="ma-2" light>
-                      {{ item.events.length }}
-                    </v-chip>
-                  </v-subheader>
-                  <v-list-item
-                    v-for="(event, i) in item.events"
-                    :key="i"
-                    :color="getEventColor(event)"
-                    link
-                    @click="showEvent({ event: event, nativeEvent: $event })"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        {{ event.item | getSubtitle }}
-                      </v-list-item-title>
-                      <v-list-item-subtitle>
-                        {{ event.item.book.title }}
-                      </v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list>
-              </template>
-            </div>
+            <template v-if="!isEventsEmpty">
+              <div
+                v-for="(item, key) in selectedEvents"
+                :key="key"
+                class="pb-3"
+              >
+                <template v-if="item.events.length">
+                  <v-list dense :color="item.events[0].color" dark two-line>
+                    <v-subheader>
+                      {{ item.label }}
+                      <v-chip small class="ma-2" light>
+                        {{ item.events.length }}
+                      </v-chip>
+                    </v-subheader>
+                    <v-list-item
+                      v-for="(event, i) in item.events"
+                      :key="i"
+                      :color="getEventColor(event)"
+                      link
+                      @click="showEvent({ event: event, nativeEvent: $event })"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{ event.item | getSubtitle }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle>
+                          {{ event.item.book.title }}
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </template>
+              </div>
+            </template>
+            <template v-else>
+              <div class="text-center py-5">記録が見つかりません。</div>
+            </template>
           </v-card-text>
         </v-card>
       </v-menu>
     </v-sheet>
+
+    <StatusEditDialog ref="statusEdit" @post="onEditProp"></StatusEditDialog>
+    <NotePostDialog
+      ref="noteEdit"
+      @post="onEditProp"
+      @delete="onDeleteProp"
+    ></NotePostDialog>
   </div>
 </template>
 
 <script>
 import api from '@/services/api'
 import moment from 'moment'
+import StatusEditDialog from '@/components/StatusPostDialog.vue'
+import NotePostDialog from '@/components/NotePostDialog.vue'
 
 export default {
   props: {
@@ -107,6 +125,10 @@ export default {
       type: String,
       default: '82vh',
     },
+  },
+  components: {
+    StatusEditDialog,
+    NotePostDialog,
   },
   data: () => ({
     isLoading: false,
@@ -126,10 +148,22 @@ export default {
     selectedDate: null,
     selectedElement: null,
     selectedOpen: false,
+    book: {},
+    period: { start: '', end: '' },
   }),
   computed: {
     title() {
       return moment(this.value).format('yyyy年 M月')
+    },
+    isEventsEmpty() {
+      let ret = true
+      for (const key in this.selectedEvents) {
+        if (this.selectedEvents[key].events.length) {
+          ret = false
+          break
+        }
+      }
+      return ret
     },
   },
   filters: {
@@ -180,19 +214,27 @@ export default {
         this.events = events
       } finally {
         this.isLoading = false
+        this.period = { start, end }
       }
     },
-    showEvent({ event, nativeEvent }) {
-      const bookId = event.item.book.id
+    async showEvent({ event, nativeEvent }) {
       const type = event.item.diff ? 'status' : 'note'
+      this.book = await this.$store.dispatch(
+        'bookList/getBookItem',
+        event.item.book.id
+      )
 
-      this.$router.push({
-        name: `book_detail_${type}`,
-        params: {
-          id: bookId,
-        },
-      })
-
+      if (type === 'status') {
+        this.$refs.statusEdit.showStatusPostDialog({
+          book: this.book,
+          id: event.item.id,
+        })
+      } else {
+        this.$refs.noteEdit.showNotePostDialog({
+          book: this.book,
+          id: event.item.id,
+        })
+      }
       nativeEvent.stopPropagation()
     },
     showMore({ date, nativeEvent }) {
@@ -227,6 +269,22 @@ export default {
     },
     setToday() {
       this.value = moment().format('yyyy-MM-DD')
+    },
+    onEditProp(prop, data) {
+      this.$store.dispatch('bookList/editProp', {
+        book: this.book,
+        prop,
+        data,
+      })
+      this.getEvents(this.period)
+    },
+    onDeleteProp(prop, id) {
+      this.$store.dispatch('bookList/deleteProp', {
+        book: this.book,
+        prop,
+        id,
+      })
+      this.getEvents(this.period)
     },
   },
 }

@@ -111,7 +111,6 @@
 </template>
 
 <script>
-import api from '@/services/api'
 import Spinner from 'vue-simple-spinner'
 import NotFoundPage from '@/pages/error/NotFoundPage.vue'
 import Mixins, {
@@ -155,17 +154,17 @@ export default {
   async created() {
     // NOTE: ストアから取得するのはアイテムのコピーになる
     // ⇒ページ内情報の更新とbookListストアの更新処理は別々に行うこと
-
-    this.isLoading = true
-    this.item = await this.$store.dispatch(
-      'bookList/getBookItem',
-      this.$route.params.id
-    )
-    if (!Object.keys(this.item).length) {
-      await this.fetchBookData()
+    try {
+      this.isLoading = true
+      this.item = await this.$store.dispatch(
+        'bookList/getBookItem',
+        this.$route.params.id
+      )
+    } catch (error) {
+      if (error.response) this.error = error.response.status
+    } finally {
+      this.isLoading = false
     }
-
-    this.isLoading = false
   },
   computed: {
     isShowToolbar() {
@@ -173,36 +172,32 @@ export default {
     },
   },
   methods: {
-    async fetchBookData() {
-      try {
-        const { data } = await api.get(`/book/${this.$route.params.id}/`)
-        this.item = data
-        return Promise.resolve()
-      } catch (error) {
-        if (error.response) this.error = error.response.status
-        return Promise.reject()
-      }
-    },
     onAddProp(prop, data) {
-      this.setDirtyWithDiffState(this.item, (item) => {
-        item[prop].unshift(data)
+      this.$store.dispatch('bookList/addProp', {
+        book: this.item,
+        prop,
+        data,
       })
     },
     onDeleteProp(prop, id) {
-      this.setDirtyWithDiffState(this.item, (item) => {
-        const index = item[prop].findIndex((e) => e.id === id)
-        item[prop].splice(index, 1)
+      this.$store.dispatch('bookList/deleteProp', {
+        book: this.item,
+        prop,
+        id,
       })
     },
     onEditProp(prop, data) {
-      this.setDirtyWithDiffState(this.item, (item) => {
-        const index = item[prop].findIndex((e) => e.id === data.id)
-        item[prop].splice(index, 1, data)
+      this.$store.dispatch('bookList/editProp', {
+        book: this.item,
+        prop,
+        data,
       })
     },
     onSetProp(prop, data) {
-      this.setDirtyWithDiffState(this.item, (item) => {
-        item[prop] = data
+      this.$store.dispatch('bookList/setProp', {
+        book: this.item,
+        prop,
+        data,
       })
     },
     onEditBook(data) {
