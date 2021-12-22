@@ -81,7 +81,7 @@
                       <v-list-item v-for="(event, i) in item.events" :key="i">
                         <v-list-item-content>
                           <v-list-item-title>
-                            {{ event.item | getSubtitle }}
+                            {{ event.item | getItemTitle }}
                           </v-list-item-title>
                           <v-list-item-subtitle>
                             {{ event.item.book.title }}
@@ -101,9 +101,7 @@
                           <v-btn
                             icon
                             small
-                            @click="
-                              showEvent({ event: event, nativeEvent: $event })
-                            "
+                            @click="showEvent({ event, nativeEvent: $event })"
                           >
                             <v-icon>mdi-pen</v-icon>
                           </v-btn>
@@ -185,7 +183,7 @@ export default {
     },
   },
   filters: {
-    getSubtitle(item) {
+    getItemTitle(item) {
       let ret = `${item.position}${!item.book.format_type ? 'ページ' : ''}`
       if (item.diff) ret += ` (+${item.diff.percent})`
       return ret

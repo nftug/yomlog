@@ -75,9 +75,9 @@ export default {
   },
   computed: {
     getDiff() {
-      return function (diff) {
-        let ret = `+${diff.value}${!this.item.format_type ? 'ページ' : ''}`
-        ret += ` (+${diff.percent})`
+      return function ({ value, percent }) {
+        let ret = `+${value}${!this.item.format_type ? 'ページ' : ''}`
+        ret += ` (+${percent})`
         return ret
       }
     },
