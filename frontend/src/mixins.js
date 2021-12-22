@@ -334,20 +334,10 @@ export default {
         return dt_1.getTime() === dt_2.getTime()
       }
     },
-    initialName: function () {
-      return function (name) {
-        let splitName = name.split(' ')
-        let ret = ''
-        splitName.forEach((s) => {
-          ret += s.charAt(0).toUpperCase()
-        })
-        return ret
-      }
-    },
     appName: function () {
       return process.env.VUE_APP_APPNAME
     },
-    currentUserInfo: function () {
+    currentUser: function () {
       return this.$store.state.auth
     },
   },

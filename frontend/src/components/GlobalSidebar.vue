@@ -1,10 +1,19 @@
 <template>
   <v-navigation-drawer app clipped v-model="drawer">
     <v-list>
-      <v-list-item style="line-height: 1.5">
+      <v-list-item>
+        <v-list-item-avatar color="grey">
+          <img
+            v-if="currentUser.avatar"
+            :alt="currentUser.fullname"
+            :src="currentUser.avatar"
+          />
+          <v-icon v-else dark>mdi-account-circle</v-icon>
+        </v-list-item-avatar>
+
         <v-list-item-content>
           <v-list-item-title class="text-h6">
-            {{ currentUserInfo.fullname }}
+            {{ currentUser.fullname }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
