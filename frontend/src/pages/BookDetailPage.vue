@@ -4,7 +4,7 @@
 
   <v-container v-else fluid>
     <!-- Spinner -->
-    <spinner v-if="isLoading"></spinner>
+    <Spinner v-if="isLoading"></Spinner>
 
     <v-col v-else sm="10" md="8" xl="7" class="mx-auto">
       <v-row class="pb-4">
@@ -79,7 +79,7 @@
           </template>
         </v-toolbar>
 
-        <v-tabs v-else v-model="activeTab" grow>
+        <v-tabs v-show="!isShowToolbar" v-model="activeTab" grow>
           <v-tab v-for="tab in tabs" :key="tab.type" :to="tab.path" replace>
             {{ tab.label }}
             <div class="px-2">
@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import Spinner from 'vue-simple-spinner'
+import Spinner from '@/components/Spinner.vue'
 import NotFoundPage from '@/pages/error/NotFoundPage.vue'
 import Mixins, {
   BookListMixin,
