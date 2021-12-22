@@ -30,7 +30,7 @@
           データが見つかりません
         </div>
         <div slot="spinner" class="py-4">
-          <spinner />
+          <Spinner></Spinner>
         </div>
       </infinite-loading>
 
@@ -77,7 +77,7 @@
 
 <script>
 import axios from 'axios'
-import Spinner from 'vue-simple-spinner'
+import Spinner from '@/components/Spinner.vue'
 import InfiniteLoading from 'vue-infinite-loading'
 import api from '@/services/api'
 import Mixin, { FormRulesMixin } from '@/mixins'

@@ -34,7 +34,7 @@
       </div>
 
       <!-- Spinner -->
-      <spinner v-if="bookList.isLoading"></spinner>
+      <Spinner v-if="bookList.isLoading"></Spinner>
 
       <template v-else>
         <!-- 本棚 -->
@@ -152,7 +152,6 @@
 
 <script>
 import BookList from '@/components/BookList.vue'
-import Spinner from 'vue-simple-spinner'
 import Mixins, {
   BookListMixin,
   ShelfSearchFromHeaderMixin,
@@ -163,16 +162,17 @@ import StatusAddDialog from '@/components/StatusPostDialog.vue'
 import NoteAddDialog from '@/components/NotePostDialog.vue'
 import SearchDialog from '@/components/SearchDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
+import Spinner from '@/components/Spinner.vue'
 
 export default {
   mixins: [BookListMixin, ShelfSearchFromHeaderMixin, ListViewMixin, Mixins],
   components: {
-    Spinner,
     BookList,
     StatusAddDialog,
     ItemDeleteDialog,
     NoteAddDialog,
     SearchDialog,
+    Spinner,
   },
   data() {
     return {
@@ -210,46 +210,36 @@ export default {
         this.$router.app.$emit('changeSearchValue', route.query.q || '')
       })
     },
-    fetchBookList() {
+    async fetchBookList() {
       this.$store.commit('bookList/setLoading', true)
       this.$store.commit('bookList/clear')
 
-      return api
-        .get('/book/', {
-          params: {
-            ...this.query,
-            page: this.page,
-            status: this.mode,
-          },
+      try {
+        const { data } = await api.get('/book/', {
+          params: { ...this.query, page: this.page, status: this.mode },
         })
-        .then(({ data }) => {
-          this.$store.commit('bookList/setProps', {
-            totalItems: data.count,
-            totalPages: data.totalPages,
-          })
-
-          data.results.forEach((item) => {
-            this.$store.commit('bookList/add', item)
-          })
-
-          return Promise.resolve()
+        this.$store.commit('bookList/setProps', {
+          totalItems: data.count,
+          totalPages: data.totalPages,
         })
-        .catch((error) => {
-          if (error.response) {
-            const { response } = error
-            if (response.status === 404) {
-              // ページ数超過の場合、最終ページに遷移
-              let params = { ...response.config.params }
-              this.replaceWithFinalPage('/book/', params)
-              return Promise.resolve()
-            } else {
-              return Promise.reject(response)
-            }
+        data.results.forEach((item) => {
+          this.$store.commit('bookList/add', item)
+        })
+      } catch (error) {
+        if (error.response) {
+          const { response } = error
+          if (response.status === 404) {
+            // ページ数超過の場合、最終ページに遷移
+            let params = { ...response.config.params }
+            this.replaceWithFinalPage('/book/', params)
+            return Promise.resolve()
+          } else {
+            return Promise.reject(response)
           }
-        })
-        .finally(() => {
-          this.$store.commit('bookList/setLoading', false)
-        })
+        }
+      } finally {
+        this.$store.commit('bookList/setLoading', false)
+      }
     },
     handleReload(data) {
       if (!data.state) {

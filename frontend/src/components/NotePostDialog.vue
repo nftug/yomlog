@@ -39,7 +39,7 @@
       </v-toolbar>
     </template>
 
-    <spinner size="large" v-if="isSending" />
+    <Spinner size="100" v-if="isSending" />
 
     <v-form v-else ref="formNoteAdd" v-model="isValid" @submit.prevent>
       <v-col cols="11" lg="5" md="6" sm="10" class="mx-auto mt-5">
@@ -97,7 +97,7 @@
 <script>
 import api from '@/services/api'
 import Dialog from '@/components/Dialog.vue'
-import Spinner from 'vue-simple-spinner'
+import Spinner from '@/components/Spinner.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import { BookListMixin } from '@/mixins'
 

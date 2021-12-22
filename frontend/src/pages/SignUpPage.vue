@@ -1,7 +1,7 @@
 <template>
   <v-container v-if="$route.params.uid && $route.params.token">
     <!-- 認証ページ -->
-    <spinner size="large" />
+    <Spinner size="100" />
   </v-container>
 
   <!-- 登録フォームページ -->
@@ -60,7 +60,7 @@
 
 <script>
 import api from '@/services/api'
-import Spinner from 'vue-simple-spinner'
+import Spinner from '@/components/Spinner.vue'
 import SendForm from '@/components/SendForm.vue'
 
 export default {
