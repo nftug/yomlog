@@ -148,10 +148,11 @@
       @delete-book="handleReload"
     ></ItemDeleteDialog>
 
-    <Dialog ref="bookAdd" title="書籍の追加" :max-width="600">
-      <BookAdd ref="bookAddPage"></BookAdd>
-    </Dialog>
-    <Fab icon="mdi-book-plus" @click="$refs.bookAdd.showDialog()"></Fab>
+    <BookAdd ref="bookAdd">
+      <template #activator="{ on, attrs }">
+        <Fab icon="mdi-book-plus" v-on="on" v-bind="attrs"></Fab>
+      </template>
+    </BookAdd>
   </v-container>
 </template>
 
@@ -168,7 +169,6 @@ import NoteAddDialog from '@/components/NotePostDialog.vue'
 import SearchDialog from '@/components/SearchDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import Spinner from '@/components/Spinner.vue'
-import Dialog from '@/components/Dialog.vue'
 import BookAdd from '@/pages/BookAddPage.vue'
 import Fab from '@/components/Fab.vue'
 
@@ -181,7 +181,6 @@ export default {
     NoteAddDialog,
     SearchDialog,
     Spinner,
-    Dialog,
     BookAdd,
     Fab,
   },

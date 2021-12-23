@@ -49,9 +49,10 @@ const api = axios.create({
             if (typeof config.data === 'string') {
               config.data = JSON.parse(config.data)
             }
-            // リトライ
+            // ヘッダー更新 (?)
             config.headers.Authorization = 'JWT ' + access
             // NOTE: なぜリトライ後にここで設定したconfigが生きているのか？
+            // (configはtryスコープ内にあるのに、上の記述だけでヘッダーの更新が成功してしまう)
             return true
           } catch (error) {
             return Promise.reject(error)

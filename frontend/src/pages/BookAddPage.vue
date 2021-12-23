@@ -1,65 +1,88 @@
 <template>
   <div>
-    <!-- 検索 -->
-    <v-text-field
-      v-model="searchValue"
-      @keydown.enter="resetInfinite"
-    ></v-text-field>
-
-    <!-- 検索結果リスト -->
-    <BookList :items="items" :loading="true">
-      <template #content="{ item }">
-        <v-list-item>
-          <v-btn color="green" dark block @click="addBook(item, 0)">
-            本を登録
-          </v-btn>
-        </v-list-item>
-        <v-list-item>
-          <v-btn color="orange" dark block @click="addBook(item, 1)">
-            Kindle本を登録
-          </v-btn>
-        </v-list-item>
+    <Dialog
+      ref="dialogBookAdd"
+      title="書籍の追加"
+      :max-width="600"
+      fullscreen
+      hide-overlay
+      scrollable
+      transition="dialog-bottom-transition"
+    >
+      <template #activator="{ attrs }">
+        <slot
+          name="activator"
+          :on="{ click: showBookAddDialog }"
+          :attrs="attrs"
+        ></slot>
       </template>
-    </BookList>
 
-    <!-- Infinite Loading -->
-    <infinite-loading
-      v-if="infiniteId"
-      @infinite="infiniteHandler"
-      :identifier="infiniteId"
-    >
-      <div slot="no-more" class="py-4 text-body-2">
-        これ以上データはありません
-      </div>
-      <div slot="no-results" class="py-4 text-body-2">
-        データが見つかりません
-      </div>
-      <div slot="spinner" class="py-4">
-        <Spinner></Spinner>
-      </div>
-    </infinite-loading>
+      <template #toolbar="{ title, cancel }">
+        <v-toolbar flat dark color="primary">
+          <v-btn icon dark @click="cancel">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title style="cursor: pointer" @click="scrollToTop">
+            {{ title }}
+          </v-toolbar-title>
+        </v-toolbar>
+      </template>
 
-    <v-card v-else class="pa-5 text-center">
-      <h2>書籍の追加</h2>
+      <!-- 検索 -->
+      <v-container>
+        <v-text-field
+          v-model="searchValue"
+          @keydown.enter="resetInfinite"
+          autofocus
+        ></v-text-field>
+      </v-container>
 
-      <p class="mt-2 text-body-2">
-        検索アイコンをクリックして、追加する書籍を検索してください
-      </p>
-    </v-card>
+      <v-card-text style="height: 100vh" id="book-add-content">
+        <v-container>
+          <!-- 検索結果リスト -->
+          <BookList :items="items" :loading="true">
+            <template #content="{ item }">
+              <v-list-item>
+                <v-btn color="green" dark block @click="addBook(item, 0)">
+                  本を登録
+                </v-btn>
+              </v-list-item>
+              <v-list-item>
+                <v-btn color="orange" dark block @click="addBook(item, 1)">
+                  Kindle本を登録
+                </v-btn>
+              </v-list-item>
+            </template>
+          </BookList>
 
-    <!-- スクロール -->
-    <v-btn
-      color="pink"
-      dark
-      bottom
-      right
-      fab
-      absolute
-      class="v-btn--floating"
-      @click="onClickFab"
-    >
-      <v-icon>mdi-chevron-up</v-icon>
-    </v-btn>
+          <!-- Infinite Loading -->
+          <infinite-loading
+            v-if="infiniteId"
+            @infinite="infiniteHandler"
+            :identifier="infiniteId"
+          >
+            <div slot="no-more" class="py-4 text-body-2">
+              これ以上データはありません
+            </div>
+            <div slot="no-results" class="py-4 text-body-2">
+              データが見つかりません
+            </div>
+            <div slot="spinner" class="py-4">
+              <Spinner></Spinner>
+            </div>
+          </infinite-loading>
+
+          <v-card v-else class="pa-5 text-center">
+            <h2>書籍の追加</h2>
+
+            <p class="mt-2 text-body-2">
+              検索アイコンをクリックして、追加する書籍を検索してください
+            </p>
+          </v-card>
+        </v-container>
+        <div style="flex: 1 1 auto"></div>
+      </v-card-text>
+    </Dialog>
 
     <!-- ページ数入力のダイアログ -->
     <Dialog
@@ -84,7 +107,6 @@
         ></v-text-field>
       </v-form>
     </Dialog>
-
     <!-- Kindle本のデータ入力ダイアログ -->
     <BookEditDialog ref="bookEdit"></BookEditDialog>
   </div>
@@ -99,8 +121,7 @@ import Mixin, { FormRulesMixin } from '@/mixins'
 import Dialog from '@/components/Dialog.vue'
 import BookList from '@/components/BookList.vue'
 import BookEditDialog from '@/components/BookEditDialog.vue'
-import Fab from '@/components/Fab.vue'
-import VueScrollTo from 'vue-scrollto'
+// import VueScrollTo from 'vue-scrollto'
 
 export default {
   mixins: [Mixin, FormRulesMixin],
@@ -110,7 +131,6 @@ export default {
     Dialog,
     BookList,
     BookEditDialog,
-    Fab,
   },
   data: () => ({
     searchValue: '',
@@ -132,6 +152,11 @@ export default {
     this.$router.app.$off('search', this.handleSearch)
   },
   methods: {
+    showBookAddDialog() {
+      this.searchValue = ''
+      this.resetInfinite()
+      this.$refs.dialogBookAdd.showDialog()
+    },
     async fetchBookList() {
       // BUG: Google Books APIのtotalItemsの数はあてにならない (非固定)
       // →ページ番号の割り振りには使えない
@@ -266,6 +291,8 @@ export default {
           message: 'この本は既に登録されています。',
         })
       }
+
+      this.$refs.dialogBookAdd.hideDialog()
     },
     showPagesDialog() {
       if (this.$refs.formPages) {
@@ -274,8 +301,10 @@ export default {
       }
       return this.$refs.dialogPages.showDialog()
     },
-    onClickFab() {
-      VueScrollTo.scrollTo('#app')
+    scrollToTop() {
+      // VueScrollTo.scrollTo('#app')
+      const element = document.getElementById('book-add-content')
+      element.scrollTop = 0
     },
     handleSearch(searchValue) {
       this.searchValue = searchValue

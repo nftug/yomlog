@@ -5,12 +5,13 @@
     :fullscreen="fullscreen"
     :hide-overlay="hideOverlay"
     :transition="transition"
+    :scrollable="scrollable"
   >
     <template #activator="{ on, attrs }">
       <slot name="activator" :on="on" :attrs="attrs"></slot>
     </template>
 
-    <v-card>
+    <v-card tile>
       <!-- フルスクリーンダイアログ -->
       <template v-if="fullscreen">
         <slot
@@ -19,7 +20,7 @@
           :ok="handleAnswer.bind(null, true)"
           :cancel="handleAnswer.bind(null, false)"
         >
-          <v-toolbar dark color="primary">
+          <v-toolbar flat dark color="primary">
             <v-btn icon dark @click="handleAnswer(false)">
               <v-icon>mdi-close</v-icon>
             </v-btn>
@@ -123,6 +124,12 @@ export default {
     },
     transition: {
       type: String,
+    },
+    height: {
+      type: [String, Number],
+    },
+    scrollable: {
+      type: Boolean,
     },
   },
   data: () => ({

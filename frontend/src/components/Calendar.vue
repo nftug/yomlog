@@ -49,7 +49,7 @@
         offset-x
       >
         <v-card class="overflow-hidden">
-          <v-toolbar color="primary" dark fixed dense>
+          <v-toolbar color="primary" dark dense flat>
             <v-btn icon @click="selectedOpen = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
