@@ -1,50 +1,65 @@
 <template>
-  <v-container fluid>
-    <div class="col-sm-10 mx-auto">
-      <!-- 検索結果リスト -->
-      <BookList :items="items" :loading="true">
-        <template #content="{ item }">
-          <v-list-item>
-            <v-btn color="green" dark block @click="addBook(item, 0)">
-              本を登録
-            </v-btn>
-          </v-list-item>
-          <v-list-item>
-            <v-btn color="orange" dark block @click="addBook(item, 1)">
-              Kindle本を登録
-            </v-btn>
-          </v-list-item>
-        </template>
-      </BookList>
+  <div>
+    <!-- 検索 -->
+    <v-text-field
+      v-model="searchValue"
+      @keydown.enter="resetInfinite"
+    ></v-text-field>
 
-      <!-- Infinite Loading -->
-      <infinite-loading
-        v-if="infiniteId"
-        @infinite="infiniteHandler"
-        :identifier="infiniteId"
-      >
-        <div slot="no-more" class="py-4 text-body-2">
-          これ以上データはありません
-        </div>
-        <div slot="no-results" class="py-4 text-body-2">
-          データが見つかりません
-        </div>
-        <div slot="spinner" class="py-4">
-          <Spinner></Spinner>
-        </div>
-      </infinite-loading>
+    <!-- 検索結果リスト -->
+    <BookList :items="items" :loading="true">
+      <template #content="{ item }">
+        <v-list-item>
+          <v-btn color="green" dark block @click="addBook(item, 0)">
+            本を登録
+          </v-btn>
+        </v-list-item>
+        <v-list-item>
+          <v-btn color="orange" dark block @click="addBook(item, 1)">
+            Kindle本を登録
+          </v-btn>
+        </v-list-item>
+      </template>
+    </BookList>
 
-      <v-card v-else class="pa-5 text-center">
-        <h2>書籍の追加</h2>
+    <!-- Infinite Loading -->
+    <infinite-loading
+      v-if="infiniteId"
+      @infinite="infiniteHandler"
+      :identifier="infiniteId"
+    >
+      <div slot="no-more" class="py-4 text-body-2">
+        これ以上データはありません
+      </div>
+      <div slot="no-results" class="py-4 text-body-2">
+        データが見つかりません
+      </div>
+      <div slot="spinner" class="py-4">
+        <Spinner></Spinner>
+      </div>
+    </infinite-loading>
 
-        <p class="mt-2 text-body-2">
-          検索アイコンをクリックして、追加する書籍を検索してください
-        </p>
-      </v-card>
-    </div>
+    <v-card v-else class="pa-5 text-center">
+      <h2>書籍の追加</h2>
+
+      <p class="mt-2 text-body-2">
+        検索アイコンをクリックして、追加する書籍を検索してください
+      </p>
+    </v-card>
 
     <!-- スクロール -->
-    <Fab icon="mdi-chevron-up" @click="onClickFab"></Fab>
+    <v-btn
+      color="pink"
+      dark
+      bottom
+      right
+      fab
+      absolute
+      class="v-btn--floating"
+      @click="onClickFab"
+    >
+      <v-icon>mdi-chevron-up</v-icon>
+    </v-btn>
 
     <!-- ページ数入力のダイアログ -->
     <Dialog
@@ -72,7 +87,7 @@
 
     <!-- Kindle本のデータ入力ダイアログ -->
     <BookEditDialog ref="bookEdit"></BookEditDialog>
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -104,7 +119,6 @@ export default {
     page: 1,
     maxResults: 12,
     infiniteId: null,
-    searchBottomSheet: true,
     formPages: {
       value: 0,
       valid: false,
@@ -118,75 +132,69 @@ export default {
     this.$router.app.$off('search', this.handleSearch)
   },
   methods: {
-    fetchBookList() {
+    async fetchBookList() {
       // BUG: Google Books APIのtotalItemsの数はあてにならない (非固定)
       // →ページ番号の割り振りには使えない
 
       if (this.searchValue) {
         const startIndex = (this.page - 1) * (this.maxResults + 1)
-
-        return axios
-          .get('https://www.googleapis.com/books/v1/volumes', {
+        const { data } = await axios.get(
+          'https://www.googleapis.com/books/v1/volumes',
+          {
             params: {
               q: this.searchValue,
               orderBy: 'relevance',
               maxResults: this.maxResults,
-              startIndex: startIndex,
+              startIndex,
             },
+          }
+        )
+
+        this.total = data.totalItems
+
+        data.items.forEach((item) => {
+          const { volumeInfo, id } = item
+          let amazon_dp
+
+          if (volumeInfo.industryIdentifiers) {
+            // ISBNコードが存在する場合、ISBN_13→ISBN_10の順番でamazon_dpに入れる
+            let industryIdentifier =
+              volumeInfo.industryIdentifiers.find(
+                (e) => e.type === 'ISBN_13'
+              ) ||
+              volumeInfo.industryIdentifiers.find(
+                (e) => e.type === 'ISBN_10'
+              ) ||
+              ''
+            amazon_dp = industryIdentifier.identifier
+          } else {
+            // ISBNコードが存在しない場合、amazon_dpにはnullを入れる
+            amazon_dp = null
+          }
+
+          this.items.push({
+            title: volumeInfo.title,
+            authors: volumeInfo.authors || ['不明'],
+            thumbnail: volumeInfo.imageLinks
+              ? volumeInfo.imageLinks.thumbnail
+              : null,
+            total: volumeInfo.pageCount || 0,
+            amazon_dp,
+            id_google: id,
           })
-          .then(({ data }) => {
-            this.total = data.totalItems
-
-            data.items.forEach((item) => {
-              const { volumeInfo, id } = item
-              let amazon_dp
-
-              if (volumeInfo.industryIdentifiers) {
-                // ISBNコードが存在する場合、ISBN_13→ISBN_10の順番でamazon_dpに入れる
-                let industryIdentifier =
-                  volumeInfo.industryIdentifiers.find(
-                    (e) => e.type === 'ISBN_13'
-                  ) ||
-                  volumeInfo.industryIdentifiers.find(
-                    (e) => e.type === 'ISBN_10'
-                  ) ||
-                  ''
-                amazon_dp = industryIdentifier.identifier
-              } else {
-                // ISBNコードが存在しない場合、amazon_dpにはnullを入れる
-                amazon_dp = null
-              }
-
-              this.items.push({
-                title: volumeInfo.title,
-                authors: volumeInfo.authors || ['不明'],
-                thumbnail: volumeInfo.imageLinks
-                  ? volumeInfo.imageLinks.thumbnail
-                  : null,
-                total: volumeInfo.pageCount || 0,
-                amazon_dp: amazon_dp,
-                id_google: id,
-              })
-            })
-
-            return Promise.resolve()
-          })
-          .catch((error) => {
-            return Promise.reject(error)
-          })
+        })
       } else {
         return Promise.reject()
       }
     },
-    infiniteHandler($state) {
-      this.fetchBookList()
-        .then(() => {
-          this.page++
-          $state.loaded()
-        })
-        .catch(() => {
-          $state.complete()
-        })
+    async infiniteHandler($state) {
+      try {
+        await this.fetchBookList()
+        this.page++
+        $state.loaded()
+      } catch {
+        $state.complete()
+      }
     },
     resetInfinite() {
       // infinite-loadingの有効化 or リセット
@@ -198,13 +206,9 @@ export default {
 
       this.page = 1
       this.items = []
-
-      // ボトムシートの非表示
-      this.searchBottomSheet = false
     },
     async addBook(book, format_type) {
       let item = { ...book }
-
       item.format_type = format_type
 
       // 書籍データの入力
@@ -231,8 +235,7 @@ export default {
 
       // Bookのデータを登録
       // 既に登録されている場合は該当のデータが返却される (statusは200)
-      let response
-      response = await api({
+      const { data, status } = await api({
         url: '/book/',
         method: 'post',
         data: {
@@ -250,11 +253,11 @@ export default {
       this.$router.replace({
         name: 'book_detail',
         params: {
-          id: response.data.id,
+          id: data.id,
         },
       })
 
-      if (response.status === 201) {
+      if (status === 201) {
         this.$store.dispatch('message/setInfoMessage', {
           message: '書籍を登録しました。',
         })

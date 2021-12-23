@@ -78,11 +78,6 @@ export default {
         path: '/shelf/reading',
       },
       {
-        title: '本の追加',
-        icon: 'mdi-book-plus',
-        path: '/book/add',
-      },
-      {
         title: 'カレンダー',
         icon: 'mdi-calendar',
         path: '/calendar',

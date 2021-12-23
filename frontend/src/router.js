@@ -14,7 +14,6 @@ const ProfileSettingsPage = () =>
 const EmailSettingsPage = () => import('@/pages/settings/EmailSettingsPage.vue')
 const PasswordChangePage = () =>
   import('@/pages/settings/PasswordChangePage.vue')
-const BookAddPage = () => import('@/pages/BookAddPage.vue')
 const BookDetailPage = () => import('@/pages/BookDetailPage.vue')
 const StatusLog = () => import('@/components/StatusLog.vue')
 const NoteList = () => import('@/components/NoteList.vue')
@@ -58,12 +57,6 @@ const router = new VueRouter({
           meta: { title: '本の詳細', isShowMenuButton: false, noScroll: true },
         },
       ],
-    },
-    {
-      path: '/book/add',
-      name: 'book_add',
-      component: BookAddPage,
-      meta: { title: '本の追加', requiresAuth: true, isShowMenuButton: true },
     },
     {
       path: '/calendar',
