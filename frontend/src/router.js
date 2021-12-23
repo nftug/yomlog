@@ -152,8 +152,8 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   const isLoggedIn = store.state.auth.isLoggedIn
   const token = localStorage.getItem('access')
-  console.log('to.path=', to.path)
-  console.log('isLoggedIn=', isLoggedIn)
+  // console.log('to.path=', to.path)
+  // console.log('isLoggedIn=', isLoggedIn)
 
   // エラーなし→通知をクリア
   if (!store.state.message.error) {
@@ -162,14 +162,14 @@ router.beforeEach((to, from, next) => {
 
   if (!isLoggedIn) {
     // 未ログイン時→ユーザー情報取得を試行
-    console.log('User is not logged in.')
+    // console.log('User is not logged in.')
     if (token != null) {
       // 認証用トークンが残っていればユーザー情報を再取得
-      console.log('Trying to reload user info.')
+      // console.log('Trying to reload user info.')
       store
         .dispatch('auth/reload')
         .then(() => {
-          console.log('Succeeded to reload.')
+          // console.log('Succeeded to reload.')
           goNextOrHome(to, next)
         })
         .catch(() => {
@@ -192,10 +192,10 @@ function goNextOrHome(to, next) {
     isLoggedIn &&
     to.matched.some((element) => element.meta.requiresNotAuth)
   ) {
-    console.log('Force to Home page.')
+    // console.log('Force to Home page.')
     next('/')
   } else {
-    console.log('Go to next page.')
+    // console.log('Go to next page.')
     next()
   }
 }
@@ -203,14 +203,14 @@ function goNextOrHome(to, next) {
 function goLoginOrPublic(to, next) {
   // requiresAuthがtrueなら、ログイン画面へ遷移
   if (to.matched.some((element) => element.meta.requiresAuth)) {
-    console.log('Force to Login page.')
+    // console.log('Force to Login page.')
     next({
       path: '/login/',
       query: { next: to.fullPath },
     })
   } else {
     // ログインが不要であればそのまま次へ
-    console.log('Go to public page.')
+    // console.log('Go to public page.')
     next()
   }
 }

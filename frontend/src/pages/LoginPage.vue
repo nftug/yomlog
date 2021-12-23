@@ -87,7 +87,7 @@ export default {
         return
       }
 
-      console.log('Login succeeded.')
+      // console.log('Login succeeded.')
       // クエリ文字列にnextがなければホーム画面へ
       const next = this.$route.query.next || '/'
       this.$router.replace(next)

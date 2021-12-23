@@ -22,7 +22,15 @@ const api = axios.create({
       [401, 429],
       [500, 599],
     ],
-    httpMethodsToRetry: ['GET'],
+    httpMethodsToRetry: [
+      'GET',
+      'HEAD',
+      'OPTIONS',
+      'DELETE',
+      'PUT',
+      'PATCH',
+      'POST',
+    ],
     onRetryAttempt: async (error) => {
       const status = error.response ? error.response.status : 500
 
@@ -60,12 +68,10 @@ rax.attach(api)
 api.interceptors.request.use(
   (config) => {
     // 認証用トークンがあればリクエストヘッダに加える
-    let token = localStorage.getItem('access')
-
+    const token = localStorage.getItem('access')
     if (token) {
       config.headers.Authorization = 'JWT ' + token
     }
-
     return config
   },
   (error) => {
@@ -76,7 +82,6 @@ api.interceptors.request.use(
 // 共通エラー処理
 api.interceptors.response.use(
   (response) => {
-    console.log(response.config.headers.Authorization)
     return response
   },
   (error) => {

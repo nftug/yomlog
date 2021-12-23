@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import api from '@/services/api'
+import router from './router'
 
 Vue.use(Vuex)
 
@@ -42,19 +43,16 @@ const authModule = {
     // ログイン
     async login({ dispatch }, { email, password }) {
       const { data } = await api.post('/auth/jwt/create/', { email, password })
-      // 認証用トークンとリフレッシュトークンをlocalStorageに保存
       localStorage.setItem('access', data.access)
       localStorage.setItem('refresh', data.refresh)
-      // ユーザー情報を取得してstoreのユーザー情報を更新
       return dispatch('reload')
     },
     // ログアウト
     logout({ commit }) {
-      // 認証用トークンとリフレッシュトークンをlocalStorageから削除
       localStorage.removeItem('access')
       localStorage.removeItem('refresh')
-      // storeのユーザー情報をクリア
       commit('clear')
+      router.push('/login')
     },
     // ユーザー情報更新
     async reload({ commit }) {

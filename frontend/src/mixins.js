@@ -361,7 +361,6 @@ export default {
     logout: function () {
       // Data clear
       this.$store.dispatch('auth/logout')
-      this.$router.push('/login/')
       this.$store.dispatch('message/setInfoMessage', {
         message: 'ログアウトしました。',
       })
