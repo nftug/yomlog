@@ -4,6 +4,11 @@ import api from '@/services/api'
 import router from './router'
 import axios from 'axios'
 
+// CSRFトークンの送信設定
+axios.defaults.xsrfCookieName = 'csrftoken'
+axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+axios.defaults.baseURL = process.env.VUE_APP_ROOT_API
+
 Vue.use(Vuex)
 
 // 認証情報モジュール
@@ -72,7 +77,6 @@ const authModule = {
       const refresh = localStorage.getItem('refresh')
 
       try {
-        axios.defaults.baseURL = process.env.VUE_APP_ROOT_API
         const { data } = await axios.post('/auth/jwt/refresh/', { refresh })
         localStorage.setItem('access', data.access)
         localStorage.setItem('refresh', refresh)
