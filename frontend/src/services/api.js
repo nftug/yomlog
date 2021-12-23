@@ -43,6 +43,8 @@ const api = axios.create({
             }
             // リトライ
             config.headers.Authorization = 'JWT ' + access
+            // NOTE: なぜリトライ後にここで設定したconfigが生きているのか？
+            return true
           } catch (error) {
             return Promise.reject(error)
           }
@@ -64,8 +66,6 @@ api.interceptors.request.use(
       config.headers.Authorization = 'JWT ' + token
     }
 
-    console.log(config.headers.Authorization)
-
     return config
   },
   (error) => {
@@ -76,6 +76,7 @@ api.interceptors.request.use(
 // 共通エラー処理
 api.interceptors.response.use(
   (response) => {
+    console.log(response.config.headers.Authorization)
     return response
   },
   (error) => {
