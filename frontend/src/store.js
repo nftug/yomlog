@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import api from '@/services/api'
 import router from './router'
+import axios from 'axios'
 
 Vue.use(Vuex)
 
@@ -69,12 +70,16 @@ const authModule = {
     async refresh() {
       localStorage.removeItem('access')
       const refresh = localStorage.getItem('refresh')
-      localStorage.removeItem('refresh')
 
-      const { data } = await api.post('/auth/jwt/refresh/', { refresh })
-      localStorage.setItem('access', data.access)
-      localStorage.setItem('refresh', refresh)
-      return data.access
+      try {
+        axios.defaults.baseURL = process.env.VUE_APP_ROOT_API
+        const { data } = await axios.post('/auth/jwt/refresh/', { refresh })
+        localStorage.setItem('access', data.access)
+        localStorage.setItem('refresh', refresh)
+        return data.access
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
   },
 }

@@ -37,8 +37,7 @@ const api = axios.create({
 
       if (status === 401 && error.response.data.code === 'token_not_valid') {
         // 認証エラー
-        const refresh = localStorage.getItem('refresh')
-        if (refresh) {
+        try {
           // トークンのリフレッシュ
           console.log('Access token expired. Trying to refresh...')
           const access = await store.dispatch('auth/refresh')
@@ -49,8 +48,8 @@ const api = axios.create({
           // NOTE: なぜリトライ後にここで設定したconfigが生きているのか？
           // (configはtryスコープ内にあるのに、上の記述だけでヘッダーの更新が成功してしまう)
           return true
-        } else {
-          console.log('Invalid token')
+        } catch (error) {
+          console.log('Refresh token expired.')
           return Promise.reject(error)
         }
       }
