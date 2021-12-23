@@ -48,11 +48,16 @@ const authModule = {
       return dispatch('reload')
     },
     // ログアウト
-    logout({ commit }) {
-      localStorage.removeItem('access')
-      localStorage.removeItem('refresh')
-      commit('clear')
-      router.push('/login')
+    logout({ commit }, { next = null } = {}) {
+      if (router.history.current.name !== 'login') {
+        localStorage.removeItem('access')
+        localStorage.removeItem('refresh')
+        commit('clear')
+
+        const query = {}
+        if (next) query.next = next
+        router.push({ name: 'login', query })
+      }
     },
     // ユーザー情報更新
     async reload({ commit }) {
@@ -64,13 +69,12 @@ const authModule = {
     async refresh() {
       localStorage.removeItem('access')
       const refresh = localStorage.getItem('refresh')
+      localStorage.removeItem('refresh')
 
-      if (refresh !== null) {
-        const { data } = await api.post('/auth/jwt/refresh', { refresh })
-        localStorage.setItem('access', data.access)
-        localStorage.setItem('refresh', refresh)
-        return data.access
-      }
+      const { data } = await api.post('/auth/jwt/refresh/', { refresh })
+      localStorage.setItem('access', data.access)
+      localStorage.setItem('refresh', refresh)
+      return data.access
     },
   },
 }

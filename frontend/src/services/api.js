@@ -1,6 +1,7 @@
 import axios from 'axios'
 import * as rax from 'retry-axios'
 import store from '@/store'
+import router from '@/router'
 
 // CSRFトークンの送信設定
 axios.defaults.xsrfCookieName = 'csrftoken'
@@ -34,29 +35,23 @@ const api = axios.create({
     onRetryAttempt: async (error) => {
       const status = error.response ? error.response.status : 500
 
-      if (status === 401) {
+      if (status === 401 && error.response.data.code === 'token_not_valid') {
         // 認証エラー
         const refresh = localStorage.getItem('refresh')
-        if (error.response.data.code === 'token_not_valid' && refresh != null) {
+        if (refresh) {
           // トークンのリフレッシュ
           console.log('Access token expired. Trying to refresh...')
-
-          try {
-            const access = await store.dispatch('auth/refresh')
-            console.log('Refresh succeeded. Retrying to request...')
-            // JSON文字列を正しいオブジェクト型に再整形
-            const config = { ...error.config }
-            if (typeof config.data === 'string') {
-              config.data = JSON.parse(config.data)
-            }
-            // ヘッダー更新 (?)
-            config.headers.Authorization = 'JWT ' + access
-            // NOTE: なぜリトライ後にここで設定したconfigが生きているのか？
-            // (configはtryスコープ内にあるのに、上の記述だけでヘッダーの更新が成功してしまう)
-            return true
-          } catch (error) {
-            return Promise.reject(error)
-          }
+          const access = await store.dispatch('auth/refresh')
+          console.log('Refresh succeeded. Retrying to request...')
+          const config = { ...error.config }
+          // ヘッダー更新 (?)
+          config.headers.Authorization = 'JWT ' + access
+          // NOTE: なぜリトライ後にここで設定したconfigが生きているのか？
+          // (configはtryスコープ内にあるのに、上の記述だけでヘッダーの更新が成功してしまう)
+          return true
+        } else {
+          console.log('Invalid token')
+          return Promise.reject(error)
         }
       }
     },
@@ -97,7 +92,9 @@ api.interceptors.response.use(
     } else {
       if (status === 401) {
         if (error.response.data.code === 'token_not_valid') {
-          store.dispatch('auth/logout')
+          store.dispatch('auth/logout', {
+            next: router.history.current.fullPath,
+          })
           message = 'ログインの期限切れです。'
         } else {
           message = '認証エラーです。'
@@ -109,7 +106,7 @@ api.interceptors.response.use(
         // その他のエラー
         message = error.response.data.detail
       }
-      store.dispatch('message/setErrorMessage', { message: message })
+      store.dispatch('message/setErrorMessage', { message })
       return Promise.reject(error)
     }
   }
