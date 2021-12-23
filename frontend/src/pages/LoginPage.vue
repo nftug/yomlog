@@ -68,34 +68,33 @@ export default {
   }),
   methods: {
     // ログインボタン押下
-    submitLogin: function () {
+    async submitLogin() {
       // ログイン実行
-      this.$store
-        .dispatch('auth/login', {
+      try {
+        await this.$store.dispatch('auth/login', {
           email: this.formLogin.email.value,
           password: this.formLogin.password.value,
         })
-        .then(() => {
-          console.log('Login succeeded.')
-          // クエリ文字列にnextがなければホーム画面へ
-          const next = this.$route.query.next || '/'
-          this.$router.replace(next)
-          this.$store.commit('message/clear')
-          this.$store.dispatch('message/setInfoMessage', {
-            message: 'ログインしました',
+      } catch ({ response }) {
+        const data = response.data
+        if (response.status === 400) {
+          Object.keys(data).forEach((key) => {
+            this.formLogin[key].warnings = data[key]
           })
-        })
-        .catch((error) => {
-          let data = error.response.data
-          if (error.response.status === 400) {
-            Object.keys(data).forEach((key) => {
-              this.formLogin[key].warnings = data[key]
-            })
-          } else {
-            this.formLogin.email.value = ''
-            this.$refs.email.focus()
-          }
-        })
+        } else {
+          this.$refs.email.focus()
+        }
+        return
+      }
+
+      console.log('Login succeeded.')
+      // クエリ文字列にnextがなければホーム画面へ
+      const next = this.$route.query.next || '/'
+      this.$router.replace(next)
+      this.$store.commit('message/clear')
+      this.$store.dispatch('message/setInfoMessage', {
+        message: 'ログインしました',
+      })
     },
   },
 }
