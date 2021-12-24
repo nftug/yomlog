@@ -22,7 +22,7 @@
               {{ q }}
             </v-chip>
 
-            <SearchDialog type="book" hash="book-search">
+            <SearchDialog type="book" hash="search-book">
               <template #activator="{ on, attrs }">
                 <v-btn small class="ma-1" icon v-on="on" v-bind="attrs">
                   <v-icon>mdi-plus</v-icon>

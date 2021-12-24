@@ -58,11 +58,7 @@
       type="book"
       @delete="onDeleteBook(item)"
     ></ItemDeleteDialog>
-    <StatusAddDialog
-      ref="statusAdd"
-      @post="onAddStatus"
-      hash="add-status"
-    ></StatusAddDialog>
+    <StatusAddDialog ref="statusAdd" @post="onAddStatus"></StatusAddDialog>
     <NoteAddDialog ref="noteAdd" @post="onAddNote"></NoteAddDialog>
   </v-row>
 </template>

@@ -60,6 +60,7 @@
 
     <!-- Right (not authed) -->
     <template v-else-if="$route.name === 'login' || $route.name === 'signup'">
+      <v-spacer></v-spacer>
       <v-btn to="/login" :icon="isLessThanLg" :text="!isLessThanLg">
         <v-icon class="hidden-lg-and-up">mdi-login</v-icon>
         <span class="hidden-md-and-down">Login</span>

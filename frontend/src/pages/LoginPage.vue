@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div class="col-xl-3 col-lg-5 col-md-6 col-sm-10 mx-auto">
-      <v-card class="pa-sm-5 pa-2">
+      <v-card class="pa-sm-5 pa-2" outlined>
         <v-form
           v-model="formLogin.valid"
           @submit.prevent="submitLogin()"
