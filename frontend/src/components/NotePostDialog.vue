@@ -3,8 +3,8 @@
     ref="dialogNoteAdd"
     max-width="600"
     :fullscreen="isLessThanMd"
+    :hide-overlay="isLessThanMd"
     no-template
-    hide-overlay
     transition="dialog-bottom-transition"
     :form-valid="isValid"
   >

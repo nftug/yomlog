@@ -1,12 +1,5 @@
 <template>
-  <v-dialog
-    v-model="dialog"
-    :max-width="maxWidth"
-    :fullscreen="fullscreen"
-    :hide-overlay="hideOverlay"
-    :transition="transition"
-    :scrollable="scrollable"
-  >
+  <v-dialog v-model="dialog" v-bind="$attrs" :max-width="maxWidth">
     <template #activator="{ on, attrs }">
       <slot name="activator" :on="on" :attrs="attrs"></slot>
     </template>
@@ -90,18 +83,6 @@ export default {
     formValid: {
       type: Boolean,
       default: true,
-    },
-    fullscreen: {
-      type: Boolean,
-    },
-    hideOverlay: {
-      type: Boolean,
-    },
-    transition: {
-      type: String,
-    },
-    scrollable: {
-      type: Boolean,
     },
     noTemplate: {
       type: Boolean,

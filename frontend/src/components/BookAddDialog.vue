@@ -4,8 +4,8 @@
     title="書籍の追加"
     max-width="75vw"
     :fullscreen="isLessThanMd"
+    :hide-overlay="isLessThanMd"
     no-template
-    hide-overlay
     scrollable
     transition="dialog-bottom-transition"
     hash="add-book"

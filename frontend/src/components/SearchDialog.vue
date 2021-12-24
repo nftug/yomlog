@@ -242,7 +242,11 @@ export default {
         to.params = { id: this.$route.params.id }
       }
 
-      this.$router.replace({ ...to, query })
+      if (this.hash) {
+        this.$router.replace({ ...to, query })
+      } else {
+        this.$router.push({ ...to, query })
+      }
     },
   },
 }
