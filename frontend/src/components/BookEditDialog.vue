@@ -4,6 +4,7 @@
     title="書籍情報の入力"
     :max-width="400"
     :form-valid="isValid"
+    :hash="hash"
   >
     <p>本の情報を入力してください。</p>
 
@@ -44,6 +45,9 @@ export default {
   mixins: [FormRulesMixin],
   components: {
     Dialog,
+  },
+  props: {
+    hash: String,
   },
   data: () => ({
     isValid: false,

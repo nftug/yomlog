@@ -8,7 +8,7 @@
     hide-overlay
     scrollable
     transition="dialog-bottom-transition"
-    hash="book-add"
+    hash="add-book"
   >
     <template #activator="{ attrs }">
       <slot

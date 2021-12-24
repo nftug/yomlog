@@ -1,5 +1,10 @@
 <template>
-  <Dialog ref="dialogStatusAdd" title="進捗状況の入力" :max-width="350">
+  <Dialog
+    ref="dialogStatusAdd"
+    title="進捗状況の入力"
+    :max-width="350"
+    :hash="hash"
+  >
     <v-form ref="formStatusAdd" v-model="isValid" @submit.prevent>
       <v-text-field
         v-model="position"
@@ -44,6 +49,9 @@ import Dialog from '@/components/Dialog.vue'
 import { BookListMixin } from '@/mixins'
 
 export default {
+  props: {
+    hash: String,
+  },
   components: {
     Dialog,
   },
@@ -80,6 +88,14 @@ export default {
   },
   methods: {
     showStatusPostDialog({ book, id }) {
+      this.onMount({ book, id })
+
+      // ダイアログを表示
+      this.$refs.dialogStatusAdd.showDialog()
+    },
+    onMount({ book, id }) {
+      // TODO: propsでbookとidを指定できるようにする + onMountメソッドのバインディング
+
       // バリデーションをリセット
       if (this.$refs.formStatusAdd) {
         this.$refs.formStatusAdd.resetValidation()
@@ -105,9 +121,6 @@ export default {
       // デフォルト値を保存
       this.defaultValues.position = this.position
       this.defaultValues.to_be_read = this.to_be_read
-
-      // ダイアログを表示
-      this.$refs.dialogStatusAdd.showDialog()
     },
     postStatus() {
       let params = { position: this.to_be_read ? 0 : this.position }
