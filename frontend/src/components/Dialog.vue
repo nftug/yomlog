@@ -118,6 +118,7 @@ export default {
   },
   data: () => ({
     dialog: false,
+    to: null,
   }),
   watch: {
     $route() {
@@ -139,7 +140,7 @@ export default {
       if (this.hash) {
         if (newVal && !hasRouteHash) {
           this.$router.push(`#${this.hash}`)
-        } else if (!newVal && hasRouteHash) {
+        } else if (!newVal && hasRouteHash && !this.to) {
           this.$router.back()
         }
       }
@@ -149,6 +150,7 @@ export default {
     if (this.hash && this.$route.hash === `#${this.hash}`) {
       this.dialog = true
     }
+    this.to = null
   },
   methods: {
     showDialog() {
@@ -162,7 +164,11 @@ export default {
         })
       }
     },
-    hideDialog() {
+    hideDialog({ to = null } = {}) {
+      if (to) {
+        this.to = to
+        this.$router.push(to)
+      }
       this.dialog = false
     },
     handleAnswer(val) {

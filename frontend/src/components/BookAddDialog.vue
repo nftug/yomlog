@@ -24,10 +24,8 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
         <v-toolbar-title style="cursor: pointer" @click="scrollToTop">
-          {{ ref }}
           {{ title }}
         </v-toolbar-title>
-        <v-spacer></v-spacer>
         <v-spacer></v-spacer>
         <v-col cols="5">
           <v-text-field
@@ -286,10 +284,12 @@ export default {
       })
 
       // 書籍の詳細ページに遷移
-      this.$router.replace({
-        name: 'book_detail',
-        params: {
-          id: data.id,
+      this.$refs.dialogBookAdd.hideDialog({
+        to: {
+          name: 'book_detail',
+          params: {
+            id: data.id,
+          },
         },
       })
 
@@ -302,8 +302,6 @@ export default {
           message: 'この本は既に登録されています。',
         })
       }
-
-      this.$refs.dialogBookAdd.hideDialog()
     },
     showPagesDialog() {
       if (this.$refs.formPages) {

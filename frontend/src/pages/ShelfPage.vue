@@ -145,7 +145,7 @@
     <ItemDeleteDialog
       ref="bookDelete"
       type="book"
-      @delete-book="handleReload"
+      @delete="handleReload"
     ></ItemDeleteDialog>
 
     <BookAddDialog ref="bookAdd">
