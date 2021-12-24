@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    v-model="isShowDialog"
+    v-model="dialog"
     :max-width="maxWidth"
     :fullscreen="fullscreen"
     :hide-overlay="hideOverlay"
@@ -112,39 +112,58 @@ export default {
     noTemplate: {
       type: Boolean,
     },
+    hash: {
+      type: String,
+    },
   },
   data: () => ({
-    isShowDialog: false,
+    dialog: false,
   }),
   watch: {
     $route() {
-      this.isShowDialog = false
+      if (!this.hash) {
+        this.dialog = false
+      }
+    },
+    '$route.hash'(newHash, oldHash) {
+      if (newHash === `#${this.hash}`) {
+        this.dialog = true
+      } else if (oldHash === `#${this.hash}`) {
+        this.dialog = false
+      }
+    },
+    dialog(newVal) {
+      if (this.hash) {
+        if (newVal && this.$route.hash !== `#${this.hash}`) {
+          this.$router.push(`#${this.hash}`)
+        }
+      }
     },
   },
   methods: {
     showDialog() {
-      this.isShowDialog = true
+      this.dialog = true
       if (!this.ok) {
         return new Promise((resolve) => {
           this.$once('answeredDialog', (value) => {
-            if (!this.ok) this.isShowDialog = false
+            if (!this.ok) this.dialog = false
             resolve(value)
           })
         })
       }
     },
     hideDialog() {
-      this.isShowDialog = false
+      this.dialog = false
     },
     handleAnswer(val) {
       if (this.ok) {
         if (val) {
           this.ok()
         } else {
-          this.isShowDialog = false
+          this.dialog = false
         }
       } else {
-        if (!val) this.isShowDialog = false
+        if (!val) this.dialog = false
         this.$emit('answeredDialog', val)
       }
     },
