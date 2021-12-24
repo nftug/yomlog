@@ -19,7 +19,7 @@
     </template>
 
     <!-- Title -->
-    <template v-if="!isShowSearch || !isLessThanLg">
+    <template v-if="!isShowSearch || !isLessThanSm">
       <v-toolbar-title style="cursor: pointer">
         <div class="hidden-lg-and-up">
           {{ $route.meta.title }}
@@ -28,30 +28,32 @@
           {{ appName }}
         </router-link>
       </v-toolbar-title>
-
-      <v-spacer></v-spacer>
     </template>
 
     <!-- Right -->
     <template v-if="isLoggedIn">
-      <v-expand-x-transition>
-        <v-text-field
-          ref="search"
-          v-model="searchValue"
-          clearable
-          flat
-          placeholder="検索"
-          type="search"
-          prepend-inner-icon="mdi-magnify"
-          solo-inverted
-          single-line
-          hide-details
-          v-show="isShowSearch"
-          @blur="isShowSearch = false"
-          @keydown.enter="handleSearch"
-        ></v-text-field>
-      </v-expand-x-transition>
-      <v-btn icon v-if="!isShowSearch" @click="showSearchBar">
+      <v-row justify-content="end">
+        <v-spacer></v-spacer>
+        <v-col sm="7" md="5" cols="12">
+          <v-text-field
+            ref="search"
+            name="search"
+            v-model="searchValue"
+            clearable
+            flat
+            placeholder="検索"
+            type="search"
+            prepend-inner-icon="mdi-magnify"
+            solo-inverted
+            single-line
+            hide-details
+            v-show="isShowSearch || !isLessThanSm"
+            @blur="isShowSearch = false"
+            @keydown.enter="handleSearch"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-btn icon v-if="!isShowSearch && isLessThanSm" @click="showSearchBar">
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
     </template>
