@@ -153,12 +153,6 @@ export default {
       pagesRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
     },
   }),
-  created() {
-    this.$router.app.$on('search', this.handleSearch)
-  },
-  beforeDestroy() {
-    this.$router.app.$off('search', this.handleSearch)
-  },
   methods: {
     showBookAddDialog() {
       this.searchValue = ''
@@ -312,10 +306,6 @@ export default {
       // VueScrollTo.scrollTo('#app')
       const element = document.getElementById('book-add-content')
       element.scrollTop = 0
-    },
-    handleSearch(searchValue) {
-      this.searchValue = searchValue
-      this.resetInfinite()
     },
   },
 }
