@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <div class="col-sm-10 mx-auto">
+    <v-col sm="10" class="mx-auto">
       <!-- 件数 -->
       <div class="pb-4">
         <v-card class="mx-auto text-body-2" outlined>
@@ -137,7 +137,7 @@
           </v-col>
         </v-row>
       </template>
-    </div>
+    </v-col>
 
     <!-- ダイアログ -->
     <StatusAddDialog ref="statusAdd" @post="handleReload"></StatusAddDialog>
@@ -148,11 +148,11 @@
       @delete-book="handleReload"
     ></ItemDeleteDialog>
 
-    <BookAdd ref="bookAdd">
+    <BookAddDialog ref="bookAdd">
       <template #activator="{ on, attrs }">
         <Fab icon="mdi-book-plus" v-on="on" v-bind="attrs"></Fab>
       </template>
-    </BookAdd>
+    </BookAddDialog>
   </v-container>
 </template>
 
@@ -169,7 +169,7 @@ import NoteAddDialog from '@/components/NotePostDialog.vue'
 import SearchDialog from '@/components/SearchDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import Spinner from '@/components/Spinner.vue'
-import BookAdd from '@/pages/BookAddPage.vue'
+import BookAddDialog from '@/components/BookAddDialog.vue'
 import Fab from '@/components/Fab.vue'
 
 export default {
@@ -181,7 +181,7 @@ export default {
     NoteAddDialog,
     SearchDialog,
     Spinner,
-    BookAdd,
+    BookAddDialog,
     Fab,
   },
   data() {
