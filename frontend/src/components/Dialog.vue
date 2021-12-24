@@ -13,35 +13,13 @@
 
     <v-card tile>
       <!-- フルスクリーンダイアログ -->
-      <template v-if="fullscreen">
+      <template v-if="noTemplate">
         <slot
-          name="toolbar"
+          name="default"
           :title="title"
           :ok="handleAnswer.bind(null, true)"
           :cancel="handleAnswer.bind(null, false)"
-        >
-          <v-toolbar flat dark color="primary">
-            <v-btn icon dark @click="handleAnswer(false)">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-            <v-toolbar-title>{{ title }}</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-btn
-                dark
-                icon
-                @click="handleAnswer(true)"
-                :disabled="!formValid"
-              >
-                <v-icon>mdi-content-save</v-icon>
-              </v-btn>
-            </v-toolbar-items>
-          </v-toolbar>
-        </slot>
-
-        <slot name="default" :message="message">
-          <p>{{ message }}</p>
-        </slot>
+        ></slot>
       </template>
 
       <!-- 通常のダイアログ -->
@@ -98,7 +76,7 @@ export default {
       type: String,
     },
     maxWidth: {
-      type: Number,
+      type: [String, Number],
       default: 350,
     },
     labelOk: {
@@ -129,6 +107,9 @@ export default {
       type: [String, Number],
     },
     scrollable: {
+      type: Boolean,
+    },
+    noTemplate: {
       type: Boolean,
     },
   },

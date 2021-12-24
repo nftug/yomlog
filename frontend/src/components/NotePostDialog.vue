@@ -1,12 +1,14 @@
 <template>
   <Dialog
     ref="dialogNoteAdd"
-    fullscreen
+    max-width="600"
+    :fullscreen="isLessThanMd"
+    no-template
     hide-overlay
     transition="dialog-bottom-transition"
     :form-valid="isValid"
   >
-    <template #toolbar="{ ok, cancel }">
+    <template #default="{ ok, cancel }">
       <v-toolbar dark color="primary">
         <v-btn icon dark @click="cancel">
           <v-icon>mdi-close</v-icon>
@@ -37,60 +39,63 @@
           </v-tabs>
         </template>
       </v-toolbar>
+
+      <Spinner size="100" v-if="isSending" />
+
+      <v-form v-else ref="formNoteAdd" v-model="isValid" @submit.prevent>
+        <v-card-text>
+          <v-container>
+            <v-tabs-items v-model="tab">
+              <v-tab-item class="mt-3">
+                <v-text-field
+                  v-model="position"
+                  :label="!format_type ? 'ページ数' : '位置No'"
+                  type="number"
+                  min="0"
+                  :max="total"
+                  :suffix="` / ${total}`"
+                  :rules="positionRules"
+                ></v-text-field>
+
+                <v-textarea
+                  v-model="content"
+                  outlined
+                  label="ノートの内容"
+                  rows="8"
+                  :rules="contentRules"
+                ></v-textarea>
+              </v-tab-item>
+
+              <v-tab-item class="mt-3">
+                <v-textarea
+                  v-model="quoteText"
+                  outlined
+                  label="引用内容 (テキスト)"
+                  rows="8"
+                ></v-textarea>
+
+                <v-file-input
+                  v-model="quoteImage"
+                  label="引用内容 (画像)"
+                  ref="quote_image"
+                  accept="image/*"
+                  @change="inputQuoteImage($event)"
+                ></v-file-input>
+
+                <div v-show="prevSrc" class="mb-4 mx-4">
+                  <v-img :src="prevSrc" alt="" width="150" />
+                  <v-btn text small color="primary" @click="clearQuoteImage">
+                    クリア
+                  </v-btn>
+                </div>
+              </v-tab-item>
+            </v-tabs-items>
+          </v-container>
+        </v-card-text>
+      </v-form>
+
+      <ItemDeleteDialog ref="noteDelete" type="note"></ItemDeleteDialog>
     </template>
-
-    <Spinner size="100" v-if="isSending" />
-
-    <v-form v-else ref="formNoteAdd" v-model="isValid" @submit.prevent>
-      <v-col cols="11" lg="5" md="6" sm="10" class="mx-auto mt-5">
-        <v-tabs-items v-model="tab">
-          <v-tab-item class="mt-3">
-            <v-text-field
-              v-model="position"
-              :label="!format_type ? 'ページ数' : '位置No'"
-              type="number"
-              min="0"
-              :max="total"
-              :suffix="` / ${total}`"
-              :rules="positionRules"
-            ></v-text-field>
-
-            <v-textarea
-              v-model="content"
-              outlined
-              label="ノートの内容"
-              rows="8"
-              :rules="contentRules"
-            ></v-textarea>
-          </v-tab-item>
-
-          <v-tab-item class="mt-3">
-            <v-textarea
-              v-model="quoteText"
-              outlined
-              label="引用内容 (テキスト)"
-            ></v-textarea>
-
-            <v-file-input
-              v-model="quoteImage"
-              label="引用内容 (画像)"
-              ref="quote_image"
-              accept="image/*"
-              @change="inputQuoteImage($event)"
-            ></v-file-input>
-
-            <div v-show="prevSrc" class="mb-4 mx-4">
-              <v-img :src="prevSrc" alt="" width="150" />
-              <v-btn text small color="primary" @click="clearQuoteImage">
-                クリア
-              </v-btn>
-            </div>
-          </v-tab-item>
-        </v-tabs-items>
-      </v-col>
-    </v-form>
-
-    <ItemDeleteDialog ref="noteDelete" type="note"></ItemDeleteDialog>
   </Dialog>
 </template>
 
@@ -99,10 +104,10 @@ import api from '@/services/api'
 import Dialog from '@/components/Dialog.vue'
 import Spinner from '@/components/Spinner.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
-import { BookListMixin } from '@/mixins'
+import { BookListMixin, WindowResizeMixin } from '@/mixins'
 
 export default {
-  mixins: [BookListMixin],
+  mixins: [BookListMixin, WindowResizeMixin],
   components: {
     Dialog,
     Spinner,

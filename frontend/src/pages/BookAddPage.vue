@@ -3,8 +3,9 @@
     <Dialog
       ref="dialogBookAdd"
       title="書籍の追加"
-      :max-width="600"
-      fullscreen
+      max-width="75vw"
+      :fullscreen="isLessThanMd"
+      no-template
       hide-overlay
       scrollable
       transition="dialog-bottom-transition"
@@ -17,7 +18,7 @@
         ></slot>
       </template>
 
-      <template #toolbar="{ title, cancel }">
+      <template #default="{ title, cancel }">
         <v-toolbar flat dark color="primary">
           <v-btn icon dark @click="cancel">
             <v-icon>mdi-close</v-icon>
@@ -26,62 +27,62 @@
             {{ title }}
           </v-toolbar-title>
         </v-toolbar>
-      </template>
 
-      <!-- 検索 -->
-      <v-container>
-        <v-text-field
-          v-model="searchValue"
-          @keydown.enter="resetInfinite"
-          autofocus
-        ></v-text-field>
-      </v-container>
-
-      <v-card-text style="height: 100vh" id="book-add-content">
+        <!-- 検索 -->
         <v-container>
-          <!-- 検索結果リスト -->
-          <BookList :items="items" :loading="true">
-            <template #content="{ item }">
-              <v-list-item>
-                <v-btn color="green" dark block @click="addBook(item, 0)">
-                  本を登録
-                </v-btn>
-              </v-list-item>
-              <v-list-item>
-                <v-btn color="orange" dark block @click="addBook(item, 1)">
-                  Kindle本を登録
-                </v-btn>
-              </v-list-item>
-            </template>
-          </BookList>
-
-          <!-- Infinite Loading -->
-          <infinite-loading
-            v-if="infiniteId"
-            @infinite="infiniteHandler"
-            :identifier="infiniteId"
-          >
-            <div slot="no-more" class="py-4 text-body-2">
-              これ以上データはありません
-            </div>
-            <div slot="no-results" class="py-4 text-body-2">
-              データが見つかりません
-            </div>
-            <div slot="spinner" class="py-4">
-              <Spinner></Spinner>
-            </div>
-          </infinite-loading>
-
-          <v-card v-else class="pa-5 text-center">
-            <h2>書籍の追加</h2>
-
-            <p class="mt-2 text-body-2">
-              検索アイコンをクリックして、追加する書籍を検索してください
-            </p>
-          </v-card>
+          <v-text-field
+            v-model="searchValue"
+            @keydown.enter="resetInfinite"
+            autofocus
+          ></v-text-field>
         </v-container>
-        <div style="flex: 1 1 auto"></div>
-      </v-card-text>
+
+        <v-card-text style="height: 100vh" id="book-add-content">
+          <v-container>
+            <!-- 検索結果リスト -->
+            <BookList :items="items" :loading="true">
+              <template #content="{ item }">
+                <v-list-item>
+                  <v-btn color="green" dark block @click="addBook(item, 0)">
+                    本を登録
+                  </v-btn>
+                </v-list-item>
+                <v-list-item>
+                  <v-btn color="orange" dark block @click="addBook(item, 1)">
+                    Kindle本を登録
+                  </v-btn>
+                </v-list-item>
+              </template>
+            </BookList>
+
+            <!-- Infinite Loading -->
+            <infinite-loading
+              v-if="infiniteId"
+              @infinite="infiniteHandler"
+              :identifier="infiniteId"
+            >
+              <div slot="no-more" class="py-4 text-body-2">
+                これ以上データはありません
+              </div>
+              <div slot="no-results" class="py-4 text-body-2">
+                データが見つかりません
+              </div>
+              <div slot="spinner" class="py-4">
+                <Spinner></Spinner>
+              </div>
+            </infinite-loading>
+
+            <v-card v-else class="pa-5 text-center">
+              <h2>書籍の追加</h2>
+
+              <p class="mt-2 text-body-2">
+                検索アイコンをクリックして、追加する書籍を検索してください
+              </p>
+            </v-card>
+          </v-container>
+          <div style="flex: 1 1 auto"></div>
+        </v-card-text>
+      </template>
     </Dialog>
 
     <!-- ページ数入力のダイアログ -->
@@ -117,14 +118,14 @@ import axios from 'axios'
 import Spinner from '@/components/Spinner.vue'
 import InfiniteLoading from 'vue-infinite-loading'
 import api from '@/services/api'
-import Mixin, { FormRulesMixin } from '@/mixins'
+import Mixin, { FormRulesMixin, WindowResizeMixin } from '@/mixins'
 import Dialog from '@/components/Dialog.vue'
 import BookList from '@/components/BookList.vue'
 import BookEditDialog from '@/components/BookEditDialog.vue'
 // import VueScrollTo from 'vue-scrollto'
 
 export default {
-  mixins: [Mixin, FormRulesMixin],
+  mixins: [Mixin, FormRulesMixin, WindowResizeMixin],
   components: {
     Spinner,
     InfiniteLoading,

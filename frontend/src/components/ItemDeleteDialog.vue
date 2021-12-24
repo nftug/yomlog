@@ -43,9 +43,9 @@ export default {
       try {
         if (Array.isArray(id)) {
           const promises = id.map((e) => this.deleteItem(e))
-          return Promise.all(promises)
+          return await Promise.all(promises)
         } else {
-          return this.deleteItem(id)
+          return await this.deleteItem(id)
         }
       } finally {
         this.$store.dispatch('message/setInfoMessage', {
