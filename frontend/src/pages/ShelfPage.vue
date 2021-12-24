@@ -22,7 +22,7 @@
               {{ q }}
             </v-chip>
 
-            <SearchDialog type="book">
+            <SearchDialog type="book" hash="book-search">
               <template #activator="{ on, attrs }">
                 <v-btn small class="ma-1" icon v-on="on" v-bind="attrs">
                   <v-icon>mdi-plus</v-icon>
@@ -193,7 +193,13 @@ export default {
   beforeRouteUpdate(to, from, next) {
     // ナビゲーションガード
     // routeがアップデートされるたびにモードを変更する
-    this.initPage({ isReload: true, route: to })
+    const isSameParams =
+      JSON.stringify(to.params) === JSON.stringify(from.params)
+    const isSameQuery = JSON.stringify(to.query) === JSON.stringify(from.query)
+
+    if (!(isSameParams && isSameQuery)) {
+      this.initPage({ isReload: true, route: to })
+    }
     next()
   },
   created() {

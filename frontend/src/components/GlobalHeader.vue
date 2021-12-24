@@ -34,7 +34,7 @@
     <template v-if="isLoggedIn">
       <v-row justify-content="end">
         <v-spacer></v-spacer>
-        <v-col sm="7" md="5" cols="12">
+        <v-col cols="12" sm="7" md="5" lg="4" xl="3">
           <v-text-field
             ref="search"
             name="search"

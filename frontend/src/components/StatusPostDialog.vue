@@ -1,11 +1,5 @@
 <template>
-  <Dialog
-    ref="dialogStatusAdd"
-    title="進捗状況の入力"
-    :max-width="350"
-    :ok="postStatus"
-    :form-valid="isValid"
-  >
+  <Dialog ref="dialogStatusAdd" title="進捗状況の入力" :max-width="350">
     <v-form ref="formStatusAdd" v-model="isValid" @submit.prevent>
       <v-text-field
         v-model="position"
@@ -28,6 +22,19 @@
         :rules="toBeReadRules"
       ></v-switch>
     </v-form>
+
+    <template #actions="{ cancel }">
+      <v-spacer></v-spacer>
+      <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
+      <v-btn
+        color="green darken-1"
+        text
+        @click="postStatus"
+        :disabled="!isValid"
+      >
+        {{ statusId ? '編集' : '追加' }}
+      </v-btn>
+    </template>
   </Dialog>
 </template>
 
@@ -105,6 +112,8 @@ export default {
     postStatus() {
       let params = { position: this.to_be_read ? 0 : this.position }
       let method, url
+
+      this.$refs.dialogStatusAdd.hideDialog(true)
 
       if (this.statusId) {
         method = 'patch'

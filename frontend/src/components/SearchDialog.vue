@@ -1,5 +1,11 @@
 <template>
-  <Dialog ref="dialogSearch" :title="title" :max-width="600" label-ok="検索">
+  <Dialog
+    ref="dialogSearch"
+    :title="title"
+    :max-width="600"
+    :hash="hash"
+    @mount="onMount"
+  >
     <template #activator="{ attrs }">
       <slot
         name="activator"
@@ -8,43 +14,47 @@
       ></slot>
     </template>
 
-    <template #default="{ ok }">
-      <p>指定した条件でAND/OR検索を行います。</p>
+    <p>指定した条件でAND/OR検索を行います。</p>
 
-      <v-select
-        v-if="type === 'book'"
-        label="モード"
-        :items="modes"
-        v-model="mode"
-        :dense="isLessThanSm"
-      ></v-select>
+    <v-select
+      v-if="type === 'book'"
+      label="モード"
+      :items="modes"
+      v-model="mode"
+      :dense="isLessThanSm"
+    ></v-select>
 
-      <div v-for="(field, index) in formSearch" :key="index">
-        <v-row :no-gutters="isLessThanSm">
-          <v-col sm="9" cols="12">
-            <v-text-field
-              v-model="field.value"
-              @keypress.enter="ok"
-              :label="field.label"
-              :autofocus="field.autofocus"
-              :maxlength="field.maxlength"
-              :dense="isLessThanSm"
-            ></v-text-field>
-          </v-col>
-          <v-col sm="3" cols="12">
-            <v-select
-              :items="andOrList"
-              v-model="field.or"
-              :dense="isLessThanSm"
-              :disabled="
-                index === formSearch.length - 1 ||
-                !field.value ||
-                !hasNextFilledField(index)
-              "
-            ></v-select>
-          </v-col>
-        </v-row>
-      </div>
+    <div v-for="(field, index) in formSearch" :key="index">
+      <v-row :no-gutters="isLessThanSm">
+        <v-col sm="9" cols="12">
+          <v-text-field
+            v-model="field.value"
+            @keypress.enter="doSearch"
+            :label="field.label"
+            :autofocus="field.autofocus"
+            :maxlength="field.maxlength"
+            :dense="isLessThanSm"
+          ></v-text-field>
+        </v-col>
+        <v-col sm="3" cols="12">
+          <v-select
+            :items="andOrList"
+            v-model="field.or"
+            :dense="isLessThanSm"
+            :disabled="
+              index === formSearch.length - 1 ||
+              !field.value ||
+              !hasNextFilledField(index)
+            "
+          ></v-select>
+        </v-col>
+      </v-row>
+    </div>
+
+    <template #actions="{ cancel }">
+      <v-spacer></v-spacer>
+      <v-btn color="green darken-1" text @click="cancel">キャンセル</v-btn>
+      <v-btn color="green darken-1" text @click="doSearch">検索</v-btn>
     </template>
   </Dialog>
 </template>
@@ -72,6 +82,9 @@ export default {
     title: {
       type: String,
       default: '検索条件の追加',
+    },
+    hash: {
+      type: String,
     },
   },
   data: () => ({
@@ -146,24 +159,27 @@ export default {
         or: false,
       },
     ],
+    formSearch: [{}],
   }),
-  computed: {
-    formSearch() {
-      if (this.type === 'book') {
-        return this.formSearchBook
-      } else if (this.type === 'note' && this.bookId) {
-        return this.formSearchBookNote
-      } else {
-        return [{}]
-      }
-    },
+  created() {
+    if (this.type === 'book') {
+      this.formSearch = this.formSearchBook
+    } else if (this.type === 'note' && this.bookId) {
+      this.formSearch = this.formSearchBookNote
+    } else {
+      this.formSearch = [{}]
+    }
   },
   methods: {
     hasNextFilledField(index) {
       const nextFields = this.formSearch.slice(index + 1)
       return nextFields.findIndex((e) => e.value) !== -1
     },
-    async showSearchDialog() {
+    showSearchDialog() {
+      this.onMount()
+      this.$refs.dialogSearch.showDialog()
+    },
+    onMount() {
       // フィールドのデフォルト値設定
       // 初期化: すべてのフィールドを初期値に戻す
       this.formSearch.forEach((e) => {
@@ -203,15 +219,9 @@ export default {
       })
 
       this.mode = this.$route.params.mode
-
-      if (!(await this.$refs.dialogSearch.showDialog())) return
-
-      this.doSearch()
     },
     doSearch() {
-      // this.$refs.dialogSearch.hideDialog()
-
-      let query = {}
+      const query = {}
       let or = false
       for (const field of this.formSearch) {
         const value = field.value
@@ -232,7 +242,7 @@ export default {
         to.params = { id: this.$route.params.id }
       }
 
-      this.$router.push({ ...to, query })
+      this.$router.replace({ ...to, query })
     },
   },
 }

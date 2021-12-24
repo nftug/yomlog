@@ -284,12 +284,10 @@ export default {
       })
 
       // 書籍の詳細ページに遷移
-      this.$refs.dialogBookAdd.hideDialog({
-        to: {
-          name: 'book_detail',
-          params: {
-            id: data.id,
-          },
+      this.$router.replace({
+        name: 'book_detail',
+        params: {
+          id: data.id,
         },
       })
 

@@ -91,9 +91,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    ok: {
-      type: Function,
-    },
     fullscreen: {
       type: Boolean,
     },
@@ -102,9 +99,6 @@ export default {
     },
     transition: {
       type: String,
-    },
-    height: {
-      type: [String, Number],
     },
     scrollable: {
       type: Boolean,
@@ -118,6 +112,7 @@ export default {
   },
   data: () => ({
     dialog: false,
+    answer: null,
     to: null,
   }),
   watch: {
@@ -139,8 +134,11 @@ export default {
       const hasRouteHash = this.$route.hash == `#${this.hash}`
       if (this.hash) {
         if (newVal && !hasRouteHash) {
-          this.$router.push(`#${this.hash}`)
-        } else if (!newVal && hasRouteHash && !this.to) {
+          this.$router.push({
+            ...this.$route,
+            hash: `#${this.hash}`,
+          })
+        } else if (!newVal && hasRouteHash && !this.answer) {
           this.$router.back()
         }
       }
@@ -152,36 +150,28 @@ export default {
     }
     this.to = null
   },
+  mounted() {
+    this.$emit('mount')
+  },
   methods: {
     showDialog() {
       this.dialog = true
-      if (!this.ok) {
-        return new Promise((resolve) => {
-          this.$once('answeredDialog', (value) => {
-            if (!this.ok) this.dialog = false
-            resolve(value)
-          })
+      return new Promise((resolve) => {
+        this.$once('answeredDialog', (value) => {
+          this.dialog = false
+          resolve(value)
         })
-      }
+      })
     },
-    hideDialog({ to = null } = {}) {
-      if (to) {
-        this.to = to
-        this.$router.push(to)
+    hideDialog(val) {
+      if (val !== undefined) {
+        this.answer = val
       }
       this.dialog = false
     },
     handleAnswer(val) {
-      if (this.ok) {
-        if (val) {
-          this.ok()
-        } else {
-          this.dialog = false
-        }
-      } else {
-        if (!val) this.dialog = false
-        this.$emit('answeredDialog', val)
-      }
+      this.answer = val
+      this.$emit('answeredDialog', val)
     },
   },
 }
