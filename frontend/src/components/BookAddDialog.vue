@@ -165,6 +165,7 @@ export default {
     showBookAddDialog() {
       this.searchValue = ''
       this.resetInfinite()
+      this.infiniteId = null
       this.$refs.dialogBookAdd.showDialog()
     },
     async fetchBookList() {

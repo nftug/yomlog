@@ -126,19 +126,29 @@ export default {
       }
     },
     '$route.hash'(newHash, oldHash) {
-      if (newHash === `#${this.hash}`) {
-        this.dialog = true
-      } else if (oldHash === `#${this.hash}`) {
-        this.dialog = false
-      }
-    },
-    dialog(newVal) {
       if (this.hash) {
-        if (newVal && this.$route.hash !== `#${this.hash}`) {
-          this.$router.push(`#${this.hash}`)
+        if (newHash === `#${this.hash}`) {
+          this.dialog = true
+        } else if (oldHash === `#${this.hash}`) {
+          this.dialog = false
         }
       }
     },
+    dialog(newVal) {
+      const hasRouteHash = this.$route.hash == `#${this.hash}`
+      if (this.hash) {
+        if (newVal && !hasRouteHash) {
+          this.$router.push(`#${this.hash}`)
+        } else if (!newVal && hasRouteHash) {
+          this.$router.back()
+        }
+      }
+    },
+  },
+  created() {
+    if (this.hash && this.$route.hash === `#${this.hash}`) {
+      this.dialog = true
+    }
   },
   methods: {
     showDialog() {
