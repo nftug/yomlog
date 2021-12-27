@@ -96,7 +96,7 @@ export default {
       this.$refs.noteAdd.showNotePostDialog({ book: item })
     },
     onClickBookEdit(item) {
-      this.$refs.bookEdit.showBookEditDialog({ book: item, post: true })
+      this.$refs.bookEdit.showBookEditDialog({ book: item })
     },
     onClickBookDelete(item) {
       this.$refs.bookDelete.showItemDeleteDialog(item.id)

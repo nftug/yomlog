@@ -18,31 +18,16 @@
       ></slot>
     </template>
 
-    <template #default="{ title, cancel, ref }">
+    <template #default="{ title, cancel }">
       <v-toolbar flat dark color="primary">
         <v-btn icon dark @click="cancel">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <v-toolbar-title style="cursor: pointer" @click="scrollToTop">
-          {{ title }}
-        </v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-col cols="5">
-          <v-text-field
-            name="search"
-            v-model="searchValue"
-            clearable
-            flat
-            placeholder="検索"
-            type="search"
-            prepend-inner-icon="mdi-magnify"
-            solo-inverted
-            single-line
-            hide-details
-            @keydown.enter="resetInfinite"
-            autofocus
-          ></v-text-field>
-        </v-col>
+        <SearchField v-model="searchValue" @search="resetInfinite">
+          <v-toolbar-title style="cursor: pointer" @click="scrollToTop">
+            {{ title }}
+          </v-toolbar-title>
+        </SearchField>
       </v-toolbar>
 
       <v-card-text style="height: 100vh" id="book-add-content">
@@ -91,29 +76,6 @@
         <div style="flex: 1 1 auto"></div>
       </v-card-text>
 
-      <!-- ページ数入力のダイアログ -->
-      <Dialog
-        ref="dialogPages"
-        title="ページ数の入力"
-        :max-width="400"
-        :form-valid="formPages.valid"
-      >
-        <p>
-          ページ数を取得できません。
-          <br />
-          この本のページ数を入力してください。
-        </p>
-
-        <v-form ref="formPages" v-model="formPages.valid" @submit.prevent>
-          <v-text-field
-            v-model="formPages.value"
-            label="ページ数"
-            type="number"
-            min="0"
-            :rules="formPages.pagesRules"
-          ></v-text-field>
-        </v-form>
-      </Dialog>
       <!-- Kindle本のデータ入力ダイアログ -->
       <BookEditDialog ref="bookEdit"></BookEditDialog>
     </template>
@@ -129,7 +91,7 @@ import Mixin, { FormRulesMixin, WindowResizeMixin } from '@/mixins'
 import Dialog from '@/components/Dialog.vue'
 import BookList from '@/components/BookList.vue'
 import BookEditDialog from '@/components/BookEditDialog.vue'
-// import VueScrollTo from 'vue-scrollto'
+import SearchField from '@/components/SearchField.vue'
 
 export default {
   mixins: [Mixin, FormRulesMixin, WindowResizeMixin],
@@ -139,6 +101,7 @@ export default {
     Dialog,
     BookList,
     BookEditDialog,
+    SearchField,
   },
   data: () => ({
     searchValue: '',
@@ -147,11 +110,6 @@ export default {
     page: 1,
     maxResults: 12,
     infiniteId: null,
-    formPages: {
-      value: 0,
-      valid: false,
-      pagesRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
-    },
   }),
   methods: {
     showBookAddDialog() {
@@ -239,26 +197,14 @@ export default {
       let item = { ...book }
       item.format_type = format_type
 
-      // 書籍データの入力
-      if (format_type === 1) {
-        // Kindle本の場合、各種データを入力
-        try {
-          item.total = 0
-          item = await this.$refs.bookEdit.showBookEditDialog({
-            book: item,
-            post: false,
-          })
-        } catch {
-          // ダイアログがキャンセルの場合の処理
-          return
-        }
-      } else {
-        // 通常の書籍データで登録
-        // ページ数が空の場合はダイアログで入力を求める
-        if (!item.total) {
-          if (!(await this.showPagesDialog())) return
-          item.total = this.formPages.value
-        }
+      try {
+        if (format_type === 1) item.total = 0
+        item = await this.$refs.bookEdit.showBookEditDialog({
+          book: item,
+        })
+      } catch {
+        // ダイアログがキャンセルの場合の処理
+        return
       }
 
       // Bookのデータを登録
@@ -295,15 +241,7 @@ export default {
         })
       }
     },
-    showPagesDialog() {
-      if (this.$refs.formPages) {
-        this.formPages.value = 0
-        this.$refs.formPages.resetValidation()
-      }
-      return this.$refs.dialogPages.showDialog()
-    },
     scrollToTop() {
-      // VueScrollTo.scrollTo('#app')
       const element = document.getElementById('book-add-content')
       element.scrollTop = 0
     },

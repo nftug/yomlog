@@ -1,12 +1,12 @@
 <template>
   <Dialog
     ref="dialogBookEdit"
-    title="書籍情報の入力"
+    :title="`書籍の${book.id ? '編集' : '登録'}`"
     :max-width="400"
     :form-valid="isValid"
     :hash="hash"
   >
-    <p>本の情報を入力してください。</p>
+    <p>書籍の情報を入力してください。</p>
 
     <v-form ref="formBookEdit" v-model="isValid">
       <v-text-field
@@ -62,7 +62,7 @@ export default {
     totalRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
   }),
   methods: {
-    async showBookEditDialog({ book, post = true } = {}) {
+    async showBookEditDialog({ book } = {}) {
       // bookに対する直接の操作は行わない
       // オブジェクト属性の書き換えは呼び出し元に担当させる
 
@@ -75,8 +75,8 @@ export default {
       if (!(await this.$refs.dialogBookEdit.showDialog()))
         return Promise.reject()
 
-      if (post) {
-        // postパラメータがtrueの場合、データをpatch後にpostイベントを発行
+      if (book.id) {
+        // idが存在する場合、データをpatch後にpostイベントを発行
         const { data } = await api({
           url: `/book/${book.id}/`,
           method: 'patch',
@@ -87,8 +87,8 @@ export default {
         // postパラメータがfalseの場合、変更されたbookの参照を返す
         // (メソッドの呼び出しにはawaitを使うこと)
         this.book.authors = this.book.authors.split(',')
-        return Promise.resolve(this.book)
       }
+      return Promise.resolve(this.book)
     },
   },
 }
