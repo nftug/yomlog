@@ -165,6 +165,7 @@ export default {
               ? volumeInfo.imageLinks.thumbnail
               : null,
             total: volumeInfo.pageCount || 0,
+            total_page: volumeInfo.pageCount || 0,
             amazon_dp,
             id_google: id,
           })
@@ -207,20 +208,14 @@ export default {
         return
       }
 
+      item.authors = item.authors.join(',')
+
       // Bookのデータを登録
       // 既に登録されている場合は該当のデータが返却される (statusは200)
       const { data, status } = await api({
         url: '/book/',
         method: 'post',
-        data: {
-          id_google: item.id_google,
-          authors: item.authors.join(','),
-          title: item.title,
-          thumbnail: item.thumbnail,
-          total: item.total,
-          amazon_dp: item.amazon_dp,
-          format_type: item.format_type,
-        },
+        data: item,
       })
 
       // 書籍の詳細ページに遷移

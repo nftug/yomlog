@@ -32,6 +32,13 @@
         min="0"
         :rules="totalRules"
       ></v-text-field>
+      <v-text-field
+        v-if="book.format_type"
+        v-model="book.total_page"
+        label="ページ数"
+        type="number"
+        min="0"
+      ></v-text-field>
     </v-form>
   </Dialog>
 </template>

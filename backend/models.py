@@ -64,6 +64,7 @@ class Book(models.Model):
     thumbnail = models.URLField('書影URL', null=True, blank=True)
     format_type = models.IntegerField(default=0, choices=((0, 'normal'), (1, 'ebook')))
     total = models.IntegerField(default=0)
+    total_page = models.IntegerField(default=0, null=True, blank=True)
     amazon_dp = models.CharField(max_length=13, validators=[MinLengthValidator(10)], null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(CustomUser, verbose_name='登録したユーザー',
