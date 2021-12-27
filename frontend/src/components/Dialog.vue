@@ -94,7 +94,6 @@ export default {
   data: () => ({
     dialog: false,
     answer: null,
-    to: null,
   }),
   watch: {
     $route() {
@@ -129,7 +128,6 @@ export default {
     if (this.hash && this.$route.hash === `#${this.hash}`) {
       this.dialog = true
     }
-    this.to = null
   },
   mounted() {
     this.$emit('mount')

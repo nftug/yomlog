@@ -1,10 +1,5 @@
 <template>
-  <Dialog
-    ref="dialogStatusAdd"
-    title="進捗状況の入力"
-    :max-width="350"
-    :hash="hash"
-  >
+  <Dialog ref="dialogStatusAdd" title="進捗状況の入力" :max-width="350">
     <v-form ref="formStatusAdd" v-model="isValid" @submit.prevent>
       <v-text-field
         v-model="position"
@@ -87,7 +82,7 @@ export default {
     }
   },
   methods: {
-    showStatusPostDialog({ book, id }) {
+    showStatusPostDialog({ book, id = null } = {}) {
       this.onMount({ book, id })
 
       // ダイアログを表示
