@@ -196,7 +196,9 @@ export default {
 
         const params = {
           no_pagination: true,
-          created_at__gte: start.date,
+          created_at__gte: moment(start.date)
+            .subtract(1, 'M')
+            .format('yyyy-MM-26'),
           created_at__lte: end.date,
         }
         const events = []
