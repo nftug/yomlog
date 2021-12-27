@@ -1,11 +1,6 @@
 <template>
   <Dialog ref="dialogStatusAdd" title="進捗状況の入力" :max-width="350">
-    <v-form
-      ref="formStatusAdd"
-      v-model="isValid"
-      @submit.prevent
-      lazy-validation
-    >
+    <v-form ref="formStatusAdd" v-model="isValid" @submit.prevent>
       <v-text-field
         v-model="position"
         :label="!format_type ? 'ページ数' : '位置No'"
@@ -30,6 +25,7 @@
         v-model="date"
         :defaultValue="defaultValues.date"
         label="日付"
+        @input="resetTime"
       ></DatePicker>
       <TimePicker
         v-model="time"
@@ -107,12 +103,12 @@ export default {
   },
   methods: {
     showStatusPostDialog({ book, id = null } = {}) {
-      this.onMount({ book, id })
+      this.initFields({ book, id })
 
       // ダイアログを表示
       this.$refs.dialogStatusAdd.showDialog()
     },
-    onMount({ book, id }) {
+    initFields({ book, id }) {
       // TODO: propsでbookとidを指定できるようにする + onMountメソッドのバインディング
 
       // バリデーションをリセット
@@ -189,6 +185,13 @@ export default {
     handleKeydownEnter() {
       if (!this.$refs.formStatusAdd.validate()) return
       this.postStatus()
+    },
+    resetTime() {
+      if (this.date !== this.defaultValues.date) {
+        this.time = '00:00'
+      } else {
+        this.time = this.defaultValues.time
+      }
     },
   },
 }
