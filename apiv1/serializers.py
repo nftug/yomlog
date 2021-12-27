@@ -20,14 +20,7 @@ class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
 
 class BookIncludedSerializer(PostSerializer):
     def get_book(self, instance):
-        book = instance.book
-        return {
-            'id': book.id,
-            'title': book.title,
-            'authors': book.authors,
-            'format_type': book.format_type,
-            'total': book.total
-        }
+        return BookSerializer(instance.book, context={'inside': True}).data
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -35,6 +28,12 @@ class BookIncludedSerializer(PostSerializer):
             ret['book'] = self.get_book(instance)
 
         return ret
+
+    def validate_book(self, data):
+        if data.created_by != super().context['request'].user:
+            raise ValidationError('自ユーザーが作成した本を選択してください')
+
+        return data
 
 
 class StatusLogSerializer(BookIncludedSerializer):
@@ -96,12 +95,6 @@ class StatusLogSerializer(BookIncludedSerializer):
 
         return {'value': diff, 'percent': percent}
 
-    def validate_book(self, data):
-        if data.created_by != self.context['request'].user:
-            raise ValidationError('自ユーザーが作成した本を選択してください')
-
-        return data
-
 
 class NoteSerializer(BookIncludedSerializer):
     class Meta:
@@ -136,18 +129,24 @@ class BookSerializer(PostSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['authors'] = self.get_authors(instance)
+        if self.context.get('inside'):
+            del ret['status'], ret['note']
         return ret
 
     def get_status(self, instance):
-        status_log = instance.status_log.order_by('-created_at')
-        context = {'inside': True}
-        data = StatusLogSerializer(status_log, many=True, read_only=True, context=context).data
-        return data
+        if not self.context.get('inside'):
+            status_log = instance.status_log.order_by('-created_at')
+            data = StatusLogSerializer(status_log, many=True, read_only=True, context={'inside': True}).data
+            return data
+        else:
+            return None
 
     def get_authors(self, instance):
         return instance.authors.split(',')
 
     def get_note(self, instance):
-        notes = instance.notes.order_by('position')
-        context = {'inside': True}
-        return NoteSerializer(notes, many=True, read_only=True, context=context).data
+        if not self.context.get('inside'):
+            notes = instance.notes.order_by('position')
+            return NoteSerializer(notes, many=True, read_only=True, context={'inside': True}).data
+        else:
+            return None
