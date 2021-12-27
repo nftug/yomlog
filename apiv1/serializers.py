@@ -46,7 +46,7 @@ class StatusLogSerializer(BookIncludedSerializer):
         model = StatusLog
         exclude = ['created_by']
         extra_kwargs = {
-            'created_at': {'required': False, 'read_only': True},
+            'created_at': {'required': False, 'allow_null': True},
         }
 
     def to_representation(self, instance):
