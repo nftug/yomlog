@@ -18,44 +18,18 @@
       </v-app-bar-nav-icon>
     </template>
 
-    <!-- Title -->
-    <template v-if="!isShowSearch || !isLessThanSm">
-      <v-toolbar-title style="cursor: pointer">
-        <div class="hidden-lg-and-up">
-          {{ $route.meta.title }}
-        </div>
-        <router-link tag="div" class="hidden-md-and-down" to="/">
-          {{ appName }}
-        </router-link>
-      </v-toolbar-title>
-    </template>
-
     <!-- Right -->
     <template v-if="isLoggedIn">
-      <v-row justify-content="end">
-        <v-spacer></v-spacer>
-        <v-col cols="12" sm="7" md="5" lg="4" xl="3">
-          <v-text-field
-            ref="search"
-            name="search"
-            v-model="searchValue"
-            clearable
-            flat
-            placeholder="検索"
-            type="search"
-            prepend-inner-icon="mdi-magnify"
-            solo-inverted
-            single-line
-            hide-details
-            v-show="isShowSearch || !isLessThanSm"
-            @blur="isShowSearch = false"
-            @keydown.enter="handleSearch"
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-btn icon v-if="!isShowSearch && isLessThanSm" @click="showSearchBar">
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
+      <SearchField v-model="searchValue" @search="handleSearch">
+        <v-toolbar-title style="cursor: pointer">
+          <div class="hidden-lg-and-up">
+            {{ $route.meta.title }}
+          </div>
+          <router-link tag="div" class="hidden-md-and-down" to="/">
+            {{ appName }}
+          </router-link>
+        </v-toolbar-title>
+      </SearchField>
     </template>
 
     <!-- Right (not authed) -->
@@ -80,14 +54,15 @@
 <script>
 import Mixin, { WindowResizeMixin } from '@/mixins'
 import ShelfTabBar from '@/components/ShelfTabBar.vue'
+import SearchField from '@/components/SearchField.vue'
 
 export default {
   mixins: [Mixin, WindowResizeMixin],
   components: {
     ShelfTabBar,
+    SearchField,
   },
   data: () => ({
-    isShowSearch: false,
     searchValue: '',
   }),
   created() {
@@ -98,15 +73,8 @@ export default {
     this.$router.app.$off('changeSearchValue', this.onChangeSearchValue)
   },
   methods: {
-    showSearchBar() {
-      this.isShowSearch = true
-      this.$nextTick(() => {
-        this.$refs.search.focus()
-      })
-    },
     handleSearch() {
       this.$router.app.$emit('search', this.searchValue)
-      this.isShowSearch = false
     },
     onChangeSearchValue(searchValue) {
       this.searchValue = searchValue
