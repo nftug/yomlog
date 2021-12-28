@@ -11,6 +11,7 @@ from auth.serializers import CustomUserListSerializer
 from datetime import datetime
 from datetime import timedelta
 from django.db.models import Q, Count
+import math
 
 
 class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
@@ -91,7 +92,7 @@ class StatusLogSerializer(BookIncludedSerializer):
             diff = 0
 
         percentage = diff / instance.book.total
-        page = int(book.total_page * percentage) if book.format_type == 1 else diff
+        page = math.ceil(book.total_page * percentage) if book.format_type == 1 else diff
 
         return {
             'value': diff,
@@ -113,7 +114,7 @@ class StatusLogSerializer(BookIncludedSerializer):
                 position = prev_status.position
 
         percentage = position / book.total
-        page = int(book.total_page * percentage) if book.format_type == 1 else position
+        page = math.ceil(book.total_page * percentage) if book.format_type == 1 else position
 
         return {
             'value': position,
