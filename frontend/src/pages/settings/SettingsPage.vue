@@ -1,6 +1,6 @@
 <template>
   <!-- メインエリア (モバイル) -->
-  <div v-if="!isDisplayLarge">
+  <div v-if="isLessThanMd">
     <v-container v-if="$route.name === 'settings'">
       <div class="col-md-6 col-sm-10 mx-auto">
         <v-card class="mx-auto" tile>
@@ -52,7 +52,10 @@
 </template>
 
 <script>
+import { WindowResizeMixin } from '@/mixins'
+
 export default {
+  mixins: [WindowResizeMixin],
   data() {
     return {
       selectedIndex: 0,
@@ -77,7 +80,6 @@ export default {
         },
       ],
       notChangeRoute: false,
-      isDisplayLarge: false,
     }
   },
   watch: {
@@ -88,12 +90,6 @@ export default {
   created() {
     this.changeIndex()
     this.notChangeRoute = false
-
-    this.handleResize()
-    window.addEventListener('resize', this.handleResize)
-  },
-  destroyed() {
-    window.removeEventListener('resize', this.handleResize)
   },
   methods: {
     changeIndex: function () {
@@ -114,14 +110,11 @@ export default {
       }
     },
     onChangeTab: function () {
-      if (this.isDisplayLarge && !this.notChangeRoute) {
+      if (!(this.isLessThanMd || this.notChangeRoute)) {
         let path = this.pages[this.selectedIndex]
         if (this.$route.path != path) this.$router.push(path)
       }
       this.notChangeRoute = false
-    },
-    handleResize: function () {
-      this.isDisplayLarge = window.innerWidth > 1264
     },
   },
 }
