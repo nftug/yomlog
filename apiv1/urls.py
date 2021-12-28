@@ -11,4 +11,5 @@ router.register('note', views.NoteViewSet)
 app_name = 'apiv1'
 urlpatterns = [
     path('', include(router.urls)),
+    path('analytics/', views.AnalyticsAPIView.as_view()),
 ]

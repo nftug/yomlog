@@ -1,9 +1,10 @@
-from rest_framework import status, viewsets, pagination, response
+from rest_framework import serializers, status, viewsets, pagination, response, views
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 from django_filters import rest_framework as django_filter
 
 from backend.models import *
-from .serializers import BookSerializer, NoteSerializer, StatusLogSerializer
+from .serializers import BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer
 from .filters import BookFilter, StatusLogFilter, NoteFilter
 from rest_framework.parsers import FileUploadParser, FormParser
 
@@ -103,3 +104,21 @@ class NoteViewSet(viewsets.ModelViewSet):
 
         # プライベートアクセスのみ
         return self.queryset.filter(created_by=self.request.user)
+
+
+class AnalyticsAPIView(views.APIView):
+    """分析用のAPIクラス"""
+
+    permission_class = [IsAuthenticated]
+    serializer_class = AnalyticsSerializer
+    filter_backends = [django_filter.DjangoFilterBackend]
+    filterset_class = BookFilter
+    queryset = Book.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.queryset.filter(created_by=request.user)
+        filterset = self.filterset_class(request.query_params, queryset=queryset)
+        if not filterset.is_valid():
+            raise ValidationError(filterset.errors)
+        serializer = self.serializer_class(instance=filterset.qs)
+        return response.Response(serializer.data, status.HTTP_200_OK)

@@ -172,3 +172,14 @@ class BookSerializer(PostSerializer):
             return NoteSerializer(notes, many=True, read_only=True, context={'inside': True}).data
         else:
             return None
+
+
+class AnalyticsSerializer(serializers.Serializer):
+    number_of_books = serializers.SerializerMethodField()
+
+    def get_number_of_books(self, books):
+        return {
+            'to_be_read': books.filter_by_state('to_be_read').count(),
+            'reading': books.filter_by_state('reading').count(),
+            'read': books.filter_by_state('read').count()
+        }
