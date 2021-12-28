@@ -46,19 +46,12 @@ class StatusLogSerializer(BookIncludedSerializer):
         exclude = ['created_by']
         extra_kwargs = {
             'created_at': {'required': False, 'allow_null': True},
+            'book': {'write_only': True}
         }
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-
-        if instance.position == 0:
-            # 積読中の場合、進捗の位置はその本の直前のステータスを参照する
-            prev_status = StatusLog.objects.filter(
-                book=instance.book, created_at__lt=instance.created_at
-            ).order_by('-created_at').first()
-
-            if prev_status:
-                ret['position'] = prev_status.position
+        ret['position'] = self.get_position(instance)
 
         return ret
 
@@ -72,11 +65,12 @@ class StatusLogSerializer(BookIncludedSerializer):
 
     def get_diff(self, instance):
         # 前回までに進んだページ数 or 位置No
+        book = instance.book
         base_status = instance
 
         while True:
             prev_status = StatusLog.objects.filter(
-                book=instance.book, created_at__lt=base_status.created_at
+                book=book, created_at__lt=base_status.created_at
             ).order_by('-created_at').first()
 
             if not prev_status or prev_status.position > 0:
@@ -91,9 +85,36 @@ class StatusLogSerializer(BookIncludedSerializer):
         else:
             diff = 0
 
-        percent = '{}%'.format(int((diff / instance.book.total) * 100))
+        percentage = diff / instance.book.total
+        page = int(book.total_page * percentage) if book.format_type == 1 else diff
 
-        return {'value': diff, 'percent': percent}
+        return {
+            'value': diff,
+            'percentage': int(percentage * 100),
+            'page': page
+        }
+
+    def get_position(self, instance):
+        book = instance.book
+        position = instance.position
+
+        if instance.position == 0:
+            # 積読中の場合、進捗の位置はその本の直前のステータスを参照する
+            prev_status = StatusLog.objects.filter(
+                book=instance.book, created_at__lt=instance.created_at
+            ).order_by('-created_at').first()
+
+            if prev_status:
+                position = prev_status.position
+
+        percentage = position / book.total
+        page = int(book.total_page * percentage) if book.format_type == 1 else position
+
+        return {
+            'value': position,
+            'percentage': int(percentage * 100),
+            'page': page
+        }
 
 
 class NoteSerializer(BookIncludedSerializer):
@@ -104,6 +125,7 @@ class NoteSerializer(BookIncludedSerializer):
             'created_at': {'required': False, 'read_only': True},
             'quote_text': {'required': False},
             'quote_image': {'required': False},
+            'book': {'write_only': True}
         }
 
     def to_representation(self, instance):

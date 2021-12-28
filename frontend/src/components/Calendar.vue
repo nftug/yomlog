@@ -184,8 +184,8 @@ export default {
   },
   filters: {
     getItemTitle(item) {
-      let ret = `${item.position}${!item.book.format_type ? 'ページ' : ''}`
-      if (item.diff) ret += ` (+${item.diff.percent})`
+      let ret = `${item.position.page}ページ`
+      if (item.diff.percentage) ret += ` (+${item.diff.percentage})`
       return ret
     },
   },
@@ -206,7 +206,7 @@ export default {
         const { data: status } = await api.get('/status/', { params })
         status.forEach((item) => {
           events.push({
-            name: `${item.book.title} (+${item.diff.percent})`,
+            name: `${item.book.title} (+${item.diff.percentage}%)`,
             start: new Date(item.created_at),
             end: new Date(item.created_at),
             color: 'blue',

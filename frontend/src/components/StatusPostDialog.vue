@@ -125,7 +125,7 @@ export default {
       if (id) {
         const status = book.status.find((e) => e.id === id)
         this.statusId = id
-        this.position = status.position
+        this.position = status.position.value
         this.to_be_read = status.state === 'to_be_read'
         this.date = moment(status.created_at).format('yyyy-MM-DD')
         this.time = moment(status.created_at).format('HH:mm')

@@ -159,7 +159,7 @@ export default {
         this.prevSrc = note.quote_image
         this.noteId = note.id
       } else {
-        this.position = this.currentState(book).position || 0
+        this.position = this.currentState(book).position.value || 0
         this.content = ''
         this.quoteText = ''
         this.prevSrc = ''

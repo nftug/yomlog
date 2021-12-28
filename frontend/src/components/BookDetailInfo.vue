@@ -5,9 +5,9 @@
         <v-col sm="6" cols="12">
           現在の進捗
           <div class="text-h5">
-            {{ currentState(item).position }} / {{ item.total }}
-            <span class="text-body-2">
-              {{ item.format_type ? '' : 'ページ' }}
+            {{ getStateDisplay(item, currentState(item)) }}
+            <span class="text-body-2" v-if="currentState(item).position.page">
+              ページ
             </span>
           </div>
           <v-chip class="mt-3" :color="currentState(item).state | stateColor">
@@ -19,11 +19,11 @@
             :size="100"
             :width="15"
             :rotate="-90"
-            :value="bookProgress(item)"
+            :value="currentState(item).position.percentage"
             color="teal"
             class="text-center"
           >
-            {{ bookProgress(item) }}%
+            {{ currentState(item).position.percentage }}%
           </v-progress-circular>
         </v-col>
       </v-row>
@@ -39,6 +39,15 @@ export default {
   props: {
     item: {
       type: Object,
+    },
+  },
+  methods: {
+    getStateDisplay(book, state) {
+      if (state.position.page) {
+        return `${state.position.page} / ${book.total_page}`
+      } else {
+        return `${state.position.value} / ${book.total}`
+      }
     },
   },
 }

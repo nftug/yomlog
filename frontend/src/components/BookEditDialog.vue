@@ -82,12 +82,17 @@ export default {
       if (!(await this.$refs.dialogBookEdit.showDialog()))
         return Promise.reject()
 
+      if (!this.book.total_page) this.book.total_page = 0
+
       if (book.id) {
         // idが存在する場合、データをpatch後にpostイベントを発行
         const { data } = await api({
           url: `/book/${book.id}/`,
           method: 'patch',
           data: this.book,
+        })
+        this.$store.dispatch('message/setInfoMessage', {
+          message: '書籍情報を編集しました。',
         })
         this.$emit('post', data)
       } else {
