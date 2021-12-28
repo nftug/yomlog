@@ -9,6 +9,7 @@ from backend.models import *
 from auth.serializers import CustomUserListSerializer
 
 from datetime import datetime
+from datetime import timedelta
 from django.db.models import Q, Count
 
 
@@ -225,7 +226,7 @@ class AnalyticsSerializer(serializers.Serializer):
         # トータルの記録日数と連速記録日数を取得
 
         # 記録された日数のset
-        date_set = set(status_log.values_list('created_at__date'))
+        date_set = set(status_log.values_list('created_at__date', flat=True))
 
         sorted_date_set = sorted(list(date_set))
         continuous = 0
@@ -235,7 +236,7 @@ class AnalyticsSerializer(serializers.Serializer):
                 continuous = 1
                 continue
 
-            if cur_date - datetime.timedelta(days=1) == sorted_date_set[i - 1]:
+            if cur_date - timedelta(days=1) == sorted_date_set[i - 1]:
                 # 連続
                 continuous += 1
             else:
