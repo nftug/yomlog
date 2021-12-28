@@ -58,7 +58,7 @@
 
           <v-sheet
             color="grey lighten-4"
-            max-width="350px"
+            width="350px"
             max-height="320px"
             flat
             class="overflow-y-auto"
@@ -185,7 +185,7 @@ export default {
   filters: {
     getItemTitle(item) {
       let ret = `${item.position.page}ページ`
-      if (item.diff.percentage) ret += ` (+${item.diff.percentage})`
+      if (item.diff.percentage) ret += ` (+${item.diff.percentage}%)`
       return ret
     },
   },
