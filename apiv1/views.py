@@ -110,15 +110,12 @@ class AnalyticsAPIView(views.APIView):
     """分析用のAPIクラス"""
 
     permission_class = [IsAuthenticated]
-    serializer_class = AnalyticsSerializer
-    filter_backends = [django_filter.DjangoFilterBackend]
-    filterset_class = BookFilter
-    queryset = Book.objects.all()
 
     def get(self, request, *args, **kwargs):
-        queryset = self.queryset.filter(created_by=request.user)
-        filterset = self.filterset_class(request.query_params, queryset=queryset)
+        queryset = StatusLog.objects.filter(created_by=request.user).prefetch_related('book')
+        filterset = StatusLogFilter(request.query_params, queryset=queryset)
         if not filterset.is_valid():
             raise ValidationError(filterset.errors)
-        serializer = self.serializer_class(instance=filterset.qs)
+
+        serializer = AnalyticsSerializer(instance=filterset.qs)
         return response.Response(serializer.data, status.HTTP_200_OK)

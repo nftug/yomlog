@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from rest_framework import serializers
 from django.utils.timezone import localtime
 from rest_framework.exceptions import ValidationError
@@ -6,6 +7,9 @@ from django.conf import settings
 from .mixins import ImageSerializerMixin
 from backend.models import *
 from auth.serializers import CustomUserListSerializer
+
+from datetime import datetime
+from django.db.models import Q, Count
 
 
 class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
@@ -176,10 +180,69 @@ class BookSerializer(PostSerializer):
 
 class AnalyticsSerializer(serializers.Serializer):
     number_of_books = serializers.SerializerMethodField()
+    pages_read = serializers.SerializerMethodField()
+    days = serializers.SerializerMethodField()
 
-    def get_number_of_books(self, books):
+    def _get_period_days(self, status_data: OrderedDict):
+        # StatusLogの最初と最後の日数差を取得
+        if status_data:
+            newest_td, oldest_td = [status_data[0]['created_at'], status_data[-1]['created_at']]
+            diff_td = datetime.fromisoformat(newest_td.split('T')[0]) - datetime.fromisoformat(oldest_td.split('T')[0])
+            return diff_td.days + 1
+        else:
+            return 1
+
+    def get_number_of_books(self, status_log: StatusLog):
+        # status_logに関連づけられたbooksをまとめて取得
+        query = Q(id=None)
+        for status in status_log:
+            query |= Q(id=status.book.id)
+        books = Book.objects.filter(query)
+
         return {
             'to_be_read': books.filter_by_state('to_be_read').count(),
             'reading': books.filter_by_state('reading').count(),
             'read': books.filter_by_state('read').count()
+        }
+
+    def get_pages_read(self, status_log: StatusLog):
+        # NOTE: total_pageの情報を持たない本はカウントしない
+        # TODO: Kindleの位置Noとページ数に固定の相関性はあるか？あとで調べる。
+
+        status_data = StatusLogSerializer(status_log, many=True, read_only=True, context={'inside': True}).data
+        total = 0
+        for status in status_data:
+            total += status['diff']['page']
+
+        period_days = self._get_period_days(status_data)
+
+        return {
+            'total': total,
+            'avg_per_day': int(total / period_days)
+        }
+
+    def get_days(self, status_log: StatusLog):
+        # トータルの記録日数と連速記録日数を取得
+
+        # 記録された日数のset
+        date_set = set(status_log.values_list('created_at__date'))
+
+        sorted_date_set = sorted(list(date_set))
+        continuous = 0
+
+        for i, cur_date in enumerate(sorted_date_set):
+            if i == 0:
+                continuous = 1
+                continue
+
+            if cur_date - datetime.timedelta(days=1) == sorted_date_set[i - 1]:
+                # 連続
+                continuous += 1
+            else:
+                # 途切れた
+                break
+
+        return {
+            'total': len(date_set),
+            'continuous': continuous
         }
