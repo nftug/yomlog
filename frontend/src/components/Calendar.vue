@@ -194,18 +194,17 @@ export default {
       try {
         this.isLoading = true
 
-        const params = {
-          no_pagination: true,
-          created_at__gte: moment(start.date)
-            .subtract(1, 'M')
-            .format('yyyy-MM-26'),
-          created_at__lte: end.date,
-        }
-        const events = []
+        const created_at__gte = moment(start.date)
+          .subtract(1, 'M')
+          .format('yyyy-MM-26')
+        const created_at__lte = moment(end.date).add(1, 'M').format('yyyy-MM-6')
+
+        const params = { no_pagination: true, created_at__gte, created_at__lte }
+        this.events = []
 
         const { data: status } = await api.get('/status/', { params })
         status.forEach((item) => {
-          events.push({
+          this.events.push({
             name: `${item.book.title} (+${item.diff.percentage}%)`,
             start: new Date(item.created_at),
             end: new Date(item.created_at),
@@ -218,7 +217,7 @@ export default {
 
         const { data: note } = await api.get('/note/', { params })
         note.forEach((item) => {
-          events.push({
+          this.events.push({
             name: `${item.book.title} (${item.position})`,
             start: new Date(item.created_at),
             end: new Date(item.created_at),
@@ -228,8 +227,6 @@ export default {
             timed: false,
           })
         })
-
-        this.events = events
       } finally {
         this.isLoading = false
         this.period = { start, end }
