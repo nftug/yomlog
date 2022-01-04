@@ -234,7 +234,7 @@ class AnalyticsSerializer(serializers.Serializer):
 
         for i, cur_date in enumerate(sorted_date_set):
             if i == 0:
-                continuous = 1
+                continuous = 0
                 continue
 
             if cur_date - timedelta(days=1) == sorted_date_set[i - 1]:
