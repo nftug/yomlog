@@ -46,7 +46,9 @@ class BookViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # プライベートアクセスのみ
-        return self.queryset.filter(created_by=self.request.user).sort_by_state()
+        return self.queryset.filter(
+            created_by=self.request.user
+        ).prefetch_related('status_log', 'notes').sort_by_state()
 
     def create(self, request, *args, **kwargs):
         # すでに同一のGoogle Books IDで登録されたレコードが存在する場合、保存せずにそのまま返す
@@ -66,7 +68,7 @@ class BookViewSet(viewsets.ModelViewSet):
 class StatusLogViewSet(viewsets.ModelViewSet):
     """StatusLogのCRUD用APIクラス"""
 
-    queryset = StatusLog.objects.all().select_related('book')
+    queryset = StatusLog.objects.all()
     serializer_class = StatusLogSerializer
     permission_classes = [IsAuthenticated]
 
@@ -81,13 +83,13 @@ class StatusLogViewSet(viewsets.ModelViewSet):
             self.pagination_class = None
 
         # プライベートアクセスのみ
-        return self.queryset.filter(created_by=self.request.user)
+        return self.queryset.filter(created_by=self.request.user).select_related('book')
 
 
 class NoteViewSet(viewsets.ModelViewSet):
     """NoteのCRUD用APIクラス"""
 
-    queryset = Note.objects.all().select_related('book')
+    queryset = Note.objects.all()
     serializer_class = NoteSerializer
     permission_class = [IsAuthenticated]
     parser_class = (FileUploadParser, FormParser)
@@ -103,7 +105,7 @@ class NoteViewSet(viewsets.ModelViewSet):
             self.pagination_class = None
 
         # プライベートアクセスのみ
-        return self.queryset.filter(created_by=self.request.user)
+        return self.queryset.filter(created_by=self.request.user).select_related('book')
 
 
 class AnalyticsAPIView(views.APIView):

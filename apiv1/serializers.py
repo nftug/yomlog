@@ -163,7 +163,7 @@ class BookSerializer(PostSerializer):
 
     def get_status(self, instance):
         if not self.context.get('inside'):
-            status_log = instance.status_log.order_by('-created_at')
+            status_log = instance.status_log.select_related('book').order_by('-created_at')
             data = StatusLogSerializer(status_log, many=True, read_only=True, context={'inside': True}).data
             return data
         else:
@@ -174,7 +174,7 @@ class BookSerializer(PostSerializer):
 
     def get_note(self, instance):
         if not self.context.get('inside'):
-            notes = instance.notes.order_by('position')
+            notes = instance.notes.select_related('book').order_by('position')
             return NoteSerializer(notes, many=True, read_only=True, context={'inside': True}).data
         else:
             return None
