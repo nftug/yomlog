@@ -38,8 +38,8 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
         return self._get_thumbnail(instance)
 
     def get_analytics(self, instance):
-        queryset = StatusLog.objects.filter(created_by=instance).select_related('book')
-        return AnalyticsSerializer(instance=queryset).data
+        queryset = StatusLog.objects.filter(created_by=instance, position__gt=0).select_related('book')
+        return AnalyticsSerializer(queryset, context=self.context).data
 
 
 class CustomUserListSerializer(CustomUserSerializer):

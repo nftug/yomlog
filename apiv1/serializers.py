@@ -7,7 +7,7 @@ from django.conf import settings
 from .mixins import ImageSerializerMixin
 from backend.models import Book, StatusLog, Note
 
-from datetime import datetime
+from datetime import datetime, date
 from datetime import timedelta
 from django.db.models import Q, Count
 import math
@@ -181,20 +181,21 @@ class BookSerializer(PostSerializer):
 
 
 class AnalyticsSerializer(serializers.Serializer):
+    """分析用シリアライザ"""
+
     number_of_books = serializers.SerializerMethodField()
     pages_read = serializers.SerializerMethodField()
     days = serializers.SerializerMethodField()
 
-    def _get_period_days(self, status_data: OrderedDict):
-        # StatusLogの最初と最後の日数差を取得
-        if status_data:
-            newest_td, oldest_td = [status_data[0]['created_at'], status_data[-1]['created_at']]
-            diff_td = datetime.fromisoformat(newest_td.split('T')[0]) - datetime.fromisoformat(oldest_td.split('T')[0])
-            return diff_td.days + 1
-        else:
-            return 1
+    def _get_period_days(self):
+        # ユーザー登録日から今日までの日数を計算
+        user = self.context['request'].user
+        diff_td = date.today() - user.date_joined.date()
+        return diff_td.days
 
     def get_number_of_books(self, status_log: StatusLog):
+        """ステータスごとの累計冊数を取得"""
+
         # status_logに関連づけられたbooksをまとめて取得
         query = Q(id=None)
         for status in status_log:
@@ -202,12 +203,14 @@ class AnalyticsSerializer(serializers.Serializer):
         books = Book.objects.filter(query)
 
         return {
-            'to_be_read': books.filter_by_state('to_be_read').count(),
+            'to_be_read': Book.objects.filter_by_state('to_be_read').count(),
             'reading': books.filter_by_state('reading').count(),
             'read': books.filter_by_state('read').count()
         }
 
     def get_pages_read(self, status_log: StatusLog):
+        """読書ページ数の累計と、一日毎の平均ページ数を取得"""
+
         # NOTE: total_pageの情報を持たない本はカウントしない
         # TODO: Kindleの位置Noとページ数に固定の相関性はあるか？あとで調べる。
 
@@ -216,35 +219,42 @@ class AnalyticsSerializer(serializers.Serializer):
         for status in status_data:
             total += status['diff']['page']
 
-        period_days = self._get_period_days(status_data)
+        period_days = self._get_period_days()
 
         return {
             'total': total,
-            'avg_per_day': int(total / period_days)
+            'avg_per_day': int(total / (period_days or 1)),
         }
 
     def get_days(self, status_log: StatusLog):
-        # トータルの記録日数と連速記録日数を取得
+        """登録日からの経過日数、トータルの読書日数、連続読書日数を取得"""
 
-        # 記録された日数のset
+        # 記録された日数のset (積読状態を除く)
         date_set = set(status_log.values_list('created_at__date', flat=True))
-
         sorted_date_set = sorted(list(date_set))
-        continuous = 0
+        cur_date = None
 
+        # 連続読書日数のカウントを開始
         for i, cur_date in enumerate(sorted_date_set):
             if i == 0:
-                continuous = 0
+                continuous = 1
                 continue
 
             if cur_date - timedelta(days=1) == sorted_date_set[i - 1]:
-                # 連続
+                # 直前の記録と連続
+                # print(cur_date, sorted_date_set[i - 1])
                 continuous += 1
             else:
-                # 途切れた
-                break
+                # 直前の記録から途切れた
+                # print('continuous = 1')
+                continuous = 1
+
+        # 記録がないか、直前の記録の日付の差から2日以上空いている場合、continuousを0にする
+        if cur_date is None or (date.today() - cur_date).days > 1:
+            continuous = 0
 
         return {
+            'since_joined': self._get_period_days(),
             'total': len(date_set),
             'continuous': continuous
         }

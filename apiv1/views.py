@@ -112,10 +112,10 @@ class AnalyticsAPIView(views.APIView):
     permission_class = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        queryset = StatusLog.objects.filter(created_by=request.user).select_related('book')
+        queryset = StatusLog.objects.filter(created_by=request.user, position__gt=0).select_related('book')
         filterset = StatusLogFilter(request.query_params, queryset=queryset)
         if not filterset.is_valid():
             raise ValidationError(filterset.errors)
 
-        serializer = AnalyticsSerializer(instance=filterset.qs)
+        serializer = AnalyticsSerializer(filterset.qs, context={'request': request})
         return response.Response(serializer.data, status.HTTP_200_OK)
