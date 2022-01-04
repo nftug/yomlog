@@ -219,12 +219,7 @@ export default {
       })
 
       // 書籍の詳細ページに遷移
-      this.$router.replace({
-        name: 'book_detail',
-        params: {
-          id: data.id,
-        },
-      })
+      this.$router.replace(`/book/detail/${data.id}`)
 
       if (status === 201) {
         this.$store.dispatch('message/setInfoMessage', {
