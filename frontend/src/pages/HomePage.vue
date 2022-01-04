@@ -25,28 +25,28 @@
       <!-- 読書データ -->
       <v-card outlined class="py-4 text-center">
         <v-row class="mx-auto">
-          <v-col cols="2" sm="3">
+          <v-col cols="6" md="3">
             <div class="text-body-2">読んだ本</div>
             <div class="text-h5 mt-1">
               {{ numOfBooks.read }}
               <span class="text-body-2">冊</span>
             </div>
           </v-col>
-          <v-col cols="2" sm="3">
+          <v-col cols="6" md="3">
             <div class="text-body-2">読んだページ数</div>
             <div class="text-h5 mt-1">
               {{ pages.total }}
               <span class="text-body-2">ページ</span>
             </div>
           </v-col>
-          <v-col cols="2" sm="3">
+          <v-col cols="6" md="3">
             <div class="text-body-2">一日の平均</div>
             <div class="text-h5 mt-1">
               {{ pages.avg_per_day }}
               <span class="text-body-2">ページ</span>
             </div>
           </v-col>
-          <v-col cols="2" sm="3">
+          <v-col cols="6" md="3">
             <div class="text-body-2">連続読書日数</div>
             <div class="text-h5 mt-1">
               {{ days.continuous }}
