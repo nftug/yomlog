@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import api from '@/services/api'
 import router from './router'
 import axios from 'axios'
+import moment from 'moment'
 
 // CSRFトークンの送信設定
 axios.defaults.xsrfCookieName = 'csrftoken'
@@ -23,8 +24,14 @@ const authModule = {
     fullname: '',
     id: '',
     avatar: '',
-    isSuperuser: false,
+    avatar_thumbnail: '',
+    date_joined: '',
+    is_superuser: false,
+    analytics: null,
     isLoggedIn: false,
+  },
+  getters: {
+    created_at: (state) => moment(state.date_joined).format('yyyy/MM/DD'),
   },
   mutations: {
     set(state, { user }) {
@@ -34,13 +41,15 @@ const authModule = {
       state.isLoggedIn = true
     },
     clear(state) {
-      for (const key in state) {
-        if (typeof state[key] === 'string') {
+      for (const [key, value] of Object.entries(state)) {
+        if (typeof value === 'string') {
           state[key] = ''
-        } else if (typeof state[key] === 'boolean') {
+        } else if (typeof value === 'boolean') {
           state[key] = false
-        } else {
+        } else if (typeof value === 'number') {
           state[key] = 0
+        } else {
+          state[key] = null
         }
       }
     },
@@ -206,13 +215,16 @@ const bookListModule = {
         }
       }
     },
-    setDirtyWithDiffState({ commit }, { book, callback }) {
+    setDirtyWithDiffState({ commit, dispatch }, { book, callback }) {
+      // 本のstatusが前と異なる場合、各種データの更新処理を行う
+      // （処理内容はコールバック関数を引数callbackで渡すこと)
       const oldState = JSON.stringify(book.status[0])
       callback(book)
       const newState = JSON.stringify(book.status[0])
 
       if (oldState !== newState) {
-        commit('setDirty', true)
+        commit('setDirty', true) // BookListの更新
+        dispatch('auth/reload', null, { root: true }) // ユーザー情報の更新
         return true
       } else {
         return false

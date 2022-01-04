@@ -4,11 +4,14 @@ from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerialize
 from djoser.conf import settings as djoser_settings
 
 from apiv1.mixins import ImageSerializerMixin
+from apiv1.serializers import AnalyticsSerializer
+from backend.models import StatusLog
 
 
 class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
     fullname = serializers.SerializerMethodField()
     avatar_thumbnail = serializers.SerializerMethodField()
+    analytics = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
@@ -21,7 +24,9 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
             'last_name',
             'fullname',
             'avatar',
-            'avatar_thumbnail'
+            'avatar_thumbnail',
+            'date_joined',
+            'analytics'
         )
         read_only_fields = (djoser_settings.LOGIN_FIELD, 'is_superuser', 'username')
 
@@ -31,6 +36,10 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
 
     def get_avatar_thumbnail(self, instance):
         return self._get_thumbnail(instance)
+
+    def get_analytics(self, instance):
+        queryset = StatusLog.objects.filter(created_by=instance).select_related('book')
+        return AnalyticsSerializer(instance=queryset).data
 
 
 class CustomUserListSerializer(CustomUserSerializer):

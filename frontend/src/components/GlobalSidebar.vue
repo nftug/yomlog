@@ -3,17 +3,13 @@
     <v-list>
       <v-list-item>
         <v-list-item-avatar color="grey">
-          <img
-            v-if="currentUser.avatar"
-            :alt="currentUser.fullname"
-            :src="currentUser.avatar"
-          />
+          <img v-if="auth.avatar" :alt="auth.fullname" :src="auth.avatar" />
           <v-icon v-else dark>mdi-account-circle</v-icon>
         </v-list-item-avatar>
 
         <v-list-item-content>
           <v-list-item-title class="text-h6">
-            {{ currentUser.fullname }}
+            {{ auth.fullname }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
@@ -59,6 +55,7 @@
 <script>
 import Mixin from '@/mixins'
 import Dialog from '@/components/Dialog.vue'
+import { mapState } from 'vuex'
 
 export default {
   mixins: [Mixin],
@@ -90,6 +87,7 @@ export default {
     ],
   }),
   computed: {
+    ...mapState(['auth']),
     drawer: {
       get() {
         return this.$store.state.drawer.drawer

@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from django_filters import rest_framework as django_filter
 
-from backend.models import *
+from backend.models import Book, Note, StatusLog
 from .serializers import BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer
 from .filters import BookFilter, StatusLogFilter, NoteFilter
 from rest_framework.parsers import FileUploadParser, FormParser
@@ -112,7 +112,7 @@ class AnalyticsAPIView(views.APIView):
     permission_class = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        queryset = StatusLog.objects.filter(created_by=request.user).prefetch_related('book')
+        queryset = StatusLog.objects.filter(created_by=request.user).select_related('book')
         filterset = StatusLogFilter(request.query_params, queryset=queryset)
         if not filterset.is_valid():
             raise ValidationError(filterset.errors)

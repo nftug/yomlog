@@ -5,8 +5,7 @@ from rest_framework.exceptions import ValidationError
 from django.conf import settings
 
 from .mixins import ImageSerializerMixin
-from backend.models import *
-from auth.serializers import CustomUserListSerializer
+from backend.models import Book, StatusLog, Note
 
 from datetime import datetime
 from datetime import timedelta
@@ -16,6 +15,7 @@ import math
 
 class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
     def get_created_by(self, instance):
+        from auth.serializers import CustomUserListSerializer
         return CustomUserListSerializer(instance.created_by, many=False, read_only=True).data
 
     def create(self, validated_data):

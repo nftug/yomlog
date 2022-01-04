@@ -329,9 +329,6 @@ export default {
     appName: function () {
       return process.env.VUE_APP_APPNAME
     },
-    currentUser: function () {
-      return this.$store.state.auth
-    },
   },
   methods: {
     isEmptyObj: function (obj) {
