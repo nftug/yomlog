@@ -6,9 +6,7 @@
           現在の進捗
           <div class="text-h5">
             {{ getStateDisplay(item, currentState(item)) }}
-            <span class="text-body-2" v-if="currentState(item).position.page">
-              ページ
-            </span>
+            <span class="text-body-2">ページ</span>
           </div>
           <v-chip class="mt-3" :color="currentState(item).state | stateColor">
             {{ currentState(item).state | stateName }}
