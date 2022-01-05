@@ -187,10 +187,18 @@ class AnalyticsSerializer(serializers.Serializer):
     pages_read = serializers.SerializerMethodField()
     days = serializers.SerializerMethodField()
 
-    def _get_period_days(self):
-        # ユーザー登録日から今日までの日数を計算
+    def _get_period_days(self, status_log: StatusLog):
+        """ユーザー登録日 or 記録の開始日から今日までの日数を計算"""
+
         user = self.context['request'].user
-        diff_td = date.today() - user.date_joined.date()
+        date_joined = user.date_joined.date()
+
+        prev_status_log = status_log.filter(created_at__lt=date_joined)
+        if prev_status_log.exists():
+            diff_td = date.today() - prev_status_log.first().created_at.date()
+        else:
+            diff_td = date.today() - date_joined
+
         return diff_td.days
 
     def get_number_of_books(self, status_log: StatusLog):
@@ -218,8 +226,9 @@ class AnalyticsSerializer(serializers.Serializer):
         total = 0
         for status in status_data:
             total += status['diff']['page']
+            print("+ {} = {}".format(status['diff']['page'], total))
 
-        period_days = self._get_period_days()
+        period_days = self._get_period_days(status_log)
 
         return {
             'total': total,
@@ -254,7 +263,7 @@ class AnalyticsSerializer(serializers.Serializer):
             continuous = 0
 
         return {
-            'since_joined': self._get_period_days(),
+            'since_joined': self._get_period_days(status_log),
             'total': len(date_set),
             'continuous': continuous
         }
