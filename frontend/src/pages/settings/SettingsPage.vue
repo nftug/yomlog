@@ -1,6 +1,6 @@
 <template>
   <!-- メインエリア (モバイル) -->
-  <div v-if="isLessThanMd">
+  <div v-if="isLessThanLg">
     <v-container v-if="$route.name === 'settings'">
       <div class="col-md-6 col-sm-10 mx-auto">
         <v-card class="mx-auto" tile>
@@ -93,7 +93,7 @@ export default {
   },
   methods: {
     changeIndex: function () {
-      if (this.$route.name === 'settings' && window.innerWidth >= 992) {
+      if (!this.isLessThanLg && this.$route.name === 'settings') {
         // 画面サイズがlarge以上でpathがルートなら、プロフィールページに遷移
         this.$router.replace('/settings/profile')
       } else if (this.$route.name != 'settings') {
@@ -110,7 +110,7 @@ export default {
       }
     },
     onChangeTab: function () {
-      if (!(this.isLessThanMd || this.notChangeRoute)) {
+      if (!(this.isLessThanLg || this.notChangeRoute)) {
         let path = this.pages[this.selectedIndex]
         if (this.$route.path != path) this.$router.push(path)
       }
