@@ -11,6 +11,7 @@ from datetime import datetime, date
 from datetime import timedelta
 from django.db.models import Q, Count
 import math
+from itertools import islice
 
 
 class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
@@ -186,6 +187,7 @@ class AnalyticsSerializer(serializers.Serializer):
     number_of_books = serializers.SerializerMethodField()
     pages_read = serializers.SerializerMethodField()
     days = serializers.SerializerMethodField()
+    authors_count = serializers.SerializerMethodField()
 
     def _get_period_days(self, status_log: StatusLog):
         """ユーザー登録日 or 記録の開始日から今日までの日数を計算"""
@@ -266,3 +268,35 @@ class AnalyticsSerializer(serializers.Serializer):
             'total': len(date_set),
             'continuous': continuous
         }
+
+    def get_authors_count(self, status_log: StatusLog):
+        """先頭<head>件 (default: 5) で著者名の集計を降順で取得"""
+
+        # Bookの全体から集計を取得する
+        # TODO: 絞り込みにも対応させる
+        books = Book.objects.filter(created_by=self.context['request'].user).order_by('authors')
+
+        # 著者名のsetを取得
+        authors_set = set(books.values_list('authors', flat=True))
+        authors_list = []
+
+        for authors in authors_set:
+            authors_list += [_ for _ in authors.split(',')]
+
+        authors_set = set(authors_list)
+
+        # 著者名ごとに冊数を集計
+        counts_of_authors = OrderedDict()
+        for author in authors_set:
+            counts_of_authors[author] = books.filter(authors__icontains=author).count()
+
+        counts_of_authors = OrderedDict(
+            sorted(counts_of_authors.items(), key=lambda x: x[1], reverse=True)
+        )
+
+        # headパラメータで切り出す数を指定し、カウントリストを降順で切り出す
+        head = self.context['request'].GET.get('head')
+        head = int(head) if head and head.isdecimal() else 5
+        sliced_counts = OrderedDict(islice(counts_of_authors.items(), head))
+
+        return sliced_counts
