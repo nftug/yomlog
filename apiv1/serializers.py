@@ -12,6 +12,7 @@ from datetime import timedelta
 from django.db.models import Q, Count
 import math
 from itertools import islice
+import re
 
 
 class PostSerializer(serializers.ModelSerializer, ImageSerializerMixin):
@@ -147,7 +148,9 @@ class BookSerializer(PostSerializer):
     # created_by = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     note = serializers.SerializerMethodField()
-    authors = serializers.CharField(max_length=200)
+    authors = serializers.ListField(
+        child=serializers.CharField(max_length=50), write_only=True
+    )
 
     class Meta:
         model = Book
@@ -169,7 +172,7 @@ class BookSerializer(PostSerializer):
         authors = []
 
         # 関連先のAuthorオブジェクトを登録 (カンマ区切り)
-        for name in validated_data['authors'].split(','):
+        for name in validated_data['authors']:
             author, created = Author.objects.get_or_create(name=name)
             authors.append(author)
 
@@ -195,6 +198,16 @@ class BookSerializer(PostSerializer):
         queryset.delete()
 
         return book
+
+    def validate_authors(self, values):
+        """著者名の正規化"""
+
+        authors = []
+        for value in values:
+            value = re.sub(r'([^0-9a-z]) |　', r'\1', value)
+            authors.append(value)
+
+        return authors
 
     def get_status(self, instance):
         if not self.context.get('inside'):
@@ -319,3 +332,11 @@ class AnalyticsSerializer(serializers.Serializer):
         sliced_counts = OrderedDict(islice(counts_of_authors.items(), head))
 
         return sliced_counts
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    """著者名リスト用シリアライザ"""
+
+    class Meta:
+        model = Author
+        fields = ['name']
