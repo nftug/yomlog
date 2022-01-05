@@ -61,7 +61,10 @@
           <div class="ma-2"></div>
 
           <template v-if="toolbar.mode === 'checked'">
-            <v-btn icon @click="deleteItems"><v-icon>mdi-delete</v-icon></v-btn>
+            <v-btn color="red" dark @click="deleteItems">
+              <v-icon left>mdi-delete</v-icon>
+              削除
+            </v-btn>
           </template>
 
           <template v-else-if="toolbar.mode === 'search'">

@@ -23,8 +23,8 @@
       </v-card>
 
       <!-- 読書データ -->
-      <v-card outlined class="py-4 text-center">
-        <v-row class="mx-auto">
+      <v-card outlined class="text-center">
+        <v-row class="mx-auto my-3">
           <v-col cols="6" md="3">
             <div class="text-body-2">読んだ本</div>
             <div class="text-h5 mt-1">
