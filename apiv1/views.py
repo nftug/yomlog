@@ -1,10 +1,10 @@
-from rest_framework import serializers, status, viewsets, pagination, response, views
+from rest_framework import serializers, status, viewsets, pagination, response, views, generics, filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from django_filters import rest_framework as django_filter
 
 from backend.models import Book, Note, StatusLog, Author
-from .serializers import BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer
+from .serializers import AuthorSerializer, BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer
 from .filters import BookFilter, StatusLogFilter, NoteFilter
 from rest_framework.parsers import FileUploadParser, FormParser
 
@@ -37,7 +37,6 @@ class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     # lookup_field = 'id_google'
-    permission_classes = [IsAuthenticated]
 
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = BookFilter
@@ -81,7 +80,6 @@ class StatusLogViewSet(viewsets.ModelViewSet):
 
     queryset = StatusLog.objects.all()
     serializer_class = StatusLogSerializer
-    permission_classes = [IsAuthenticated]
 
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = StatusLogFilter
@@ -102,7 +100,6 @@ class NoteViewSet(viewsets.ModelViewSet):
 
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
-    permission_class = [IsAuthenticated]
     parser_class = (FileUploadParser, FormParser)
 
     filter_backends = [django_filter.DjangoFilterBackend]
@@ -122,8 +119,6 @@ class NoteViewSet(viewsets.ModelViewSet):
 class AnalyticsAPIView(views.APIView):
     """分析用のAPIクラス"""
 
-    permission_class = [IsAuthenticated]
-
     def get(self, request, *args, **kwargs):
         queryset = StatusLog.objects.filter(created_by=request.user, position__gt=0).select_related('book')
         filterset = StatusLogFilter(request.query_params, queryset=queryset)
@@ -132,3 +127,14 @@ class AnalyticsAPIView(views.APIView):
 
         serializer = AnalyticsSerializer(filterset.qs, context={'request': request})
         return response.Response(serializer.data, status.HTTP_200_OK)
+
+
+class AuthorListAPIView(generics.ListAPIView):
+    """著者名リストのAPI"""
+
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return self.queryset.filter(books__created_by=user).distinct()

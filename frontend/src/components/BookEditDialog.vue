@@ -14,11 +14,15 @@
         label="タイトル"
         :rules="requiredRules"
       ></v-text-field>
-      <v-text-field
+      <v-combobox
         v-model="book.authors"
+        :items="authorItems"
+        chips
+        small-chips
         label="著者"
-        :rules="requiredRules"
-      ></v-text-field>
+        multiple
+        :rules="authorsRules"
+      ></v-combobox>
       <v-text-field
         v-model="book.amazon_dp"
         label="ASIN/ISBNコード"
@@ -67,21 +71,29 @@ export default {
         '正しい桁数のコードを入力してください',
     ],
     totalRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
+    authorsRules: [(v) => v.length > 0 || 'この項目は入力必須です'],
+    authorItems: [],
   }),
   methods: {
     async showBookEditDialog({ book } = {}) {
       // bookに対する直接の操作は行わない
       // オブジェクト属性の書き換えは呼び出し元に担当させる
 
+      // バリデーションのリセット
       if (this.$refs.formBookEdit) {
         this.$refs.formBookEdit.resetValidation()
       }
       this.book = { ...book }
-      this.book.authors = this.book.authors.join(',')
 
+      // authorItemsを取得
+      const { data: results } = await api.get('/author/')
+      this.authorItems = results.map((e) => e.name)
+
+      // ダイアログを表示
       if (!(await this.$refs.dialogBookEdit.showDialog()))
-        return Promise.reject()
+        return Promise.resolve(false)
 
+      // total_pageのデフォルト値を設定
       if (!this.book.total_page) this.book.total_page = 0
 
       if (book.id) {
@@ -95,11 +107,8 @@ export default {
           message: '書籍情報を編集しました。',
         })
         this.$emit('post', data)
-      } else {
-        // postパラメータがfalseの場合、変更されたbookの参照を返す
-        // (メソッドの呼び出しにはawaitを使うこと)
-        this.book.authors = this.book.authors.split(',')
       }
+
       return Promise.resolve(this.book)
     },
   },

@@ -198,17 +198,13 @@ export default {
       let item = { ...book }
       item.format_type = format_type
 
-      try {
-        if (format_type === 1) item.total = 0
-        item = await this.$refs.bookEdit.showBookEditDialog({
-          book: item,
-        })
-      } catch {
-        // ダイアログがキャンセルの場合の処理
-        return
-      }
+      if (format_type === 1) item.total = 0
+      item = await this.$refs.bookEdit.showBookEditDialog({
+        book: item,
+      })
 
-      item.authors = item.authors.join(',')
+      // ダイアログがキャンセルの場合
+      if (!item) return
 
       // Bookのデータを登録
       // 既に登録されている場合は該当のデータが返却される (statusは200)
