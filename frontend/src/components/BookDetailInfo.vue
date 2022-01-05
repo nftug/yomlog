@@ -39,7 +39,7 @@ export default {
   },
   methods: {
     getStateDisplay(book, state) {
-      if (state.position.page) {
+      if (book.total_page) {
         return `${state.position.page} / ${book.total_page}`
       } else {
         return `${state.position.value} / ${book.total}`

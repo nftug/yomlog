@@ -116,16 +116,12 @@
 <script>
 import Spinner from '@/components/Spinner.vue'
 import NotFoundPage from '@/pages/error/NotFoundPage.vue'
-import Mixins, {
-  BookListMixin,
-  ShelfSearchFromHeaderMixin,
-  ListViewMixin,
-} from '@/mixins'
+import Mixins, { BookListMixin, ListViewMixin } from '@/mixins'
 import BookDetailInfo from '@/components/BookDetailInfo.vue'
 import BookDetailMenu from '@/components/BookDetailMenu.vue'
 
 export default {
-  mixins: [Mixins, BookListMixin, ShelfSearchFromHeaderMixin, ListViewMixin],
+  mixins: [Mixins, BookListMixin, ListViewMixin],
   components: {
     NotFoundPage,
     Spinner,

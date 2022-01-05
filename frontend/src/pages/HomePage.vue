@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid>
-    <v-col sm="10" class="mx-auto">
+  <v-container>
+    <v-col sm="10" lg="9" xl="7" class="mx-auto">
       <v-card outlined color="transparent" class="py-2">
         <!-- ユーザー情報 -->
         <v-list>

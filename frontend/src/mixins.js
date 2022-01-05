@@ -161,27 +161,6 @@ export const ListViewMixin = {
   },
 }
 
-export const ShelfSearchFromHeaderMixin = {
-  created() {
-    this.$router.app.$on('search', this.handleSearchFromHeader)
-  },
-  beforeDestroy() {
-    this.$router.app.$off('search', this.handleSearchFromHeader)
-  },
-  methods: {
-    handleSearchFromHeader(searchValue) {
-      this.$router.push({
-        path: '/shelf/all/',
-        query: searchValue
-          ? {
-              q: searchValue,
-            }
-          : null,
-      })
-    },
-  },
-}
-
 export const BookDetailChildMixin = {
   props: {
     item: {

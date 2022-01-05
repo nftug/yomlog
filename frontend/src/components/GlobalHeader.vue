@@ -82,7 +82,14 @@ export default {
   },
   methods: {
     handleSearch() {
-      this.$router.app.$emit('search', this.searchValue)
+      this.$router.push({
+        path: '/shelf/all/',
+        query: this.searchValue
+          ? {
+              q: this.searchValue,
+            }
+          : null,
+      })
     },
     onChangeSearchValue(searchValue) {
       this.searchValue = searchValue

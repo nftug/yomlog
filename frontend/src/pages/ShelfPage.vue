@@ -160,11 +160,7 @@
 
 <script>
 import BookList from '@/components/BookList.vue'
-import Mixins, {
-  BookListMixin,
-  ShelfSearchFromHeaderMixin,
-  ListViewMixin,
-} from '@/mixins'
+import Mixins, { BookListMixin, ListViewMixin } from '@/mixins'
 import api from '@/services/api'
 import StatusAddDialog from '@/components/StatusPostDialog.vue'
 import NoteAddDialog from '@/components/NotePostDialog.vue'
@@ -175,7 +171,7 @@ import BookAddDialog from '@/components/BookAddDialog.vue'
 import Fab from '@/components/Fab.vue'
 
 export default {
-  mixins: [BookListMixin, ShelfSearchFromHeaderMixin, ListViewMixin, Mixins],
+  mixins: [BookListMixin, ListViewMixin, Mixins],
   components: {
     BookList,
     StatusAddDialog,
