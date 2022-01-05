@@ -5,5 +5,6 @@ from .models import *
 admin.site.register(Book)
 admin.site.register(Note)
 admin.site.register(StatusLog)
+admin.site.register(Author)
 
 admin.site.register(CustomUser)

@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from django.conf import settings
 
 from .mixins import ImageSerializerMixin
-from backend.models import Book, StatusLog, Note
+from backend.models import Author, Book, StatusLog, Note
 
 from datetime import datetime, date
 from datetime import timedelta
@@ -147,6 +147,7 @@ class BookSerializer(PostSerializer):
     # created_by = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
     note = serializers.SerializerMethodField()
+    authors = serializers.CharField(max_length=200)
 
     class Meta:
         model = Book
@@ -157,10 +158,43 @@ class BookSerializer(PostSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['authors'] = self.get_authors(instance)
+
+        ret['authors'] = [_.name for _ in instance.authors.all()]
+
         if self.context.get('inside'):
             del ret['status'], ret['note']
         return ret
+
+    def _get_or_create_authors(self, validated_data):
+        authors = []
+
+        # 関連先のAuthorオブジェクトを登録 (カンマ区切り)
+        for name in validated_data['authors'].split(','):
+            author, created = Author.objects.get_or_create(name=name)
+            authors.append(author)
+
+        del validated_data['authors']
+        return authors
+
+    def create(self, validated_data):
+        authors = self._get_or_create_authors(validated_data)
+
+        # 登録したAuthorオブジェクトをbookに紐付けする
+        book = super().create(validated_data)
+        book.authors.set(authors)
+        return book
+
+    def update(self, instance, validated_data):
+        authors = self._get_or_create_authors(validated_data)
+
+        book = super().update(instance, validated_data)
+        book.authors.set(authors)
+
+        # orphanedなAuthorオブジェクトを削除
+        queryset = Author.objects.filter(books=None)
+        queryset.delete()
+
+        return book
 
     def get_status(self, instance):
         if not self.context.get('inside'):
@@ -169,9 +203,6 @@ class BookSerializer(PostSerializer):
             return data
         else:
             return None
-
-    def get_authors(self, instance):
-        return instance.authors.split(',')
 
     def get_note(self, instance):
         if not self.context.get('inside'):
@@ -272,23 +303,13 @@ class AnalyticsSerializer(serializers.Serializer):
     def get_authors_count(self, status_log: StatusLog):
         """先頭<head>件 (default: 5) で著者名の集計を降順で取得"""
 
-        # Bookの全体から集計を取得する
-        # TODO: 絞り込みにも対応させる
-        books = Book.objects.filter(created_by=self.context['request'].user).order_by('authors')
-
-        # 著者名のsetを取得
-        authors_set = set(books.values_list('authors', flat=True))
-        authors_list = []
-
-        for authors in authors_set:
-            authors_list += [_ for _ in authors.split(',')]
-
-        authors_set = set(authors_list)
+        user = self.context['request'].user
+        authors = Author.objects.filter(books__created_by=user).annotate(Count('books'))
 
         # 著者名ごとに冊数を集計
-        counts_of_authors = OrderedDict()
-        for author in authors_set:
-            counts_of_authors[author] = books.filter(authors__icontains=author).count()
+        counts_of_authors = {}
+        for author in authors:
+            counts_of_authors[author.name] = author.books__count
 
         counts_of_authors = OrderedDict(
             sorted(counts_of_authors.items(), key=lambda x: x[1], reverse=True)

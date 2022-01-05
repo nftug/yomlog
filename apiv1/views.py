@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from django_filters import rest_framework as django_filter
 
-from backend.models import Book, Note, StatusLog
+from backend.models import Book, Note, StatusLog, Author
 from .serializers import BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer
 from .filters import BookFilter, StatusLogFilter, NoteFilter
 from rest_framework.parsers import FileUploadParser, FormParser
@@ -63,6 +63,17 @@ class BookViewSet(viewsets.ModelViewSet):
         else:
             serializer.save()
             return response.Response(serializer.data, status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        # perform destroy
+        instance = self.get_object()
+        self.perform_destroy(instance)
+
+        # orphanedなAuthorオブジェクトを削除
+        queryset = Author.objects.filter(books=None)
+        queryset.delete()
+
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class StatusLogViewSet(viewsets.ModelViewSet):

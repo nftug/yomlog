@@ -51,6 +51,19 @@ class BookQuerySet(models.QuerySet):
         return self.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')
 
 
+class Author(models.Model):
+
+    class Meta:
+        db_table = 'author'
+        ordering = ['-name']
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
 class Book(models.Model):
 
     class Meta:
@@ -58,17 +71,16 @@ class Book(models.Model):
         ordering = ['-created_at']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    id_google = models.CharField('Google Books ID', max_length=12)
-    title = models.CharField('タイトル', max_length=100)
-    authors = models.CharField('著者', max_length=100)
-    thumbnail = models.URLField('書影URL', null=True, blank=True)
+    id_google = models.CharField(max_length=12)
+    title = models.CharField(max_length=100)
+    authors = models.ManyToManyField(Author, blank=True, default=['不明'], related_name='books')
+    thumbnail = models.URLField(null=True, blank=True)
     format_type = models.IntegerField(default=0, choices=((0, 'normal'), (1, 'ebook')))
     total = models.IntegerField(default=0)
     total_page = models.IntegerField(default=0, null=True, blank=True)
     amazon_dp = models.CharField(max_length=13, validators=[MinLengthValidator(10)], null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(CustomUser, verbose_name='登録したユーザー',
-                                   on_delete=models.SET_NULL, null=True, related_name='books')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='books')
     objects = BookQuerySet.as_manager()
 
     def __str__(self):
@@ -82,15 +94,13 @@ class Note(models.Model):
         ordering = ['-created_at']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    book = models.ForeignKey(Book, verbose_name='書籍', on_delete=models.CASCADE,
-                             related_name='notes')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='notes')
     position = models.IntegerField()
     quote_text = models.TextField(null=True, blank=True)
     quote_image = models.ImageField(blank=True, null=True, default=None)
     content = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(CustomUser, verbose_name='登録したユーザー',
-                                   on_delete=models.SET_NULL, null=True, related_name='notes')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='notes')
 
 
 class StatusLog(models.Model):
@@ -100,9 +110,7 @@ class StatusLog(models.Model):
         ordering = ['-created_at']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    book = models.ForeignKey(Book, verbose_name='書籍', on_delete=models.CASCADE,
-                             related_name='status_log')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='status_log')
     position = models.IntegerField()
     created_at = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(CustomUser, verbose_name='登録したユーザー',
-                                   on_delete=models.SET_NULL, null=True, related_name='status_log')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='status_log')
