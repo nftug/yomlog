@@ -28,7 +28,7 @@ class CustomUser(AbstractUser):
 class BookQuerySet(models.QuerySet):
     def filter_by_state(self, state):
         queryset = self.prefetch_related('status_log')
-        query = Q(id=None)
+        ids = []
 
         for book in queryset:
             status_log = book.status_log
@@ -36,16 +36,16 @@ class BookQuerySet(models.QuerySet):
 
             if position <= 0:
                 if state == 'to_be_read':
-                    query |= Q(id=book.id)
+                    ids.append(book.id)
                 else:
                     continue
             else:
                 if state == 'reading' and position < book.total:
-                    query |= Q(id=book.id)
+                    ids.append(book.id)
                 elif state == 'read' and position >= book.total:
-                    query |= Q(id=book.id)
+                    ids.append(book.id)
 
-        return queryset.filter(query)
+        return queryset.filter(id__in=ids).distinct()
 
     def sort_by_state(self):
         return self.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')

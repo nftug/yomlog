@@ -238,10 +238,8 @@ class AnalyticsSerializer(serializers.Serializer):
         """ステータスごとの累計冊数を取得"""
 
         # status_logに関連づけられたbooksをまとめて取得
-        query = Q(id=None)
-        for status in status_log:
-            query |= Q(id=status.book.id)
-        books = Book.objects.filter(query)
+        status_ids = set(status_log.values_list('id', flat=True))
+        books = Book.objects.filter(status_log__id__in=status_ids)
 
         return {
             'to_be_read': Book.objects.filter_by_state('to_be_read').count(),

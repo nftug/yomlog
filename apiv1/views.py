@@ -48,7 +48,7 @@ class BookViewSet(viewsets.ModelViewSet):
         # プライベートアクセスのみ
         return self.queryset.filter(
             created_by=self.request.user
-        ).prefetch_related('status_log', 'notes').sort_by_state()
+        ).prefetch_related('status_log', 'notes', 'authors').sort_by_state()
 
     def create(self, request, *args, **kwargs):
         # すでに同一のGoogle Books IDで登録されたレコードが存在する場合、保存せずにそのまま返す
