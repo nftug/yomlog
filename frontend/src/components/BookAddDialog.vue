@@ -218,6 +218,9 @@ export default {
         data: item,
       })
 
+      // ユーザーデータを更新
+      this.$store.dispatch('auth/reload')
+
       // 書籍の詳細ページに遷移
       this.$router.replace(`/book/detail/${data.id}`)
 
