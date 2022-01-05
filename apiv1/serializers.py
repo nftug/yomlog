@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from django.conf import settings
 
 from .mixins import ImageSerializerMixin
-from backend.models import Author, Book, StatusLog, Note
+from backend.models import Author, Book, StatusLog, Note, BookAuthorRelation
 
 from datetime import datetime, date
 from datetime import timedelta
@@ -149,7 +149,7 @@ class BookSerializer(PostSerializer):
     status = serializers.SerializerMethodField()
     note = serializers.SerializerMethodField()
     authors = serializers.ListField(
-        child=serializers.CharField(max_length=50), write_only=True
+        child=serializers.CharField(max_length=100), write_only=True
     )
 
     class Meta:
@@ -162,7 +162,7 @@ class BookSerializer(PostSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
 
-        ret['authors'] = [_.name for _ in instance.authors.all()]
+        ret['authors'] = instance.get_author_names()
 
         if self.context.get('inside'):
             del ret['status'], ret['note']
@@ -171,7 +171,7 @@ class BookSerializer(PostSerializer):
     def _get_or_create_authors(self, validated_data):
         authors = []
 
-        # 関連先のAuthorオブジェクトを登録 (カンマ区切り)
+        # 関連先のAuthorオブジェクトを登録
         for name in validated_data['authors']:
             author, created = Author.objects.get_or_create(name=name)
             authors.append(author)
@@ -184,18 +184,25 @@ class BookSerializer(PostSerializer):
 
         # 登録したAuthorオブジェクトをbookに紐付けする
         book = super().create(validated_data)
-        book.authors.set(authors)
+
+        for i, author in enumerate(authors):
+            BookAuthorRelation.objects.create(order=i, book=book, author=author)
+
         return book
 
     def update(self, instance, validated_data):
         authors = self._get_or_create_authors(validated_data)
 
         book = super().update(instance, validated_data)
-        book.authors.set(authors)
+
+        # 事前に中間テーブルを削除しておく
+        BookAuthorRelation.objects.filter(book=book).delete()
+
+        for i, author in enumerate(authors):
+            BookAuthorRelation.objects.create(order=i, book=book, author=author)
 
         # orphanedなAuthorオブジェクトを削除
-        queryset = Author.objects.filter(books=None)
-        queryset.delete()
+        Author.objects.filter(books=None).delete()
 
         return book
 

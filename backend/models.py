@@ -73,7 +73,7 @@ class Book(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     id_google = models.CharField(max_length=12)
     title = models.CharField(max_length=100)
-    authors = models.ManyToManyField(Author, blank=True, default=['不明'], related_name='books')
+    authors = models.ManyToManyField(Author, related_name='books', through='BookAuthorRelation')
     thumbnail = models.URLField(null=True, blank=True)
     format_type = models.IntegerField(default=0, choices=((0, 'normal'), (1, 'ebook')))
     total = models.IntegerField(default=0)
@@ -85,6 +85,23 @@ class Book(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(self.created_by, self.title)
+
+    def get_author_names(self):
+        # orderに合わせて著者名を並び替え
+        through = self.authors.through
+        return through.objects.filter(book=self).values_list('author__name', flat=True).order_by('order')
+
+
+class BookAuthorRelation(models.Model):
+
+    class Meta:
+        db_table = 'book_author'
+        ordering = ['book', 'order']
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    order = models.IntegerField()
 
 
 class Note(models.Model):

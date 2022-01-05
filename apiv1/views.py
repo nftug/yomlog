@@ -69,8 +69,7 @@ class BookViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
 
         # orphanedなAuthorオブジェクトを削除
-        queryset = Author.objects.filter(books=None)
-        queryset.delete()
+        Author.objects.filter(books=None).delete()
 
         return response.Response(status=status.HTTP_204_NO_CONTENT)
 

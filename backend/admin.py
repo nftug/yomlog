@@ -1,8 +1,18 @@
 from django.contrib import admin
 
-from .models import *
+from backend.models import Author, Book, StatusLog, Note, BookAuthorRelation, CustomUser
 
-admin.site.register(Book)
+
+class BookAuthorRelationInline(admin.TabularInline):
+    model = BookAuthorRelation
+    extra = 1
+
+
+class BookAuthorRelationAdmin(admin.ModelAdmin):
+    inlines = (BookAuthorRelationInline,)
+
+
+admin.site.register(Book, BookAuthorRelationAdmin)
 admin.site.register(Note)
 admin.site.register(StatusLog)
 admin.site.register(Author)
