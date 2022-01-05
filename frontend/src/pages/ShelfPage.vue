@@ -260,6 +260,8 @@ export default {
       }
     },
     handleReload(data) {
+      this.$store.dispatch('auth/reload') // ユーザー情報の更新
+
       if (!data.state) {
         this.initPage({ isReload: true })
         return

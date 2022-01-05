@@ -33,7 +33,15 @@
     </template>
 
     <!-- Right (not authed) -->
-    <template v-else-if="$route.name === 'login' || $route.name === 'signup'">
+    <template v-else>
+      <v-toolbar-title style="cursor: pointer">
+        <div class="hidden-lg-and-up">
+          {{ $route.meta.title }}
+        </div>
+        <router-link tag="div" class="hidden-md-and-down" to="/">
+          {{ appName }}
+        </router-link>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn to="/login" :icon="isLessThanLg" :text="!isLessThanLg">
         <v-icon class="hidden-lg-and-up">mdi-login</v-icon>

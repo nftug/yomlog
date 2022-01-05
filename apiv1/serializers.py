@@ -226,7 +226,6 @@ class AnalyticsSerializer(serializers.Serializer):
         total = 0
         for status in status_data:
             total += status['diff']['page']
-            print("+ {} = {}".format(status['diff']['page'], total))
 
         period_days = self._get_period_days(status_log)
 
