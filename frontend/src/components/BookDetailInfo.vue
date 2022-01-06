@@ -39,9 +39,11 @@ export default {
   },
   methods: {
     getStateDisplay(book, state) {
-      if (book.total_page) {
+      if (book.format_type === 1) {
+        // Kindle本の場合、分母はtotal_pageを表示
         return `${state.position.page} / ${book.total_page}`
       } else {
+        // 通常の書籍の場合、分母はtotalを表示
         return `${state.position.value} / ${book.total}`
       }
     },

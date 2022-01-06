@@ -198,7 +198,14 @@ export default {
       let item = { ...book }
       item.format_type = format_type
 
-      if (format_type === 1) item.total = 0
+      if (format_type === 1) {
+        // Kindle本の場合、total_pageは残してtotalをクリア
+        item.total = 0
+      } else {
+        // 通常の書籍の場合、total_pageをクリア
+        delete item.total_page
+      }
+
       item = await this.$refs.bookEdit.showBookEditDialog({
         book: item,
       })

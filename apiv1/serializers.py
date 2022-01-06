@@ -157,6 +157,7 @@ class BookSerializer(PostSerializer):
         exclude = ['created_by']
         extra_kwargs = {
             'created_at': {'required': False, 'read_only': True},
+            'total_page': {'required': False, 'allow_null': True},
         }
 
     def to_representation(self, instance):
