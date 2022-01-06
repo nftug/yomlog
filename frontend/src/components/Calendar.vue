@@ -205,7 +205,7 @@ export default {
         const { data: status } = await api.get('/status/', { params })
         status.forEach((item) => {
           this.events.push({
-            name: `${item.book.title} (+${item.diff.percentage}%)`,
+            name: `${item.book.title} (+${item.diff.page})`,
             start: new Date(item.created_at),
             end: new Date(item.created_at),
             color: 'blue',

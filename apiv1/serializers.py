@@ -249,7 +249,7 @@ class AnalyticsSerializer(serializers.Serializer):
 
         prev_status_log = status_log.filter(created_at__lt=date_joined)
         if prev_status_log.exists():
-            diff_td = date.today() - prev_status_log.first().created_at.date()
+            diff_td = date.today() - prev_status_log.last().created_at.date()
         else:
             diff_td = date.today() - date_joined
 
