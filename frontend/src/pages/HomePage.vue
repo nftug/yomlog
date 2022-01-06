@@ -40,7 +40,7 @@
       <!-- 読書データ -->
       <v-row class="my-3">
         <v-col cols="12" md="6">
-          <v-card outlined>
+          <v-card outlined style="height: 100%">
             <v-card-title class="mx-3 mt-3">読書データ</v-card-title>
             <v-card-text>
               <v-list>
@@ -63,6 +63,20 @@
             </v-card-text>
           </v-card>
         </v-col>
+
+        <v-col cols="12" md="6">
+          <v-card outlined style="height: 100%">
+            <v-card-title class="mx-3 mt-3">トップ10の著者</v-card-title>
+            <v-card-text>
+              <GraphAuthors
+                :data="authorsGraphData"
+                :options="authorsGraphOptions"
+                :width="authorsGraphWidth"
+                :height="authorsGraphHeight"
+              ></GraphAuthors>
+            </v-card-text>
+          </v-card>
+        </v-col>
       </v-row>
     </v-col>
   </v-container>
@@ -71,68 +85,128 @@
 <script>
 import Mixin from '@/mixins'
 import { mapGetters, mapState } from 'vuex'
+import GraphAuthors from '@/components/GraphAuthors.vue'
 
 export default {
   mixins: [Mixin],
+  components: {
+    GraphAuthors,
+  },
   data: () => ({
     analytics: [],
     bookAnalytics: [],
+    authorsGraphData: {},
+    authorsGraphOptions: {
+      maintainAspectRatio: false,
+      legend: {
+        position: 'right',
+        display: true,
+      },
+    },
   }),
   computed: {
     ...mapState(['auth']),
-    ...mapGetters({ created_at: 'auth/created_at' }),
+    ...mapGetters({
+      created_at: 'auth/created_at',
+      authorsCount: 'auth/authorsCount',
+    }),
     ...mapState({
       numOfBooks: (state) => state.auth.analytics.number_of_books,
       pages: (state) => state.auth.analytics.pages_read,
       days: (state) => state.auth.analytics.days,
     }),
+    authorsGraphHeight() {
+      return window.innerHeight / 4
+    },
+    authorsGraphWidth() {
+      return window.innerWidth / 4
+    },
   },
   created() {
-    this.analytics = [
-      {
-        title: '読んだ本',
-        value: this.numOfBooks.read,
-        unit: '冊',
-      },
-      {
-        title: '読んだページ数',
-        value: this.pages.total,
-        unit: 'ページ',
-      },
-      {
-        title: '一日の平均',
-        value: this.pages.avg_per_day,
-        unit: 'ページ',
-      },
-      {
-        title: '連続読書日数',
-        value: this.days.continuous,
-        unit: '日',
-      },
-    ]
-    this.bookAnalytics = [
-      {
-        title: '読んだ本',
-        icon: 'mdi-book-check',
-        color: 'green',
-        value: this.numOfBooks.read,
-        to: '/shelf/read',
-      },
-      {
-        title: '読んでいる本',
-        icon: 'mdi-book-open-variant',
-        color: 'blue',
-        value: this.numOfBooks.reading,
-        to: '/shelf/reading',
-      },
-      {
-        title: 'あとで読む',
-        icon: 'mdi-book-clock',
-        color: 'orange',
-        value: this.numOfBooks.to_be_read,
-        to: '/shelf/to_be_read',
-      },
-    ]
+    // データをセットする
+    this.setData()
+  },
+  methods: {
+    setData() {
+      //分析データ
+      this.analytics = [
+        {
+          title: '読んだ本',
+          value: this.numOfBooks.read,
+          unit: '冊',
+        },
+        {
+          title: '読んだページ数',
+          value: this.pages.total,
+          unit: 'ページ',
+        },
+        {
+          title: '一日の平均',
+          value: this.pages.avg_per_day,
+          unit: 'ページ',
+        },
+        {
+          title: '連続読書日数',
+          value: this.days.continuous,
+          unit: '日',
+        },
+      ]
+
+      // 読書冊数データ
+      this.bookAnalytics = [
+        {
+          title: '読んだ本',
+          icon: 'mdi-book-check',
+          color: 'green',
+          value: this.numOfBooks.read,
+          to: '/shelf/read',
+        },
+        {
+          title: '読んでいる本',
+          icon: 'mdi-book-open-variant',
+          color: 'blue',
+          value: this.numOfBooks.reading,
+          to: '/shelf/reading',
+        },
+        {
+          title: 'あとで読む',
+          icon: 'mdi-book-clock',
+          color: 'orange',
+          value: this.numOfBooks.to_be_read,
+          to: '/shelf/to_be_read',
+        },
+      ]
+
+      // 著者ランキングデータ
+      this.authorsGraphData = {
+        labels: this.authorsCount.authors,
+        datasets: [
+          {
+            data: this.authorsCount.counts,
+            backgroundColor: [
+              '#E1F5FE',
+              '#B3E5FC',
+              '#81D4FA',
+              '#4FC3F7',
+              '#29B6F6',
+              '#03A9F4',
+              '#039BE5',
+              '#0288D1',
+              '#0277BD',
+              '#01579B',
+            ],
+          },
+        ],
+      }
+
+      // グラフの凡例を設定
+      const isLessThanSm = window.innerWidth < 600
+      if (isLessThanSm) {
+        this.authorsGraphOptions.legend.display = false
+      } else {
+        this.authorsGraphOptions.legend.display = true
+      }
+    },
   },
 }
 </script>

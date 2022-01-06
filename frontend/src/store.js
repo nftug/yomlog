@@ -32,6 +32,10 @@ const authModule = {
   },
   getters: {
     created_at: (state) => moment(state.date_joined).format('yyyy/MM/DD'),
+    authorsCount: ({ analytics: { authors_count } }) => ({
+      authors: Object.keys(authors_count),
+      counts: Object.keys(authors_count).map((key) => authors_count[key]),
+    }),
   },
   mutations: {
     set(state, { user }) {
@@ -76,7 +80,7 @@ const authModule = {
     },
     // ユーザー情報更新
     async reload({ commit }) {
-      const { data: user } = await api.get('/auth/users/me/')
+      const { data: user } = await api.get('/auth/users/me/?head=10')
       commit('set', { user })
       return user
     },

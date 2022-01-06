@@ -319,12 +319,12 @@ class AnalyticsSerializer(serializers.Serializer):
         }
 
     def get_authors_count(self, status_log: StatusLog):
-        """先頭<head>件 (default: 5) で著者名の集計を降順で取得"""
+        """先頭<head>件で著者名の集計を降順で取得"""
 
         user = self.context['request'].user
         authors = Author.objects.filter(books__created_by=user).annotate(Count('books'))
 
-        # 著者名ごとに冊数を集計
+        # 著者名ごとに冊数を集計、降順で並べる
         counts_of_authors = {}
         for author in authors:
             counts_of_authors[author.name] = author.books__count
@@ -333,12 +333,15 @@ class AnalyticsSerializer(serializers.Serializer):
             sorted(counts_of_authors.items(), key=lambda x: x[1], reverse=True)
         )
 
-        # headパラメータで切り出す数を指定し、カウントリストを降順で切り出す
+        # headパラメータが存在する場合、カウントリストを降順で切り出す
         head = self.context['request'].GET.get('head')
-        head = int(head) if head and head.isdecimal() else 5
-        sliced_counts = OrderedDict(islice(counts_of_authors.items(), head))
+        if head:
+            if not head.isdecimal():
+                raise ValidationError({'head': 'headには数字を指定してください。'})
 
-        return sliced_counts
+            counts_of_authors = OrderedDict(islice(counts_of_authors.items(), int(head)))
+
+        return counts_of_authors
 
 
 class AuthorSerializer(serializers.ModelSerializer):

@@ -12,7 +12,8 @@ export const FormRulesMixin = {
 
 export const WindowResizeMixin = {
   data: () => ({
-    windowSize: null,
+    innerWidth: null,
+    innerHeight: null,
   }),
   created() {
     this.onWindowResize()
@@ -23,18 +24,19 @@ export const WindowResizeMixin = {
   },
   computed: {
     isLessThanSm: function () {
-      return this.windowSize < 600
+      return this.innerWidth < 600
     },
     isLessThanMd: function () {
-      return this.windowSize < 960
+      return this.innerWidth < 960
     },
     isLessThanLg: function () {
-      return this.windowSize < 1264
+      return this.innerWidth < 1264
     },
   },
   methods: {
     onWindowResize: function () {
-      this.windowSize = window.innerWidth
+      this.innerWidth = window.innerWidth
+      this.innerHeight = window.innerHeight
     },
   },
 }
