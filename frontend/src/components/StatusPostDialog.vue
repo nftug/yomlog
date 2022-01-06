@@ -146,11 +146,18 @@ export default {
     async postStatus() {
       const params = {
         position: this.to_be_read ? 0 : this.position,
-        created_at: moment(`${this.date} ${this.time}`).format(),
       }
       let method, url
       this.$refs.dialogStatusAdd.hideDialog(true)
 
+      // 現在の日時 (秒単位は切り捨て) と入力値が異なる場合、params.created_atを設定する
+      const now = moment().startOf('minute').format()
+      const created_at = moment(`${this.date} ${this.time}`).format()
+      if (now !== created_at) {
+        params.created_at = created_at
+      }
+
+      // 編集 or 新規でAjaxのパラメータを変更
       if (this.statusId) {
         method = 'patch'
         url = `/status/${this.statusId}/`
