@@ -68,12 +68,12 @@
           <v-card outlined style="height: 100%">
             <v-card-title class="mx-3 mt-3">トップ10の著者</v-card-title>
             <v-card-text>
-              <GraphAuthors
+              <GraphDoughnut
                 :data="authorsGraphData"
                 :options="authorsGraphOptions"
                 :width="authorsGraphWidth"
                 :height="authorsGraphHeight"
-              ></GraphAuthors>
+              ></GraphDoughnut>
             </v-card-text>
           </v-card>
         </v-col>
@@ -85,12 +85,12 @@
 <script>
 import Mixin from '@/mixins'
 import { mapGetters, mapState } from 'vuex'
-import GraphAuthors from '@/components/GraphAuthors.vue'
+import GraphDoughnut from '@/components/GraphDoughnut.vue'
 
 export default {
   mixins: [Mixin],
   components: {
-    GraphAuthors,
+    GraphDoughnut,
   },
   data: () => ({
     analytics: [],
@@ -184,16 +184,16 @@ export default {
           {
             data: this.authorsCount.counts,
             backgroundColor: [
-              '#E1F5FE',
-              '#B3E5FC',
-              '#81D4FA',
-              '#4FC3F7',
-              '#29B6F6',
-              '#03A9F4',
-              '#039BE5',
-              '#0288D1',
-              '#0277BD',
               '#01579B',
+              '#0277BD',
+              '#0288D1',
+              '#039BE5',
+              '#03A9F4',
+              '#29B6F6',
+              '#4FC3F7',
+              '#81D4FA',
+              '#B3E5FC',
+              '#E1F5FE',
             ],
           },
         ],
