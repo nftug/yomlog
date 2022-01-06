@@ -100,7 +100,6 @@ export default {
       maintainAspectRatio: false,
       legend: {
         position: 'right',
-        display: true,
       },
     },
   }),
@@ -195,14 +194,6 @@ export default {
             ],
           },
         ],
-      }
-
-      // グラフの凡例を設定
-      const isLessThanSm = window.innerWidth < 600
-      if (isLessThanSm) {
-        this.authorsGraphOptions.legend.display = false
-      } else {
-        this.authorsGraphOptions.legend.display = true
       }
     },
   },
