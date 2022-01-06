@@ -66,7 +66,7 @@
 
         <v-col cols="12" md="6">
           <v-card outlined style="height: 100%">
-            <v-card-title class="mx-3 mt-3">トップ10の著者</v-card-title>
+            <v-card-title class="mx-3 mt-3">トップの著者</v-card-title>
             <v-card-text>
               <GraphDoughnut
                 :data="authorsGraphData"
@@ -184,8 +184,6 @@ export default {
           {
             data: this.authorsCount.counts,
             backgroundColor: [
-              '#01579B',
-              '#0277BD',
               '#0288D1',
               '#039BE5',
               '#03A9F4',
