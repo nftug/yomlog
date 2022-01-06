@@ -3,7 +3,7 @@
     <v-form ref="formStatusAdd" v-model="isValid" @submit.prevent>
       <v-text-field
         v-model="position"
-        :label="!format_type ? 'ページ数' : '位置No'"
+        :label="format_type === 1 ? '位置No' : 'ページ数'"
         type="number"
         min="0"
         autofocus
@@ -84,7 +84,7 @@ export default {
         (v) => v > 0 || '0より大きい数値を入力してください',
         (v) =>
           v <= this.total ||
-          (!this.format_type ? 'ページ数' : '位置No') + 'が不正です',
+          (this.format_type === 1 ? '位置No' : 'ページ数') + 'が不正です',
       ],
       toBeReadRules: [
         (v) =>

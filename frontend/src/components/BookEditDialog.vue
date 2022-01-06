@@ -31,13 +31,13 @@
       ></v-text-field>
       <v-text-field
         v-model="book.total"
-        :label="book.format_type ? '位置Noの総数' : 'ページ数'"
+        :label="book.format_type === 1 ? '位置Noの総数' : 'ページ数'"
         type="number"
         min="0"
         :rules="totalRules"
       ></v-text-field>
       <v-text-field
-        v-if="book.format_type"
+        v-if="book.format_type === 1"
         v-model="book.total_page"
         label="ページ数"
         type="number"
