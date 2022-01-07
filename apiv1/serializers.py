@@ -241,19 +241,24 @@ class AnalyticsSerializer(serializers.Serializer):
     days = serializers.SerializerMethodField()
     authors_count = serializers.SerializerMethodField()
 
-    def _get_period_days(self, status_log: StatusLog):
-        """ユーザー登録日 or 記録の開始日から今日までの日数を計算"""
+    def _get_days_since_joined(self, status_log: StatusLog):
+        """ユーザー登録日から今日までの日数を計算"""
 
         user = self.context['request'].user
         date_joined = user.date_joined.date()
-
-        prev_status_log = status_log.filter(created_at__lt=date_joined)
-        if prev_status_log.exists():
-            diff_td = date.today() - prev_status_log.last().created_at.date()
-        else:
-            diff_td = date.today() - date_joined
+        diff_td = date.today() - date_joined
 
         return diff_td.days
+
+    def _get_diff_total(self, status_log: StatusLog):
+        """進捗の累計ページ数を取得"""
+
+        status_data = StatusLogSerializer(status_log, many=True, read_only=True, context={'inside': True}).data
+        total = 0
+        for status in status_data:
+            total += status['diff']['page']
+
+        return total
 
     def get_number_of_books(self, status_log: StatusLog):
         """ステータスごとの累計冊数を取得"""
@@ -271,19 +276,20 @@ class AnalyticsSerializer(serializers.Serializer):
     def get_pages_read(self, status_log: StatusLog):
         """読書ページ数の累計と、一日毎の平均ページ数を取得"""
 
-        # NOTE: total_pageの情報を持たない本はカウントしない
+        # NOTE: total_pageの情報を持たないKindle本はカウントしない
         # TODO: Kindleの位置Noとページ数に固定の相関性はあるか？あとで調べる。
 
-        status_data = StatusLogSerializer(status_log, many=True, read_only=True, context={'inside': True}).data
-        total = 0
-        for status in status_data:
-            total += status['diff']['page']
+        # 全体の累計ページ数を取得
+        total = self._get_diff_total(status_log)
 
-        period_days = self._get_period_days(status_log)
+        # 平均のページ数は登録日以降の記録で集計する
+        date_joined = self.context['request'].user.date_joined
+        total_since_joined = self._get_diff_total(status_log.filter(created_at__gte=date_joined))
+        period_days = self._get_days_since_joined(status_log)
 
         return {
             'total': total,
-            'avg_per_day': int(total / (period_days or 1)),
+            'avg_per_day': int(total_since_joined / (period_days or 1)),
         }
 
     def get_days(self, status_log: StatusLog):
@@ -314,7 +320,7 @@ class AnalyticsSerializer(serializers.Serializer):
             continuous = 0
 
         return {
-            'since_joined': self._get_period_days(status_log),
+            'since_joined': self._get_days_since_joined(status_log),
             'total': len(date_set),
             'continuous': continuous
         }
