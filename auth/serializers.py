@@ -41,12 +41,7 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
 
     def get_analytics(self, instance):
         queryset = StatusLog.objects.filter(created_by=instance, position__gt=0).select_related('book')
-
-        # 日毎のページ数集計は直近の一週間をまとめる
-        date_week_ago = date.today() - timedelta(days=7)
-
-        context = {**self.context, 'head': 8, 'created_at__date__gte': date_week_ago}
-
+        context = {**self.context, 'userinfo': True}
         return AnalyticsSerializer(queryset, context=context).data
 
 
