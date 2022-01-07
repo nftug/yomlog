@@ -80,7 +80,7 @@ const authModule = {
     },
     // ユーザー情報更新
     async reload({ commit }) {
-      const { data: user } = await api.get('/auth/users/me/?head=8')
+      const { data: user } = await api.get('/auth/users/me/')
       commit('set', { user })
       return user
     },

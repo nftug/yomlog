@@ -334,10 +334,10 @@ class AnalyticsSerializer(serializers.Serializer):
             sorted(counts_of_authors.items(), key=lambda x: x[1], reverse=True)
         )
 
-        # headパラメータが存在する場合、カウントリストを降順で切り出す
-        head = self.context['request'].GET.get('head')
+        # headコンテキスト or GETパラメータが存在する場合、カウントリストを降順で切り出す
+        head = self.context.get('head') or self.context['request'].GET.get('head')
         if head:
-            if not head.isdecimal():
+            if type(head) is str and not head.isdecimal():
                 raise ValidationError({'head': 'headには数字を指定してください。'})
 
             counts_of_authors = OrderedDict(islice(counts_of_authors.items(), int(head)))

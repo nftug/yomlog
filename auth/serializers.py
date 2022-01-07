@@ -39,7 +39,8 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
 
     def get_analytics(self, instance):
         queryset = StatusLog.objects.filter(created_by=instance, position__gt=0).select_related('book')
-        return AnalyticsSerializer(queryset, context=self.context).data
+        context = {**self.context, 'head': 8}  # 先頭8件を取得
+        return AnalyticsSerializer(queryset, context=context).data
 
 
 class CustomUserListSerializer(CustomUserSerializer):
