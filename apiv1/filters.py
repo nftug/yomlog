@@ -92,6 +92,7 @@ class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
     authors_or = django_filter.CharFilter(field_name='book__authors__name', label='Authors (OR)', method='filter_search_or')
     amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
     created_by = django_filter.CharFilter(field_name='created_by__username')
+    only_progress = django_filter.BooleanFilter(label='Not include "to be read"', method='filter_only_progress')
 
     class Meta:
         model = StatusLog
@@ -101,6 +102,14 @@ class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
             'book__authors__name__icontains',
             'amazon_dp'
         ]
+
+    def filter_only_progress(self, queryset, name, value):
+        # 積読状態を除いたステータスを取得
+
+        if not value:
+            return queryset
+
+        return queryset.exclude(position=0)
 
 
 class NoteFilter(GenericSearchFilterSet, GenericEventFilterSet):

@@ -15,7 +15,9 @@
       </v-btn>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
     </v-sheet>
+
     <v-sheet :height="height">
+      <!-- Loading overlay -->
       <v-overlay absolute v-show="isLoading" color="grey">
         <v-progress-circular
           indeterminate
@@ -25,6 +27,7 @@
         ></v-progress-circular>
       </v-overlay>
 
+      <!-- カレンダー -->
       <v-calendar
         ref="calendar"
         v-model="value"
@@ -42,11 +45,13 @@
         @click:date="showMore"
       ></v-calendar>
 
+      <!-- ポップアップメニュー -->
       <v-menu
         v-model="selectedOpen"
         :close-on-content-click="false"
         :activator="selectedElement"
         offset-x
+        style="max-width: 320px"
       >
         <v-card class="overflow-hidden">
           <v-toolbar color="primary" dark dense flat>
@@ -58,7 +63,7 @@
 
           <v-sheet
             color="grey lighten-4"
-            width="350px"
+            width="320px"
             max-height="320px"
             flat
             class="overflow-y-auto"
@@ -111,6 +116,7 @@
                   </template>
                 </div>
               </template>
+
               <template v-else>
                 <div class="text-center py-5">記録が見つかりません。</div>
               </template>
@@ -184,9 +190,7 @@ export default {
   },
   filters: {
     getItemTitle(item) {
-      let ret = `${item.position.page}ページ`
-      if (item.diff.percentage) ret += ` (+${item.diff.percentage}%)`
-      return ret
+      return `${item.position.page}ページ (+${item.diff.page}ページ)`
     },
   },
   methods: {
@@ -199,7 +203,12 @@ export default {
           .format('yyyy-MM-26')
         const created_at__lte = moment(end.date).add(1, 'M').format('yyyy-MM-6')
 
-        const params = { no_pagination: true, created_at__gte, created_at__lte }
+        const params = {
+          no_pagination: true,
+          only_progress: true,
+          created_at__gte,
+          created_at__lte,
+        }
         this.events = []
 
         const { data: status } = await api.get('/status/', { params })
