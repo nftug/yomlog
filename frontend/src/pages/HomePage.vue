@@ -79,7 +79,7 @@
           </v-card>
         </v-col>
 
-        <!-- 一日ごとのページ数集計 -->
+        <!-- 一日ごとのページ数集計グラフ -->
         <v-col cols="12" md="6">
           <v-card outlined style="height: 100%">
             <v-card-title class="mx-3 mt-3">読書量の集計</v-card-title>
@@ -89,8 +89,8 @@
                 max-width="calc(100% - 32px)"
               >
                 <v-sparkline
-                  :labels="pagesDailyLabel"
-                  :value="pagesDailyValue"
+                  :labels="pagesDaily.date"
+                  :value="pagesDaily.pages"
                   color="primary"
                   line-width="2"
                   padding="16"
@@ -124,8 +124,6 @@ export default {
         position: 'right',
       },
     },
-    pagesDailyValue: [],
-    pagesDailyLabel: [],
   }),
   computed: {
     ...mapState(['auth']),
@@ -220,10 +218,6 @@ export default {
           },
         ],
       }
-
-      // 一日毎に読んだページ数
-      this.pagesDailyValue = this.pagesDaily.pages
-      this.pagesDailyLabel = this.pagesDaily.date
     },
   },
 }

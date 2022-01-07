@@ -36,12 +36,28 @@ const authModule = {
       authors: Object.keys(authors_count),
       counts: Object.keys(authors_count).map((key) => authors_count[key]),
     }),
-    pagesDaily: ({ analytics: { pages_daily } }) => ({
-      date: Object.keys(pages_daily).map((date) =>
-        moment(date).format('MM/DD')
-      ),
-      pages: Object.keys(pages_daily).map((key) => pages_daily[key]),
-    }),
+    pagesDaily: ({ analytics: { pages_daily } }) => {
+      const keys = Object.keys(pages_daily)
+      keys.sort()
+      const start = moment(keys[0])
+      const end = moment().startOf('day')
+
+      // 日付範囲で結果の配列を生成
+      const [date, pages] = [[], []]
+
+      for (let d = start; d <= end; d = moment(d).add(1, 'days')) {
+        date.push(moment(d).format('MM/DD'))
+
+        const key = moment(d).format('yyyy-MM-DD')
+        if (pages_daily.hasOwnProperty(key)) {
+          pages.push(pages_daily[key])
+        } else {
+          pages.push(0)
+        }
+      }
+
+      return { date, pages }
+    },
   },
   mutations: {
     set(state, { user }) {

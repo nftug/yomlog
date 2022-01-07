@@ -384,27 +384,20 @@ class AnalyticsSerializer(serializers.Serializer):
     def get_pages_daily(self, status_log: StatusLog):
         """日毎のページ数集計を取得"""
 
-        # 日付の範囲を指定
-        gets = self.context['request'].GET
-        if gets.get('created_at__gte'):
-            start_date = datetime.strptime(gets['created_at__gte'], '%Y-%m-%d').date()
-        elif self.context.get('userinfo'):
-            start_date = date.today() - timedelta(days=6)
-        else:
-            start_date = status_log.last().created_at.date()
+        # ユーザー情報から呼び出された場合、一週間以降を切り出す
+        if self.context.get('userinfo'):
+            date_week_ago = date.today() - timedelta(days=6)
+            status_log = status_log.filter(created_at__date__gte=date_week_ago)
 
-        if gets.get('created_at__lte'):
-            end_date = datetime.strptime(gets['created_at__lte'], '%Y-%m-%d').date()
-        else:
-            end_date = date.today()
+        # 記録された日数のset
+        date_set = set(status_log.values_list('created_at__date', flat=True))
+        sorted_date_set = sorted(list(date_set))
 
-        # 指定された日付範囲で日毎のページ数を集計する
         ret = {}
-        for i in range((end_date - start_date).days + 1):
-            date_item = start_date + timedelta(days=i)
-            status_daily = status_log.filter(created_at__date=date_item)
+        for date_created in sorted_date_set:
+            status_daily = status_log.filter(created_at__date=date_created)
             total_daily = self._get_diff_total(status_daily)
-            ret[str(date_item)] = total_daily
+            ret[str(date_created)] = total_daily
 
         return ret
 
