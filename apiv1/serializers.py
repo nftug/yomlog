@@ -7,8 +7,7 @@ from django.conf import settings
 from .mixins import ImageSerializerMixin
 from backend.models import Author, Book, StatusLog, Note, BookAuthorRelation
 
-from datetime import datetime, date
-from datetime import timedelta
+from datetime import date, timedelta
 from django.db.models import Q, Count
 import math
 from itertools import islice
@@ -233,22 +232,8 @@ class BookSerializer(PostSerializer):
             return None
 
 
-class AnalyticsSerializer(serializers.Serializer):
-    """分析用シリアライザ"""
-
-    number_of_books = serializers.SerializerMethodField()
-    pages_read = serializers.SerializerMethodField()
-    days = serializers.SerializerMethodField()
-    authors_count = serializers.SerializerMethodField()
-
-    def _get_days_since_joined(self, status_log: StatusLog):
-        """ユーザー登録日から今日までの日数を計算"""
-
-        user = self.context['request'].user
-        date_joined = user.date_joined.date()
-        diff_td = date.today() - date_joined
-
-        return diff_td.days
+class PageAdditionMixin():
+    """ページ数集計用ミックスイン"""
 
     def _get_diff_total(self, status_log: StatusLog):
         """進捗の累計ページ数を取得"""
@@ -259,6 +244,46 @@ class AnalyticsSerializer(serializers.Serializer):
             total += status['diff']['page']
 
         return total
+
+
+class PageAdditionSerializer(serializers.Serializer, PageAdditionMixin):
+    """ページ数集計用シリアライザ"""
+
+    pages_addition = serializers.SerializerMethodField()
+
+    def get_pages_addition(self, status_log: StatusLog):
+        """日毎のページ数の集計を取得"""
+
+        # 記録された日数のset
+        date_set = set(status_log.values_list('created_at__date', flat=True))
+        sorted_date_set = sorted(list(date_set))
+
+        ret = {}
+        for date in sorted_date_set:
+            status_daily = status_log.filter(created_at__date=date)
+            total_daily = self._get_diff_total(status_daily)
+            ret[str(date)] = total_daily
+
+        return ret
+
+
+class AnalyticsSerializer(serializers.Serializer, PageAdditionMixin):
+    """分析用シリアライザ"""
+
+    number_of_books = serializers.SerializerMethodField()
+    pages_read = serializers.SerializerMethodField()
+    days = serializers.SerializerMethodField()
+    authors_count = serializers.SerializerMethodField()
+    pages_addition = serializers.SerializerMethodField()
+
+    def _get_days_since_joined(self, status_log: StatusLog):
+        """ユーザー登録日から今日までの日数を計算"""
+
+        user = self.context['request'].user
+        date_joined = user.date_joined.date()
+        diff_td = date.today() - date_joined
+
+        return diff_td.days
 
     def get_number_of_books(self, status_log: StatusLog):
         """ステータスごとの累計冊数を取得"""
@@ -295,7 +320,7 @@ class AnalyticsSerializer(serializers.Serializer):
     def get_days(self, status_log: StatusLog):
         """登録日からの経過日数、トータルの読書日数、連続読書日数を取得"""
 
-        # 記録された日数のset (積読状態を除く)
+        # 記録された日数のset
         date_set = set(status_log.values_list('created_at__date', flat=True))
         sorted_date_set = sorted(list(date_set))
         cur_date = None
@@ -349,6 +374,17 @@ class AnalyticsSerializer(serializers.Serializer):
             counts_of_authors = OrderedDict(islice(counts_of_authors.items(), int(head)))
 
         return counts_of_authors
+
+    def get_pages_addition(self, status_log: StatusLog):
+        """日毎のページ数集計を取得"""
+
+        # created_at__gteコンテキストが存在する場合、指定された日数以降を切り出す
+        created_at__date__gte = self.context.get('created_at__date__gte')
+        if created_at__date__gte:
+            status_log = status_log.filter(created_at__date__gte=created_at__date__gte)
+
+        data = PageAdditionSerializer(status_log, many=False, read_only=True).data
+        return data['pages_addition']
 
 
 class AuthorSerializer(serializers.ModelSerializer):
