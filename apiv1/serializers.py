@@ -282,7 +282,7 @@ class AnalyticsSerializer(serializers.Serializer):
         else:
             # パラメータ指定なしの場合
             if self.context.get('userinfo'):
-                # userinfoコンテキストがある場合、start_dateはユーザーの登録日
+                # ユーザー情報から呼び出された場合、start_dateはユーザーの登録日
                 start_date = self.context['request'].user.date_joined.date()
             else:
                 # 直接呼び出しの場合、start_dateはstatus_logの最古の記録日
@@ -339,10 +339,12 @@ class AnalyticsSerializer(serializers.Serializer):
         """先頭<head>件で著者名の集計を降順で取得"""
 
         user = self.context['request'].user
-        authors = Author.objects.filter(books__created_by=user).annotate(Count('books'))
 
-        # 直接呼び出しの場合、フィルタの日付の範囲内にある本の著者で抽出
-        if self.context.get('userinfo') is None:
+        if self.context.get('userinfo'):
+            # ユーザー情報から呼び出された場合、全範囲の本の著者で抽出
+            authors = Author.objects.filter(books__created_by=user).annotate(Count('books'))
+        else:
+            # 直接呼び出しの場合、フィルタの日付の範囲内にある本の著者で抽出
             gets = self.context['request'].GET
             books = Book.objects.filter(created_by=user).order_by('created_at')
 
@@ -357,7 +359,7 @@ class AnalyticsSerializer(serializers.Serializer):
                 end_datetime = datetime.now()
 
             books = Book.objects.filter(created_by=user, created_at__gte=start_datetime, created_at__lte=end_datetime)
-            authors = authors.filter(books__in=books)
+            authors = Author.objects.filter(books__created_by=user, books__in=books).annotate(Count('books'))
 
         # 著者名ごとに冊数を集計、降順で並べる
         counts_of_authors = {}
@@ -368,7 +370,7 @@ class AnalyticsSerializer(serializers.Serializer):
             sorted(counts_of_authors.items(), key=lambda x: x[1], reverse=True)
         )
 
-        # userinfoコンテキスト or GETパラメータが存在する場合、カウントリストを降順で切り出す
+        # ユーザー情報からの呼び出し or GETパラメータが存在する場合、カウントリストを降順で切り出す
         head = 8 if self.context.get('userinfo') else self.context['request'].GET.get('head')
         if head:
             if type(head) is str and not head.isdecimal():
@@ -381,7 +383,7 @@ class AnalyticsSerializer(serializers.Serializer):
     def get_pages_addition(self, status_log: StatusLog):
         """日毎のページ数集計を取得"""
 
-        # userinfoコンテキストが存在する場合、一週間以降を切り出す
+        # ユーザー情報から呼び出された場合、一週間以降を切り出す
         if self.context.get('userinfo'):
             date_week_ago = (date.today() - timedelta(days=7))
             status_log = status_log.filter(created_at__date__gte=date_week_ago)
