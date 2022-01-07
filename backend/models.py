@@ -2,8 +2,10 @@ import uuid
 from django.core.validators import MinLengthValidator
 
 from django.db import models
+from django.db.models.fields import DateTimeField
 from django.utils import timezone
-from django.db.models import Q, Max
+from django.db.models import Q, Max, ExpressionWrapper, F
+from django.db.models.functions import Coalesce
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 
@@ -48,7 +50,9 @@ class BookQuerySet(models.QuerySet):
         return queryset.filter(id__in=ids).distinct()
 
     def sort_by_state(self):
-        return self.annotate(last_status_date=Max('status_log__created_at')).order_by('-last_status_date', '-created_at')
+        return self.annotate(
+            last_status_date=Coalesce(Max('status_log__created_at'), F('created_at'))
+        ).order_by('-last_status_date')
 
 
 class Author(models.Model):
