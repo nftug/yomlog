@@ -9,7 +9,7 @@ from backend.models import Author, Book, StatusLog, Note, BookAuthorRelation
 
 from datetime import date, timedelta, datetime
 
-from django.db.models import Q, Count
+from django.db.models import Count
 import math
 from itertools import islice
 import re
@@ -177,13 +177,13 @@ class BookSerializer(PostSerializer):
             author, created = Author.objects.get_or_create(name=name)
             authors.append(author)
 
-        del validated_data['authors']
         return authors
 
     def create(self, validated_data):
         authors = self._get_or_create_authors(validated_data)
 
         # 登録したAuthorオブジェクトをbookに紐付けする
+        del validated_data['authors']
         book = super().create(validated_data)
 
         for i, author in enumerate(authors):
@@ -194,6 +194,7 @@ class BookSerializer(PostSerializer):
     def update(self, instance, validated_data):
         authors = self._get_or_create_authors(validated_data)
 
+        del validated_data['authors']
         book = super().update(instance, validated_data)
 
         # 事前に中間テーブルを削除しておく
@@ -402,7 +403,7 @@ class AnalyticsSerializer(serializers.Serializer):
         for i in range((end_date - start_date).days + 1):
             date_item = start_date + timedelta(days=i)
             status_daily = status_log.filter(created_at__date=date_item)
-            total_daily = self._get_diff_total(status_daily) if status_daily.exists() else 0
+            total_daily = self._get_diff_total(status_daily)
             ret[str(date_item)] = total_daily
 
         return ret
