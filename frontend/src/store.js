@@ -244,13 +244,14 @@ const bookListModule = {
     setDirtyWithDiffState({ commit, dispatch }, { book, callback }) {
       // 本のstatusが前と異なる場合、各種データの更新処理を行う
       // （処理内容はコールバック関数を引数callbackで渡すこと)
+      dispatch('auth/reload', null, { root: true }) // ユーザー情報の更新
+
       const oldState = JSON.stringify(book.status[0])
       callback(book)
       const newState = JSON.stringify(book.status[0])
 
       if (oldState !== newState) {
         commit('setDirty', true) // BookListの更新
-        dispatch('auth/reload', null, { root: true }) // ユーザー情報の更新
         return true
       } else {
         return false
