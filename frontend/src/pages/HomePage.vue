@@ -64,6 +64,7 @@
           </v-card>
         </v-col>
 
+        <!-- トップ8の著者 -->
         <v-col cols="12" md="6">
           <v-card outlined style="height: 100%">
             <v-card-title class="mx-3 mt-3">トップの著者</v-card-title>
@@ -74,6 +75,27 @@
                 :width="authorsGraphWidth"
                 :height="authorsGraphHeight"
               ></GraphDoughnut>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- 一日ごとのページ数集計 -->
+        <v-col cols="12" md="6">
+          <v-card outlined style="height: 100%">
+            <v-card-title class="mx-3 mt-3">読書量の集計</v-card-title>
+            <v-card-text>
+              <v-sheet
+                class="v-sheet--offset mx-auto"
+                max-width="calc(100% - 32px)"
+              >
+                <v-sparkline
+                  :labels="pagesDailyLabel"
+                  :value="pagesDailyValue"
+                  color="primary"
+                  line-width="2"
+                  padding="16"
+                ></v-sparkline>
+              </v-sheet>
             </v-card-text>
           </v-card>
         </v-col>
@@ -102,12 +124,15 @@ export default {
         position: 'right',
       },
     },
+    pagesDailyValue: [],
+    pagesDailyLabel: [],
   }),
   computed: {
     ...mapState(['auth']),
     ...mapGetters({
       created_at: 'auth/created_at',
       authorsCount: 'auth/authorsCount',
+      pagesDaily: 'auth/pagesDaily',
     }),
     ...mapState({
       numOfBooks: (state) => state.auth.analytics.number_of_books,
@@ -195,6 +220,10 @@ export default {
           },
         ],
       }
+
+      // 一日毎に読んだページ数
+      this.pagesDailyValue = this.pagesDaily.pages
+      this.pagesDailyLabel = this.pagesDaily.date
     },
   },
 }

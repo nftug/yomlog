@@ -240,7 +240,7 @@ class AnalyticsSerializer(serializers.Serializer):
     pages_read = serializers.SerializerMethodField()
     days = serializers.SerializerMethodField()
     authors_count = serializers.SerializerMethodField()
-    pages_addition = serializers.SerializerMethodField()
+    pages_daily = serializers.SerializerMethodField()
 
     def _get_diff_total(self, status_log: StatusLog):
         """進捗の累計ページ数を取得"""
@@ -380,7 +380,7 @@ class AnalyticsSerializer(serializers.Serializer):
 
         return counts_of_authors
 
-    def get_pages_addition(self, status_log: StatusLog):
+    def get_pages_daily(self, status_log: StatusLog):
         """日毎のページ数集計を取得"""
 
         # ユーザー情報から呼び出された場合、一週間以降を切り出す

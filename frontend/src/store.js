@@ -36,6 +36,12 @@ const authModule = {
       authors: Object.keys(authors_count),
       counts: Object.keys(authors_count).map((key) => authors_count[key]),
     }),
+    pagesDaily: ({ analytics: { pages_daily } }) => ({
+      date: Object.keys(pages_daily).map((date) =>
+        moment(date).format('MM/DD')
+      ),
+      pages: Object.keys(pages_daily).map((key) => pages_daily[key]),
+    }),
   },
   mutations: {
     set(state, { user }) {
