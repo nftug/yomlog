@@ -341,11 +341,23 @@ class AnalyticsSerializer(serializers.Serializer):
         user = self.context['request'].user
         authors = Author.objects.filter(books__created_by=user).annotate(Count('books'))
 
-        # 直接呼び出しの場合、status_logの記録の範囲内にある著者で抽出
+        # 直接呼び出しの場合、フィルタの日付の範囲内にある本の著者で抽出
         if self.context.get('userinfo') is None:
-            oldest_datetime = status_log.last().created_at
-            # BUG: このフィルタリングだと著者名カウントがうまくいかない (重複する)
-            authors = authors.filter(books__status_log__created_at__gte=oldest_datetime)
+            gets = self.context['request'].GET
+            books = Book.objects.filter(created_by=user).order_by('created_at')
+
+            if gets.get('created_at__gte'):
+                start_datetime = datetime.strptime(gets['created_at__gte'], '%Y-%m-%d')
+            else:
+                start_datetime = books.first().created_at
+
+            if gets.get('created_at__lte'):
+                end_datetime = datetime.strptime(gets['created_at__lte'], '%Y-%m-%d')
+            else:
+                end_datetime = datetime.now()
+
+            books = Book.objects.filter(created_by=user, created_at__gte=start_datetime, created_at__lte=end_datetime)
+            authors = authors.filter(books__in=books)
 
         # 著者名ごとに冊数を集計、降順で並べる
         counts_of_authors = {}
