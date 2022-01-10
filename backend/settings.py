@@ -138,7 +138,6 @@ SIMPLE_JWT = {
 
 # CORS
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:8080',
     'http://127.0.0.1:8080',
@@ -160,15 +159,9 @@ DJOSER = {
     },
     'HIDE_USERS': False,
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': [
-        'http://localhost:8080/login/social/end/google-oauth2',
-        'http://localhost:8080/login/social/end/twitter-oauth2',
         'http://localhost:8000/login/social/end/google-oauth2',
-        'http://localhost:8000/login/social/end/twitter-oauth2',
-        'http://localhost:8000/api/v1/auth/social/end/'
     ]
 }
-
-SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['state']
 
 if DEBUG:
     SESSION_COOKIE_SECURE = False

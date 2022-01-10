@@ -3,12 +3,7 @@
 </template>
 
 <script>
-import api from '@/services/api'
-import axios from 'axios'
-
-axios.defaults.xsrfCookieName = 'csrftoken'
-axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-axios.defaults.baseURL = process.env.VUE_APP_ROOT_API
+import api, { rawApi } from '@/services/api'
 
 export default {
   created() {
@@ -50,16 +45,14 @@ export default {
 
       // トークンの取得
       try {
-        // BUG: ここでトークンが取得できない！
-        // ("Session value state missing"のエラー)
-        const { data } = await axios({
+        // NOTE: トークン取得は同一のルートからのみ有効 (vue-cliのテスト用サーバーでは無効)
+        const { data } = await rawApi({
           method: 'post',
           url: `/auth/social/o/${provider}/`,
           data: params,
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
-          withCredentials: true,
         })
 
         // トークンの設定
