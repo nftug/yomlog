@@ -32,6 +32,9 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'webpack_loader',
+    'social_django',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 
     # My applications
     'apiv1.apps.Apiv1Config',
@@ -48,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -63,6 +67,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -124,11 +130,15 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'JWT_ALLOW_REFRESH': True
+    'JWT_ALLOW_REFRESH': True,
+    'AUTH_TOKEN_CLASSES': (
+        'rest_framework_simplejwt.tokens.AccessToken',
+    )
 }
 
 # CORS
 CORS_ORIGIN_ALLOW_ALL = False
+CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:8080',
     'http://127.0.0.1:8080',
@@ -148,8 +158,22 @@ DJOSER = {
         'current_user': 'auth.serializers.CustomUserSerializer',
         'user_create_password_retype': 'auth.serializers.CustomUserCreateSerializer',
     },
-    'HIDE_USERS': False
+    'HIDE_USERS': False,
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': [
+        'http://localhost:8080/login/social/end/google-oauth2',
+        'http://localhost:8080/login/social/end/twitter-oauth2',
+        'http://localhost:8000/login/social/end/google-oauth2',
+        'http://localhost:8000/login/social/end/twitter-oauth2',
+        'http://localhost:8000/api/v1/auth/social/end/'
+    ]
 }
+
+SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['state']
+
+if DEBUG:
+    SESSION_COOKIE_SECURE = False
+else:
+    SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 
 WEBPACK_LOADER = {
     'DEFAULT': {
@@ -159,6 +183,15 @@ WEBPACK_LOADER = {
         'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
     }
 }
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = GOOGLE_OAUTH2_ID
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = GOOGLE_OAUTH2_SECRET
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 
 try:

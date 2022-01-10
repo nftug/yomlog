@@ -18,6 +18,7 @@ const BookDetailPage = () => import('@/pages/BookDetailPage.vue')
 const StatusLog = () => import('@/components/StatusLog.vue')
 const NoteList = () => import('@/components/NoteList.vue')
 const CalendarPage = () => import('@/pages/CalendarPage.vue')
+const SocialAuthPage = () => import('@/pages/SocialAuthPage.vue')
 
 Vue.use(VueRouter)
 
@@ -69,6 +70,18 @@ const router = new VueRouter({
       name: 'login',
       component: LoginPage,
       meta: { title: 'ログイン', requiresNotAuth: true },
+    },
+    {
+      path: '/login/social/start',
+      name: 'social_start',
+      component: SocialAuthPage,
+      meta: { requiresNotAuth: true },
+    },
+    {
+      path: '/login/social/end/:provider',
+      name: 'social_end',
+      component: SocialAuthPage,
+      meta: { requiresNotAuth: true },
     },
     {
       path: '/signup',

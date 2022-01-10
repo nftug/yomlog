@@ -1,14 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import api from '@/services/api'
+import api, { rawApi } from '@/services/api'
 import router from './router'
-import axios from 'axios'
 import moment from 'moment'
-
-// CSRFトークンの送信設定
-axios.defaults.xsrfCookieName = 'csrftoken'
-axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-axios.defaults.baseURL = process.env.VUE_APP_ROOT_API
 
 Vue.use(Vuex)
 
@@ -88,6 +82,12 @@ const authModule = {
       localStorage.setItem('refresh', data.refresh)
       return dispatch('reload')
     },
+    // トークンを指定してログイン
+    async loginWithToken({ dispatch }, { access, refresh }) {
+      localStorage.setItem('access', access)
+      localStorage.setItem('refresh', refresh)
+      return dispatch('reload')
+    },
     // ログアウト
     logout({ commit }, { next = null } = {}) {
       if (router.history.current.name !== 'login') {
@@ -112,7 +112,7 @@ const authModule = {
       const refresh = localStorage.getItem('refresh')
 
       try {
-        const { data } = await axios.post('/auth/jwt/refresh/', { refresh })
+        const { data } = await rawApi.post('/auth/jwt/refresh/', { refresh })
         localStorage.setItem('access', data.access)
         localStorage.setItem('refresh', refresh)
         return data.access

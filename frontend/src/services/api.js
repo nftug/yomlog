@@ -7,13 +7,22 @@ import router from '@/router'
 axios.defaults.xsrfCookieName = 'csrftoken'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 
-const api = axios.create({
+// 基本設定
+const config = {
   baseURL: process.env.VUE_APP_ROOT_API,
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
   },
+}
+
+// リトライなしのAPIメソッド
+const rawApi = axios.create({ ...config })
+
+// リトライありのAPIメソッド
+const api = axios.create({
+  ...config,
   raxConfig: {
     retry: 3,
     noResponseRetries: 2,
@@ -111,4 +120,4 @@ api.interceptors.response.use(
   }
 )
 
-export default api
+export { api as default, rawApi }

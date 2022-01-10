@@ -32,11 +32,20 @@
               required
             ></v-text-field>
           </v-card-text>
+
           <v-card-actions>
-            <v-btn color="primary" block type="submit">
-              <v-icon left>mdi-login</v-icon>
-              ログイン
-            </v-btn>
+            <v-list-item>
+              <v-btn color="primary" block type="submit">
+                <v-icon left>mdi-login</v-icon>
+                ログイン
+              </v-btn>
+            </v-list-item>
+            <v-list-item>
+              <v-btn block to="/login/social/start/?provider=google-oauth2">
+                <v-icon left>mdi-google</v-icon>
+                Googleでログイン
+              </v-btn>
+            </v-list-item>
           </v-card-actions>
           <div class="text-right pt-4 text-body-2">
             <div class="mb-1">
