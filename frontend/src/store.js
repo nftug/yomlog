@@ -93,11 +93,11 @@ const authModule = {
     },
     // ログアウト
     logout({ commit }, { next = null } = {}) {
-      if (router.history.current.name !== 'login') {
-        localStorage.removeItem('access')
-        localStorage.removeItem('refresh')
-        commit('clear')
+      localStorage.removeItem('access')
+      localStorage.removeItem('refresh')
+      commit('clear')
 
+      if (router.history.current.name !== 'login') {
         const query = {}
         if (next) query.next = next
         router.push({ name: 'login', query })

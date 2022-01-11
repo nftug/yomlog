@@ -106,6 +106,7 @@ api.interceptors.response.use(
           message = 'ログインの期限切れです。'
         } else {
           message = '認証エラーです。'
+          store.dispatch('auth/logout')
         }
       } else if (status === 403) {
         // 権限エラー
