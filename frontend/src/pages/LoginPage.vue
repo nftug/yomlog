@@ -44,13 +44,13 @@
           </v-card-actions>
           <!--
             FIXME: Twitter連携は"Token error: Missing unauthorized token"のエラーが発生する
+          -->
           <v-card-actions>
             <v-btn color="blue" dark block to="/login/social/start/twitter">
               <v-icon left>mdi-twitter</v-icon>
               Twitterでログイン
             </v-btn>
           </v-card-actions>
-          -->
 
           <div class="text-right pt-4 text-body-2">
             <div class="mb-1">

@@ -35,10 +35,24 @@ export default {
       // 連携先から取得したcodeとstateをもとに、ログイントークンを取得してログイン
 
       // 送信するデータの作成
-      const { code, state, oauth_token, redirect_state } = this.$route.query
+      let { code, state, oauth_verifier, oauth_token, redirect_state } =
+        this.$route.query
+
+      if (oauth_verifier && oauth_token) {
+        // 連携先がTwitterの場合、最初に内部API経由でOAuthトークンを取得
+        const { data } = await rawApi({
+          method: 'post',
+          url: '/auth/social/twitter/',
+          data: { oauth_token, oauth_verifier },
+        })
+        code = data.oauth_token
+        state = redirect_state
+        console.log('code=', code)
+      }
+
       const params = new URLSearchParams()
-      params.append('code', code || oauth_token)
-      params.append('state', state || redirect_state)
+      params.append('code', code)
+      params.append('state', state)
 
       // providerの取得
       const { provider } = this.$route.params
