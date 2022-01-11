@@ -17,7 +17,7 @@ export default {
   methods: {
     async startPoint() {
       // スタートポイント: 指定された認証ページにリダイレクト
-      const { provider } = this.$route.query
+      const { provider } = this.$route.params
 
       try {
         const { data } = await api.get(`/auth/social/o/${provider}/`, {
@@ -27,7 +27,7 @@ export default {
         })
         location.replace(data.authorization_url)
       } catch {
-        this.error('OAuth2認証にアクセスできません。')
+        this.error('ソーシャルアカウント連携にアクセスできません。')
       }
     },
     async endPoint() {
@@ -35,10 +35,10 @@ export default {
       // 連携先から取得したcodeとstateをもとに、ログイントークンを取得してログイン
 
       // 送信するデータの作成
-      const { code, state } = this.$route.query
+      const { code, state, oauth_token, redirect_state } = this.$route.query
       const params = new URLSearchParams()
-      params.append('code', code)
-      params.append('state', state)
+      params.append('code', code || oauth_token)
+      params.append('state', state || redirect_state)
 
       // providerの取得
       const { provider } = this.$route.params
@@ -61,7 +61,7 @@ export default {
         // ホーム画面に遷移
         this.$router.replace({ name: 'home' })
       } catch {
-        this.error('OAuth認証に失敗しました。')
+        this.error('ソーシャルアカウントでのログインに失敗しました。')
       }
     },
     error(message) {

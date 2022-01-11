@@ -160,6 +160,7 @@ DJOSER = {
     'HIDE_USERS': False,
     'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': [
         'http://localhost:8000/login/social/end/google-oauth2',
+        'http://localhost:8000/login/social/end/twitter',
     ]
 }
 
@@ -179,13 +180,20 @@ WEBPACK_LOADER = {
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
     'django.contrib.auth.backends.ModelBackend',
 )
 
+# Social Login
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = GOOGLE_OAUTH2_ID
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = GOOGLE_OAUTH2_SECRET
-SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
+SOCIAL_AUTH_TWITTER_KEY = TWITTER_OAUTH_KEY
+SOCIAL_AUTH_TWITTER_SECRET = TWITTER_OAUTH_SECRET
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/login/social/end/twitter'
+
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 try:
     DEFAULT_FROM_EMAIL = os.environ['EMAIL_FROM']

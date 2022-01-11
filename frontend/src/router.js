@@ -72,7 +72,7 @@ const router = new VueRouter({
       meta: { title: 'ログイン', requiresNotAuth: true },
     },
     {
-      path: '/login/social/start',
+      path: '/login/social/start/:provider',
       name: 'social_start',
       component: SocialAuthPage,
       meta: { requiresNotAuth: true },
