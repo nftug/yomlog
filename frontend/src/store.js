@@ -76,8 +76,11 @@ const authModule = {
   },
   actions: {
     // ログイン
-    async login({ dispatch }, { email, password }) {
-      const { data } = await api.post('/auth/jwt/create/', { email, password })
+    async login({ dispatch }, { username, password }) {
+      const { data } = await api.post('/auth/jwt/create/', {
+        username,
+        password,
+      })
       localStorage.setItem('access', data.access)
       localStorage.setItem('refresh', data.refresh)
       return dispatch('reload')

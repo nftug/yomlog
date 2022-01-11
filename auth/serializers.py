@@ -70,21 +70,24 @@ class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
             'first_name',
             'last_name',
             'password',
-            'avatar'
+            'avatar',
+            'is_active'
         )
+        read_only_fields = ('is_active',)
 
     def create(self, validated_data):
-        # メールアドレスからユーザー名を生成
-        username_base = validated_data['email'].split('@')[0]
-        user_model = get_user_model()
+        if validated_data.get('email'):
+            # メールアドレスからユーザー名を生成
+            username_base = validated_data['email'].split('@')[0]
+            user_model = get_user_model()
 
-        username = username_base
-        n = 1
+            username = username_base
+            n = 1
 
-        while user_model.objects.filter(username=username).exists():
-            n += 1
-            username = '{}-{}'.format(username_base, n)
+            while user_model.objects.filter(username=username).exists():
+                n += 1
+                username = '{}-{}'.format(username_base, n)
 
-        validated_data['username'] = username
+            validated_data['username'] = username
 
         return super().create(validated_data)

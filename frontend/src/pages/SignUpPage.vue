@@ -72,9 +72,9 @@ export default {
     return {
       dialog: false,
       formSignUp: {
-        email: {
-          label: 'メールアドレス',
-          type: 'email',
+        username: {
+          label: 'ユーザー名',
+          type: 'text',
           required: true,
           value: '',
           warnings: [],
@@ -131,8 +131,21 @@ export default {
   },
   methods: {
     // フォーム送信成功
-    onSucceedSend: function () {
-      this.dialog = true
+    onSucceedSend: async function ({ is_active }) {
+      if (is_active) {
+        // アカウントがアクティブの場合、そのままログイン
+        await this.$store.dispatch('auth/login', {
+          username: this.formSignUp.username.value,
+          password: this.formSignUp.password.value,
+        })
+        this.$router.replace({ name: 'home' })
+        this.$store.dispatch('message/setInfoMessage', {
+          message: 'アカウントを作成しました。',
+        })
+      } else {
+        // アクティブでない場合、メール送信のダイアログを表示
+        this.dialog = true
+      }
     },
     // ユーザーのアクティベーション
     activateUser: function () {

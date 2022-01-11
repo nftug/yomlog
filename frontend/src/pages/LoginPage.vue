@@ -12,17 +12,14 @@
           </v-card-title>
           <v-card-text>
             <v-text-field
-              ref="email"
-              id="email"
-              type="email"
-              v-model="formLogin.email.value"
-              label="メールアドレス"
-              :error-messages="formLogin.email.warnings"
-              @input="formLogin.email.warnings = []"
+              id="username"
+              v-model="formLogin.username.value"
+              label="ユーザー名"
+              :error-messages="formLogin.username.warnings"
+              @input="formLogin.username.warnings = []"
               required
             ></v-text-field>
             <v-text-field
-              ref="password"
               id="password"
               v-model="formLogin.password.value"
               label="パスワード"
@@ -73,7 +70,7 @@ export default {
   data: () => ({
     formLogin: {
       valid: false,
-      email: {
+      username: {
         value: '',
         warnings: [],
       },
@@ -89,7 +86,7 @@ export default {
       // ログイン実行
       try {
         await this.$store.dispatch('auth/login', {
-          email: this.formLogin.email.value,
+          username: this.formLogin.username.value,
           password: this.formLogin.password.value,
         })
       } catch ({ response }) {
@@ -99,7 +96,7 @@ export default {
             this.formLogin[key].warnings = data[key]
           })
         } else {
-          this.$refs.email.focus()
+          this.$refs.username.focus()
         }
         return
       }
@@ -110,7 +107,7 @@ export default {
       this.$router.replace(next)
       this.$store.commit('message/clear')
       this.$store.dispatch('message/setInfoMessage', {
-        message: 'ログインしました',
+        message: 'ログインしました。',
       })
     },
   },
