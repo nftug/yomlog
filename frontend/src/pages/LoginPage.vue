@@ -12,6 +12,7 @@
           </v-card-title>
           <v-card-text>
             <v-text-field
+              ref="username"
               id="username"
               v-model="formLogin.username.value"
               label="ユーザー名"
@@ -20,6 +21,7 @@
               required
             ></v-text-field>
             <v-text-field
+              ref="password"
               id="password"
               v-model="formLogin.password.value"
               label="パスワード"
@@ -40,15 +42,6 @@
             <v-btn block to="/login/social/start/google-oauth2">
               <v-icon left>mdi-google</v-icon>
               Googleでログイン
-            </v-btn>
-          </v-card-actions>
-          <!--
-            FIXME: Twitter連携は"Token error: Missing unauthorized token"のエラーが発生する
-          -->
-          <v-card-actions>
-            <v-btn color="blue" dark block to="/login/social/start/twitter">
-              <v-icon left>mdi-twitter</v-icon>
-              Twitterでログイン
             </v-btn>
           </v-card-actions>
 

@@ -7,11 +7,6 @@ from apiv1.mixins import ImageSerializerMixin
 from apiv1.serializers import AnalyticsSerializer
 from backend.models import StatusLog
 
-from datetime import date, timedelta
-from requests_oauthlib import OAuth1Session
-
-from django.conf import settings
-
 
 class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
     fullname = serializers.SerializerMethodField()
@@ -94,26 +89,3 @@ class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
             validated_data['username'] = username
 
         return super().create(validated_data)
-
-
-class TwitterOAuthTokenSerializer(serializers.Serializer):
-    """TwitterのOAuthトークン取得用 シリアライザ"""
-
-    oauth_token = serializers.CharField()
-    oauth_verifier = serializers.CharField()
-
-    def validate(self, data):
-        # 参考: https://zenn.dev/kjumanenobikto/articles/86541146abba96
-
-        access_endpoint_url = "https://api.twitter.com/oauth/access_token"
-        [oauth_token, oauth_verifier] = [data['oauth_token'], data['oauth_verifier']]
-
-        session = OAuth1Session(
-            settings.TWITTER_OAUTH_KEY, settings.TWITTER_OAUTH_SECRET, oauth_token, oauth_verifier
-        )
-        response = session.post(access_endpoint_url, params={"oauth_verifier": oauth_verifier})
-
-        access_token_kvstr = response.text.split("&")
-        access_token_dict = {x.split("=")[0]: x.split("=")[1] for x in access_token_kvstr}
-
-        return {**data, **access_token_dict}
