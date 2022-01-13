@@ -208,11 +208,9 @@ export default {
           const { response } = error
           if (response.status === 404) {
             // ページ数超過の場合、最終ページに遷移
-            let params = { ...response.config.params }
+            const params = { ...response.config.params }
             this.replaceWithFinalPage('/book/', params)
             return Promise.resolve()
-          } else {
-            return Promise.reject(response)
           }
         }
       } finally {

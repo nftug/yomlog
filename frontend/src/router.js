@@ -19,7 +19,7 @@ const StatusLog = () => import('@/components/StatusLog.vue')
 const NoteList = () => import('@/components/NoteList.vue')
 const CalendarPage = () => import('@/pages/CalendarPage.vue')
 const SocialAuthPage = () => import('@/pages/SocialAuthPage.vue')
-const NoteSearchPage = () => import('@/pages/NoteSearchPage.vue')
+const NotePage = () => import('@/pages/NotePage.vue')
 
 Vue.use(VueRouter)
 
@@ -69,7 +69,7 @@ const router = new VueRouter({
     {
       path: '/note',
       name: 'note',
-      component: NoteSearchPage,
+      component: NotePage,
       meta: {
         title: 'ノートの一覧',
         requiresAuth: true,

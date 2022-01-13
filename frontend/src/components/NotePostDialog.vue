@@ -19,12 +19,14 @@
         <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn
-            v-show="!!noteId"
+            v-show="!!noteId && !isBookDetailPage"
             dark
             icon
-            @click="onClickDeleteNote(cancel)"
-            :disabled="!isValid"
+            :to="`/book/detail/${bookId}`"
           >
+            <v-icon>mdi-book</v-icon>
+          </v-btn>
+          <v-btn v-show="!!noteId" dark icon @click="onClickDeleteNote(cancel)">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
           <v-btn dark icon @click="ok" :disabled="!isValid">
@@ -135,6 +137,11 @@ export default {
       isSending: false,
       tab: 0,
     }
+  },
+  computed: {
+    isBookDetailPage() {
+      return this.$route.name.startsWith('book_detail')
+    },
   },
   methods: {
     async showNotePostDialog({ book, note } = {}) {

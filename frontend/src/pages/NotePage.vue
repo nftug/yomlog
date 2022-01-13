@@ -14,25 +14,50 @@
       <template v-else-if="notes.length">
         <v-row>
           <v-col v-for="note in notes" :key="note.id" cols="12" md="6">
-            <v-card class="mx-auto">
-              <v-list-item three-line>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ note.book.title }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    位置: {{ note.position
-                    }}{{ note.book.format_type === 1 ? '' : 'ページ' }}
-                  </v-list-item-subtitle>
-                  <v-list-item-subtitle class="mt-3">
-                    {{ note.content }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
+            <v-card class="mx-auto fill-height">
+              <div class="pt-4">
+                <v-list-item three-line>
+                  <v-list-item-avatar
+                    class="hidden-xs-only mr-2"
+                    tile
+                    size="125"
+                  >
+                    <v-img
+                      contain
+                      :src="note.book.thumbnail || noImage"
+                    ></v-img>
+                  </v-list-item-avatar>
 
-                <v-list-item-action>
-                  <div class="d-flex">
+                  <v-list-item-content class="align-self-start">
+                    <v-list-item-title>
+                      <router-link :to="`/book/detail/${note.book.id}`">
+                        {{ note.book.title }}
+                      </router-link>
+                    </v-list-item-title>
+                    <v-list-item-subtitle
+                      class="mt-2 grey--text text--darken-4"
+                    >
+                      位置: {{ note.position
+                      }}{{ note.book.format_type === 1 ? '' : 'ページ' }}
+                    </v-list-item-subtitle>
+                    <v-list-item-subtitle class="mt-4">
+                      {{ note.content }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </div>
+
+              <!-- 操作メニュー -->
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-tooltip bottom>
+                  <template #activator="{ on, attrs }">
                     <v-btn
+                      class="mr-4"
                       icon
+                      color="primary"
+                      v-bind="attrs"
+                      v-on="on"
                       @click="
                         $refs.noteEdit.showNotePostDialog({
                           note,
@@ -42,18 +67,40 @@
                     >
                       <v-icon>mdi-pen</v-icon>
                     </v-btn>
+                  </template>
+                  <span>ノートを編集する</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <template #activator="{ on, attrs }">
                     <v-btn
+                      class="mr-4"
                       icon
+                      color="error"
+                      v-bind="attrs"
+                      v-on="on"
                       @click="$refs.noteDelete.showItemDeleteDialog(note.id)"
                     >
-                      <v-icon>mdi-delete</v-icon>
+                      <v-icon>mdi-trash-can</v-icon>
                     </v-btn>
-                    <v-btn icon :to="`/book/detail/${note.book.id}`">
+                  </template>
+                  <span>ノートを削除する</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      class="mr-4"
+                      icon
+                      color="success"
+                      v-bind="attrs"
+                      v-on="on"
+                      :to="`/book/detail/${note.book.id}`"
+                    >
                       <v-icon>mdi-book</v-icon>
                     </v-btn>
-                  </div>
-                </v-list-item-action>
-              </v-list-item>
+                  </template>
+                  <span>書籍を見る</span>
+                </v-tooltip>
+              </v-card-actions>
             </v-card>
           </v-col>
         </v-row>
@@ -61,7 +108,7 @@
         <!-- ページネーション -->
         <Pagination
           v-model="page"
-          :length="total"
+          :length="totalPages"
           :total-visible="5"
         ></Pagination>
       </template>
@@ -102,23 +149,19 @@ export default {
     Spinner,
     SearchCard,
     NotePostDialog,
-    Pagination,
     ItemDeleteDialog,
+    Pagination,
   },
   data: () => ({
     notes: [],
     page: 0,
     total: 0,
-    isLoading: 0,
+    isLoading: false,
   }),
   beforeRouteUpdate(to, from, next) {
     // ナビゲーションガード
     // routeがアップデートされるたびにリロードする
-    const isSameQuery = JSON.stringify(to.query) === JSON.stringify(from.query)
-
-    if (!isSameQuery) {
-      this.fetchNoteList({ route: to })
-    }
+    this.fetchNoteList({ route: to })
     next()
   },
   created() {
@@ -136,6 +179,7 @@ export default {
         })
 
         this.total = data.count
+        this.totalPages = data.totalPages
         data.results.forEach((item) => {
           this.notes.push(item)
         })
@@ -144,11 +188,9 @@ export default {
           const { response } = error
           if (response.status === 404) {
             // ページ数超過の場合、最終ページに遷移
-            let params = { ...response.config.params }
+            const params = { ...response.config.params }
             this.replaceWithFinalPage('/note/', params)
           }
-        } else {
-          return Promise.reject(error)
         }
       } finally {
         this.isLoading = false
