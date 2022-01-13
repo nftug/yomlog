@@ -151,6 +151,7 @@ class BookSerializer(PostSerializer):
     authors = serializers.ListField(
         child=serializers.CharField(max_length=100), write_only=True
     )
+    state_date = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
@@ -233,6 +234,9 @@ class BookSerializer(PostSerializer):
         else:
             return None
 
+    def get_state_date(self, instance):
+        return localtime(instance.state_date)
+
 
 class AnalyticsSerializer(serializers.Serializer):
     """分析用シリアライザ"""
@@ -242,6 +246,7 @@ class AnalyticsSerializer(serializers.Serializer):
     days = serializers.SerializerMethodField()
     authors_count = serializers.SerializerMethodField()
     pages_daily = serializers.SerializerMethodField()
+    recent_books = serializers.SerializerMethodField()
 
     def _get_diff_total(self, status_log: StatusLog):
         """進捗の累計ページ数を取得"""
@@ -400,6 +405,45 @@ class AnalyticsSerializer(serializers.Serializer):
             ret[str(date_created)] = total_daily
 
         return ret
+
+    def get_recent_books(self, status_log: StatusLog):
+        """最近読んだ/追加した本を取得"""
+
+        # フィルタで指定された日付範囲に依拠させる
+        gets = self.context['request'].GET
+
+        if gets.get('created_at__gte'):
+            start_date = datetime.strptime(gets['created_at__gte'], '%Y-%m-%d').date()
+        else:
+            # パラメータ指定なしの場合
+            if self.context.get('userinfo'):
+                # ユーザー情報から呼び出された場合、start_dateは一週間前
+                start_date = date.today() - timedelta(days=6)
+            else:
+                # 直接呼び出しの場合、start_dateはダミーの日付となる
+                start_date = date(1970, 1, 1)
+
+        if gets.get('created_at__lte'):
+            end_date = datetime.strptime(gets['created_at__lte'], '%Y-%m-%d').date()
+        else:
+            # パラメータ指定なしの場合、end_dateは本日の日付
+            end_date = date.today()
+
+        # Booksをフィルタリングし、シリアライザに通した結果を取得
+        user = self.context['request'].user
+        books = Book.objects.annotate_state_date().filter(
+            created_by=user, state_date__date__gte=start_date, state_date__date__lte=end_date
+        ).order_by('-state_date')
+        data = BookSerializer(books, many=True, context={'inside': True}).data
+
+        # headで切り出し (userinfoの場合、デフォルトは5)
+        head = 5 if self.context.get('userinfo') else self.context['request'].GET.get('head')
+        if head:
+            if type(head) is str and not head.isdecimal():
+                raise ValidationError({'head': 'headには数字を指定してください。'})
+            data = data[:int(head)]
+
+        return data
 
 
 class AuthorSerializer(serializers.ModelSerializer):

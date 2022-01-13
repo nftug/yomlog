@@ -49,10 +49,11 @@ class BookQuerySet(models.QuerySet):
 
         return queryset.filter(id__in=ids).distinct()
 
-    def sort_by_state(self):
-        return self.annotate(
-            last_status_date=Coalesce(Max('status_log__created_at'), F('created_at'))
-        ).order_by('-last_status_date')
+    def annotate_state_date(self):
+        return self.annotate(state_date=Coalesce(Max('status_log__created_at'), F('created_at')))
+
+    def sort_by_state_date(self):
+        return self.annotate_state_date().order_by('-state_date')
 
 
 class Author(models.Model):
