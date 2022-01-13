@@ -66,14 +66,14 @@
 
         <!-- 最近読んだ/追加した本 -->
         <v-col cols="12" md="6">
-          <v-card outlined class="overflow-hidden">
+          <v-card outlined class="overflow-hidden fill-height">
             <v-card-title class="mx-3 mt-3">
               最近読んだ／追加した本
             </v-card-title>
 
             <v-card-text class="pb-0">
-              <v-sheet flat class="overflow-y-auto" max-height="180px">
-                <v-list>
+              <v-sheet flat class="overflow-y-auto" height="180px">
+                <v-list v-if="recentBooks.length">
                   <template v-for="(book, index) in recentBooks">
                     <div :key="index">
                       <v-list-item :to="`/book/detail/${book.id}`">
@@ -91,6 +91,10 @@
                     </div>
                   </template>
                 </v-list>
+
+                <template v-else>
+                  <div class="text-center py-5">記録が見つかりません。</div>
+                </template>
               </v-sheet>
             </v-card-text>
 
