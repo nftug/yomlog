@@ -33,7 +33,9 @@ const authModule = {
     pagesDaily: ({ analytics: { pages_daily } }) => {
       const keys = Object.keys(pages_daily)
       keys.sort()
-      const start = moment(keys[0])
+
+      // 最近一週間に範囲を限定
+      const start = moment().startOf('day').subtract(6, 'day')
       const end = moment().startOf('day')
 
       // 日付範囲で結果の配列を生成
