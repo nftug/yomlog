@@ -201,7 +201,8 @@ export default {
   },
   filters: {
     getItemTitle(item) {
-      if (item.category === 'status') {
+      // TODO: ノートにもページ数表記を返すようにNoteSerializerを変更する
+      if (item.diff) {
         return `${item.position.page}ページ (+${item.diff.page}ページ)`
       } else {
         return `${item.position}${item.book.format_type === 1 ? '' : 'ページ'}`

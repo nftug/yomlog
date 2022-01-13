@@ -32,7 +32,7 @@ const router = new VueRouter({
       path: '/',
       name: 'home',
       component: HomePage,
-      meta: { title: 'ホーム', requiresAuth: true, isShowMenuButton: true },
+      meta: { title: 'YomLog', requiresAuth: true, isShowMenuButton: true },
     },
     {
       path: '/shelf/:mode',
@@ -71,7 +71,7 @@ const router = new VueRouter({
       name: 'note',
       component: NotePage,
       meta: {
-        title: 'ノートの一覧',
+        title: 'ノート',
         requiresAuth: true,
         isShowMenuButton: true,
       },

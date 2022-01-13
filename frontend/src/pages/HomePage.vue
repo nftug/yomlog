@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-col sm="10" lg="9" xl="7" class="mx-auto">
-      <v-card outlined color="transparent" class="py-2">
+      <v-card outlined color="transparent" class="pb-2">
         <!-- ユーザー情報 -->
         <v-list>
           <v-list-item two-line>
@@ -77,7 +77,7 @@
                   <template v-for="(book, index) in recentBooks">
                     <div :key="index">
                       <v-list-item :to="`/book/detail/${book.id}`">
-                        <v-list-item-avatar tile size="50">
+                        <v-list-item-avatar tile size="50px">
                           <v-img
                             contain
                             :src="book.thumbnail || noImage"
