@@ -71,7 +71,7 @@
               最近読んだ／追加した本
             </v-card-title>
 
-            <v-card-text>
+            <v-card-text class="pb-0">
               <v-sheet flat class="overflow-y-auto" max-height="180px">
                 <v-list>
                   <template v-for="(book, index) in recentBooks">
