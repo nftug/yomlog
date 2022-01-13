@@ -132,11 +132,8 @@ export default {
 
       try {
         const { data } = await api.get('/note/', {
-          params: { ...this.$route.query, page: this.page },
+          params: { ...route.query, page: this.page },
         })
-
-        console.log({ ...this.$route.query, page: this.page })
-        console.log(data)
 
         this.total = data.count
         data.results.forEach((item) => {

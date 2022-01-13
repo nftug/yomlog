@@ -181,20 +181,20 @@ export default {
       this.page = Number(route.query.page || 1)
 
       if (isReload || !this.bookList.items.length) {
-        this.fetchBookList()
+        this.fetchBookList({ route })
       }
 
       this.$nextTick(() => {
         this.$router.app.$emit('changeSearchValue', route.query.q || '')
       })
     },
-    async fetchBookList() {
+    async fetchBookList({ route = this.$route } = {}) {
       this.$store.commit('bookList/setLoading', true)
       this.$store.commit('bookList/clear')
 
       try {
         const { data } = await api.get('/book/', {
-          params: { ...this.$route.query, page: this.page, status: this.mode },
+          params: { ...route.query, page: this.page, status: this.mode },
         })
         this.$store.commit('bookList/setProps', {
           totalItems: data.count,

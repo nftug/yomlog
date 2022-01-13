@@ -12,7 +12,7 @@ from rest_framework.parsers import FileUploadParser, FormParser
 class CustomPageNumberPagination(pagination.PageNumberPagination):
     """ページネーションクラス"""
 
-    page_size = 1
+    page_size = 12
 
     def get_paginated_response(self, data):
         return response.Response({
