@@ -405,6 +405,8 @@ class AnalyticsSerializer(serializers.Serializer):
     def get_recent_books(self, status_log: StatusLog):
         """最近読んだ/追加した本を取得"""
 
+        # TODO: 別ページにページネーション付きで切り出すことも加味して、あとで単独のシリアライザとして独立させる
+
         # フィルタで指定された日付範囲に依拠させる
         gets = self.context['request'].GET
 
@@ -425,14 +427,15 @@ class AnalyticsSerializer(serializers.Serializer):
         books = Book.objects.annotate_state_date().filter(
             created_by=user, state_date__date__gte=start_date, state_date__date__lte=end_date
         ).order_by('-state_date')
-        data = BookSerializer(books, many=True, context={'inside': True}).data
 
         # headで切り出し (userinfoの場合、デフォルトは5)
         head = 5 if self.context.get('userinfo') else self.context['request'].GET.get('head')
         if head:
             if type(head) is str and not head.isdecimal():
                 raise ValidationError({'head': 'headには数字を指定してください。'})
-            data = data[:int(head)]
+            books = books[:int(head)]
+
+        data = BookSerializer(books, many=True, context={'inside': True}).data
 
         return data
 
