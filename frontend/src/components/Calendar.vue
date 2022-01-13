@@ -201,7 +201,11 @@ export default {
   },
   filters: {
     getItemTitle(item) {
-      return `${item.position.page}ページ (+${item.diff.page}ページ)`
+      if (item.category === 'status') {
+        return `${item.position.page}ページ (+${item.diff.page}ページ)`
+      } else {
+        return `${item.position}${item.book.format_type === 1 ? '' : 'ページ'}`
+      }
     },
   },
   methods: {
