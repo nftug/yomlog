@@ -162,7 +162,13 @@ export default {
   beforeRouteUpdate(to, from, next) {
     // ナビゲーションガード
     // routeがアップデートされるたびにリロードする
-    this.fetchNoteList({ route: to })
+    const isSameParams =
+      JSON.stringify(to.params) === JSON.stringify(from.params)
+    const isSameQuery = JSON.stringify(to.query) === JSON.stringify(from.query)
+
+    if (!(isSameParams && isSameQuery)) {
+      this.fetchNoteList({ route: to })
+    }
     next()
   },
   created() {
