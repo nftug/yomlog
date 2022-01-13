@@ -151,7 +151,6 @@ class BookSerializer(PostSerializer):
     authors = serializers.ListField(
         child=serializers.CharField(max_length=100), write_only=True
     )
-    state_date = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
@@ -233,9 +232,6 @@ class BookSerializer(PostSerializer):
             return NoteSerializer(notes, many=True, read_only=True, context={'inside': True}).data
         else:
             return None
-
-    def get_state_date(self, instance):
-        return localtime(instance.state_date)
 
 
 class AnalyticsSerializer(serializers.Serializer):
