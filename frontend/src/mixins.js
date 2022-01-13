@@ -83,62 +83,7 @@ export const BookListMixin = {
 }
 
 export const ListViewMixin = {
-  data: () => ({
-    page: 1,
-  }),
-  filters: {
-    searchLabel(key) {
-      const keyName = key.replace(/_or$/, '')
-      const or = keyName !== key
-      let label
-
-      if (keyName === 'title') {
-        label = '書名'
-      } else if (keyName === 'authors') {
-        label = '著者名'
-      } else if (keyName === 'amazon_dp') {
-        label = 'ISBN/ASIN'
-      } else if (keyName === 'content') {
-        label = '内容'
-      } else if (keyName === 'quote_text') {
-        label = '引用'
-      } else {
-        label = ''
-      }
-
-      if (or) {
-        label += `${label ? ' (OR)' : 'OR'}`
-      }
-
-      return `${label}${label ? ':' : ''}`
-    },
-  },
   methods: {
-    removeQuery(key, query = this.query) {
-      if (key) {
-        delete query[key]
-      } else {
-        query = {}
-      }
-
-      // OR検索だけになったらAND検索に置換
-      const keys = Object.keys(query)
-      const hasAnd = keys.some((e) => e.match(/^(?!.*_or).*$/) !== null)
-
-      if (!hasAnd) {
-        query = {}
-        keys.forEach((key) => {
-          const value = this.query[key]
-          const keyName = key.replace(/_or$/, '')
-          query[keyName] = value
-        })
-      }
-
-      this.$router.push({
-        path: this.$route.path,
-        query,
-      })
-    },
     handlePagination() {
       let query = { ...this.$route.query }
       query.page = this.page

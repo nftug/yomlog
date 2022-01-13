@@ -1,37 +1,8 @@
 <template>
   <v-container fluid>
     <v-col sm="10" class="mx-auto">
-      <!-- 件数 -->
-      <div class="pb-4">
-        <v-card class="mx-auto text-body-2" outlined>
-          <div class="ma-4">
-            <strong>{{ bookList.totalItems }}冊</strong>
-            の本が見つかりました。
-          </div>
-          <div class="ma-4">
-            <v-icon>mdi-magnify</v-icon>
-            <v-chip
-              class="ma-1"
-              v-for="(q, key) in query"
-              :key="key"
-              close
-              small
-              @click:close="removeQuery(key)"
-            >
-              {{ key | searchLabel }}
-              {{ q }}
-            </v-chip>
-
-            <SearchDialog type="book" hash="search-book">
-              <template #activator="{ on, attrs }">
-                <v-btn small class="ma-1" icon v-on="on" v-bind="attrs">
-                  <v-icon>mdi-plus</v-icon>
-                </v-btn>
-              </template>
-            </SearchDialog>
-          </div>
-        </v-card>
-      </div>
+      <!-- 検索カード -->
+      <SearchCard :total="bookList.totalItems" type="book"></SearchCard>
 
       <!-- Spinner -->
       <Spinner v-if="bookList.isLoading"></Spinner>
@@ -162,9 +133,9 @@
 import BookList from '@/components/BookList.vue'
 import Mixins, { BookListMixin, ListViewMixin } from '@/mixins'
 import api from '@/services/api'
+import SearchCard from '@/components/SearchCard.vue'
 import StatusAddDialog from '@/components/StatusPostDialog.vue'
 import NoteAddDialog from '@/components/NotePostDialog.vue'
-import SearchDialog from '@/components/SearchDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import Spinner from '@/components/Spinner.vue'
 import BookAddDialog from '@/components/BookAddDialog.vue'
@@ -174,10 +145,10 @@ export default {
   mixins: [BookListMixin, ListViewMixin, Mixins],
   components: {
     BookList,
+    SearchCard,
     StatusAddDialog,
     ItemDeleteDialog,
     NoteAddDialog,
-    SearchDialog,
     Spinner,
     BookAddDialog,
     Fab,
@@ -186,6 +157,7 @@ export default {
     return {
       mode: this.$route.params.mode,
       query: {},
+      page: 0,
     }
   },
   beforeRouteUpdate(to, from, next) {
@@ -212,8 +184,6 @@ export default {
   methods: {
     initPage({ isReload, route = this.$route }) {
       this.mode = route.params.mode !== 'all' ? route.params.mode : ''
-      this.query = { ...route.query }
-      delete this.query.page
       this.page = Number(route.query.page || 1)
 
       if (isReload || !this.bookList.items.length) {
@@ -230,7 +200,7 @@ export default {
 
       try {
         const { data } = await api.get('/book/', {
-          params: { ...this.query, page: this.page, status: this.mode },
+          params: { ...this.$route.query, page: this.page, status: this.mode },
         })
         this.$store.commit('bookList/setProps', {
           totalItems: data.count,
