@@ -133,7 +133,7 @@ export default {
       item: {},
       isLoading: false,
       error: null,
-      noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
+      noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image',
       activeTab: null,
       toolbar: {},
       tabs: [

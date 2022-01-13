@@ -157,6 +157,7 @@ export default {
     page: 0,
     total: 0,
     isLoading: false,
+    noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image',
   }),
   beforeRouteUpdate(to, from, next) {
     // ナビゲーションガード

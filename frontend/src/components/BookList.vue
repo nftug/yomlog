@@ -79,7 +79,7 @@ export default {
     },
     noImage: {
       type: String,
-      default: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=NoImage',
+      default: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image',
     },
     loading: {
       type: Boolean,
