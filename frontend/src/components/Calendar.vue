@@ -30,7 +30,7 @@
       <!-- カレンダー -->
       <v-calendar
         ref="calendar"
-        v-model="value"
+        v-model="date"
         :events="events"
         :event-color="getEventColor"
         locale="ja-jp"
@@ -147,6 +147,10 @@ export default {
       type: String,
       default: '82vh',
     },
+    value: {
+      type: String,
+      require: true,
+    },
   },
   components: {
     StatusEditDialog,
@@ -155,7 +159,6 @@ export default {
   data: () => ({
     isLoading: false,
     events: [],
-    value: moment().format('yyyy-MM-DD'),
     selectedEvent: {},
     selectedEvents: {
       status: {
@@ -174,8 +177,16 @@ export default {
     period: { start: '', end: '' },
   }),
   computed: {
+    date: {
+      get() {
+        return this.value
+      },
+      set(value) {
+        this.$emit('input', value)
+      },
+    },
     title() {
-      return moment(this.value).format('yyyy年 M月')
+      return moment(this.date).format('yyyy年 M月')
     },
     isEventsEmpty() {
       let ret = true
@@ -292,7 +303,7 @@ export default {
       return event.color
     },
     setToday() {
-      this.value = moment().format('yyyy-MM-DD')
+      this.date = moment().format('yyyy-MM-DD')
     },
     onEditProp(prop, data) {
       this.$store.dispatch('bookList/editProp', {
