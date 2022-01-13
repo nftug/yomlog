@@ -411,13 +411,8 @@ class AnalyticsSerializer(serializers.Serializer):
         if gets.get('created_at__gte'):
             start_date = datetime.strptime(gets['created_at__gte'], '%Y-%m-%d').date()
         else:
-            # パラメータ指定なしの場合
-            if self.context.get('userinfo'):
-                # ユーザー情報から呼び出された場合、start_dateは一週間前
-                start_date = date.today() - timedelta(days=6)
-            else:
-                # 直接呼び出しの場合、start_dateはダミーの日付となる
-                start_date = date(1970, 1, 1)
+            # パラメータ指定なしの場合、start_dateはダミーの日付となる
+            start_date = date(1970, 1, 1)
 
         if gets.get('created_at__lte'):
             end_date = datetime.strptime(gets['created_at__lte'], '%Y-%m-%d').date()

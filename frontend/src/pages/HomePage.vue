@@ -40,7 +40,7 @@
       <!-- 読書データ -->
       <v-row class="my-3">
         <v-col cols="12" md="6">
-          <v-card outlined style="height: 100%">
+          <v-card outlined class="fill-height">
             <v-card-title class="mx-3 mt-3">読書データ</v-card-title>
             <v-card-text>
               <v-list>
@@ -64,9 +64,46 @@
           </v-card>
         </v-col>
 
+        <!-- 最近読んだ/追加した本 -->
+        <v-col cols="12" md="6">
+          <v-card outlined class="overflow-hidden">
+            <v-card-title class="mx-3 mt-3">
+              最近読んだ／追加した本
+            </v-card-title>
+
+            <v-card-text>
+              <v-sheet flat class="overflow-y-auto" max-height="180px">
+                <v-list>
+                  <template v-for="(book, index) in recentBooks">
+                    <div :key="index">
+                      <v-list-item :to="`/book/detail/${book.id}`">
+                        <v-list-item-avatar tile size="50">
+                          <v-img
+                            contain
+                            :src="book.thumbnail || noImage"
+                          ></v-img>
+                        </v-list-item-avatar>
+                        {{ book.title }}
+                      </v-list-item>
+                      <v-divider
+                        v-if="index + 1 < recentBooks.length"
+                      ></v-divider>
+                    </div>
+                  </template>
+                </v-list>
+              </v-sheet>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="primary">もっと見る</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+
         <!-- トップ8の著者 -->
         <v-col cols="12" md="6">
-          <v-card outlined style="height: 100%">
+          <v-card outlined class="fill-height">
             <v-card-title class="mx-3 mt-3">トップの著者</v-card-title>
             <v-card-text>
               <GraphDoughnut
@@ -81,20 +118,23 @@
 
         <!-- 一日ごとのページ数集計グラフ -->
         <v-col cols="12" md="6">
-          <v-card outlined style="height: 100%">
-            <v-card-title class="mx-3 mt-3">読書量の集計</v-card-title>
+          <v-card outlined class="fill-height">
+            <v-card-title class="mx-3 mt-3">最近の読書量</v-card-title>
             <v-card-text>
               <v-sheet
                 class="v-sheet--offset mx-auto"
                 max-width="calc(100% - 32px)"
               >
-                <v-sparkline
-                  :labels="pagesDaily.date"
-                  :value="pagesDaily.pages"
-                  color="primary"
-                  line-width="2"
-                  padding="16"
-                ></v-sparkline>
+                <div class="mt-md-6">
+                  <v-sparkline
+                    :labels="pagesDaily.date"
+                    :value="pagesDaily.pages"
+                    color="primary"
+                    line-width="2"
+                    padding="16"
+                    height="100%"
+                  ></v-sparkline>
+                </div>
               </v-sheet>
             </v-card-text>
           </v-card>
@@ -124,6 +164,7 @@ export default {
         position: 'right',
       },
     },
+    noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image',
   }),
   computed: {
     ...mapState(['auth']),
@@ -136,6 +177,7 @@ export default {
       numOfBooks: (state) => state.auth.analytics.number_of_books,
       pages: (state) => state.auth.analytics.pages_read,
       days: (state) => state.auth.analytics.days,
+      recentBooks: (state) => state.auth.analytics.recent_books,
     }),
     authorsGraphHeight() {
       return window.innerHeight / 4
