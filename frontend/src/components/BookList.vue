@@ -65,7 +65,7 @@
     </v-row>
 
     <div v-else-if="!loading" class="text-center text-body-2">
-      <p class="mt-4 mb-5">データが見つかりません</p>
+      <p class="mt-4 mb-5">データが見つかりません。</p>
     </div>
   </div>
 </template>

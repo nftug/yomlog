@@ -80,6 +80,11 @@ export default {
         path: '/calendar',
       },
       {
+        title: 'ノート',
+        icon: 'mdi-note',
+        path: '/note',
+      },
+      {
         title: '設定',
         icon: 'mdi-cog',
         path: '/settings',

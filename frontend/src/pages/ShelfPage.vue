@@ -96,19 +96,12 @@
         </BookList>
 
         <!-- ページネーション -->
-        <v-row justify="center" v-show="bookList.items.length">
-          <v-col cols="8">
-            <v-container class="max-width">
-              <v-pagination
-                v-model="page"
-                class="my-4"
-                :length="bookList.totalPages"
-                :total-visible="5"
-                @input="handlePagination"
-              ></v-pagination>
-            </v-container>
-          </v-col>
-        </v-row>
+        <Pagination
+          v-show="bookList.items.length"
+          v-model="page"
+          :length="bookList.totalPages"
+          :total-visible="5"
+        ></Pagination>
       </template>
     </v-col>
 
@@ -140,6 +133,7 @@ import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import Spinner from '@/components/Spinner.vue'
 import BookAddDialog from '@/components/BookAddDialog.vue'
 import Fab from '@/components/Fab.vue'
+import Pagination from '@/components/Pagination.vue'
 
 export default {
   mixins: [BookListMixin, ListViewMixin, Mixins],
@@ -152,11 +146,11 @@ export default {
     Spinner,
     BookAddDialog,
     Fab,
+    Pagination,
   },
   data() {
     return {
       mode: this.$route.params.mode,
-      query: {},
       page: 0,
     }
   },

@@ -24,7 +24,7 @@
               ></v-checkbox>
             </v-list-item-action>
 
-            <v-list-item-content @click="onClickEditNote(note.id)">
+            <v-list-item-content @click="onClickEditNote(note)">
               <v-list-item-title>
                 {{ note.position }}{{ item.format_type === 1 ? '' : 'ページ' }}
               </v-list-item-title>
@@ -108,8 +108,8 @@ export default {
     },
   },
   methods: {
-    onClickEditNote(id) {
-      this.$refs.noteEdit.showNotePostDialog({ book: this.item, id: id })
+    onClickEditNote(note) {
+      this.$refs.noteEdit.showNotePostDialog({ book: this.item, note })
     },
     async fetchBookNote() {
       try {

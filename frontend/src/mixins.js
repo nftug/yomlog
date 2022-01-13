@@ -114,6 +114,7 @@ export const ListViewMixin = {
     removeQuery(key, query = this.query) {
       if (key) {
         delete query[key]
+        delete query.page
       } else {
         query = {}
       }
@@ -130,15 +131,6 @@ export const ListViewMixin = {
           query[keyName] = value
         })
       }
-
-      this.$router.push({
-        path: this.$route.path,
-        query,
-      })
-    },
-    handlePagination() {
-      let query = { ...this.$route.query }
-      query.page = this.page
 
       this.$router.push({
         path: this.$route.path,
@@ -166,7 +158,7 @@ export const BookDetailChildMixin = {
       type: Object,
     },
     height: {
-      type: String,
+      type: [String, Number],
       default: '400',
     },
   },

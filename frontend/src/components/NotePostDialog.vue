@@ -137,7 +137,7 @@ export default {
     }
   },
   methods: {
-    async showNotePostDialog({ book, id }) {
+    async showNotePostDialog({ book, note } = {}) {
       this.tab = 0
 
       // バリデーションをクリア
@@ -151,19 +151,20 @@ export default {
       this.total = book.total
       this.quoteImage = null
 
-      if (id) {
-        const note = book.note.find((e) => e.id === id)
+      if (note) {
         this.position = note.position
         this.content = note.content
         this.quoteText = note.quote_text
         this.prevSrc = note.quote_image
         this.noteId = note.id
-      } else {
+      } else if (book) {
         this.position = this.currentState(book).position.value || 0
         this.content = ''
         this.quoteText = ''
         this.prevSrc = ''
         this.noteId = ''
+      } else {
+        throw new Error('No params for showNotePostDialog')
       }
 
       // ダイアログを表示

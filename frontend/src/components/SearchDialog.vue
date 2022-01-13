@@ -164,7 +164,7 @@ export default {
   created() {
     if (this.type === 'book') {
       this.formSearch = this.formSearchBook
-    } else if (this.type === 'note' && this.bookId) {
+    } else if (this.type === 'note') {
       this.formSearch = this.formSearchBookNote
     } else {
       this.formSearch = [{}]

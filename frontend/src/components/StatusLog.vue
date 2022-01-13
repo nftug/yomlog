@@ -17,7 +17,7 @@
               ></v-checkbox>
             </v-list-item-action>
 
-            <v-list-item-content @click="onClickEditStatus(state.id)">
+            <v-list-item-content @click="onClickEditStatus(state)">
               <div>{{ state | statePosition }}</div>
               <div
                 v-if="state.diff.value"
@@ -27,7 +27,7 @@
               </div>
             </v-list-item-content>
 
-            <v-list-item-action @click="onClickEditStatus(state.id)">
+            <v-list-item-action @click="onClickEditStatus(state)">
               <div class="text-body-2">
                 {{ state.created_at | isoToDateTime }}
               </div>
@@ -91,8 +91,11 @@ export default {
     onClickDeleteStatus(item) {
       this.$refs.itemDelete.showItemDeleteDialog(item.id)
     },
-    onClickEditStatus(id) {
-      this.$refs.statusEdit.showStatusPostDialog({ book: this.item, id })
+    onClickEditStatus(item) {
+      this.$refs.statusEdit.showStatusPostDialog({
+        book: this.item,
+        status: item,
+      })
     },
   },
 }

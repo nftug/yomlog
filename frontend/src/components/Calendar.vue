@@ -251,12 +251,12 @@ export default {
       if (type === 'status') {
         this.$refs.statusEdit.showStatusPostDialog({
           book: this.book,
-          id: event.item.id,
+          status: event.item,
         })
       } else {
         this.$refs.noteEdit.showNotePostDialog({
           book: this.book,
-          id: event.item.id,
+          note: event.item,
         })
       }
       nativeEvent.stopPropagation()

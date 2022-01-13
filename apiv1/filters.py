@@ -73,7 +73,6 @@ class BookFilter(GenericSearchFilterSet):
         fields_for_search = [
             'title__icontains',
             'authors__name__icontains',
-            'amazon_dp'
         ]
 
     def filter_status(self, queryset, name, value):

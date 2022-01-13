@@ -102,8 +102,8 @@ export default {
     }
   },
   methods: {
-    showStatusPostDialog({ book, id = null } = {}) {
-      this.initFields({ book, id })
+    showStatusPostDialog({ book, status = {} }) {
+      this.initFields({ book, id: status.id })
 
       // ダイアログを表示
       this.$refs.dialogStatusAdd.showDialog()
