@@ -2,10 +2,11 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerializer
 from djoser.conf import settings as djoser_settings
+from rest_framework.exceptions import ValidationError
 
 from apiv1.mixins import ImageSerializerMixin
-from apiv1.serializers import AnalyticsSerializer
-from backend.models import StatusLog
+from apiv1.serializers import AnalyticsSerializer, BookSerializer
+from backend.models import StatusLog, Book
 
 
 class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
@@ -40,7 +41,12 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
     def get_analytics(self, instance):
         queryset = StatusLog.objects.filter(created_by=instance, position__gt=0).select_related('book')
         context = {**self.context, 'userinfo': True}
-        return AnalyticsSerializer(queryset, context=context).data
+        analytics = AnalyticsSerializer(queryset, context=context).data
+
+        # recent_booksの先頭5件を取得
+        books = Book.objects.filter(created_by=instance).sort_by_accessed_at()[:5]
+        recent_books = BookSerializer(books, many=True, context={'inside': True}).data
+        return {**analytics, 'recent_books': recent_books}
 
 
 class CustomUserListSerializer(CustomUserSerializer):

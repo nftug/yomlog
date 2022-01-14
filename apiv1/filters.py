@@ -66,6 +66,8 @@ class BookFilter(GenericSearchFilterSet):
     title_or = django_filter.CharFilter(field_name='title', label='Title (OR)', method='filter_search_or')
     authors_or = django_filter.CharFilter(field_name='authors__name', label='Authors (OR)', method='filter_search_or')
     status = django_filter.ChoiceFilter(label='Status', choices=STATUS_CHOICES, method='filter_status')
+    accessed_at__gte = django_filter.DateFilter(label='アクセス日 (以降)', method='filter_accessed_at')
+    accessed_at__lte = django_filter.DateFilter(label='アクセス日 (以前)', method='filter_accessed_at')
 
     class Meta:
         model = Book
@@ -77,10 +79,16 @@ class BookFilter(GenericSearchFilterSet):
         ]
 
     def filter_status(self, queryset, name, value):
-        if not value:
-            return queryset
-
         return queryset.filter_by_state(value)
+
+    def filter_accessed_at(self, queryset, name, value):
+        queryset = queryset.annotate_accessed_at()
+        if name.endswith('__gte'):
+            queryset = queryset.filter(accessed_at__date__gte=value)
+        elif name.endswith('__lte'):
+            queryset = queryset.filter(accessed_at__date__lte=value)
+
+        return queryset
 
 
 class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):

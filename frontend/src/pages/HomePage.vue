@@ -97,7 +97,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn text color="primary">もっと見る</v-btn>
+              <v-btn text color="primary" to="/shelf/all">もっと見る</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>

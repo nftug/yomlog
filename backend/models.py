@@ -29,6 +29,9 @@ class CustomUser(AbstractUser):
 
 class BookQuerySet(models.QuerySet):
     def filter_by_state(self, state):
+        if not state:
+            return self
+
         queryset = self.prefetch_related('status_log')
         ids = []
 
@@ -49,11 +52,11 @@ class BookQuerySet(models.QuerySet):
 
         return queryset.filter(id__in=ids).distinct()
 
-    def annotate_state_date(self):
-        return self.annotate(state_date=Coalesce(Max('status_log__created_at'), F('created_at')))
+    def annotate_accessed_at(self):
+        return self.annotate(accessed_at=Coalesce(Max('status_log__created_at'), F('created_at')))
 
-    def sort_by_state_date(self):
-        return self.annotate_state_date().order_by('-state_date')
+    def sort_by_accessed_at(self):
+        return self.annotate_accessed_at().order_by('-accessed_at')
 
 
 class Author(models.Model):
