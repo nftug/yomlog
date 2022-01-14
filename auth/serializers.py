@@ -57,13 +57,13 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
         end_date = date.today()
         days = (end_date - start_date).days + 1
         date_list = [end_date - timedelta(days=x) for x in range(days)]
-        pages_daily = PagesDailySerializer(status_log, context={**context, 'date_list': date_list}).data
+        pages_daily = PagesDailySerializer(date_list, many=True, context={**context, 'queryset': status_log}).data
 
         return {
             **analytics,
             'recent_books': recent_books,
             'authors_count': authors_count,
-            **pages_daily
+            'pages_daily': pages_daily
         }
 
 

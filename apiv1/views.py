@@ -186,5 +186,5 @@ class PagesDailyAPIView(generics.ListAPIView):
         paged_date_list = self.paginate_queryset(date_list)
 
         # ページネーションで分けられたdate_listをコンテキストに渡し、シリアライザを実行
-        serializer = self.get_serializer(queryset, context={'date_list': paged_date_list})
+        serializer = self.get_serializer(paged_date_list, many=True, context={'queryset': queryset})
         return self.get_paginated_response(serializer.data)

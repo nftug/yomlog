@@ -356,20 +356,20 @@ class AuthorSerializer(serializers.ModelSerializer):
 
 
 class PagesDailySerializer(serializers.Serializer, AnalyticsSerializerMixin):
-    """ページ数集計用シリアライザ"""
+    """
+    ページ数集計用シリアライザ
+    (instanceにはdate_createdがmany=Trueで入る。コンテキストからquerysetを取得。)
+    """
 
-    pages_daily = serializers.SerializerMethodField()
+    date = serializers.SerializerMethodField()
+    pages = serializers.SerializerMethodField()
 
-    def get_pages_daily(self, instance):
-        """日毎のページ数集計を取得"""
+    def get_date(self, date_created):
+        return date_created
 
-        # コンテキストからdate_listを取得してソートする
-        date_list = self.context['date_list']
-
-        ret = []
-        for date_created in date_list:
-            status_daily = instance.filter(created_at__date=date_created)
-            pages_daily = self._get_diff_total(status_daily) if status_daily.exists() else 0
-            ret.append({'date': date_created, 'pages': pages_daily})
-
-        return ret
+    def get_pages(self, date_created):
+        """一日毎のページ数集計を取得"""
+        queryset = self.context['queryset']
+        status_daily = queryset.filter(created_at__date=date_created)
+        pages_daily = self._get_diff_total(status_daily) if status_daily.exists() else 0
+        return pages_daily
