@@ -86,8 +86,7 @@ export default {
       this.book = { ...book }
 
       // authorItemsを取得
-      const { data: results } = await api.get('/author/')
-      this.authorItems = results.map((e) => e.name)
+      this.authorItems = [...this.book.authors]
 
       // ダイアログを表示
       if (!(await this.$refs.dialogBookEdit.showDialog()))
