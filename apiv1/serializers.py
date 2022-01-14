@@ -249,23 +249,6 @@ class AnalyticsSerializerMixin():
 
         return total
 
-    def _get_date_range_from_gets(self, context):
-        """GETパラメータから日付範囲を取得"""
-
-        gets = context['request'].GET
-
-        if gets.get('created_at__gte'):
-            start_date = datetime.strptime(gets['created_at__gte'], '%Y-%m-%d').date()
-        else:
-            start_date = date(1970, 1, 1)
-
-        if gets.get('created_at__lte'):
-            end_date = datetime.strptime(gets['created_at__lte'], '%Y-%m-%d').date()
-        else:
-            end_date = date.today()
-
-        return [start_date, end_date]
-
 
 class AnalyticsSerializer(serializers.Serializer, AnalyticsSerializerMixin):
     """分析用シリアライザ"""
@@ -297,10 +280,16 @@ class AnalyticsSerializer(serializers.Serializer, AnalyticsSerializerMixin):
         total = self._get_diff_total(status_log)
 
         # 平均ページ数の計算は、フィルタで指定された日付範囲に依拠させる
-        [start_date, end_date] = self._get_date_range_from_gets(self.context)
-        if self.context.get('userinfo') and start_date == date(1970, 1, 1):
+        if self.context.get('filterset'):
+            created_at = self.context['filterset'].form.cleaned_data.get('created_at')
+            start_date = created_at.start.date() if hasattr(created_at, 'start') \
+                else status_log.last().created_at.date()
+            end_date = created_at.end.date() if hasattr(created_at, 'end') \
+                else date.today()
+        else:
             # ユーザー情報から呼び出された場合、start_dateはユーザーの登録日
             start_date = self.context['request'].user.date_joined.date()
+            end_date = date.today()
             status_log = status_log.filter(created_at__date__gte=start_date)
 
         total_for_avg = self._get_diff_total(status_log)

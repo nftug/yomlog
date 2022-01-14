@@ -125,7 +125,7 @@ class AnalyticsAPIView(views.APIView):
         if not filterset.is_valid():
             raise ValidationError(filterset.errors)
 
-        serializer = AnalyticsSerializer(filterset.qs, context={'request': request})
+        serializer = AnalyticsSerializer(filterset.qs, context={'request': request, 'filterset': filterset})
         return response.Response(serializer.data, status.HTTP_200_OK)
 
 
