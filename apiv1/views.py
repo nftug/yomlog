@@ -1,11 +1,13 @@
+from urllib.request import Request
 from rest_framework import status, viewsets, pagination, response, views, generics
 from rest_framework.exceptions import ValidationError
 from django_filters import rest_framework as django_filter
 
 from backend.models import Book, Note, StatusLog, Author
-from .serializers import AuthorSerializer, BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer
+from .serializers import AuthorSerializer, BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer, PagesDailySerializer
 from .filters import BookFilter, StatusLogFilter, NoteFilter
 from rest_framework.parsers import FileUploadParser, FormParser
+from .mixins import ListPaginator
 
 
 class CustomPageNumberPagination(pagination.PageNumberPagination):
@@ -19,7 +21,6 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
             'previous': self.get_previous_link(),
             'count': self.page.paginator.count,
             'totalPages': self.page.paginator.num_pages,
-            'currentPage': self.page.number,
             'results': data
         })
 
@@ -151,3 +152,19 @@ class AuthorListAPIView(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
+
+
+class PagesDailyAPIView(views.APIView):
+    """日毎のページ数を集計するAPI"""
+
+    def get(self, request: Request):
+        queryset = StatusLog.objects.filter(created_by=request.user, position__gt=0).select_related('book')
+        filterset = StatusLogFilter(request.query_params, queryset=queryset)
+        if not filterset.is_valid():
+            raise ValidationError(filterset.errors)
+
+        serializer = PagesDailySerializer(filterset.qs, context={'request': request})
+        paginator = ListPaginator(request)
+        page = request.GET.get('page') or 1
+
+        return paginator.paginate_list(serializer.data['pages_daily'], 12, page)

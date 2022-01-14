@@ -79,7 +79,11 @@ class BookFilter(GenericSearchFilterSet, GenericEventFilterSet):
     authors_or = django_filter.CharFilter(field_name='authors__name', label='Authors (OR)', method='filter_search_or')
     status = django_filter.ChoiceFilter(label='Status', choices=STATUS_CHOICES, method='filter_status')
     accessed_at = django_filter.DateFromToRangeFilter(
-        label='書籍の最終アクセス日 (範囲指定)',
+        label='最終アクセス日 (範囲指定)',
+        method='filter_date_range',
+    )
+    created_at = django_filter.DateFromToRangeFilter(
+        label='作成日 (範囲指定)',
         method='filter_date_range',
     )
 
@@ -94,27 +98,6 @@ class BookFilter(GenericSearchFilterSet, GenericEventFilterSet):
 
     def filter_status(self, queryset, name, value):
         return queryset.filter_by_state(value)
-
-
-class AuthorFilter(GenericSearchFilterSet, GenericEventFilterSet):
-    """Author 検索用フィルタ"""
-
-    accessed_at = django_filter.DateFromToRangeFilter(
-        label='書籍の最終アクセス日 (範囲指定)',
-        method='filter_date_range',
-    )
-    books__created_at = django_filter.DateFromToRangeFilter(
-        label='書籍の作成日 (範囲指定)',
-        method='filter_date_range',
-    )
-
-    class Meta:
-        model = Author
-        fields = ['name']
-        fields_for_search = [
-            'name',
-            'books__title',
-        ]
 
 
 class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
@@ -138,7 +121,6 @@ class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
         fields_for_search = [
             'book__title__icontains',
             'book__authors__name__icontains',
-            'amazon_dp'
         ]
 
     def filter_only_progress(self, queryset, name, value):

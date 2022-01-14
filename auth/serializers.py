@@ -2,9 +2,10 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerializer
 from djoser.conf import settings as djoser_settings
+from datetime import date, timedelta
 
 from apiv1.mixins import ImageSerializerMixin
-from apiv1.serializers import AnalyticsSerializer, BookSerializer, AuthorSerializer
+from apiv1.serializers import AnalyticsSerializer, BookSerializer, AuthorSerializer, PagesDailySerializer
 from backend.models import StatusLog, Book, Author
 
 
@@ -38,9 +39,9 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
         return self._get_thumbnail(instance)
 
     def get_analytics(self, instance):
-        queryset = StatusLog.objects.filter(created_by=instance, position__gt=0).select_related('book')
+        status_log = StatusLog.objects.filter(created_by=instance, position__gt=0).select_related('book')
         context = {**self.context, 'userinfo': True}
-        analytics = AnalyticsSerializer(queryset, context=context).data
+        analytics = AnalyticsSerializer(status_log, context=context).data
 
         # recent_booksの先頭5件を取得
         books = Book.objects.filter(created_by=instance).sort_by_accessed_at()
@@ -51,7 +52,17 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
         authors = Author.objects.filter(books__created_by=user).sort_by_books_count()[:8]
         authors_count = AuthorSerializer(authors, many=True, context=context).data
 
-        return {**analytics, 'recent_books': recent_books, 'authors_count': authors_count}
+        # 直近一週間に読んだページ数を取得
+        date_week_ago = date.today() - timedelta(days=7)
+        status_log = status_log.filter(created_at__date__gte=date_week_ago)
+        pages_daily = PagesDailySerializer(status_log, context=context).data
+
+        return {
+            **analytics,
+            'recent_books': recent_books,
+            'authors_count': authors_count,
+            **pages_daily
+        }
 
 
 class CustomUserListSerializer(CustomUserSerializer):

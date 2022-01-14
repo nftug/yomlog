@@ -13,4 +13,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('analytics/', views.AnalyticsAPIView.as_view()),
     path('author/', views.AuthorListAPIView.as_view()),
+    path('pages/', views.PagesDailyAPIView.as_view()),
 ]

@@ -68,6 +68,7 @@ class StatusLogSerializer(BookIncludedSerializer):
         else:
             return 'read'
 
+    @classmethod
     def get_diff(self, instance):
         # 前回までに進んだページ数 or 位置No
         book = instance.book
@@ -236,21 +237,15 @@ class BookSerializer(PostSerializer):
         return instance.thumbnail or NO_COVER_IMAGE
 
 
-class AnalyticsSerializer(serializers.Serializer):
-    """分析用シリアライザ"""
-
-    number_of_books = serializers.SerializerMethodField()
-    pages_read = serializers.SerializerMethodField()
-    days = serializers.SerializerMethodField()
-    pages_daily = serializers.SerializerMethodField()
+class AnalyticsSerializerMixin():
+    """分析用シリアライザ ミックスイン"""
 
     def _get_diff_total(self, status_log: StatusLog):
         """進捗の累計ページ数を取得"""
 
-        status_data = StatusLogSerializer(status_log, many=True, read_only=True, context={'inside': True}).data
         total = 0
-        for status in status_data:
-            total += status['diff']['page']
+        for status in status_log:
+            total += StatusLogSerializer.get_diff(status)['page']
 
         return total
 
@@ -270,6 +265,14 @@ class AnalyticsSerializer(serializers.Serializer):
             end_date = date.today()
 
         return [start_date, end_date]
+
+
+class AnalyticsSerializer(serializers.Serializer, AnalyticsSerializerMixin):
+    """分析用シリアライザ"""
+
+    number_of_books = serializers.SerializerMethodField()
+    pages_read = serializers.SerializerMethodField()
+    days = serializers.SerializerMethodField()
 
     def get_number_of_books(self, status_log: StatusLog):
         """ステータスごとの累計冊数を取得"""
@@ -338,26 +341,6 @@ class AnalyticsSerializer(serializers.Serializer):
             'continuous': continuous
         }
 
-    def get_pages_daily(self, status_log: StatusLog):
-        """日毎のページ数集計を取得"""
-
-        # ユーザー情報から呼び出された場合、一週間以降を切り出す
-        if self.context.get('userinfo'):
-            date_week_ago = date.today() - timedelta(days=6)
-            status_log = status_log.filter(created_at__date__gte=date_week_ago)
-
-        # 記録された日数のset
-        date_set = set(status_log.values_list('created_at__date', flat=True))
-        sorted_date_set = sorted(list(date_set))
-
-        ret = []
-        for date_created in sorted_date_set:
-            status_daily = status_log.filter(created_at__date=date_created)
-            pages_daily = self._get_diff_total(status_daily)
-            ret.append({'date': date_created, 'pages': pages_daily})
-
-        return ret
-
 
 class AuthorSerializer(serializers.ModelSerializer):
     """著者名リスト用シリアライザ"""
@@ -370,3 +353,24 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     def get_count(self, instance: Author):
         return instance.books__count
+
+
+class PagesDailySerializer(serializers.Serializer, AnalyticsSerializerMixin):
+    """ページ数集計用シリアライザ"""
+
+    pages_daily = serializers.SerializerMethodField()
+
+    def get_pages_daily(self, instance: StatusLog):
+        """日毎のページ数集計を取得"""
+
+        # 記録された日数のset
+        date_set = set(instance.values_list('created_at__date', flat=True))
+        sorted_date_set = sorted(list(date_set))
+
+        ret = []
+        for date_created in sorted_date_set:
+            status_daily = instance.filter(created_at__date=date_created)
+            pages_daily = self._get_diff_total(status_daily)
+            ret.append({'date': date_created, 'pages': pages_daily})
+
+        return ret
