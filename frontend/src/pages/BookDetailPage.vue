@@ -32,7 +32,7 @@
         <v-col cols="12" sm="3">
           <v-img
             contain
-            :src="item.thumbnail || noImage"
+            :src="item.thumbnail"
             max-height="185"
             min-height="185"
           ></v-img>
@@ -133,7 +133,6 @@ export default {
       item: {},
       isLoading: false,
       error: null,
-      noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image',
       activeTab: null,
       toolbar: {},
       tabs: [

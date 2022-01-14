@@ -22,10 +22,7 @@
                     tile
                     size="125"
                   >
-                    <v-img
-                      contain
-                      :src="note.book.thumbnail || noImage"
-                    ></v-img>
+                    <v-img contain :src="note.book.thumbnail"></v-img>
                   </v-list-item-avatar>
 
                   <v-list-item-content class="align-self-start">
@@ -157,7 +154,6 @@ export default {
     page: 0,
     total: 0,
     isLoading: false,
-    noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image',
   }),
   beforeRouteUpdate(to, from, next) {
     // ナビゲーションガード

@@ -32,7 +32,7 @@ const router = new VueRouter({
       path: '/',
       name: 'home',
       component: HomePage,
-      meta: { title: 'YomLog', requiresAuth: true, isShowMenuButton: true },
+      meta: { requiresAuth: true, isShowMenuButton: true },
     },
     {
       path: '/shelf/:mode',
@@ -166,11 +166,9 @@ const router = new VueRouter({
 })
 
 // 画面遷移の直前に毎回実行されるナビゲーションガード
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const isLoggedIn = store.state.auth.isLoggedIn
   const token = localStorage.getItem('access')
-  // console.log('to.path=', to.path)
-  // console.log('isLoggedIn=', isLoggedIn)
 
   // エラーなし→通知をクリア
   if (!store.state.message.error) {
@@ -179,19 +177,14 @@ router.beforeEach((to, from, next) => {
 
   if (!isLoggedIn) {
     // 未ログイン時→ユーザー情報取得を試行
-    // console.log('User is not logged in.')
-    if (token != null) {
+    if (token) {
       // 認証用トークンが残っていればユーザー情報を再取得
-      // console.log('Trying to reload user info.')
-      store
-        .dispatch('auth/reload')
-        .then(() => {
-          // console.log('Succeeded to reload.')
-          goNextOrHome(to, next)
-        })
-        .catch(() => {
-          goLoginOrPublic(to, next)
-        })
+      try {
+        await store.dispatch('auth/reload')
+        goNextOrHome(to, next)
+      } catch {
+        goLoginOrPublic(to, next)
+      }
     } else {
       // 認証用トークンが残っていなければ、ログイン画面へ強制遷移 or そのまま続行
       goLoginOrPublic(to, next)
@@ -205,14 +198,12 @@ router.beforeEach((to, from, next) => {
 function goNextOrHome(to, next) {
   // ログイン済み かつ requiresNotAuthがtrue→ホーム画面にリダイレクト
   const isLoggedIn = store.state.auth.isLoggedIn
-  if (
-    isLoggedIn &&
-    to.matched.some((element) => element.meta.requiresNotAuth)
-  ) {
-    // console.log('Force to Home page.')
+  const isRequiresNotAuth = to.matched.some(
+    (element) => element.meta.requiresNotAuth
+  )
+  if (isLoggedIn && isRequiresNotAuth) {
     next('/')
   } else {
-    // console.log('Go to next page.')
     next()
   }
 }
@@ -220,14 +211,11 @@ function goNextOrHome(to, next) {
 function goLoginOrPublic(to, next) {
   // requiresAuthがtrueなら、ログイン画面へ遷移
   if (to.matched.some((element) => element.meta.requiresAuth)) {
-    // console.log('Force to Login page.')
     next({
       path: '/login/',
       query: { next: to.fullPath },
     })
   } else {
-    // ログインが不要であればそのまま次へ
-    // console.log('Go to public page.')
     next()
   }
 }

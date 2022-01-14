@@ -164,6 +164,7 @@ class BookSerializer(PostSerializer):
         ret = super().to_representation(instance)
 
         ret['authors'] = instance.get_author_names()
+        ret['thumbnail'] = self.get_thumbnail(instance)
 
         if self.context.get('inside'):
             del ret['status'], ret['note']
@@ -232,6 +233,10 @@ class BookSerializer(PostSerializer):
             return NoteSerializer(notes, many=True, read_only=True, context={'inside': True}).data
         else:
             return None
+
+    def get_thumbnail(self, instance):
+        NO_COVER_IMAGE = 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image'
+        return instance.thumbnail or NO_COVER_IMAGE
 
 
 class AnalyticsSerializer(serializers.Serializer):

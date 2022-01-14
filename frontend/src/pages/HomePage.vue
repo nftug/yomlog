@@ -78,10 +78,7 @@
                     <div :key="index">
                       <v-list-item :to="`/book/detail/${book.id}`">
                         <v-list-item-avatar tile size="50px">
-                          <v-img
-                            contain
-                            :src="book.thumbnail || noImage"
-                          ></v-img>
+                          <v-img contain :src="book.thumbnail"></v-img>
                         </v-list-item-avatar>
                         {{ book.title }}
                       </v-list-item>
@@ -168,7 +165,6 @@ export default {
         position: 'right',
       },
     },
-    noImage: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image',
   }),
   computed: {
     ...mapState(['auth']),

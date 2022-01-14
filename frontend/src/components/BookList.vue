@@ -44,7 +44,7 @@
                 <router-link v-if="detailLink" :to="`/book/detail/${item.id}`">
                   <v-img
                     contain
-                    :src="item.thumbnail || noImage"
+                    :src="item.thumbnail"
                     max-height="185"
                     min-height="185"
                   ></v-img>
@@ -52,7 +52,7 @@
                 <template v-else>
                   <v-img
                     contain
-                    :src="item.thumbnail || noImage"
+                    :src="item.thumbnail"
                     max-height="185"
                     min-height="185"
                   ></v-img>
@@ -76,10 +76,6 @@ export default {
     items: {
       type: Array,
       required: true,
-    },
-    noImage: {
-      type: String,
-      default: 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image',
     },
     loading: {
       type: Boolean,
