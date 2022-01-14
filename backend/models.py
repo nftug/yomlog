@@ -1,10 +1,8 @@
 import uuid
 from django.core.validators import MinLengthValidator
-
 from django.db import models
-from django.db.models.fields import DateTimeField
 from django.utils import timezone
-from django.db.models import Q, Max, ExpressionWrapper, F
+from django.db.models import Max, F, Count
 from django.db.models.functions import Coalesce
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
@@ -59,6 +57,11 @@ class BookQuerySet(models.QuerySet):
         return self.annotate_accessed_at().order_by('-accessed_at')
 
 
+class AuthorQuerySet(models.QuerySet):
+    def sort_by_books_count(self):
+        return self.annotate(Count('books')).order_by('-books__count')
+
+
 class Author(models.Model):
 
     class Meta:
@@ -67,6 +70,7 @@ class Author(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
+    objects = AuthorQuerySet.as_manager()
 
     def __str__(self):
         return self.name

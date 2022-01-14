@@ -1,8 +1,9 @@
 from django.db.models.query import QuerySet
 from django_filters import rest_framework as django_filter
 from django.db.models import Q
+from rest_framework.exceptions import ValidationError
 
-from backend.models import Book, StatusLog, Note
+from backend.models import Book, StatusLog, Note, Author
 import re
 
 
@@ -52,11 +53,22 @@ class GenericSearchFilterSet(django_filter.FilterSet):
 class GenericEventFilterSet(django_filter.FilterSet):
     """イベント用フィルタ ミックスイン"""
 
-    created_at__gte = django_filter.DateTimeFilter(field_name='created_at', lookup_expr='gte')
-    created_at__lte = django_filter.DateTimeFilter(field_name='created_at', lookup_expr='lte')
+    def filter_date_range(self, queryset, name, value):
+        if name.startswith('accessed_at'):
+            if hasattr(queryset, 'annotate_accessed_at'):
+                queryset = queryset.annotate_accessed_at()
+            else:
+                raise ValidationError('アクセス日のフィールドが存在しません。')
+
+        if value.start:
+            queryset = queryset.filter(**{f'{name}__date__gte': value.start})
+        if value.stop:
+            queryset = queryset.filter(**{f'{name}__date__lte': value.stop})
+
+        return queryset
 
 
-class BookFilter(GenericSearchFilterSet):
+class BookFilter(GenericSearchFilterSet, GenericEventFilterSet):
     """Book 検索用フィルタ"""
 
     STATUS_CHOICES = (('to_be_read', 'To be read'), ('reading', 'Reading'), ('read', 'Read'))
@@ -66,8 +78,10 @@ class BookFilter(GenericSearchFilterSet):
     title_or = django_filter.CharFilter(field_name='title', label='Title (OR)', method='filter_search_or')
     authors_or = django_filter.CharFilter(field_name='authors__name', label='Authors (OR)', method='filter_search_or')
     status = django_filter.ChoiceFilter(label='Status', choices=STATUS_CHOICES, method='filter_status')
-    accessed_at__gte = django_filter.DateFilter(label='アクセス日 (以降)', method='filter_accessed_at')
-    accessed_at__lte = django_filter.DateFilter(label='アクセス日 (以前)', method='filter_accessed_at')
+    accessed_at = django_filter.DateFromToRangeFilter(
+        label='書籍の最終アクセス日 (範囲指定)',
+        method='filter_date_range',
+    )
 
     class Meta:
         model = Book
@@ -81,14 +95,26 @@ class BookFilter(GenericSearchFilterSet):
     def filter_status(self, queryset, name, value):
         return queryset.filter_by_state(value)
 
-    def filter_accessed_at(self, queryset, name, value):
-        queryset = queryset.annotate_accessed_at()
-        if name.endswith('__gte'):
-            queryset = queryset.filter(accessed_at__date__gte=value)
-        elif name.endswith('__lte'):
-            queryset = queryset.filter(accessed_at__date__lte=value)
 
-        return queryset
+class AuthorFilter(GenericSearchFilterSet, GenericEventFilterSet):
+    """Author 検索用フィルタ"""
+
+    accessed_at = django_filter.DateFromToRangeFilter(
+        label='書籍の最終アクセス日 (範囲指定)',
+        method='filter_date_range',
+    )
+    books__created_at = django_filter.DateFromToRangeFilter(
+        label='書籍の作成日 (範囲指定)',
+        method='filter_date_range',
+    )
+
+    class Meta:
+        model = Author
+        fields = ['name']
+        fields_for_search = [
+            'name',
+            'books__title',
+        ]
 
 
 class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
@@ -101,6 +127,10 @@ class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
     amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
     created_by = django_filter.CharFilter(field_name='created_by__username')
     only_progress = django_filter.BooleanFilter(label='Not include "to be read"', method='filter_only_progress')
+    created_at = django_filter.DateFromToRangeFilter(
+        label='作成日 (範囲指定)',
+        method='filter_date_range',
+    )
 
     class Meta:
         model = StatusLog

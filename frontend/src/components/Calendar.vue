@@ -214,16 +214,18 @@ export default {
       try {
         this.isLoading = true
 
-        const created_at__gte = moment(start.date)
+        const created_at_after = moment(start.date)
           .subtract(1, 'M')
           .format('yyyy-MM-26')
-        const created_at__lte = moment(end.date).add(1, 'M').format('yyyy-MM-6')
+        const created_at_before = moment(end.date)
+          .add(1, 'M')
+          .format('yyyy-MM-6')
 
         const params = {
           no_pagination: true,
           only_progress: true,
-          created_at__gte,
-          created_at__lte,
+          created_at_after,
+          created_at_before,
         }
         this.events = []
 

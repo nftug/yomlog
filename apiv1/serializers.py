@@ -1,4 +1,3 @@
-from typing import OrderedDict
 from rest_framework import serializers
 from django.utils.timezone import localtime
 from rest_framework.exceptions import ValidationError
@@ -9,7 +8,6 @@ from backend.models import Author, Book, StatusLog, Note, BookAuthorRelation
 
 from datetime import date, timedelta, datetime
 
-from django.db.models import Count
 import math
 import re
 
@@ -238,31 +236,6 @@ class BookSerializer(PostSerializer):
         return instance.thumbnail or NO_COVER_IMAGE
 
 
-class AuthorsCountSerializer(serializers.Serializer):
-    """著者名カウント シリアライザ"""
-
-    authors_count = serializers.SerializerMethodField()
-
-    def get_authors_count(self, books: Book):
-        """与えられたBookから著者名の集計を降順で取得"""
-
-        user = self.context['request'].user
-        authors = Author.objects.filter(
-            books__created_by=user, books__in=books
-        ).annotate(Count('books'))
-
-        # 著者名ごとに冊数を集計、降順で並べる
-        counts_of_authors = {}
-        for author in authors:
-            counts_of_authors[author.name] = author.books__count
-
-        authors_count = OrderedDict(
-            sorted(counts_of_authors.items(), key=lambda x: x[1], reverse=True)
-        )
-
-        return authors_count
-
-
 class AnalyticsSerializer(serializers.Serializer):
     """分析用シリアライザ"""
 
@@ -389,6 +362,11 @@ class AnalyticsSerializer(serializers.Serializer):
 class AuthorSerializer(serializers.ModelSerializer):
     """著者名リスト用シリアライザ"""
 
+    count = serializers.SerializerMethodField()
+
     class Meta:
         model = Author
-        fields = ['name']
+        fields = ['name', 'count']
+
+    def get_count(self, instance: Author):
+        return instance.books__count

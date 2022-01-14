@@ -2,13 +2,10 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer, UserCreatePasswordRetypeSerializer
 from djoser.conf import settings as djoser_settings
-from rest_framework.exceptions import ValidationError
-from itertools import islice
-from typing import OrderedDict
 
 from apiv1.mixins import ImageSerializerMixin
-from apiv1.serializers import AnalyticsSerializer, BookSerializer, AuthorsCountSerializer
-from backend.models import StatusLog, Book
+from apiv1.serializers import AnalyticsSerializer, BookSerializer, AuthorSerializer
+from backend.models import StatusLog, Book, Author
 
 
 class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
@@ -49,9 +46,10 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
         books = Book.objects.filter(created_by=instance).sort_by_accessed_at()
         recent_books = BookSerializer(books[:5], many=True, context={'inside': True}).data
 
-        # authors_countを取得
-        authors_count = AuthorsCountSerializer(books, context=context).data['authors_count']
-        authors_count = OrderedDict(islice(authors_count.items(), 8))
+        # authors_countの先頭8件を取得
+        user = self.context['request'].user
+        authors = Author.objects.filter(books__created_by=user).sort_by_books_count()[:8]
+        authors_count = AuthorSerializer(authors, many=True, context=context).data
 
         return {**analytics, 'recent_books': recent_books, 'authors_count': authors_count}
 

@@ -1,5 +1,4 @@
-from rest_framework import serializers, status, viewsets, pagination, response, views, generics, filters
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, viewsets, pagination, response, views, generics
 from rest_framework.exceptions import ValidationError
 from django_filters import rest_framework as django_filter
 
@@ -34,7 +33,7 @@ class LogPagination(CustomPageNumberPagination):
 class BookViewSet(viewsets.ModelViewSet):
     """BookのCRUD用APIクラス"""
 
-    queryset = Book.objects.all()
+    queryset = Book.objects.none()
     serializer_class = BookSerializer
     # lookup_field = 'id_google'
 
@@ -45,7 +44,7 @@ class BookViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # プライベートアクセスのみ
-        return self.queryset.filter(
+        return Book.objects.filter(
             created_by=self.request.user
         ).prefetch_related('status_log', 'notes', 'authors').sort_by_accessed_at()
 
@@ -77,7 +76,7 @@ class BookViewSet(viewsets.ModelViewSet):
 class StatusLogViewSet(viewsets.ModelViewSet):
     """StatusLogのCRUD用APIクラス"""
 
-    queryset = StatusLog.objects.all()
+    queryset = StatusLog.objects.none()
     serializer_class = StatusLogSerializer
 
     filter_backends = [django_filter.DjangoFilterBackend]
@@ -91,13 +90,13 @@ class StatusLogViewSet(viewsets.ModelViewSet):
             self.pagination_class = None
 
         # プライベートアクセスのみ
-        return self.queryset.filter(created_by=self.request.user).select_related('book')
+        return StatusLog.objects.filter(created_by=self.request.user).select_related('book')
 
 
 class NoteViewSet(viewsets.ModelViewSet):
     """NoteのCRUD用APIクラス"""
 
-    queryset = Note.objects.all()
+    queryset = Note.objects.none()
     serializer_class = NoteSerializer
     parser_class = (FileUploadParser, FormParser)
 
@@ -112,7 +111,7 @@ class NoteViewSet(viewsets.ModelViewSet):
             self.pagination_class = None
 
         # プライベートアクセスのみ
-        return self.queryset.filter(created_by=self.request.user).select_related('book')
+        return Note.objects.filter(created_by=self.request.user).select_related('book')
 
 
 class AnalyticsAPIView(views.APIView):
@@ -131,9 +130,24 @@ class AnalyticsAPIView(views.APIView):
 class AuthorListAPIView(generics.ListAPIView):
     """著者名リストのAPI"""
 
-    queryset = Author.objects.all()
+    queryset = Book.objects.none()
     serializer_class = AuthorSerializer
 
-    def get_queryset(self):
-        user = self.request.user
-        return self.queryset.filter(books__created_by=user).distinct()
+    filter_backends = [django_filter.DjangoFilterBackend]
+    filterset_class = BookFilter
+
+    pagination_class = LogPagination
+
+    def list(self, request, *args, **kwargs):
+        # Booksをフィルタリングして、条件に合致するAuthorのquerysetを取得
+        books = self.filter_queryset(Book.objects.filter(created_by=request.user))
+        queryset = Author.objects.filter(books__in=books).sort_by_books_count()
+
+        if not self.request.GET.get('no_pagination'):
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)

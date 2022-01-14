@@ -27,8 +27,8 @@ const authModule = {
   getters: {
     created_at: (state) => moment(state.date_joined).format('yyyy/MM/DD'),
     authorsCount: ({ analytics: { authors_count } }) => ({
-      authors: Object.keys(authors_count),
-      counts: Object.keys(authors_count).map((key) => authors_count[key]),
+      authors: authors_count.map((item) => item.name),
+      counts: authors_count.map((item) => item.count),
     }),
     pagesDaily: ({ analytics: { pages_daily } }) => {
       const keys = Object.keys(pages_daily)
