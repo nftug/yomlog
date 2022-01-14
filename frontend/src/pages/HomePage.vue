@@ -6,7 +6,11 @@
         <v-list>
           <v-list-item two-line>
             <v-list-item-avatar color="grey" size="80">
-              <img v-if="auth.avatar" :alt="auth.fullname" :src="auth.avatar" />
+              <v-img
+                v-if="auth.avatar"
+                :alt="auth.fullname"
+                :src="auth.avatar"
+              />
               <v-icon v-else dark size="80">mdi-account-circle</v-icon>
             </v-list-item-avatar>
 
