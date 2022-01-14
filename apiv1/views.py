@@ -142,7 +142,7 @@ class AuthorListAPIView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         # Booksをフィルタリングして、条件に合致するAuthorのquerysetを取得
         books = self.filter_queryset(Book.objects.filter(created_by=request.user))
-        queryset = Author.objects.filter(books__in=books).sort_by_books_count()
+        queryset = Author.objects.filter(books__in=books, bookauthorrelation__order=0).sort_by_books_count()
 
         if not self.request.GET.get('no_pagination'):
             page = self.paginate_queryset(queryset)

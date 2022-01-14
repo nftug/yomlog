@@ -49,7 +49,7 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
 
         # authors_countの先頭8件を取得
         user = self.context['request'].user
-        authors = Author.objects.filter(books__created_by=user).sort_by_books_count()[:8]
+        authors = Author.objects.filter(books__created_by=user, bookauthorrelation__order=0).sort_by_books_count()[:8]
         authors_count = AuthorSerializer(authors, many=True, context=context).data
 
         # 直近一週間に読んだページ数を取得
