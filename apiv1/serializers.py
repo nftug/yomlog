@@ -360,17 +360,16 @@ class PagesDailySerializer(serializers.Serializer, AnalyticsSerializerMixin):
 
     pages_daily = serializers.SerializerMethodField()
 
-    def get_pages_daily(self, instance: StatusLog):
+    def get_pages_daily(self, instance):
         """日毎のページ数集計を取得"""
 
-        # 記録された日数のset
-        date_set = set(instance.values_list('created_at__date', flat=True))
-        sorted_date_set = sorted(list(date_set))
+        # コンテキストからdate_listを取得してソートする
+        date_list = self.context['date_list']
 
         ret = []
-        for date_created in sorted_date_set:
+        for date_created in date_list:
             status_daily = instance.filter(created_at__date=date_created)
-            pages_daily = self._get_diff_total(status_daily)
+            pages_daily = self._get_diff_total(status_daily) if status_daily.exists() else 0
             ret.append({'date': date_created, 'pages': pages_daily})
 
         return ret

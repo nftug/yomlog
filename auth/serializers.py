@@ -53,9 +53,11 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
         authors_count = AuthorSerializer(authors, many=True, context=context).data
 
         # 直近一週間に読んだページ数を取得
-        date_week_ago = date.today() - timedelta(days=7)
-        status_log = status_log.filter(created_at__date__gte=date_week_ago)
-        pages_daily = PagesDailySerializer(status_log, context=context).data
+        start_date = date.today() - timedelta(days=6)
+        end_date = date.today()
+        days = (end_date - start_date).days + 1
+        date_list = [end_date - timedelta(days=x) for x in range(days)]
+        pages_daily = PagesDailySerializer(status_log, context={**context, 'date_list': date_list}).data
 
         return {
             **analytics,

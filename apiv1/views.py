@@ -1,13 +1,14 @@
+from time import time
 from urllib.request import Request
 from rest_framework import status, viewsets, pagination, response, views, generics
 from rest_framework.exceptions import ValidationError
 from django_filters import rest_framework as django_filter
+from datetime import date, timedelta, datetime as dt
 
 from backend.models import Book, Note, StatusLog, Author
 from .serializers import AuthorSerializer, BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer, PagesDailySerializer
 from .filters import BookFilter, StatusLogFilter, NoteFilter
 from rest_framework.parsers import FileUploadParser, FormParser
-from .mixins import ListPaginator
 
 
 class CustomPageNumberPagination(pagination.PageNumberPagination):
@@ -154,17 +155,36 @@ class AuthorListAPIView(generics.ListAPIView):
         return response.Response(serializer.data)
 
 
-class PagesDailyAPIView(views.APIView):
+class PagesDailyAPIView(generics.ListAPIView):
     """日毎のページ数を集計するAPI"""
 
-    def get(self, request: Request):
+    queryset = StatusLog.objects.none()
+    serializer_class = PagesDailySerializer
+    pagination_class = LogPagination
+
+    filter_backends = [django_filter.DjangoFilterBackend]
+    filterset_class = StatusLogFilter
+
+    def list(self, request: Request):
         queryset = StatusLog.objects.filter(created_by=request.user, position__gt=0).select_related('book')
-        filterset = StatusLogFilter(request.query_params, queryset=queryset)
+        filterset = self.filterset_class(request.query_params, queryset=queryset)
+        queryset = filterset.qs.order_by('-created_at')
+
         if not filterset.is_valid():
             raise ValidationError(filterset.errors)
 
-        serializer = PagesDailySerializer(filterset.qs, context={'request': request})
-        paginator = ListPaginator(request)
-        page = request.GET.get('page') or 1
+        # filtersetの値から日付リストを作成
+        created_at = filterset.form.cleaned_data.get('created_at')
+        start_date = created_at.start.date() if hasattr(created_at, 'start') \
+            else queryset.last().created_at.date()
+        end_date = created_at.end.date() if hasattr(created_at, 'end') \
+            else date.today()
+        days = (end_date - start_date).days + 1
+        date_list = [end_date - timedelta(days=x) for x in range(days)]
 
-        return paginator.paginate_list(serializer.data['pages_daily'], 12, page)
+        # date_listをページネーションで分ける
+        paged_date_list = self.paginate_queryset(date_list)
+
+        # ページネーションで分けられたdate_listをコンテキストに渡し、シリアライザを実行
+        serializer = self.get_serializer(queryset, context={'date_list': paged_date_list})
+        return self.get_paginated_response(serializer.data)
