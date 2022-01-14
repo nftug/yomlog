@@ -168,7 +168,6 @@ const router = new VueRouter({
 // 画面遷移の直前に毎回実行されるナビゲーションガード
 router.beforeEach(async (to, from, next) => {
   const isLoggedIn = store.state.auth.isLoggedIn
-  const token = localStorage.getItem('access')
 
   // エラーなし→通知をクリア
   if (!store.state.message.error) {
@@ -177,6 +176,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (!isLoggedIn) {
     // 未ログイン時→ユーザー情報取得を試行
+    const token = localStorage.getItem('access')
     if (token) {
       // 認証用トークンが残っていればユーザー情報を再取得
       try {
