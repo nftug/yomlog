@@ -45,8 +45,9 @@ const authModule = {
         date.push(moment(d).format('MM/DD'))
 
         const key = moment(d).format('yyyy-MM-DD')
-        if (pages_daily.hasOwnProperty(key)) {
-          pages.push(pages_daily[key])
+        const index = pages_daily.findIndex((e) => e.date === key)
+        if (index > -1) {
+          pages.push(pages_daily[index].pages)
         } else {
           pages.push(0)
         }

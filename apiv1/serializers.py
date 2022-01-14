@@ -11,7 +11,6 @@ from datetime import date, timedelta, datetime
 
 from django.db.models import Count
 import math
-from itertools import islice
 import re
 
 
@@ -239,8 +238,38 @@ class BookSerializer(PostSerializer):
         return instance.thumbnail or NO_COVER_IMAGE
 
 
-class AnalyticsSerializerMixin():
-    """分析用シリアライザ ミックスイン"""
+class AuthorsCountSerializer(serializers.Serializer):
+    """著者名カウント シリアライザ"""
+
+    authors_count = serializers.SerializerMethodField()
+
+    def get_authors_count(self, books: Book):
+        """与えられたBookから著者名の集計を降順で取得"""
+
+        user = self.context['request'].user
+        authors = Author.objects.filter(
+            books__created_by=user, books__in=books
+        ).annotate(Count('books'))
+
+        # 著者名ごとに冊数を集計、降順で並べる
+        counts_of_authors = {}
+        for author in authors:
+            counts_of_authors[author.name] = author.books__count
+
+        authors_count = OrderedDict(
+            sorted(counts_of_authors.items(), key=lambda x: x[1], reverse=True)
+        )
+
+        return authors_count
+
+
+class AnalyticsSerializer(serializers.Serializer):
+    """分析用シリアライザ"""
+
+    number_of_books = serializers.SerializerMethodField()
+    pages_read = serializers.SerializerMethodField()
+    days = serializers.SerializerMethodField()
+    pages_daily = serializers.SerializerMethodField()
 
     def _get_diff_total(self, status_log: StatusLog):
         """進捗の累計ページ数を取得"""
@@ -268,16 +297,6 @@ class AnalyticsSerializerMixin():
             end_date = date.today()
 
         return [start_date, end_date]
-
-
-class AnalyticsSerializer(serializers.Serializer, AnalyticsSerializerMixin):
-    """分析用シリアライザ"""
-
-    number_of_books = serializers.SerializerMethodField()
-    pages_read = serializers.SerializerMethodField()
-    days = serializers.SerializerMethodField()
-    pages_daily = serializers.SerializerMethodField()
-    authors_count = serializers.SerializerMethodField()
 
     def get_number_of_books(self, status_log: StatusLog):
         """ステータスごとの累計冊数を取得"""
@@ -358,45 +377,13 @@ class AnalyticsSerializer(serializers.Serializer, AnalyticsSerializerMixin):
         date_set = set(status_log.values_list('created_at__date', flat=True))
         sorted_date_set = sorted(list(date_set))
 
-        ret = {}
+        ret = []
         for date_created in sorted_date_set:
             status_daily = status_log.filter(created_at__date=date_created)
-            total_daily = self._get_diff_total(status_daily)
-            ret[str(date_created)] = total_daily
+            pages_daily = self._get_diff_total(status_daily)
+            ret.append({'date': date_created, 'pages': pages_daily})
 
         return ret
-
-    def get_authors_count(self, status_log: StatusLog):
-        """先頭<head>件で著者名の集計を降順で取得"""
-
-        user = self.context['request'].user
-
-        if self.context.get('userinfo'):
-            # ユーザー情報から呼び出された場合、全範囲の本の著者で抽出
-            authors = Author.objects.filter(books__created_by=user).annotate(Count('books'))
-        else:
-            # 直接呼び出しの場合、フィルタの日付の範囲内にある本の著者で抽出
-            [start_date, end_date] = self._get_date_range_from_gets(self.context)
-
-            books = Book.objects.filter(
-                created_by=user, created_at__date__gte=start_date, created_at__date__lte=end_date
-            )
-            authors = Author.objects.filter(books__created_by=user, books__in=books).annotate(Count('books'))
-
-        # 著者名ごとに冊数を集計、降順で並べる
-        counts_of_authors = {}
-        for author in authors:
-            counts_of_authors[author.name] = author.books__count
-
-        counts_of_authors = OrderedDict(
-            sorted(counts_of_authors.items(), key=lambda x: x[1], reverse=True)
-        )
-
-        # ユーザー情報からの呼び出しの場合、カウントリストを降順で8件切り出す
-        if self.context.get('userinfo'):
-            counts_of_authors = OrderedDict(islice(counts_of_authors.items(), 8))
-
-        return counts_of_authors
 
 
 class AuthorSerializer(serializers.ModelSerializer):
