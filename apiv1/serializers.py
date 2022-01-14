@@ -239,15 +239,8 @@ class BookSerializer(PostSerializer):
         return instance.thumbnail or NO_COVER_IMAGE
 
 
-class AnalyticsSerializer(serializers.Serializer):
-    """分析用シリアライザ"""
-
-    number_of_books = serializers.SerializerMethodField()
-    pages_read = serializers.SerializerMethodField()
-    days = serializers.SerializerMethodField()
-    authors_count = serializers.SerializerMethodField()
-    pages_daily = serializers.SerializerMethodField()
-    recent_books = serializers.SerializerMethodField()
+class AnalyticsSerializerMixin(serializers.Serializer):
+    """分析用シリアライザ ミックスイン"""
 
     def _get_diff_total(self, status_log: StatusLog):
         """進捗の累計ページ数を取得"""
@@ -258,6 +251,36 @@ class AnalyticsSerializer(serializers.Serializer):
             total += status['diff']['page']
 
         return total
+
+    def _get_date_range_from_gets(self):
+        """GETパラメータから日付範囲を取得"""
+
+        gets = super().context['request'].GET
+
+        if gets.get('created_at__gte'):
+            start_date = datetime.strptime(gets['created_at__gte'], '%Y-%m-%d').date()
+        else:
+            start_date = date(1970, 1, 1)
+
+        if gets.get('created_at__lte'):
+            end_date = datetime.strptime(gets['created_at__lte'], '%Y-%m-%d').date()
+        else:
+            end_date = date.today()
+
+        return [start_date, end_date]
+
+        # class RecentBooksSerializer(serializers.Serializer, AnalyticsSerializerMixin):
+
+
+class AnalyticsSerializer(AnalyticsSerializerMixin):
+    """分析用シリアライザ"""
+
+    number_of_books = serializers.SerializerMethodField()
+    pages_read = serializers.SerializerMethodField()
+    days = serializers.SerializerMethodField()
+    authors_count = serializers.SerializerMethodField()
+    pages_daily = serializers.SerializerMethodField()
+    recent_books = serializers.SerializerMethodField()
 
     def get_number_of_books(self, status_log: StatusLog):
         """ステータスごとの累計冊数を取得"""
@@ -282,26 +305,14 @@ class AnalyticsSerializer(serializers.Serializer):
         total = self._get_diff_total(status_log)
 
         # 平均ページ数の計算は、フィルタで指定された日付範囲に依拠させる
-        gets = self.context['request'].GET
+        [start_date, end_date] = self._get_date_range_from_gets()
+        if self.context.get('userinfo') and start_date == date(1970, 1, 1):
+            # ユーザー情報から呼び出された場合、start_dateはユーザーの登録日
+            start_date = self.context['request'].user.date_joined.date()
 
-        if gets.get('created_at__gte'):
-            start_date = datetime.strptime(gets['created_at__gte'], '%Y-%m-%d').date()
-        else:
-            # パラメータ指定なしの場合
-            if self.context.get('userinfo'):
-                # ユーザー情報から呼び出された場合、start_dateはユーザーの登録日
-                start_date = self.context['request'].user.date_joined.date()
-            else:
-                # 直接呼び出しの場合、start_dateはstatus_logの最古の記録日
-                start_date = status_log.last().created_at.date()
-
-        if gets.get('created_at__lte'):
-            end_date = datetime.strptime(gets['created_at__lte'], '%Y-%m-%d').date()
-        else:
-            # パラメータ指定なしの場合、end_dateは本日の日付
-            end_date = date.today()
-
-        status_log_for_avg = status_log.filter(created_at__gte=start_date)
+        status_log_for_avg = status_log.filter(
+            created_at__date__gte=start_date, created_at__date__lte=end_date
+        )
         total_for_avg = self._get_diff_total(status_log_for_avg)
         days_for_avg = (end_date - start_date).days + 1
 
@@ -352,20 +363,11 @@ class AnalyticsSerializer(serializers.Serializer):
             authors = Author.objects.filter(books__created_by=user).annotate(Count('books'))
         else:
             # 直接呼び出しの場合、フィルタの日付の範囲内にある本の著者で抽出
-            gets = self.context['request'].GET
-            books = Book.objects.filter(created_by=user).order_by('created_at')
+            [start_date, end_date] = self._get_date_range_from_gets()
 
-            if gets.get('created_at__gte'):
-                start_datetime = datetime.strptime(gets['created_at__gte'], '%Y-%m-%d')
-            else:
-                start_datetime = books.first().created_at
-
-            if gets.get('created_at__lte'):
-                end_datetime = datetime.strptime(gets['created_at__lte'], '%Y-%m-%d')
-            else:
-                end_datetime = datetime.now()
-
-            books = Book.objects.filter(created_by=user, created_at__gte=start_datetime, created_at__lte=end_datetime)
+            books = Book.objects.filter(
+                created_by=user, created_at__date__gte=start_date, created_at__date__lte=end_date
+            )
             authors = Author.objects.filter(books__created_by=user, books__in=books).annotate(Count('books'))
 
         # 著者名ごとに冊数を集計、降順で並べる
@@ -413,19 +415,7 @@ class AnalyticsSerializer(serializers.Serializer):
         # TODO: 別ページにページネーション付きで切り出すことも加味して、あとで単独のシリアライザとして独立させる
 
         # フィルタで指定された日付範囲に依拠させる
-        gets = self.context['request'].GET
-
-        if gets.get('created_at__gte'):
-            start_date = datetime.strptime(gets['created_at__gte'], '%Y-%m-%d').date()
-        else:
-            # パラメータ指定なしの場合、start_dateはダミーの日付となる
-            start_date = date(1970, 1, 1)
-
-        if gets.get('created_at__lte'):
-            end_date = datetime.strptime(gets['created_at__lte'], '%Y-%m-%d').date()
-        else:
-            # パラメータ指定なしの場合、end_dateは本日の日付
-            end_date = date.today()
+        [start_date, end_date] = self._get_date_range_from_gets()
 
         # Booksをフィルタリングし、シリアライザに通した結果を取得
         user = self.context['request'].user
