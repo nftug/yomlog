@@ -41,7 +41,45 @@ class BookIncludedSerializer(PostSerializer):
         return data
 
 
-class StatusLogSerializer(BookIncludedSerializer):
+class PageCountSerializerMixin():
+    """ページ数カウント用 ミックスイン"""
+
+    def _get_diff(self, instance: StatusLog, prev_status: StatusLog):
+        book, position = instance.book, instance.position
+
+        prev_position = 0
+        for state in prev_status:
+            if state.position > 0:
+                prev_position = state.position
+                break
+
+        if position > prev_position:
+            diff = position - prev_position
+        else:
+            diff = 0
+
+        percentage = diff / book.total
+        page = math.ceil(book.total_page * percentage) if book.format_type == 1 else diff
+
+        return {
+            'value': diff,
+            'percentage': int(percentage * 100),
+            'page': page
+        }
+
+    def _get_diff_total(self, status_log: StatusLog):
+        """進捗の累計ページ数を取得"""
+
+        total = 0
+        for status in status_log:
+            book, created_at = status.book, status.created_at
+            prev_status = book.status_log.filter(created_at__lt=created_at).order_by('-created_at')
+            total += self._get_diff(status, prev_status)['page']
+
+        return total
+
+
+class StatusLogSerializer(BookIncludedSerializer, PageCountSerializerMixin):
     # created_by = serializers.SerializerMethodField()
     state = serializers.SerializerMethodField()
     diff = serializers.SerializerMethodField()
@@ -53,8 +91,13 @@ class StatusLogSerializer(BookIncludedSerializer):
             'created_at': {'required': False, 'allow_null': True},
             'book': {'write_only': True}
         }
+        prev_status = None
 
     def to_representation(self, instance):
+        # ページ数カウント用: 事前にprev_statusを用意しておく
+        book, created_at = instance.book, instance.created_at
+        self.Meta.prev_status = book.status_log.filter(created_at__lt=created_at).order_by('-created_at')
+
         ret = super().to_representation(instance)
         ret['position'] = self.get_position(instance)
 
@@ -68,50 +111,19 @@ class StatusLogSerializer(BookIncludedSerializer):
         else:
             return 'read'
 
-    @classmethod
     def get_diff(self, instance):
         # 前回までに進んだページ数 or 位置No
-        book = instance.book
-        base_status = instance
-
-        while True:
-            prev_status = StatusLog.objects.filter(
-                book=book, created_at__lt=base_status.created_at
-            ).order_by('-created_at').first()
-
-            if not prev_status or prev_status.position > 0:
-                break
-
-            base_status = prev_status
-
-        if prev_status and instance.position > prev_status.position:
-            diff = instance.position - prev_status.position
-        elif not prev_status:
-            diff = instance.position
-        else:
-            diff = 0
-
-        percentage = diff / instance.book.total
-        page = math.ceil(book.total_page * percentage) if book.format_type == 1 else diff
-
-        return {
-            'value': diff,
-            'percentage': int(percentage * 100),
-            'page': page
-        }
+        return self._get_diff(instance, self.Meta.prev_status)
 
     def get_position(self, instance):
-        book = instance.book
-        position = instance.position
+        book, position = instance.book, instance.position
 
-        if instance.position == 0:
+        if position == 0:
             # 積読中の場合、進捗の位置はその本の直前のステータスを参照する
-            prev_status = StatusLog.objects.filter(
-                book=instance.book, created_at__lt=instance.created_at
-            ).order_by('-created_at').first()
-
-            if prev_status:
-                position = prev_status.position
+            for state in self.Meta.prev_status:
+                if state.position > 0:
+                    position = state.position
+                    break
 
         percentage = position / book.total
         page = math.ceil(book.total_page * percentage) if book.format_type == 1 else position
@@ -237,20 +249,7 @@ class BookSerializer(PostSerializer):
         return instance.thumbnail or NO_COVER_IMAGE
 
 
-class AnalyticsSerializerMixin():
-    """分析用シリアライザ ミックスイン"""
-
-    def _get_diff_total(self, status_log: StatusLog):
-        """進捗の累計ページ数を取得"""
-
-        total = 0
-        for status in status_log:
-            total += StatusLogSerializer.get_diff(status)['page']
-
-        return total
-
-
-class AnalyticsSerializer(serializers.Serializer, AnalyticsSerializerMixin):
+class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
     """分析用シリアライザ"""
 
     number_of_books = serializers.SerializerMethodField()
@@ -349,7 +348,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         return instance.books__count
 
 
-class PagesDailySerializer(serializers.Serializer, AnalyticsSerializerMixin):
+class PagesDailySerializer(serializers.Serializer, PageCountSerializerMixin):
     """
     ページ数集計用シリアライザ
     (instanceにはdate_createdがmany=Trueで入る。コンテキストからquerysetを取得。)
@@ -364,6 +363,10 @@ class PagesDailySerializer(serializers.Serializer, AnalyticsSerializerMixin):
     def get_pages(self, date_created):
         """一日毎のページ数集計を取得"""
         queryset = self.context['queryset']
-        status_daily = queryset.filter(created_at__date=date_created)
-        pages_daily = self._get_diff_total(status_daily) if status_daily.exists() else 0
+        status_daily = []
+        for status in queryset:
+            if status.created_at.date() == date_created:
+                status_daily.append(status)
+
+        pages_daily = self._get_diff_total(status_daily)
         return pages_daily
