@@ -293,7 +293,7 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
         if self.context.get('filterset'):
             created_at = self.context['filterset'].form.cleaned_data.get('created_at')
             start_date = created_at.start.date() if hasattr(created_at, 'start') \
-                else status_log.last().created_at.date()
+                else localtime(status_log.last().created_at).date()
             end_date = created_at.end.date() if hasattr(created_at, 'end') \
                 else date.today()
             total = self._get_diff_total(status_log)
@@ -301,7 +301,6 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
             # ユーザー情報から呼び出された場合、start_dateはユーザーの登録日
             start_date = self.context['request'].user.date_joined.date()
             end_date = date.today()
-            # status_log_since_joined = status_log.filter(created_at__date__gte=start_date)
             total, total_for_avg = self._get_diff_total(status_log, start_date)
 
         days_for_avg = (end_date - start_date).days + 1
@@ -372,7 +371,7 @@ class PagesDailySerializer(serializers.Serializer, PageCountSerializerMixin):
         queryset = self.context['queryset']
         status_daily = []
         for status in queryset:
-            if status.created_at.date() == date_created:
+            if localtime(status.created_at).date() == date_created:
                 status_daily.append(status)
 
         pages_daily = self._get_diff_total(status_daily)
