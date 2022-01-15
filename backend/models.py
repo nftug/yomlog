@@ -30,7 +30,7 @@ class BookQuerySet(models.QuerySet):
         if not state:
             return self
 
-        queryset = self.prefetch_related('status_log')
+        queryset = self
         ids = []
 
         for book in queryset:

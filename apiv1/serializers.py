@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from django.utils.timezone import localtime
+from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 from django.conf import settings
 
 from .mixins import ImageSerializerMixin
 from backend.models import Author, Book, StatusLog, Note, BookAuthorRelation
 
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 import math
 import re
@@ -262,10 +262,15 @@ class AnalyticsSerializer(serializers.Serializer, AnalyticsSerializerMixin):
 
         # status_logに関連づけられたbooksをまとめて取得
         status_ids = set(status_log.values_list('id', flat=True))
-        books = Book.objects.filter(status_log__id__in=status_ids)
+        user = self.context['request'].user
+
+        # ステータスの対象にある本と、ステータスのない本を検索
+        books = Book.objects.filter(
+            Q(status_log__id__in=status_ids) | Q(created_by=user, status_log=None)
+        ).prefetch_related('status_log')
 
         return {
-            'to_be_read': Book.objects.filter_by_state('to_be_read').count(),
+            'to_be_read': books.filter_by_state('to_be_read').count(),
             'reading': books.filter_by_state('reading').count(),
             'read': books.filter_by_state('read').count()
         }

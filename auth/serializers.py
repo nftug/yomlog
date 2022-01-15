@@ -40,24 +40,23 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
 
     def get_analytics(self, instance):
         status_log = StatusLog.objects.filter(created_by=instance, position__gt=0).select_related('book')
-        context = {**self.context, 'userinfo': True}
-        analytics = AnalyticsSerializer(status_log, context=context).data
+        analytics = AnalyticsSerializer(status_log, context={**self.context}).data
 
         # recent_booksの先頭5件を取得
-        books = Book.objects.filter(created_by=instance).sort_by_accessed_at()
-        recent_books = BookSerializer(books[:5], many=True, context={'inside': True}).data
+        books = Book.objects.filter(created_by=instance).sort_by_accessed_at()[:5]
+        recent_books = BookSerializer(books, many=True, context={'inside': True}).data
 
         # authors_countの先頭8件を取得
         user = self.context['request'].user
         authors = Author.objects.filter(books__created_by=user, bookauthorrelation__order=0).sort_by_books_count()[:8]
-        authors_count = AuthorSerializer(authors, many=True, context=context).data
+        authors_count = AuthorSerializer(authors, many=True).data
 
         # 直近一週間に読んだページ数を取得
         start_date = date.today() - timedelta(days=6)
         end_date = date.today()
         days = (end_date - start_date).days + 1
         date_list = [end_date - timedelta(days=x) for x in range(days)]
-        pages_daily = PagesDailySerializer(date_list, many=True, context={**context, 'queryset': status_log}).data
+        pages_daily = PagesDailySerializer(date_list, many=True, context={'queryset': status_log}).data
 
         return {
             **analytics,
