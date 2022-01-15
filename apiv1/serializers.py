@@ -1,7 +1,9 @@
+from venv import create
 from rest_framework import serializers
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 from django.conf import settings
+from django.utils.timezone import localtime
 
 from .mixins import ImageSerializerMixin
 from backend.models import Author, Book, StatusLog, Note, BookAuthorRelation
@@ -67,16 +69,20 @@ class PageCountSerializerMixin():
             'page': page
         }
 
-    def _get_diff_total(self, status_log: StatusLog):
+    def _get_diff_total(self, status_log: StatusLog, date_threshold=None):
         """進捗の累計ページ数を取得"""
 
-        total = 0
+        total, total_threshold = [0] * 2
         for status in status_log:
             book, created_at = status.book, status.created_at
             prev_status = book.status_log.filter(created_at__lt=created_at).order_by('-created_at')
             total += self._get_diff(status, prev_status)['page']
 
-        return total
+            # 閾値の日付が指定されていた場合、閾値までの累計ページ数を取得
+            if date_threshold and date_threshold <= localtime(created_at).date():
+                total_threshold = total
+
+        return [total, total_threshold] if date_threshold else total
 
 
 class StatusLogSerializer(BookIncludedSerializer, PageCountSerializerMixin):
@@ -281,7 +287,6 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
         # TODO: Kindleの位置Noとページ数に固定の相関性はあるか？あとで調べる。
 
         # 全体の累計ページ数を取得
-        total = self._get_diff_total(status_log)
         total_for_avg = None
 
         # 平均ページ数の計算は、フィルタで指定された日付範囲に依拠させる
@@ -291,12 +296,13 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
                 else status_log.last().created_at.date()
             end_date = created_at.end.date() if hasattr(created_at, 'end') \
                 else date.today()
+            total = self._get_diff_total(status_log)
         else:
             # ユーザー情報から呼び出された場合、start_dateはユーザーの登録日
             start_date = self.context['request'].user.date_joined.date()
             end_date = date.today()
-            status_log_since_joined = status_log.filter(created_at__date__gte=start_date)
-            total_for_avg = self._get_diff_total(status_log_since_joined)
+            # status_log_since_joined = status_log.filter(created_at__date__gte=start_date)
+            total, total_for_avg = self._get_diff_total(status_log, start_date)
 
         days_for_avg = (end_date - start_date).days + 1
 
