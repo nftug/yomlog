@@ -4,11 +4,12 @@ from rest_framework import status, viewsets, pagination, response, views, generi
 from rest_framework.exceptions import ValidationError
 from django_filters import rest_framework as django_filter
 from datetime import date, timedelta, datetime as dt
+from django.utils.timezone import localtime
+from rest_framework.parsers import FileUploadParser, FormParser
 
 from backend.models import Book, Note, StatusLog, Author
 from .serializers import AuthorSerializer, BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer, PagesDailySerializer
 from .filters import BookFilter, StatusLogFilter, NoteFilter
-from rest_framework.parsers import FileUploadParser, FormParser
 
 
 class CustomPageNumberPagination(pagination.PageNumberPagination):
@@ -174,7 +175,7 @@ class PagesDailyAPIView(generics.ListAPIView):
         # filtersetの値から日付リストを作成
         created_at = filterset.form.cleaned_data.get('created_at')
         start_date = created_at.start.date() if hasattr(created_at, 'start') \
-            else queryset.last().created_at.date()
+            else localtime(queryset.last().created_at).date()
         end_date = created_at.end.date() if hasattr(created_at, 'end') \
             else date.today()
         days = (end_date - start_date).days + 1
