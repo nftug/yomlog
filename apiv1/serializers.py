@@ -282,6 +282,7 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
 
         # 全体の累計ページ数を取得
         total = self._get_diff_total(status_log)
+        total_for_avg = None
 
         # 平均ページ数の計算は、フィルタで指定された日付範囲に依拠させる
         if self.context.get('filterset'):
@@ -294,14 +295,14 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
             # ユーザー情報から呼び出された場合、start_dateはユーザーの登録日
             start_date = self.context['request'].user.date_joined.date()
             end_date = date.today()
-            status_log = status_log.filter(created_at__date__gte=start_date)
+            status_log_since_joined = status_log.filter(created_at__date__gte=start_date)
+            total_for_avg = self._get_diff_total(status_log_since_joined)
 
-        total_for_avg = self._get_diff_total(status_log)
         days_for_avg = (end_date - start_date).days + 1
 
         return {
             'total': total,
-            'avg_per_day': int(total_for_avg / (days_for_avg or 1)),
+            'avg_per_day': int((total_for_avg or total) / (days_for_avg or 1)),
         }
 
     def get_days(self, status_log: StatusLog):
