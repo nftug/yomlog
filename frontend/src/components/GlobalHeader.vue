@@ -23,7 +23,7 @@
       <SearchField v-model="searchValue" @search="handleSearch">
         <v-toolbar-title style="cursor: pointer">
           <div class="hidden-lg-and-up">
-            {{ $route.meta.title }}
+            {{ $route.meta.title || appName }}
           </div>
           <router-link tag="div" class="hidden-md-and-down" to="/">
             {{ appName }}

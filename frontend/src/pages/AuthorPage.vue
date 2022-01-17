@@ -7,13 +7,14 @@
       <v-col sm="10" lg="9" xl="7" class="mx-auto">
         <!-- トップ10のグラフ -->
         <v-card class="mt-4 pb-4 mx-auto">
-          <v-card-title class="mx-3 mt-3">トップ10の著者</v-card-title>
+          <v-card-title class="mx-3 my-3">トップ10の著者</v-card-title>
           <v-card-text>
             <v-row justify="center">
               <GraphDoughnut
                 :data="graphData"
                 :options="graphOptions"
-                :height="graphHeight"
+                :height="350"
+                :width="325"
                 :styles="{ display: 'flex', 'justify-content': 'center' }"
               ></GraphDoughnut>
             </v-row>
@@ -75,7 +76,8 @@ export default {
       responsive: true,
       maintainAspectRatio: false,
       legend: {
-        display: false,
+        display: true,
+        position: 'top',
       },
     },
     isLoading: false,
@@ -100,9 +102,6 @@ export default {
       const authors = this.authorsTop.map((item) => item.name)
       const counts = this.authorsTop.map((item) => item.count)
       return { authors, counts }
-    },
-    graphHeight() {
-      return window.innerHeight / 4
     },
   },
   async mounted() {
