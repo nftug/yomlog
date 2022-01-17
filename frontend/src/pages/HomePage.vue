@@ -119,8 +119,14 @@
                 :options="authorsGraphOptions"
                 :width="authorsGraphWidth"
                 :height="authorsGraphHeight"
+                :styles="{ display: 'flex', 'justify-content': 'center' }"
               ></GraphDoughnut>
             </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="primary" to="/author">もっと見る</v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
 
@@ -167,6 +173,7 @@ export default {
     bookAnalytics: [],
     authorsGraphData: {},
     authorsGraphOptions: {
+      responsive: true,
       maintainAspectRatio: false,
       legend: {
         position: 'right',

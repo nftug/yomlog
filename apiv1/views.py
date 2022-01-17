@@ -33,6 +33,12 @@ class LogPagination(CustomPageNumberPagination):
     page_size = 24
 
 
+class AuthorPagination(CustomPageNumberPagination):
+    """ページネーションクラス (著者用)"""
+
+    page_size = 50
+
+
 class BookViewSet(viewsets.ModelViewSet):
     """BookのCRUD用APIクラス"""
 
@@ -137,7 +143,7 @@ class AuthorListAPIView(generics.ListAPIView):
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = BookFilter
 
-    pagination_class = LogPagination
+    pagination_class = AuthorPagination
 
     def list(self, request, *args, **kwargs):
         # Booksをフィルタリングして、条件に合致するAuthorのquerysetを取得

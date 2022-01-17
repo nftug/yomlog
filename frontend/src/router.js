@@ -20,6 +20,7 @@ const NoteList = () => import('@/components/NoteList.vue')
 const CalendarPage = () => import('@/pages/CalendarPage.vue')
 const SocialAuthPage = () => import('@/pages/SocialAuthPage.vue')
 const NotePage = () => import('@/pages/NotePage.vue')
+const AuthorsPage = () => import('@/pages/AuthorPage.vue')
 
 Vue.use(VueRouter)
 
@@ -72,6 +73,16 @@ const router = new VueRouter({
       component: NotePage,
       meta: {
         title: 'ノート',
+        requiresAuth: true,
+        isShowMenuButton: true,
+      },
+    },
+    {
+      path: '/author',
+      name: 'author',
+      component: AuthorsPage,
+      meta: {
+        title: '著者リスト',
         requiresAuth: true,
         isShowMenuButton: true,
       },
