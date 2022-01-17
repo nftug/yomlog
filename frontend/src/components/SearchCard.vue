@@ -8,28 +8,37 @@
         </slot>
       </div>
       <div class="ma-4">
-        <v-icon>mdi-magnify</v-icon>
-        <template v-for="(q, key) in $route.query">
-          <v-chip
-            v-if="key !== 'page'"
-            :key="key"
-            class="ma-1"
-            close
-            small
-            @click:close="removeQuery(key)"
-          >
-            {{ key | searchLabel }}
-            {{ q }}
-          </v-chip>
-        </template>
-
         <SearchDialog :type="type" :hash="`search-${type}`">
-          <template #activator="{ on, attrs }">
-            <v-btn small class="ma-1" icon v-on="on" v-bind="attrs">
-              <v-icon>mdi-plus</v-icon>
+          <template #activator="{ on: { click } }">
+            <v-btn
+              dark
+              color="indigo"
+              small
+              elevation="1"
+              class="ma-1"
+              @click="click"
+            >
+              <v-icon left>mdi-magnify-plus-outline</v-icon>
+              検索
             </v-btn>
           </template>
         </SearchDialog>
+
+        <span class="ml-2">
+          <template v-for="(q, key) in $route.query">
+            <v-chip
+              v-if="key !== 'page'"
+              :key="key"
+              class="ma-1"
+              close
+              small
+              @click:close="removeQuery(key)"
+            >
+              {{ key | searchLabel }}
+              {{ q }}
+            </v-chip>
+          </template>
+        </span>
       </div>
     </v-card>
   </div>

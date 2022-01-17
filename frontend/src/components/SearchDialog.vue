@@ -73,7 +73,7 @@ export default {
       type: String,
       default: 'book',
       validator: function (value) {
-        return ['book', 'note'].indexOf(value) !== -1
+        return ['book', 'note', 'note-all'].indexOf(value) !== -1
       },
     },
     bookId: {
@@ -110,7 +110,7 @@ export default {
       },
       {
         name: 'title',
-        label: 'タイトル',
+        label: '書名',
         value: '',
         maxlength: null,
         autofocus: false,
@@ -159,13 +159,35 @@ export default {
         or: false,
       },
     ],
+    formSearchNote: [
+      {
+        name: 'book__title',
+        label: '書名',
+        value: '',
+        maxlength: null,
+        autofocus: false,
+        or: false,
+      },
+      {
+        name: 'book__authors__name',
+        label: '著者名',
+        value: '',
+        maxlength: null,
+        autofocus: false,
+        or: false,
+      },
+    ],
     formSearch: [{}],
   }),
   created() {
     if (this.type === 'book') {
       this.formSearch = this.formSearchBook
-    } else if (this.type === 'note') {
+    } else if (this.type.startsWith('note')) {
       this.formSearch = this.formSearchBookNote
+      if (this.type === 'note-all') {
+        console.log('note-all')
+        this.formSearch.push(...this.formSearchNote)
+      }
     } else {
       this.formSearch = [{}]
     }

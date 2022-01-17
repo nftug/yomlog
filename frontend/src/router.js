@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueRouter from 'vue-router'
+import VueRouter, { NavigationDuplicated } from 'vue-router'
 import store from '@/store'
 
 const LoginPage = () => import('@/pages/LoginPage.vue')
@@ -174,24 +174,30 @@ router.beforeEach(async (to, from, next) => {
     store.dispatch('message/clearMessages')
   }
 
-  if (!isLoggedIn) {
-    // 未ログイン時→ユーザー情報取得を試行
-    const token = localStorage.getItem('access')
-    if (token) {
-      // 認証用トークンが残っていればユーザー情報を再取得
-      try {
-        store.dispatch('auth/reload')
-        goNextOrHome(to, next)
-      } catch {
+  try {
+    if (!isLoggedIn) {
+      // 未ログイン時→ユーザー情報取得を試行
+      const token = localStorage.getItem('access')
+      if (token) {
+        // 認証用トークンが残っていればユーザー情報を再取得
+        try {
+          store.dispatch('auth/reload')
+          goNextOrHome(to, next)
+        } catch {
+          goLoginOrPublic(to, next)
+        }
+      } else {
+        // 認証用トークンが残っていなければ、ログイン画面へ強制遷移 or そのまま続行
         goLoginOrPublic(to, next)
       }
     } else {
-      // 認証用トークンが残っていなければ、ログイン画面へ強制遷移 or そのまま続行
-      goLoginOrPublic(to, next)
+      // ログインしている場合、そのまま続行
+      goNextOrHome(to, next)
     }
-  } else {
-    // ログインしている場合、そのまま続行
-    goNextOrHome(to, next)
+  } catch (error) {
+    if (!(error instanceof NavigationDuplicated)) {
+      throw error
+    }
   }
 })
 

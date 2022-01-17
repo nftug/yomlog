@@ -16,7 +16,20 @@ class GenericSearchFilterSet(django_filter.FilterSet):
     class Meta:
         fields_for_search = []
 
+    def _clean_fields_for_search(self):
+        if self.request.GET.get('book'):
+            # 本が指定されている場合、フリーワードの検索基準から本の情報を除外する
+            fields = self.Meta.fields_for_search
+            try:
+                fields.remove('book__title__icontains')
+                fields.remove('book__authors__name__icontains')
+            except ValueError:
+                pass
+
     def filter_search(self, queryset, name, value):
+        # フィールドの正規化
+        self._clean_fields_for_search()
+
         query = Q()
         value = value.replace('　', ' ')
         name = re.sub('_or$', '', name)
@@ -150,6 +163,8 @@ class NoteFilter(GenericSearchFilterSet, GenericEventFilterSet):
         model = Note
         exclude = ['quote_image']
         fields_for_search = [
+            'book__title__icontains',
+            'book__authors__name__icontains',
             'quote_text__icontains',
             'content__icontains'
         ]

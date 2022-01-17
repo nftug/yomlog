@@ -110,7 +110,6 @@ export default {
           no_pagination: true,
         }
         const { data } = await api.get('/note/', { params })
-        // TODO: set
         this.$emit('set', { prop: 'note', data })
 
         // ツールバーの制御

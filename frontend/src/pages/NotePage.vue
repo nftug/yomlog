@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-col sm="10" class="mx-auto">
       <!-- 検索カード -->
-      <SearchCard :total="total" type="note">
+      <SearchCard :total="total" type="note-all">
         <strong>{{ total }}件</strong>
         のノートが見つかりました。
       </SearchCard>
@@ -16,7 +16,16 @@
           <v-col v-for="note in notes" :key="note.id" cols="12" md="6">
             <v-card class="mx-auto fill-height">
               <div class="pt-4">
-                <v-list-item three-line>
+                <v-list-item
+                  three-line
+                  link
+                  @click="
+                    $refs.noteEdit.showNotePostDialog({
+                      note,
+                      book: note.book,
+                    })
+                  "
+                >
                   <v-list-item-avatar
                     class="hidden-xs-only mr-2"
                     tile
@@ -27,13 +36,9 @@
 
                   <v-list-item-content class="align-self-start">
                     <v-list-item-title>
-                      <router-link :to="`/book/detail/${note.book.id}`">
-                        {{ note.book.title }}
-                      </router-link>
+                      {{ note.book.title }}
                     </v-list-item-title>
-                    <v-list-item-subtitle
-                      class="mt-2 grey--text text--darken-4"
-                    >
+                    <v-list-item-subtitle class="mt-2">
                       位置: {{ note.position
                       }}{{ note.book.format_type === 1 ? '' : 'ページ' }}
                     </v-list-item-subtitle>
@@ -52,20 +57,15 @@
                     <v-btn
                       class="mr-4"
                       icon
-                      color="primary"
+                      color="success"
                       v-bind="attrs"
                       v-on="on"
-                      @click="
-                        $refs.noteEdit.showNotePostDialog({
-                          note,
-                          book: note.book,
-                        })
-                      "
+                      :to="`/book/detail/${note.book.id}`"
                     >
-                      <v-icon>mdi-pen</v-icon>
+                      <v-icon>mdi-book</v-icon>
                     </v-btn>
                   </template>
-                  <span>ノートを編集する</span>
+                  <span>書籍を見る</span>
                 </v-tooltip>
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
@@ -81,21 +81,6 @@
                     </v-btn>
                   </template>
                   <span>ノートを削除する</span>
-                </v-tooltip>
-                <v-tooltip bottom>
-                  <template #activator="{ on, attrs }">
-                    <v-btn
-                      class="mr-4"
-                      icon
-                      color="success"
-                      v-bind="attrs"
-                      v-on="on"
-                      :to="`/book/detail/${note.book.id}`"
-                    >
-                      <v-icon>mdi-book</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>書籍を見る</span>
                 </v-tooltip>
               </v-card-actions>
             </v-card>

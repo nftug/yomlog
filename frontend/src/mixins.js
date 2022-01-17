@@ -112,6 +112,8 @@ export const ListViewMixin = {
   },
   methods: {
     removeQuery(key, query = this.query) {
+      const queryOrigin = { ...query }
+
       if (key) {
         delete query[key]
         delete query.page
@@ -126,7 +128,7 @@ export const ListViewMixin = {
       if (!hasAnd) {
         query = {}
         keys.forEach((key) => {
-          const value = this.query[key]
+          const value = queryOrigin[key]
           const keyName = key.replace(/_or$/, '')
           query[keyName] = value
         })
@@ -156,6 +158,7 @@ export const BookDetailChildMixin = {
   props: {
     item: {
       type: Object,
+      require: true,
     },
     height: {
       type: [String, Number],
@@ -163,14 +166,8 @@ export const BookDetailChildMixin = {
     },
   },
   data: () => ({
-    itemHeight: 0,
     checkbox: [],
   }),
-  computed: {
-    benched() {
-      return Math.ceil(this.height / this.itemHeight)
-    },
-  },
   created() {
     this.$router.app.$off('clear-checkbox')
     this.$router.app.$on('clear-checkbox', this.initCheckbox)
