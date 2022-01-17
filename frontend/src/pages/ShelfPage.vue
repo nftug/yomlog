@@ -116,7 +116,18 @@
 
     <BookAddDialog ref="bookAdd">
       <template #activator="{ on, attrs }">
-        <Fab icon="mdi-book-plus" v-on="on" v-bind="attrs"></Fab>
+        <v-btn
+          color="pink"
+          dark
+          bottom
+          right
+          fab
+          fixed
+          v-on="on"
+          v-bind="attrs"
+        >
+          <v-icon>mdi-book-plus</v-icon>
+        </v-btn>
       </template>
     </BookAddDialog>
   </v-container>
@@ -132,7 +143,6 @@ import NoteAddDialog from '@/components/NotePostDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import Spinner from '@/components/Spinner.vue'
 import BookAddDialog from '@/components/BookAddDialog.vue'
-import Fab from '@/components/Fab.vue'
 import Pagination from '@/components/Pagination.vue'
 
 export default {
@@ -145,7 +155,6 @@ export default {
     NoteAddDialog,
     Spinner,
     BookAddDialog,
-    Fab,
     Pagination,
   },
   data() {
@@ -244,3 +253,10 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.v-btn--floating {
+  bottom: 0;
+  margin: 0 0 24px 48px;
+}
+</style>

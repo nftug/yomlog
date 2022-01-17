@@ -112,6 +112,8 @@
         </v-tabs-items>
       </div>
     </v-col>
+
+    <BookDetailFab :item="item" @post="onAddProp"></BookDetailFab>
   </v-container>
 </template>
 
@@ -121,6 +123,7 @@ import NotFoundPage from '@/pages/error/NotFoundPage.vue'
 import Mixins, { BookListMixin, ListViewMixin } from '@/mixins'
 import BookDetailInfo from '@/components/BookDetailInfo.vue'
 import BookDetailMenu from '@/components/BookDetailMenu.vue'
+import BookDetailFab from '@/components/BookDetailFab.vue'
 
 export default {
   mixins: [Mixins, BookListMixin, ListViewMixin],
@@ -129,6 +132,7 @@ export default {
     Spinner,
     BookDetailInfo,
     BookDetailMenu,
+    BookDetailFab,
   },
   data() {
     return {
