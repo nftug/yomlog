@@ -19,7 +19,9 @@
                 ></v-checkbox>
               </v-list-item-action>
 
-              <v-list-item-content @click="onClickEditNote(note)">
+              <v-list-item-content
+                @click="$refs.noteEdit.showNotePostDialog({ book: item, note })"
+              >
                 <v-list-item-title>
                   {{ note.position
                   }}{{ item.format_type === 1 ? '' : 'ページ' }}
@@ -98,15 +100,7 @@ export default {
       this.fetchBookNote()
     },
   },
-  computed: {
-    benched() {
-      return Math.ceil(this.height / this.itemHeight)
-    },
-  },
   methods: {
-    onClickEditNote(note) {
-      this.$refs.noteEdit.showNotePostDialog({ book: this.item, note })
-    },
     async fetchBookNote() {
       try {
         this.isLoading = true
@@ -116,7 +110,8 @@ export default {
           no_pagination: true,
         }
         const { data } = await api.get('/note/', { params })
-        this.$emit('set', 'note', data)
+        // TODO: set
+        this.$emit('set', { prop: 'note', data })
 
         // ツールバーの制御
         const toolbar = {}

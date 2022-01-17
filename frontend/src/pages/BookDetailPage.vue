@@ -176,28 +176,28 @@ export default {
     },
   },
   methods: {
-    onAddProp(prop, data) {
+    onAddProp({ prop, data }) {
       this.$store.dispatch('bookList/addProp', {
         book: this.item,
         prop,
         data,
       })
     },
-    onDeleteProp(prop, id) {
+    onDeleteProp({ prop, id }) {
       this.$store.dispatch('bookList/deleteProp', {
         book: this.item,
         prop,
         id,
       })
     },
-    onEditProp(prop, data) {
+    onEditProp({ prop, data }) {
       this.$store.dispatch('bookList/editProp', {
         book: this.item,
         prop,
         data,
       })
     },
-    onSetProp(prop, data) {
+    onSetProp({ prop, data }) {
       this.$store.dispatch('bookList/setProp', {
         book: this.item,
         prop,

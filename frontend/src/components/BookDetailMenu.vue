@@ -1,14 +1,26 @@
 <template>
   <v-row :dense="isLessThanSm">
     <v-col cols="6">
-      <v-btn color="primary" small dark block @click="onClickNoteAdd(item)">
+      <v-btn
+        color="primary"
+        small
+        dark
+        block
+        @click="$refs.noteAdd.showNotePostDialog({ book: item })"
+      >
         <v-icon small>mdi-pen-plus</v-icon>
         ノートを追加
       </v-btn>
     </v-col>
 
     <v-col cols="6">
-      <v-btn color="success" small dark block @click="onClickStatusAdd(item)">
+      <v-btn
+        color="success"
+        small
+        dark
+        block
+        @click="$refs.statusAdd.showNotePostDialog({ book: item })"
+      >
         <v-icon small>mdi-bookmark-plus</v-icon>
         進捗を追加
       </v-btn>
@@ -26,10 +38,16 @@
           </v-btn>
         </template>
         <v-list dense>
-          <v-list-item link @click="onClickBookEdit(item)">
+          <v-list-item
+            link
+            @click="$refs.bookEdit.showBookEditDialog({ book: item })"
+          >
             <v-list-item-title>書籍の編集</v-list-item-title>
           </v-list-item>
-          <v-list-item link @click="onClickBookDelete(item)">
+          <v-list-item
+            link
+            @click="$refs.bookDelete.showItemDeleteDialog(item.id)"
+          >
             <v-list-item-title>書籍の削除</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -52,14 +70,20 @@
     </v-col>
 
     <!-- ダイアログ -->
-    <BookEditDialog ref="bookEdit" @post="onEditBook"></BookEditDialog>
+    <BookEditDialog
+      ref="bookEdit"
+      @post="$emit('edit-book', $event)"
+    ></BookEditDialog>
     <ItemDeleteDialog
       ref="bookDelete"
       type="book"
-      @delete="onDeleteBook(item)"
+      @delete="$emit('delete-book', $event)"
     ></ItemDeleteDialog>
-    <StatusAddDialog ref="statusAdd" @post="onAddStatus"></StatusAddDialog>
-    <NoteAddDialog ref="noteAdd" @post="onAddNote"></NoteAddDialog>
+    <StatusAddDialog
+      ref="statusAdd"
+      @post="$emit('post', $event)"
+    ></StatusAddDialog>
+    <NoteAddDialog ref="noteAdd" @post="$emit('post', $event)"></NoteAddDialog>
   </v-row>
 </template>
 
@@ -86,32 +110,6 @@ export default {
   computed: {
     googleLink() {
       return `https://books.google.co.jp/books/?id=${this.item.id_google}`
-    },
-  },
-  methods: {
-    onClickStatusAdd(item) {
-      this.$refs.statusAdd.showStatusPostDialog({ book: item })
-    },
-    onClickNoteAdd(item) {
-      this.$refs.noteAdd.showNotePostDialog({ book: item })
-    },
-    onClickBookEdit(item) {
-      this.$refs.bookEdit.showBookEditDialog({ book: item })
-    },
-    onClickBookDelete(item) {
-      this.$refs.bookDelete.showItemDeleteDialog(item.id)
-    },
-    onDeleteBook(data) {
-      this.$emit('delete-book', data)
-    },
-    onAddStatus(type, data) {
-      this.$emit('post', 'status', data)
-    },
-    onAddNote(type, data) {
-      this.$emit('post', 'note', data)
-    },
-    onEditBook(data) {
-      this.$emit('edit-book', data)
     },
   },
 }

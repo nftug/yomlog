@@ -214,7 +214,7 @@ export default {
           // ダイアログを閉じる
           this.$refs.dialogNoteAdd.hideDialog()
 
-          this.$emit('post', 'note', data)
+          this.$emit('post', { prop: 'note', data })
 
           this.$store.dispatch('message/setInfoMessage', {
             message: `ノートを${this.noteId ? '編集' : '追加'}しました。`,

@@ -51,7 +51,7 @@
                       color="primary"
                       v-bind="attrs"
                       v-on="on"
-                      @click="onClickNoteAdd(item)"
+                      @click="$refs.noteAdd.showNotePostDialog({ book: item })"
                     >
                       <v-icon>mdi-pen-plus</v-icon>
                     </v-btn>
@@ -67,7 +67,9 @@
                       color="success"
                       v-bind="attrs"
                       v-on="on"
-                      @click="onClickStatusAdd(item)"
+                      @click="
+                        $refs.statusAdd.showStatusPostDialog({ book: item })
+                      "
                     >
                       <v-icon>mdi-bookmark-plus</v-icon>
                     </v-btn>
@@ -83,7 +85,7 @@
                       color="error"
                       v-bind="attrs"
                       v-on="on"
-                      @click="onClickDeleteBook(item)"
+                      @click="$refs.bookDelete.showItemDeleteDialog(item.id)"
                     >
                       <v-icon>mdi-trash-can</v-icon>
                     </v-btn>
@@ -240,15 +242,6 @@ export default {
       } else {
         this.initPage({ isReload: true })
       }
-    },
-    onClickStatusAdd(item) {
-      this.$refs.statusAdd.showStatusPostDialog({ book: item })
-    },
-    onClickNoteAdd(item) {
-      this.$refs.noteAdd.showNotePostDialog({ book: item })
-    },
-    onClickDeleteBook(item) {
-      this.$refs.bookDelete.showItemDeleteDialog(item.id)
     },
   },
 }

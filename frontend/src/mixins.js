@@ -182,15 +182,17 @@ export const BookDetailChildMixin = {
       this.checkbox.splice(0, this.checkbox.length)
       this.item[type].forEach(() => this.checkbox.push(false))
     },
-    sendDeleteProp(type, id) {
-      const index = this.item[type].findIndex((e) => e.id === id)
+    sendDeleteProp({ prop, id }) {
+      // チェックボックスの解除
+      const index = this.item[prop].findIndex((e) => e.id === id)
       this.checkbox.splice(index, 1)
-      this.setToolbar(type)
+      // ツールバーの解除
+      this.setToolbar(prop)
 
-      this.$emit('delete', type, id)
+      this.$emit('delete', { prop, id })
     },
-    sendEditProp(type, data) {
-      this.$emit('edit', type, data)
+    sendEditProp({ prop, data }) {
+      this.$emit('edit', { prop, data })
     },
     setToolbar(type) {
       let toolbar = {}

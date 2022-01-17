@@ -54,17 +54,12 @@ export default {
       }
     },
     async deleteItem(id) {
-      try {
-        await api({
-          url: `/${this.type}/${id}/`,
-          method: 'delete',
-        })
+      await api({
+        url: `/${this.type}/${id}/`,
+        method: 'delete',
+      })
 
-        this.$emit('delete', this.type, id)
-        return Promise.resolve(true)
-      } catch (error) {
-        return Promise.reject(false)
-      }
+      this.$emit('delete', { prop: this.type, id })
     },
   },
 }

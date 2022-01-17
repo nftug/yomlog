@@ -12,7 +12,14 @@
                 ></v-checkbox>
               </v-list-item-action>
 
-              <v-list-item-content @click="onClickEditStatus(state)">
+              <v-list-item-content
+                @click="
+                  $refs.statusEdit.showStatusPostDialog({
+                    book: item,
+                    status: state,
+                  })
+                "
+              >
                 <div>{{ state | statePosition }}</div>
                 <div
                   v-if="state.diff.value"
@@ -22,7 +29,14 @@
                 </div>
               </v-list-item-content>
 
-              <v-list-item-action @click="onClickEditStatus(state)">
+              <v-list-item-action
+                @click="
+                  $refs.statusEdit.showStatusPostDialog({
+                    book: item,
+                    status: state,
+                  })
+                "
+              >
                 <div class="text-body-2">
                   {{ state.created_at | isoToDateTime }}
                 </div>
@@ -78,17 +92,6 @@ export default {
       } else {
         return `+${diff.value} (+${diff.percentage}%)`
       }
-    },
-  },
-  methods: {
-    onClickDeleteStatus(item) {
-      this.$refs.itemDelete.showItemDeleteDialog(item.id)
-    },
-    onClickEditStatus(item) {
-      this.$refs.statusEdit.showStatusPostDialog({
-        book: this.item,
-        status: item,
-      })
     },
   },
 }

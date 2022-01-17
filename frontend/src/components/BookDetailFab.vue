@@ -50,8 +50,14 @@
       </v-tooltip>
     </v-speed-dial>
 
-    <StatusPostDialog ref="statusAdd" @post="onAddStatus"></StatusPostDialog>
-    <NotePostDialog ref="noteAdd" @post="onAddNote"></NotePostDialog>
+    <StatusPostDialog
+      ref="statusAdd"
+      @post="$emit('post', $event)"
+    ></StatusPostDialog>
+    <NotePostDialog
+      ref="noteAdd"
+      @post="$emit('post', $event)"
+    ></NotePostDialog>
   </div>
 </template>
 
@@ -73,13 +79,5 @@ export default {
   data: () => ({
     fab: false,
   }),
-  methods: {
-    onAddStatus(type, data) {
-      this.$emit('post', 'status', data)
-    },
-    onAddNote(type, data) {
-      this.$emit('post', 'note', data)
-    },
-  },
 }
 </script>
