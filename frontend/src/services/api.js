@@ -41,9 +41,11 @@ const api = axios.create({
       'PATCH',
       'POST',
     ],
-    onRetryAttempt: async (error) => {
-      const status = error.response ? error.response.status : 500
+    shouldRetry: async (error) => {
+      const raxConfig = rax.getConfig(error)
+      if (raxConfig.currentRetryAttempt >= raxConfig.retry) return false
 
+      const status = error.response ? error.response.status : 500
       if (status === 401 && error.response.data.code === 'token_not_valid') {
         // 認証エラー
         try {
@@ -51,16 +53,15 @@ const api = axios.create({
           console.log('Access token expired. Trying to refresh...')
           const access = await store.dispatch('auth/refresh')
           console.log('Refresh succeeded. Retrying to request...')
-          const config = { ...error.config }
-          // ヘッダー更新 (?)
-          config.headers.Authorization = 'JWT ' + access
-          // NOTE: なぜリトライ後にここで設定したconfigが生きているのか？
-          // (configはtryスコープ内にあるのに、上の記述だけでヘッダーの更新が成功してしまう)
+          // ヘッダー更新
+          error.config.headers.Authorization = 'JWT ' + access
           return true
         } catch (error) {
           console.log('Refresh token expired.')
-          return Promise.reject(error)
+          return false
         }
+      } else {
+        return rax.shouldRetryRequest(error)
       }
     },
   },
