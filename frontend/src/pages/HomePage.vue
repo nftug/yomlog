@@ -76,18 +76,20 @@
             </v-card-title>
 
             <v-card-text class="pb-0">
-              <v-sheet flat class="overflow-y-auto" height="180px" outlined>
+              <v-sheet flat class="overflow-y-auto" height="200px" outlined>
                 <v-list v-if="recentBooks.length">
                   <template v-for="(book, index) in recentBooks">
                     <div :key="index">
-                      <v-list-item
-                        :to="`/book/detail/${book.id}`"
-                        class="text-body-2"
-                      >
+                      <v-list-item :to="`/book/detail/${book.id}`">
                         <v-list-item-avatar tile size="50px">
                           <v-img contain :src="book.thumbnail"></v-img>
                         </v-list-item-avatar>
-                        {{ book.title }}
+
+                        <v-list-item-content>
+                          <v-list-item-title class="text-body-2">
+                            {{ book.title }}
+                          </v-list-item-title>
+                        </v-list-item-content>
                       </v-list-item>
                       <v-divider
                         v-if="index + 1 < recentBooks.length"
@@ -113,7 +115,7 @@
         <v-col cols="12" md="6">
           <v-card outlined class="fill-height">
             <v-card-title class="mx-3 mt-3">トップの著者</v-card-title>
-            <v-card-text>
+            <v-card-text class="pb-0">
               <GraphDoughnut
                 :data="authorsGraphData"
                 :options="authorsGraphOptions"
@@ -134,7 +136,7 @@
         <v-col cols="12" md="6">
           <v-card outlined class="fill-height">
             <v-card-title class="mx-3 mt-3">最近の読書量</v-card-title>
-            <v-card-text>
+            <v-card-text class="pb-0">
               <v-sheet
                 class="v-sheet--offset mx-auto"
                 max-width="calc(100% - 32px)"
@@ -151,6 +153,11 @@
                 </div>
               </v-sheet>
             </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="primary">もっと見る</v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
       </v-row>
