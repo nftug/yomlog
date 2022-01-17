@@ -184,10 +184,7 @@ export default {
       this.formSearch = this.formSearchBook
     } else if (this.type.startsWith('note')) {
       this.formSearch = this.formSearchBookNote
-      if (this.type === 'note-all') {
-        console.log('note-all')
-        this.formSearch.push(...this.formSearchNote)
-      }
+      if (this.type === 'note-all') this.formSearch.push(...this.formSearchNote)
     } else {
       this.formSearch = [{}]
     }
