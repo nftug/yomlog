@@ -1,48 +1,44 @@
 <template>
   <div id="status-log" v-if="item.status">
-    <v-card outlined class="mx-auto" :height="height">
-      <v-virtual-scroll
-        v-if="item.status.length"
-        :height="height"
-        :item-height="itemHeight"
-        :bench="benched"
-        :items="item.status"
-      >
-        <template #default="{ item: state, index }">
-          <v-list-item link>
-            <v-list-item-action>
-              <v-checkbox
-                v-model="checkbox[index]"
-                @change="setToolbar('status')"
-              ></v-checkbox>
-            </v-list-item-action>
+    <v-card outlined class="mx-auto overflow-hidden" :height="height">
+      <v-sheet flat class="overflow-y-auto fill-height">
+        <template v-if="item.status.length">
+          <div v-for="(state, index) in item.status" :key="index">
+            <v-list-item link>
+              <v-list-item-action>
+                <v-checkbox
+                  v-model="checkbox[index]"
+                  @change="setToolbar('status')"
+                ></v-checkbox>
+              </v-list-item-action>
 
-            <v-list-item-content @click="onClickEditStatus(state)">
-              <div>{{ state | statePosition }}</div>
-              <div
-                v-if="state.diff.value"
-                class="text-body-2 grey--text text--darken-2"
-              >
-                {{ state | stateDiff }}
-              </div>
-            </v-list-item-content>
+              <v-list-item-content @click="onClickEditStatus(state)">
+                <div>{{ state | statePosition }}</div>
+                <div
+                  v-if="state.diff.value"
+                  class="text-body-2 grey--text text--darken-2"
+                >
+                  {{ state | stateDiff }}
+                </div>
+              </v-list-item-content>
 
-            <v-list-item-action @click="onClickEditStatus(state)">
-              <div class="text-body-2">
-                {{ state.created_at | isoToDateTime }}
-              </div>
-              <v-chip small class="mt-2" :color="state.state | stateColor">
-                {{ state.state | stateName }}
-              </v-chip>
-            </v-list-item-action>
-          </v-list-item>
-          <v-divider v-if="index + 1 < item.status.length"></v-divider>
+              <v-list-item-action @click="onClickEditStatus(state)">
+                <div class="text-body-2">
+                  {{ state.created_at | isoToDateTime }}
+                </div>
+                <v-chip small class="mt-2" :color="state.state | stateColor">
+                  {{ state.state | stateName }}
+                </v-chip>
+              </v-list-item-action>
+            </v-list-item>
+            <v-divider v-if="index + 1 < item.status.length"></v-divider>
+          </div>
         </template>
-      </v-virtual-scroll>
 
-      <template v-else>
-        <div class="text-center text-body-2 py-5">記録が見つかりません。</div>
-      </template>
+        <template v-else>
+          <div class="text-center text-body-2 py-5">記録が見つかりません。</div>
+        </template>
+      </v-sheet>
     </v-card>
 
     <ItemDeleteDialog
@@ -65,9 +61,6 @@ export default {
     ItemDeleteDialog,
     StatusEditDialog,
   },
-  data: () => ({
-    itemHeight: 76,
-  }),
   created() {
     this.initCheckbox('status')
   },

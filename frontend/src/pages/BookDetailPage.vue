@@ -26,6 +26,7 @@
             class="my-2 hidden-xs-only"
             @post="onAddProp"
             @edit-book="onEditBook"
+            @delete-book="onDeleteBook"
           ></BookDetailMenu>
         </v-col>
 
@@ -44,6 +45,7 @@
         class="my-2 hidden-sm-and-up"
         @post="onAddProp"
         @edit-book="onEditBook"
+        @delete-book="onDeleteBook"
       ></BookDetailMenu>
 
       <!-- 状態表示 -->
@@ -199,8 +201,18 @@ export default {
       })
     },
     onEditBook(data) {
+      this.$store.dispatch('auth/reload')
       this.item = data
       this.$store.commit('bookList/set', data)
+    },
+    onDeleteBook(data) {
+      this.$store.dispatch('auth/reload')
+      this.$router.replace({
+        name: 'shelf',
+        params: {
+          mode: this.currentState(data).state,
+        },
+      })
     },
     setToolbar(val) {
       this.toolbar = val

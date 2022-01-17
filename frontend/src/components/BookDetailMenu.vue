@@ -101,13 +101,8 @@ export default {
     onClickBookDelete(item) {
       this.$refs.bookDelete.showItemDeleteDialog(item.id)
     },
-    onDeleteBook(item) {
-      this.$router.replace({
-        name: 'shelf',
-        params: {
-          mode: this.currentState(item).state,
-        },
-      })
+    onDeleteBook(data) {
+      this.$emit('delete-book', data)
     },
     onAddStatus(type, data) {
       this.$emit('post', 'status', data)

@@ -1,6 +1,6 @@
 <template>
   <div id="note-list" v-if="item.note">
-    <v-card outlined class="mx-auto" :height="height">
+    <v-card outlined class="mx-auto overflow-hidden" :height="height">
       <div v-if="isLoading" class="text-center">
         <v-progress-circular
           indeterminate
@@ -8,39 +8,36 @@
         ></v-progress-circular>
       </div>
 
-      <v-virtual-scroll
-        v-else-if="item.note.length"
-        :height="height"
-        :item-height="itemHeight"
-        :bench="benched"
-        :items="item.note"
-      >
-        <template #default="{ item: note, index }">
-          <v-list-item two-line link>
-            <v-list-item-action>
-              <v-checkbox
-                v-model="checkbox[index]"
-                @change="setToolbar('note')"
-              ></v-checkbox>
-            </v-list-item-action>
+      <v-sheet v-else flat class="overflow-y-auto fill-height">
+        <template v-if="item.note.length">
+          <div v-for="(note, index) in item.note" :key="index">
+            <v-list-item two-line link>
+              <v-list-item-action>
+                <v-checkbox
+                  v-model="checkbox[index]"
+                  @change="setToolbar('note')"
+                ></v-checkbox>
+              </v-list-item-action>
 
-            <v-list-item-content @click="onClickEditNote(note)">
-              <v-list-item-title>
-                {{ note.position }}{{ item.format_type === 1 ? '' : 'ページ' }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ note.content }}
-              </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-
-          <v-divider v-if="index + 1 < item.note.length"></v-divider>
+              <v-list-item-content @click="onClickEditNote(note)">
+                <v-list-item-title>
+                  {{ note.position
+                  }}{{ item.format_type === 1 ? '' : 'ページ' }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ note.content }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </div>
         </template>
-      </v-virtual-scroll>
 
-      <template v-else>
-        <div class="text-center text-body-2 py-5">ノートが見つかりません。</div>
-      </template>
+        <template v-else>
+          <div class="text-center text-body-2 py-5">
+            ノートが見つかりません。
+          </div>
+        </template>
+      </v-sheet>
 
       <!-- 検索 -->
       <SearchDialog type="note" :book-id="item.id">
@@ -91,7 +88,6 @@ export default {
     ItemDeleteDialog,
   },
   data: () => ({
-    itemHeight: 64,
     isLoading: false,
   }),
   mounted() {
