@@ -57,7 +57,7 @@ class GenericSearchFilterSet(django_filter.FilterSet):
             else:
                 query &= query_tmp
 
-        return queryset.filter(query)
+        return queryset.filter(query).distinct()
 
     def filter_search_or(self, queryset: QuerySet, name, value):
         return queryset | self.filter_search(queryset.model.objects.all(), name, value)
