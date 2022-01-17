@@ -266,12 +266,11 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
         """ステータスごとの累計冊数を取得"""
 
         # status_logに関連づけられたbooksをまとめて取得
-        status_ids = set(status_log.values_list('id', flat=True))
         user = self.context['request'].user
 
         # ステータスの対象にある本と、ステータスのない本を検索
         books = Book.objects.filter(
-            Q(status_log__id__in=status_ids) | Q(created_by=user, status_log=None)
+            Q(status_log__in=status_log) | Q(created_by=user, status_log=None)
         ).prefetch_related('status_log')
 
         return {
