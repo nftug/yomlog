@@ -76,11 +76,14 @@
             </v-card-title>
 
             <v-card-text class="pb-0">
-              <v-sheet flat class="overflow-y-auto" height="180px">
+              <v-sheet flat class="overflow-y-auto" height="180px" outlined>
                 <v-list v-if="recentBooks.length">
                   <template v-for="(book, index) in recentBooks">
                     <div :key="index">
-                      <v-list-item :to="`/book/detail/${book.id}`">
+                      <v-list-item
+                        :to="`/book/detail/${book.id}`"
+                        class="text-body-2"
+                      >
                         <v-list-item-avatar tile size="50px">
                           <v-img contain :src="book.thumbnail"></v-img>
                         </v-list-item-avatar>

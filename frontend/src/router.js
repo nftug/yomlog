@@ -181,7 +181,7 @@ router.beforeEach(async (to, from, next) => {
       if (token) {
         // 認証用トークンが残っていればユーザー情報を再取得
         try {
-          store.dispatch('auth/reload')
+          await store.dispatch('auth/reload')
           goNextOrHome(to, next)
         } catch {
           goLoginOrPublic(to, next)

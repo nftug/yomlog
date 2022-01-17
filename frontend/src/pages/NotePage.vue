@@ -80,7 +80,7 @@
                       <v-icon>mdi-trash-can</v-icon>
                     </v-btn>
                   </template>
-                  <span>ノートを削除する</span>
+                  <span>ノートを削除</span>
                 </v-tooltip>
               </v-card-actions>
             </v-card>
