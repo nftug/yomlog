@@ -19,7 +19,7 @@
         small
         dark
         block
-        @click="$refs.statusAdd.showNotePostDialog({ book: item })"
+        @click="$refs.statusAdd.showStatusPostDialog({ book: item })"
       >
         <v-icon small>mdi-bookmark-plus</v-icon>
         進捗を追加
