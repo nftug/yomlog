@@ -237,8 +237,8 @@ router.beforeEach(async (to, from, next) => {
   // ページ遷移前にprevRouteをセット (パンくずリスト用)
   // 遷移元と遷移先の親ルートが異なる場合にのみ、prevRouteをセットする
   const parentFrom = from.matched.find((r) => r.parent === undefined) || {}
-  const nextFrom = to.matched.find((r) => r.parent === undefined) || {}
-  if (parentFrom.name !== nextFrom.name) {
+  const parentNext = to.matched.find((r) => r.parent === undefined) || {}
+  if (parentFrom.name !== parentNext.name) {
     store.commit('prevRoute/set')
   }
 
