@@ -108,7 +108,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn text color="primary" to="/book/all">もっと見る</v-btn>
+              <v-btn text color="primary" to="/shelf/all">もっと見る</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
@@ -246,21 +246,21 @@ export default {
           icon: 'mdi-book-check',
           color: 'green',
           value: this.numOfBooks.read,
-          to: '/book/read',
+          to: '/shelf/read',
         },
         {
           title: '読んでいる本',
           icon: 'mdi-book-open-variant',
           color: 'blue',
           value: this.numOfBooks.reading,
-          to: '/book/reading',
+          to: '/shelf/reading',
         },
         {
           title: 'あとで読む',
           icon: 'mdi-book-clock',
           color: 'orange',
           value: this.numOfBooks.to_be_read,
-          to: '/book/to_be_read',
+          to: '/shelf/to_be_read',
         },
       ]
 

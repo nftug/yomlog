@@ -40,7 +40,7 @@ const router = new VueRouter({
       },
     },
     {
-      path: '/book/:mode',
+      path: '/shelf/:state',
       name: 'shelf',
       component: ShelfPage,
       meta: {
@@ -51,7 +51,7 @@ const router = new VueRouter({
       },
     },
     {
-      path: '/book/:mode/:id',
+      path: '/book/:state/:id',
       name: 'book_detail',
       component: BookDetailPage,
       meta: {

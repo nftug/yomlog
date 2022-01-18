@@ -265,10 +265,9 @@ export default {
     },
     async showEvent({ event, nativeEvent }) {
       const type = event.item.diff ? 'status' : 'note'
-      this.book = await this.$store.dispatch(
-        'bookList/getBookItem',
-        event.item.book.id
-      )
+      this.book = await this.$store.dispatch('bookList/getBookItem', {
+        id: event.item.book.id,
+      })
 
       if (type === 'status') {
         this.$refs.statusEdit.showStatusPostDialog({

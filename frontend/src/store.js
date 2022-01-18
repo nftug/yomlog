@@ -234,17 +234,32 @@ const bookListModule = {
     },
   },
   actions: {
-    async getBookItem({ state }, id) {
-      const ret = { ...state.items.find((e) => e.id === id) }
-      if (Object.keys(ret).length) {
-        return ret
-      } else {
-        try {
+    async getBookItem({ state: { items } }, { id, state = 'all' }) {
+      try {
+        let result, currentState
+
+        // 本のデータをストア or APIから取得
+        const ret = { ...items.find((e) => e.id === id) }
+        if (Object.keys(ret).length) {
+          result = ret
+        } else {
           const { data } = await api.get(`/book/${id}/`)
-          return data
-        } catch (error) {
-          return Promise.reject(error)
+          result = data
         }
+
+        // データから現在のstateを取得し、与えられた引数stateと照合する
+        currentState = result.status.length
+          ? result.status[0].state
+          : 'to_be_read'
+
+        if (state !== 'all' && state !== currentState) {
+          // ステータスが一致しなければエラーを返す
+          throw new Error('State of the book is not corresponded')
+        }
+
+        return result
+      } catch (error) {
+        return Promise.reject(error)
       }
     },
     setDirtyWithDiffState({ commit, dispatch }, { book, callback }) {
@@ -258,6 +273,16 @@ const bookListModule = {
 
       if (oldState !== newState) {
         commit('setDirty', true) // BookListの更新
+        // 書籍詳細の画面を表示していて、ルーターのstateがallではない場合:
+        // ルーターのstateを新しいstateに書き換える
+        const currentRoute = router.history.current
+        const isMatchedBookDetailPage = currentRoute.matched.some(
+          (r) => r.name === 'book_detail'
+        )
+        const isNotStateAll = currentRoute.params.state !== 'all'
+        if (isMatchedBookDetailPage && isNotStateAll) {
+          router.replace({ params: { state: JSON.parse(newState).state } })
+        }
         return true
       } else {
         return false

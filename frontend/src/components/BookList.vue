@@ -9,8 +9,8 @@
                 <v-list-item-content>
                   <v-list-item-title class="font-weight-medium">
                     <router-link
-                      v-if="detailLink"
-                      :to="`/book/${currentState(item).state}/${item.id}`"
+                      v-if="state"
+                      :to="`/book/${state}/${item.id}`"
                       class="black--text"
                     >
                       {{ item.title }}
@@ -22,7 +22,7 @@
                   <v-list-item-subtitle>
                     <span v-for="(author, index) in item.authors" :key="index">
                       <router-link
-                        :to="`/book/all/?authors=${author}`"
+                        :to="`/shelf/all/?authors=${author}`"
                         v-text="author"
                       ></router-link>
                       <span
@@ -41,10 +41,7 @@
               </v-col>
 
               <v-col cols="4">
-                <router-link
-                  v-if="detailLink"
-                  :to="`/book/${currentState(item).state}/${item.id}`"
-                >
+                <router-link v-if="state" :to="`/book/${state}/${item.id}`">
                   <v-img
                     contain
                     :src="item.thumbnail"
@@ -87,9 +84,9 @@ export default {
       type: Boolean,
       default: false,
     },
-    detailLink: {
-      type: Boolean,
-      default: false,
+    state: {
+      type: String,
+      require: false,
     },
   },
 }

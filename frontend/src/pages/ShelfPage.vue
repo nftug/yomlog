@@ -9,7 +9,7 @@
 
       <template v-else>
         <!-- 本棚 -->
-        <BookList :items="bookList.items" detail-link>
+        <BookList :items="bookList.items" :state="$route.params.state">
           <template #content="{ item }">
             <!-- 追加の情報 -->
             <v-list-item>
@@ -161,7 +161,7 @@ export default {
   },
   data() {
     return {
-      mode: this.$route.params.mode,
+      state: this.$route.params.state,
       page: 0,
     }
   },
@@ -188,7 +188,7 @@ export default {
   },
   methods: {
     initPage({ isReload, route = this.$route }) {
-      this.mode = route.params.mode !== 'all' ? route.params.mode : ''
+      this.state = route.params.state !== 'all' ? route.params.state : ''
       this.page = Number(route.query.page || 1)
 
       if (isReload || !this.bookList.items.length) {
@@ -205,7 +205,7 @@ export default {
 
       try {
         const { data } = await api.get('/book/', {
-          params: { ...route.query, page: this.page, status: this.mode },
+          params: { ...route.query, page: this.page, status: this.state },
         })
         this.$store.commit('bookList/setProps', {
           totalItems: data.count,
@@ -236,7 +236,7 @@ export default {
         return
       }
 
-      const fullPath = `/book/${data.state}`
+      const fullPath = `/shelf/${data.state}`
       if (fullPath !== this.$route.fullPath) {
         this.$router.push(fullPath)
       } else {

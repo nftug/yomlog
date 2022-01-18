@@ -20,7 +20,7 @@
       v-if="type === 'book'"
       label="モード"
       :items="modes"
-      v-model="mode"
+      v-model="state"
       :dense="isLessThanSm"
     ></v-select>
 
@@ -88,7 +88,7 @@ export default {
     },
   },
   data: () => ({
-    mode: null,
+    state: null,
     modes: [
       { text: 'あとで読む', value: 'to_be_read' },
       { text: '読んでいる本', value: 'reading' },
@@ -237,7 +237,7 @@ export default {
         }
       })
 
-      this.mode = this.$route.params.mode
+      this.state = this.$route.params.state
     },
     doSearch() {
       const query = {}
@@ -255,7 +255,7 @@ export default {
       const to = {}
       if (this.type === 'book') {
         to.name = 'shelf'
-        to.params = { mode: this.mode }
+        to.params = { state: this.state }
       } else if (this.type === 'note' && this.bookId) {
         to.name = 'book_detail_note'
         to.params = { id: this.$route.params.id }

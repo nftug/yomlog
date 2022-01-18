@@ -1,6 +1,6 @@
 <template>
   <!-- Not Found -->
-  <NotFoundPage v-if="error === 404"></NotFoundPage>
+  <NotFoundPage v-if="error"></NotFoundPage>
 
   <v-container v-else fluid>
     <!-- Spinner -->
@@ -14,7 +14,7 @@
           <div class="text-body-2 mb-sm-5">
             <span v-for="(author, index) in item.authors" :key="index">
               <router-link
-                :to="`/book/all/?authors=${author}`"
+                :to="`/shelf/all/?authors=${author}`"
                 v-text="author"
               ></router-link>
               <span v-if="index + 1 < item.authors.length" v-text="', '"></span>
@@ -145,12 +145,12 @@ export default {
         {
           label: '進捗',
           type: 'status',
-          path: `/book/${this.$route.params.mode}/${this.$route.params.id}/`,
+          path: `/book/${this.$route.params.state}/${this.$route.params.id}/`,
         },
         {
           label: 'ノート',
           type: 'note',
-          path: `/book/${this.$route.params.mode}/${this.$route.params.id}/note`,
+          path: `/book/${this.$route.params.state}/${this.$route.params.id}/note`,
         },
       ],
     }
@@ -160,12 +160,12 @@ export default {
     // ⇒ページ内情報の更新とbookListストアの更新処理は別々に行うこと
     try {
       this.isLoading = true
-      this.item = await this.$store.dispatch(
-        'bookList/getBookItem',
-        this.$route.params.id
-      )
+      this.item = await this.$store.dispatch('bookList/getBookItem', {
+        id: this.$route.params.id,
+        state: this.$route.params.state,
+      })
     } catch (error) {
-      if (error.response) this.error = error.response.status
+      this.error = error.response ? error.response.status : 404
     } finally {
       this.isLoading = false
     }
@@ -214,7 +214,7 @@ export default {
       this.$router.replace({
         name: 'shelf',
         params: {
-          mode: this.currentState(data).state,
+          state: this.currentState(data).state,
         },
       })
     },

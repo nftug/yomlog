@@ -33,7 +33,7 @@
               <tr v-for="(item, index) in authors" :key="index">
                 <td>
                   <router-link
-                    :to="`/book/all/?authors=${item.name}`"
+                    :to="`/shelf/all/?authors=${item.name}`"
                     v-text="item.name"
                   ></router-link>
                 </td>
