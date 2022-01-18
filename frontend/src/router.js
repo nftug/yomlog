@@ -71,7 +71,12 @@ const router = new VueRouter({
           path: '/',
           name: 'book_detail_status',
           component: StatusLog,
-          meta: { title: '本の詳細', isShowMenuButton: false, noScroll: true },
+          meta: {
+            title: '本の詳細',
+            isShowMenuButton: false,
+            noScroll: true,
+            breadcrumb: '進捗',
+          },
         },
         {
           path: 'note/',
@@ -230,8 +235,10 @@ router.beforeEach(async (to, from, next) => {
   const isLoggedIn = store.state.auth.isLoggedIn
 
   // ページ遷移前にprevRouteをセット (パンくずリスト用)
-  if (!to.matched.some((r) => r.name === from.name)) {
-    console.log('prevRoute')
+  // 遷移元と遷移先の親ルートが異なる場合にのみ、prevRouteをセットする
+  const parentFrom = from.matched.find((r) => r.parent === undefined) || {}
+  const nextFrom = to.matched.find((r) => r.parent === undefined) || {}
+  if (parentFrom.name !== nextFrom.name) {
     store.commit('prevRoute/set')
   }
 

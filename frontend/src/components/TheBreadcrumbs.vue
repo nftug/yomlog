@@ -1,11 +1,13 @@
 <template>
-  <v-breadcrumbs v-if="items.length > 1" :items="items" class="breadcrumbs">
-    <template v-slot:item="{ item }">
-      <v-breadcrumbs-item :to="item.to" :disabled="item.disabled" exact>
-        {{ item.text }}
-      </v-breadcrumbs-item>
-    </template>
-  </v-breadcrumbs>
+  <v-toolbar v-if="items.length > 1" flat dense color="grey lighten-3">
+    <v-breadcrumbs :items="items" class="breadcrumbs">
+      <template #item="{ item }">
+        <v-breadcrumbs-item :to="item.to" :disabled="item.disabled" exact>
+          {{ item.text }}
+        </v-breadcrumbs-item>
+      </template>
+    </v-breadcrumbs>
+  </v-toolbar>
 </template>
 
 <script>
@@ -22,8 +24,7 @@ export default {
     },
   },
   methods: {
-    getBreadcrumb(bc) {
-      let name = bc
+    getBreadcrumb(name) {
       if (typeof name === 'function') {
         name = name.call(this, this.$route.params)
       }
@@ -42,9 +43,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.breadcrumbs {
-  padding-bottom: 0px !important;
-}
-</style>
