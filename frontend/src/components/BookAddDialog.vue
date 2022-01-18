@@ -225,7 +225,7 @@ export default {
       this.$store.dispatch('auth/reload')
 
       // 書籍の詳細ページに遷移
-      this.$router.replace(`/book/detail/${data.id}`)
+      this.$router.replace(`/book/to_be_read/${data.id}`)
 
       if (status === 201) {
         this.$store.dispatch('message/setInfoMessage', {

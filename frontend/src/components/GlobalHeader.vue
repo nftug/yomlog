@@ -83,7 +83,7 @@ export default {
   methods: {
     handleSearch() {
       this.$router.push({
-        path: '/shelf/all/',
+        path: '/book/all/',
         query: this.searchValue
           ? {
               q: this.searchValue,

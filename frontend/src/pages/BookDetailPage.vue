@@ -14,7 +14,7 @@
           <div class="text-body-2 mb-sm-5">
             <span v-for="(author, index) in item.authors" :key="index">
               <router-link
-                :to="`/shelf/all/?authors=${author}`"
+                :to="`/book/all/?authors=${author}`"
                 v-text="author"
               ></router-link>
               <span v-if="index + 1 < item.authors.length" v-text="', '"></span>
@@ -145,12 +145,12 @@ export default {
         {
           label: '進捗',
           type: 'status',
-          path: `/book/detail/${this.$route.params.id}/`,
+          path: `/book/${this.$route.params.mode}/${this.$route.params.id}/`,
         },
         {
           label: 'ノート',
           type: 'note',
-          path: `/book/detail/${this.$route.params.id}/note`,
+          path: `/book/${this.$route.params.mode}/${this.$route.params.id}/note`,
         },
       ],
     }

@@ -72,7 +72,7 @@ export default {
       {
         title: '本棚',
         icon: 'mdi-book-open-blank-variant',
-        path: '/shelf/reading',
+        path: '/book/reading',
       },
       {
         title: 'カレンダー',
@@ -114,7 +114,7 @@ export default {
           query: this.$route.query,
         }
       } else {
-        itemShelf.path = '/shelf/reading'
+        itemShelf.path = '/book/reading'
       }
 
       return items

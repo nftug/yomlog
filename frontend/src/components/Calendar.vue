@@ -97,7 +97,9 @@
                           <v-btn
                             icon
                             small
-                            :to="`/book/detail/${event.item.book.id}`"
+                            :to="`/book/${
+                              currentState(event.item.book).state
+                            }/${event.item.book.id}`"
                           >
                             <v-icon>mdi-book</v-icon>
                           </v-btn>
@@ -136,12 +138,14 @@
 </template>
 
 <script>
+import { BookListMixin } from '@/mixins'
 import api from '@/services/api'
 import moment from 'moment'
 import StatusEditDialog from '@/components/StatusPostDialog.vue'
 import NotePostDialog from '@/components/NotePostDialog.vue'
 
 export default {
+  mixins: [BookListMixin],
   props: {
     height: {
       type: String,

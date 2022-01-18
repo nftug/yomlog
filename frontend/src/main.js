@@ -4,6 +4,7 @@ import vuetify from './plugins/vuetify'
 
 import VueMeta from 'vue-meta'
 import Fragment from 'vue-fragment'
+import VueBreadcrumbs from 'vue-2-breadcrumbs'
 
 import router from './router'
 import store from './store'
@@ -11,6 +12,7 @@ import store from './store'
 Vue.config.productionTip = false
 
 Vue.use(VueMeta)
+Vue.use(VueBreadcrumbs)
 Vue.use(Fragment.Plugin)
 
 // ブラウザバックを検知してコンポーネントで「this.$isBrowserBack」で使用できるようにする。

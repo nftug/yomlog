@@ -60,7 +60,9 @@
                       color="success"
                       v-bind="attrs"
                       v-on="on"
-                      :to="`/book/detail/${note.book.id}`"
+                      :to="`/book/${currentState(note.book).state}/${
+                        note.book.id
+                      }`"
                     >
                       <v-icon>mdi-book</v-icon>
                     </v-btn>
@@ -117,7 +119,7 @@
 </template>
 
 <script>
-import { ListViewMixin } from '@/mixins'
+import { ListViewMixin, BookListMixin } from '@/mixins'
 import api from '@/services/api'
 import Spinner from '@/components/Spinner.vue'
 import SearchCard from '@/components/SearchCard.vue'
@@ -126,7 +128,7 @@ import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
 import Pagination from '@/components/Pagination.vue'
 
 export default {
-  mixins: [ListViewMixin],
+  mixins: [ListViewMixin, BookListMixin],
   components: {
     Spinner,
     SearchCard,

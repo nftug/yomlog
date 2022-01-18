@@ -17,22 +17,22 @@ export default {
     tabs: [
       {
         label: 'あとで読む',
-        path: '/shelf/to_be_read',
+        path: '/book/to_be_read',
         isShow: true,
       },
       {
         label: '読んでいる本',
-        path: '/shelf/reading',
+        path: '/book/reading',
         isShow: true,
       },
       {
         label: '読んだ本',
-        path: '/shelf/read',
+        path: '/book/read',
         isShow: true,
       },
       {
         label: '全ての本',
-        path: '/shelf/all',
+        path: '/book/all',
         isShow: true,
       },
     ],

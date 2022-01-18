@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueRouter, { NavigationDuplicated } from 'vue-router'
+import VueRouter from 'vue-router'
 import store from '@/store'
 
 const LoginPage = () => import('@/pages/LoginPage.vue')
@@ -33,19 +33,33 @@ const router = new VueRouter({
       path: '/',
       name: 'home',
       component: HomePage,
-      meta: { requiresAuth: true, isShowMenuButton: true },
+      meta: {
+        requiresAuth: true,
+        isShowMenuButton: true,
+        breadcrumb: 'ホーム',
+      },
     },
     {
-      path: '/shelf/:mode',
+      path: '/book/:mode',
       name: 'shelf',
       component: ShelfPage,
-      meta: { title: '本棚', requiresAuth: true, isShowMenuButton: true },
+      meta: {
+        title: '本棚',
+        requiresAuth: true,
+        isShowMenuButton: true,
+        breadcrumb: { label: '本棚', parent: 'home' },
+      },
     },
     {
-      path: '/book/detail/:id',
+      path: '/book/:mode/:id',
       name: 'book_detail',
       component: BookDetailPage,
-      meta: { title: '本の詳細', requiresAuth: true, isShowMenuButton: false },
+      meta: {
+        title: '本の詳細',
+        requiresAuth: true,
+        isShowMenuButton: false,
+        breadcrumb: { label: '本の詳細', parent: 'shelf' },
+      },
       children: [
         {
           path: '/',
@@ -57,7 +71,12 @@ const router = new VueRouter({
           path: 'note/',
           name: 'book_detail_note',
           component: NoteList,
-          meta: { title: '本の詳細', isShowMenuButton: false, noScroll: true },
+          meta: {
+            title: '本の詳細',
+            isShowMenuButton: false,
+            noScroll: true,
+            breadcrumb: 'ノート',
+          },
         },
       ],
     },
@@ -65,7 +84,12 @@ const router = new VueRouter({
       path: '/calendar',
       name: 'calendar',
       component: CalendarPage,
-      meta: { title: 'カレンダー', requiresAuth: true, isShowMenuButton: true },
+      meta: {
+        title: 'カレンダー',
+        requiresAuth: true,
+        isShowMenuButton: true,
+        breadcrumb: { label: 'カレンダー', parent: 'home' },
+      },
     },
     {
       path: '/note',
@@ -75,6 +99,7 @@ const router = new VueRouter({
         title: 'ノート',
         requiresAuth: true,
         isShowMenuButton: true,
+        breadcrumb: { label: 'ノート', parent: 'home' },
       },
     },
     {
@@ -85,6 +110,7 @@ const router = new VueRouter({
         title: '著者リスト',
         requiresAuth: true,
         isShowMenuButton: true,
+        breadcrumb: { label: '著者リスト', parent: 'home' },
       },
     },
     {
@@ -133,25 +159,42 @@ const router = new VueRouter({
       path: '/settings',
       name: 'settings',
       component: SettingsPage,
-      meta: { title: '設定', requiresAuth: true, isShowMenuButton: true },
+      meta: {
+        title: '設定',
+        requiresAuth: true,
+        isShowMenuButton: true,
+        breadcrumb: { label: '設定', parent: 'home' },
+      },
       children: [
         {
           path: 'profile/',
           name: 'settings_profile',
           component: ProfileSettingsPage,
-          meta: { title: 'プロフィールの設定', isShowMenuButton: false },
+          meta: {
+            title: 'プロフィールの設定',
+            isShowMenuButton: false,
+            breadcrumb: { label: 'プロフィールの設定' },
+          },
         },
         {
           path: 'email/',
           name: 'settings_email',
           component: EmailSettingsPage,
-          meta: { title: 'メールアドレスの設定', isShowMenuButton: false },
+          meta: {
+            title: 'メールアドレスの設定',
+            isShowMenuButton: false,
+            breadcrumb: { label: 'メールアドレスの設定' },
+          },
         },
         {
           path: 'password/',
           name: 'settings_password',
           component: PasswordChangePage,
-          meta: { title: 'パスワードの変更', isShowMenuButton: false },
+          meta: {
+            title: 'パスワードの変更',
+            isShowMenuButton: false,
+            breadcrumb: { label: 'パスワードの変更' },
+          },
         },
       ],
     },
@@ -206,7 +249,8 @@ router.beforeEach(async (to, from, next) => {
       goNextOrHome(to, next)
     }
   } catch (error) {
-    if (!(error instanceof NavigationDuplicated)) {
+    // NavigationDuplicatedのエラーを無視する
+    if (error.name !== 'NavigationDuplicated') {
       throw error
     }
   }

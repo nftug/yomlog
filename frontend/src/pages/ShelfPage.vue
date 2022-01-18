@@ -35,7 +35,7 @@
                       color="secondary"
                       v-bind="attrs"
                       v-on="on"
-                      :to="`/book/detail/${item.id}`"
+                      :to="`/book/${currentState(item).state}/${item.id}`"
                     >
                       <v-icon>mdi-eye</v-icon>
                     </v-btn>
@@ -236,7 +236,7 @@ export default {
         return
       }
 
-      const fullPath = `/shelf/${data.state}`
+      const fullPath = `/book/${data.state}`
       if (fullPath !== this.$route.fullPath) {
         this.$router.push(fullPath)
       } else {

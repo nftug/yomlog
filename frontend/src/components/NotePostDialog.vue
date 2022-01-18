@@ -22,7 +22,7 @@
             v-show="!!noteId && !isBookDetailPage"
             dark
             icon
-            :to="`/book/detail/${bookId}`"
+            :to="`/book/${currentState(book).state}/${bookId}`"
           >
             <v-icon>mdi-book</v-icon>
           </v-btn>
@@ -117,6 +117,7 @@ export default {
   },
   data() {
     return {
+      book: {},
       bookId: '',
       noteId: '',
       format_type: 0,
@@ -153,6 +154,7 @@ export default {
       }
 
       // 各種データを入力
+      this.book = book
       this.bookId = book.id
       this.format_type = book.format_type
       this.total = book.total

@@ -9,6 +9,7 @@
     </aside>
 
     <v-main>
+      <TheBreadcrumbs></TheBreadcrumbs>
       <GlobalMessage></GlobalMessage>
       <router-view></router-view>
     </v-main>
@@ -19,6 +20,7 @@
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import GlobalSidebar from '@/components/GlobalSidebar.vue'
 import GlobalMessage from '@/components/GlobalMessage.vue'
+import TheBreadcrumbs from '@/components/TheBreadcrumbs.vue'
 
 export default {
   name: 'App',
@@ -26,6 +28,7 @@ export default {
     GlobalHeader,
     GlobalSidebar,
     GlobalMessage,
+    TheBreadcrumbs,
   },
   metaInfo() {
     return {

@@ -48,7 +48,7 @@ export const BookListMixin = {
     },
     currentState() {
       return function (item) {
-        if (item.status.length) {
+        if (item.status !== undefined && item.status.length) {
           return item.status[0]
         } else {
           return {

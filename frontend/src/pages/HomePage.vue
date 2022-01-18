@@ -1,7 +1,7 @@
 <template>
-  <v-container>
+  <v-container fluid>
     <v-col sm="10" lg="9" xl="7" class="mx-auto">
-      <v-card outlined color="transparent" class="pb-2">
+      <div class="pb-2">
         <!-- ユーザー情報 -->
         <v-list>
           <v-list-item two-line>
@@ -24,7 +24,7 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
-      </v-card>
+      </div>
 
       <!-- 分析 -->
       <v-card outlined class="text-center">
@@ -80,7 +80,9 @@
                 <v-list v-if="recentBooks.length">
                   <template v-for="(book, index) in recentBooks">
                     <div :key="index">
-                      <v-list-item :to="`/book/detail/${book.id}`">
+                      <v-list-item
+                        :to="`/book/${currentState(book).state}/${book.id}`"
+                      >
                         <v-list-item-avatar tile size="50px">
                           <v-img contain :src="book.thumbnail"></v-img>
                         </v-list-item-avatar>
@@ -106,7 +108,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn text color="primary" to="/shelf/all">もっと見る</v-btn>
+              <v-btn text color="primary" to="/book/all">もっと見る</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
@@ -166,12 +168,12 @@
 </template>
 
 <script>
-import Mixin from '@/mixins'
+import Mixin, { BookListMixin } from '@/mixins'
 import { mapGetters, mapState } from 'vuex'
 import GraphDoughnut from '@/components/GraphDoughnut.vue'
 
 export default {
-  mixins: [Mixin],
+  mixins: [Mixin, BookListMixin],
   components: {
     GraphDoughnut,
   },
@@ -244,21 +246,21 @@ export default {
           icon: 'mdi-book-check',
           color: 'green',
           value: this.numOfBooks.read,
-          to: '/shelf/read',
+          to: '/book/read',
         },
         {
           title: '読んでいる本',
           icon: 'mdi-book-open-variant',
           color: 'blue',
           value: this.numOfBooks.reading,
-          to: '/shelf/reading',
+          to: '/book/reading',
         },
         {
           title: 'あとで読む',
           icon: 'mdi-book-clock',
           color: 'orange',
           value: this.numOfBooks.to_be_read,
-          to: '/shelf/to_be_read',
+          to: '/book/to_be_read',
         },
       ]
 
