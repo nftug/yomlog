@@ -58,7 +58,13 @@ const router = new VueRouter({
         title: '本の詳細',
         requiresAuth: true,
         isShowMenuButton: false,
-        breadcrumb: { label: '本の詳細', parent: 'shelf' },
+        breadcrumb() {
+          const prevRoute = store.state.prevRoute.value
+          return {
+            label: '本の詳細',
+            parent: prevRoute.name || 'shelf',
+          }
+        },
       },
       children: [
         {
@@ -222,6 +228,12 @@ const router = new VueRouter({
 // 画面遷移の直前に毎回実行されるナビゲーションガード
 router.beforeEach(async (to, from, next) => {
   const isLoggedIn = store.state.auth.isLoggedIn
+
+  // ページ遷移前にprevRouteをセット (パンくずリスト用)
+  if (!to.matched.some((r) => r.name === from.name)) {
+    console.log('prevRoute')
+    store.commit('prevRoute/set')
+  }
 
   // エラーなし→通知をクリア
   if (!store.state.message.error) {

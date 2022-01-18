@@ -325,12 +325,27 @@ const bookListModule = {
   },
 }
 
+// ルート履歴モジュール (パンくずリスト用)
+const prevRouteModule = {
+  strict: process.env.NODE_ENV !== 'production',
+  namespaced: true,
+  state: {
+    value: {},
+  },
+  mutations: {
+    set(state) {
+      state.value = router.history.current
+    },
+  },
+}
+
 const store = new Vuex.Store({
   modules: {
     auth: authModule,
     message: messageModule,
     drawer: drawerModule,
     bookList: bookListModule,
+    prevRoute: prevRouteModule,
   },
 })
 
