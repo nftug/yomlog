@@ -1,9 +1,11 @@
 <template>
-  <v-breadcrumbs
-    v-if="items.length > 1"
-    class="breadcrumbs"
-    :items="items"
-  ></v-breadcrumbs>
+  <v-breadcrumbs v-if="items.length > 1" :items="items" class="breadcrumbs">
+    <template v-slot:item="{ item }">
+      <v-breadcrumbs-item :to="item.to" :disabled="item.disabled" exact>
+        {{ item.text }}
+      </v-breadcrumbs-item>
+    </template>
+  </v-breadcrumbs>
 </template>
 
 <script>
