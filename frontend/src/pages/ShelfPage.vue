@@ -195,9 +195,8 @@ export default {
         this.fetchBookList({ route })
       }
 
-      this.$nextTick(() => {
-        this.$router.app.$emit('changeSearchValue', route.query.q || '')
-      })
+      // クエリから検索バーに値をセット
+      this.$store.commit('navbar/setSearch', route.query.q || '')
     },
     async fetchBookList({ route = this.$route } = {}) {
       this.$store.commit('bookList/setLoading', true)

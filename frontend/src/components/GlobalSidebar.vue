@@ -95,10 +95,10 @@ export default {
     ...mapState(['auth']),
     drawer: {
       get() {
-        return this.$store.state.drawer.drawer
+        return this.$store.state.navbar.drawer
       },
       set(val) {
-        this.$store.commit('drawer/set', val)
+        this.$store.commit('navbar/setDrawer', val)
       },
     },
     menuItems() {

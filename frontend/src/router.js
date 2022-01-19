@@ -58,6 +58,7 @@ const router = new VueRouter({
         title: '本の詳細',
         requiresAuth: true,
         isShowMenuButton: false,
+        keepSearchField: true,
         breadcrumb() {
           const getRoute = store.getters['parentRoutes/route']
           const parentRoute = getRoute('book_detail')
@@ -251,31 +252,29 @@ router.beforeEach(async (to, from, next) => {
     store.dispatch('message/clearMessages')
   }
 
-  try {
-    if (!isLoggedIn) {
-      // 未ログイン時→ユーザー情報取得を試行
-      const token = localStorage.getItem('access')
-      if (token) {
-        // 認証用トークンが残っていればユーザー情報を再取得
-        try {
-          await store.dispatch('auth/reload')
-          goNextOrHome(to, next)
-        } catch {
-          goLoginOrPublic(to, next)
-        }
-      } else {
-        // 認証用トークンが残っていなければ、ログイン画面へ強制遷移 or そのまま続行
+  // 検索フィールドをクリア
+  if (!to.matched.some((r) => r.meta.keepSearchField)) {
+    store.commit('navbar/clearSearch')
+  }
+
+  if (!isLoggedIn) {
+    // 未ログイン時→ユーザー情報取得を試行
+    const token = localStorage.getItem('access')
+    if (token) {
+      // 認証用トークンが残っていればユーザー情報を再取得
+      try {
+        await store.dispatch('auth/reload')
+        goNextOrHome(to, next)
+      } catch {
         goLoginOrPublic(to, next)
       }
     } else {
-      // ログインしている場合、そのまま続行
-      goNextOrHome(to, next)
+      // 認証用トークンが残っていなければ、ログイン画面へ強制遷移 or そのまま続行
+      goLoginOrPublic(to, next)
     }
-  } catch (error) {
-    // NavigationDuplicatedのエラーを無視する
-    if (error.name !== 'NavigationDuplicated') {
-      throw error
-    }
+  } else {
+    // ログインしている場合、そのまま続行
+    goNextOrHome(to, next)
   }
 })
 

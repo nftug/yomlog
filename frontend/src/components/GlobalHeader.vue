@@ -4,7 +4,7 @@
     <template v-if="isLoggedIn && isShowMenuButton">
       <v-app-bar-nav-icon
         class="hidden-lg-and-up"
-        @click.stop="$store.commit('drawer/toggle')"
+        @click.stop="$store.commit('navbar/toggleDrawer')"
       ></v-app-bar-nav-icon>
     </template>
     <template v-else-if="$route.name != 'login'">
@@ -20,7 +20,7 @@
 
     <!-- Right -->
     <template v-if="isLoggedIn">
-      <SearchField v-model="searchValue" @search="handleSearch">
+      <SearchField>
         <v-toolbar-title style="cursor: pointer">
           <div class="hidden-lg-and-up">
             {{ $route.meta.title || appName }}
@@ -66,35 +66,7 @@ import SearchField from '@/components/SearchField.vue'
 
 export default {
   mixins: [Mixin, WindowResizeMixin],
-  components: {
-    ShelfTabBar,
-    SearchField,
-  },
-  data: () => ({
-    searchValue: '',
-  }),
-  created() {
-    // TODO: 値が正常に反映されない？→ストアを利用してみる
-    this.$router.app.$on('changeSearchValue', this.onChangeSearchValue)
-  },
-  beforeDestroy() {
-    this.$router.app.$off('changeSearchValue', this.onChangeSearchValue)
-  },
-  methods: {
-    handleSearch() {
-      this.$router.push({
-        path: '/shelf/all/',
-        query: this.searchValue
-          ? {
-              q: this.searchValue,
-            }
-          : null,
-      })
-    },
-    onChangeSearchValue(searchValue) {
-      this.searchValue = searchValue
-    },
-  },
+  components: { ShelfTabBar, SearchField },
 }
 </script>
 

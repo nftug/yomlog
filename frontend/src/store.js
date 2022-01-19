@@ -178,19 +178,36 @@ const messageModule = {
   },
 }
 
-// ドロワーモジュール
-const drawerModule = {
+// ナビバーモジュール
+const navbarModule = {
   strict: process.env.NODE_ENV !== 'production',
   namespaced: true,
   state: {
     drawer: null,
+    search: '',
   },
   mutations: {
-    set(state, val) {
-      state.drawer = val
+    setDrawer(state, value) {
+      state.drawer = value
     },
-    toggle(state) {
+    toggleDrawer(state) {
       state.drawer = !state.drawer
+    },
+    setSearch(state, value) {
+      state.search = value
+    },
+    clearSearch(state) {
+      state.search = ''
+    },
+  },
+  actions: {
+    doSearch({ state }) {
+      const query = state.search ? { q: state.search } : null
+      router.push({
+        name: 'shelf',
+        params: { state: 'all' },
+        query,
+      })
     },
   },
 }
@@ -358,7 +375,7 @@ const store = new Vuex.Store({
   modules: {
     auth: authModule,
     message: messageModule,
-    drawer: drawerModule,
+    navbar: navbarModule,
     bookList: bookListModule,
     parentRoutes: parentRoutesModule,
   },
