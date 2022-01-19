@@ -60,8 +60,8 @@
 
 <script>
 import api from '@/services/api'
-import Spinner from '@/components/Spinner.vue'
-import SendForm from '@/components/SendForm.vue'
+import Spinner from '@/components/Common/Spinner.vue'
+import SendForm from '@/components/Common/SendForm.vue'
 
 export default {
   components: {

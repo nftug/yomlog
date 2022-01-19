@@ -17,10 +17,10 @@
 </template>
 
 <script>
-import GlobalHeader from '@/components/GlobalHeader.vue'
-import GlobalSidebar from '@/components/GlobalSidebar.vue'
-import GlobalMessage from '@/components/GlobalMessage.vue'
-import TheBreadcrumbs from '@/components/TheBreadcrumbs.vue'
+import GlobalHeader from '@/components/Global/GlobalHeader.vue'
+import GlobalSidebar from '@/components/Global/GlobalSidebar.vue'
+import GlobalMessage from '@/components/Global/GlobalMessage.vue'
+import TheBreadcrumbs from '@/components/Global/TheBreadcrumbs.vue'
 
 export default {
   name: 'App',

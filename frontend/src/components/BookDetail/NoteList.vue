@@ -77,9 +77,9 @@
 
 <script>
 import Mixins, { BookListMixin, BookDetailChildMixin } from '@/mixins'
-import NotePostDialog from '@/components/NotePostDialog.vue'
-import SearchDialog from '@/components/SearchDialog.vue'
-import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
+import NotePostDialog from '@/components/Dialog/NotePostDialog.vue'
+import SearchDialog from '@/components/Common/SearchDialog.vue'
+import ItemDeleteDialog from '@/components/Dialog/ItemDeleteDialog.vue'
 
 export default {
   mixins: [Mixins, BookListMixin, BookDetailChildMixin],

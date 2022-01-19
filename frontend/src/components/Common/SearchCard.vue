@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import SearchDialog from '@/components/SearchDialog.vue'
+import SearchDialog from '@/components/Common/SearchDialog.vue'
 
 export default {
   props: {

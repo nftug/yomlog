@@ -170,7 +170,7 @@
 <script>
 import Mixin, { BookListMixin } from '@/mixins'
 import { mapGetters, mapState } from 'vuex'
-import GraphDoughnut from '@/components/GraphDoughnut.vue'
+import GraphDoughnut from '@/components/Common/GraphDoughnut.vue'
 
 export default {
   mixins: [Mixin, BookListMixin],

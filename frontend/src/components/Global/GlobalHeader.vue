@@ -61,8 +61,8 @@
 
 <script>
 import Mixin, { WindowResizeMixin } from '@/mixins'
-import ShelfTabBar from '@/components/ShelfTabBar.vue'
-import SearchField from '@/components/SearchField.vue'
+import ShelfTabBar from '@/components/Header/ShelfTabBar.vue'
+import SearchField from '@/components/Header/SearchField.vue'
 
 export default {
   mixins: [Mixin, WindowResizeMixin],

@@ -8,7 +8,7 @@
 
 <script>
 import api from '@/services/api'
-import Dialog from '@/components/Dialog.vue'
+import Dialog from '@/components/Common/Dialog.vue'
 
 export default {
   components: {

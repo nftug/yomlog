@@ -118,15 +118,15 @@
 </template>
 
 <script>
-import Spinner from '@/components/Spinner.vue'
+import Spinner from '@/components/Common/Spinner.vue'
 import NotFoundPage from '@/pages/error/NotFoundPage.vue'
 import Mixins, { BookListMixin, ListViewMixin } from '@/mixins'
-import BookDetailInfo from '@/components/BookDetailInfo.vue'
-import BookDetailMenu from '@/components/BookDetailMenu.vue'
-import BookDetailFab from '@/components/BookDetailFab.vue'
-import StatusLog from '@/components/StatusLog.vue'
-import NoteList from '@/components/NoteList.vue'
-import Calendar from '@/components/Calendar.vue'
+import BookDetailInfo from '@/components/BookDetail/BookDetailInfo.vue'
+import BookDetailMenu from '@/components/BookDetail/BookDetailMenu.vue'
+import BookDetailFab from '@/components/BookDetail/BookDetailFab.vue'
+import StatusLog from '@/components/BookDetail/StatusLog.vue'
+import NoteList from '@/components/BookDetail/NoteList.vue'
+import Calendar from '@/components/Common/Calendar.vue'
 import moment from 'moment'
 
 export default {

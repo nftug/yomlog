@@ -84,14 +84,14 @@
 
 <script>
 import axios from 'axios'
-import Spinner from '@/components/Spinner.vue'
+import Spinner from '@/components/Common/Spinner.vue'
 import InfiniteLoading from 'vue-infinite-loading'
 import api from '@/services/api'
 import Mixin, { FormRulesMixin, WindowResizeMixin } from '@/mixins'
-import Dialog from '@/components/Dialog.vue'
-import BookList from '@/components/BookList.vue'
-import BookEditDialog from '@/components/BookEditDialog.vue'
-import SearchField from '@/components/SearchField.vue'
+import Dialog from '@/components/Common/Dialog.vue'
+import BookList from '@/components/Common/BookList.vue'
+import BookEditDialog from '@/components/Dialog/BookEditDialog.vue'
+import SearchField from '@/components/Header/SearchField.vue'
 
 export default {
   mixins: [Mixin, FormRulesMixin, WindowResizeMixin],

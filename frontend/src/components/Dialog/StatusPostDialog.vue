@@ -54,9 +54,9 @@
 
 <script>
 import api from '@/services/api'
-import Dialog from '@/components/Dialog.vue'
-import DatePicker from '@/components/DatePicker.vue'
-import TimePicker from '@/components/TimePicker.vue'
+import Dialog from '@/components/Common/Dialog.vue'
+import DatePicker from '@/components/Common/DatePicker.vue'
+import TimePicker from '@/components/Common/TimePicker.vue'
 import moment from 'moment'
 import { BookListMixin } from '@/mixins'
 

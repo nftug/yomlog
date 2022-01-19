@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import SendForm from '@/components/SendForm.vue'
+import SendForm from '@/components/Common/SendForm.vue'
 
 export default {
   components: {

@@ -76,7 +76,7 @@
 
 <script>
 import api from '@/services/api'
-import Spinner from '@/components/Spinner.vue'
+import Spinner from '@/components/Common/Spinner.vue'
 
 export default {
   props: {

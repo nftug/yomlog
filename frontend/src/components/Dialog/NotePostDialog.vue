@@ -103,9 +103,9 @@
 
 <script>
 import api from '@/services/api'
-import Dialog from '@/components/Dialog.vue'
-import Spinner from '@/components/Spinner.vue'
-import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
+import Dialog from '@/components/Common/Dialog.vue'
+import Spinner from '@/components/Common/Spinner.vue'
+import ItemDeleteDialog from '@/components/Dialog/ItemDeleteDialog.vue'
 import { BookListMixin, WindowResizeMixin } from '@/mixins'
 
 export default {

@@ -54,7 +54,7 @@
 
 <script>
 import Mixin from '@/mixins'
-import Dialog from '@/components/Dialog.vue'
+import Dialog from '@/components/Common/Dialog.vue'
 import { mapState } from 'vuex'
 
 export default {

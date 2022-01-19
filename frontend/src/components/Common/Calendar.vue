@@ -141,8 +141,8 @@
 import { BookListMixin } from '@/mixins'
 import api from '@/services/api'
 import moment from 'moment'
-import StatusEditDialog from '@/components/StatusPostDialog.vue'
-import NotePostDialog from '@/components/NotePostDialog.vue'
+import StatusEditDialog from '@/components/Dialog/StatusPostDialog.vue'
+import NotePostDialog from '@/components/Dialog/NotePostDialog.vue'
 
 export default {
   mixins: [BookListMixin],

@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import Dialog from '@/components/Dialog.vue'
+import Dialog from '@/components/Common/Dialog.vue'
 import { WindowResizeMixin } from '@/mixins'
 
 export default {

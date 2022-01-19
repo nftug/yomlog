@@ -66,8 +66,8 @@
 
 <script>
 import Mixins, { BookListMixin, BookDetailChildMixin } from '@/mixins'
-import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
-import StatusEditDialog from '@/components/StatusPostDialog.vue'
+import ItemDeleteDialog from '@/components/Dialog/ItemDeleteDialog.vue'
+import StatusEditDialog from '@/components/Dialog/StatusPostDialog.vue'
 
 export default {
   mixins: [Mixins, BookListMixin, BookDetailChildMixin],

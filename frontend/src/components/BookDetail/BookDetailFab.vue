@@ -62,8 +62,8 @@
 </template>
 
 <script>
-import StatusPostDialog from '@/components/StatusPostDialog.vue'
-import NotePostDialog from '@/components/NotePostDialog.vue'
+import StatusPostDialog from '@/components/Dialog/StatusPostDialog.vue'
+import NotePostDialog from '@/components/Dialog/NotePostDialog.vue'
 
 export default {
   components: {

@@ -136,16 +136,16 @@
 </template>
 
 <script>
-import BookList from '@/components/BookList.vue'
+import BookList from '@/components/Common/BookList.vue'
 import Mixins, { BookListMixin, ListViewMixin } from '@/mixins'
 import api from '@/services/api'
-import SearchCard from '@/components/SearchCard.vue'
-import StatusAddDialog from '@/components/StatusPostDialog.vue'
-import NoteAddDialog from '@/components/NotePostDialog.vue'
-import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
-import Spinner from '@/components/Spinner.vue'
-import BookAddDialog from '@/components/BookAddDialog.vue'
-import Pagination from '@/components/Pagination.vue'
+import SearchCard from '@/components/Common/SearchCard.vue'
+import StatusAddDialog from '@/components/Dialog/StatusPostDialog.vue'
+import NoteAddDialog from '@/components/Dialog/NotePostDialog.vue'
+import ItemDeleteDialog from '@/components/Dialog/ItemDeleteDialog.vue'
+import Spinner from '@/components/Common/Spinner.vue'
+import BookAddDialog from '@/components/Dialog/BookAddDialog.vue'
+import Pagination from '@/components/Common/Pagination.vue'
 
 export default {
   mixins: [BookListMixin, ListViewMixin, Mixins],

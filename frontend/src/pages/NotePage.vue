@@ -121,11 +121,11 @@
 <script>
 import { ListViewMixin, BookListMixin } from '@/mixins'
 import api from '@/services/api'
-import Spinner from '@/components/Spinner.vue'
-import SearchCard from '@/components/SearchCard.vue'
-import NotePostDialog from '@/components/NotePostDialog.vue'
-import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
-import Pagination from '@/components/Pagination.vue'
+import Spinner from '@/components/Common/Spinner.vue'
+import SearchCard from '@/components/Common/SearchCard.vue'
+import NotePostDialog from '@/components/Dialog/NotePostDialog.vue'
+import ItemDeleteDialog from '@/components/Dialog/ItemDeleteDialog.vue'
+import Pagination from '@/components/Common/Pagination.vue'
 
 export default {
   mixins: [ListViewMixin, BookListMixin],

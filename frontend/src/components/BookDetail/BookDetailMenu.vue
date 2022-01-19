@@ -88,10 +88,10 @@
 </template>
 
 <script>
-import StatusAddDialog from '@/components/StatusPostDialog.vue'
-import NoteAddDialog from '@/components/NotePostDialog.vue'
-import BookEditDialog from '@/components/BookEditDialog.vue'
-import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
+import StatusAddDialog from '@/components/Dialog/StatusPostDialog.vue'
+import NoteAddDialog from '@/components/Dialog/NotePostDialog.vue'
+import BookEditDialog from '@/components/Dialog/BookEditDialog.vue'
+import ItemDeleteDialog from '@/components/Dialog/ItemDeleteDialog.vue'
 import { WindowResizeMixin, BookListMixin } from '@/mixins'
 
 export default {

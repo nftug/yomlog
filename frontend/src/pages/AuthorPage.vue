@@ -72,9 +72,9 @@
 <script>
 import { ListViewMixin } from '@/mixins'
 import api from '@/services/api'
-import GraphDoughnut from '@/components/GraphDoughnut.vue'
-import Spinner from '@/components/Spinner.vue'
-import Pagination from '@/components/Pagination.vue'
+import GraphDoughnut from '@/components/Common/GraphDoughnut.vue'
+import Spinner from '@/components/Common/Spinner.vue'
+import Pagination from '@/components/Common/Pagination.vue'
 
 export default {
   mixins: [ListViewMixin],
