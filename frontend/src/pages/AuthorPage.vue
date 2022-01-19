@@ -5,6 +5,16 @@
 
     <template v-else-if="authors.length">
       <v-col sm="10" lg="9" xl="7" class="mx-auto">
+        <!-- 件数 -->
+        <v-card class="mx-auto text-body-2">
+          <div class="pa-2">
+            <div class="ma-4">
+              <strong>{{ total }}名</strong>
+              の著者が見つかりました。
+            </div>
+          </div>
+        </v-card>
+
         <!-- トップ10のグラフ -->
         <v-card class="mt-4 pb-4 mx-auto">
           <v-card-title class="mx-3 my-3">トップ10の著者</v-card-title>
@@ -21,7 +31,8 @@
           </v-card-text>
         </v-card>
 
-        <v-card outlined class="mt-8 mx-auto">
+        <!-- 著者リストテーブル -->
+        <v-card class="mt-8 mx-auto">
           <v-simple-table>
             <thead>
               <tr>
