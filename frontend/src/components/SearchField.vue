@@ -19,13 +19,13 @@
           solo-inverted
           single-line
           hide-details
-          v-show="search || !isLessThanSm"
+          v-show="search || !isLessThanLg"
           @blur="search = false"
           @keydown.enter="handleSearch"
         ></v-text-field>
       </v-col>
     </v-row>
-    <v-btn icon v-if="!search && isLessThanSm" @click="showSearchBar">
+    <v-btn icon v-if="!search && isLessThanLg" @click="showSearchBar">
       <v-icon>mdi-magnify</v-icon>
     </v-btn>
   </fragment>

@@ -247,7 +247,7 @@ export default {
       const ret = await this.$refs.noteDelete.showItemDeleteDialog(this.noteId)
 
       if (ret) {
-        this.$emit('delete', 'note', this.noteId)
+        this.$emit('delete', { prop: 'note', id: this.noteId })
         callback()
       }
     },
