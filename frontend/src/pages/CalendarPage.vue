@@ -18,8 +18,11 @@ export default {
     }
   },
   watch: {
-    date(value) {
-      if (this.$route.query.date !== value) {
+    date(value, oldValue) {
+      const isDiffMonth =
+        moment(value).get('month') !== moment(oldValue).get('month')
+
+      if (this.$route.query.date !== value && isDiffMonth) {
         this.$router.push({
           ...this.$route,
           query: { date: value },

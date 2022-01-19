@@ -155,6 +155,10 @@ export default {
       type: String,
       require: true,
     },
+    query: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   components: {
     StatusEditDialog,
@@ -223,13 +227,14 @@ export default {
           .format('yyyy-MM-26')
         const created_at_before = moment(end.date)
           .add(1, 'M')
-          .format('yyyy-MM-6')
+          .format('yyyy-MM-06')
 
         const params = {
           no_pagination: true,
           only_progress: true,
           created_at_after,
           created_at_before,
+          ...this.query,
         }
         this.events = []
 
