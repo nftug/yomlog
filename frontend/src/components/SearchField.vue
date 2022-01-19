@@ -41,6 +41,9 @@ export default {
       type: String,
       default: '検索',
     },
+    value: {
+      type: String,
+    },
   },
   data: () => ({
     search: false,
@@ -48,10 +51,18 @@ export default {
   computed: {
     searchValue: {
       get() {
-        return this.$store.state.navbar.search
+        if (this.value !== undefined) {
+          return this.value
+        } else {
+          return this.$store.state.navbar.search
+        }
       },
       set(value) {
-        this.$store.commit('navbar/setSearch', value)
+        if (this.value !== undefined) {
+          this.$emit('input', value)
+        } else {
+          this.$store.commit('navbar/setSearch', value)
+        }
       },
     },
   },
@@ -65,7 +76,12 @@ export default {
     handleSearch($event) {
       this.search = false
       $event.target.blur()
-      this.$store.dispatch('navbar/doSearch')
+
+      if (this.value !== undefined) {
+        this.$emit('search')
+      } else {
+        this.$store.dispatch('navbar/doSearch')
+      }
     },
   },
 }
