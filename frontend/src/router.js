@@ -68,6 +68,17 @@ const router = new VueRouter({
       },
     },
     {
+      path: '/book/:state/:id/note',
+      name: 'book_note',
+      component: NotePage,
+      meta: {
+        title: 'ノート (書籍内検索)',
+        requiresAuth: true,
+        isShowMenuButton: false,
+        breadcrumb: { label: '書籍内ノート', parent: 'book_detail' },
+      },
+    },
+    {
       path: '/calendar',
       name: 'calendar',
       component: CalendarPage,

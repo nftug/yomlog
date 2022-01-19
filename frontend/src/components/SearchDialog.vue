@@ -174,7 +174,7 @@ export default {
       this.formSearch.push(...this.formSearchBook)
     } else if (this.type.startsWith('note')) {
       this.formSearch.push(...this.formSearchBookNote)
-      if (this.type === 'note-all') this.formSearch.push(...this.formSearchNote)
+      if (!this.bookId) this.formSearch.push(...this.formSearchNote)
     }
   },
   methods: {
@@ -245,8 +245,7 @@ export default {
         to.name = 'shelf'
         to.params = { state: this.state }
       } else if (this.type === 'note' && this.bookId) {
-        to.name = 'note'
-        query = { book: this.$route.params.id, ...query }
+        to.name = 'book_note'
       }
 
       if (this.hash) {

@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-col sm="10" class="mx-auto">
       <!-- 検索カード -->
-      <SearchCard :total="total" type="note-all">
+      <SearchCard :total="total" type="note">
         <strong>{{ total }}件</strong>
         のノートが見つかりました。
       </SearchCard>
@@ -162,10 +162,12 @@ export default {
       this.page = Number(route.query.page || 1)
       this.isLoading = true
       this.notes = []
+      const book = route.params.id
+      const page = this.page
 
       try {
         const { data } = await api.get('/note/', {
-          params: { ...route.query, page: this.page },
+          params: { ...route.query, page, book },
         })
 
         this.total = data.count
