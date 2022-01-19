@@ -33,7 +33,7 @@
           </SearchDialog>
 
           <span class="ml-2">
-            <template v-for="(q, key) in $route.query">
+            <template v-for="(value, key) in query">
               <v-chip
                 v-if="key !== 'page'"
                 :key="key"
@@ -43,7 +43,7 @@
                 @click:close="removeQuery(key)"
               >
                 {{ key | searchLabel }}
-                {{ q }}
+                {{ value }}
               </v-chip>
             </template>
           </span>
@@ -55,31 +55,81 @@
 
 <script>
 import SearchDialog from '@/components/SearchDialog.vue'
-import { ListViewMixin } from '@/mixins'
 
 export default {
-  mixins: [ListViewMixin],
   props: {
     total: { type: Number, require: true },
     type: { type: String, require: true },
   },
-  data() {
-    return {
-      query: { ...this.$route.query },
-    }
-  },
   components: {
     SearchDialog,
   },
-  watch: {
-    '$route.query'() {
-      this.query = { ...this.$route.query }
-      delete this.query.page
-    },
-  },
   computed: {
     hasQuery() {
-      return Object.keys(this.$route.query).length > 0
+      return Object.keys(this.query).length > 0
+    },
+    query() {
+      const query = { ...this.$route.query }
+      delete query.page
+      delete query.book
+      return query
+    },
+  },
+  filters: {
+    searchLabel(key) {
+      const keyName = key.replace(/_or$/, '')
+      const or = keyName !== key
+      let label
+
+      if (keyName === 'title') {
+        label = '書名'
+      } else if (keyName === 'authors') {
+        label = '著者名'
+      } else if (keyName === 'amazon_dp') {
+        label = 'ISBN/ASIN'
+      } else if (keyName === 'content') {
+        label = '内容'
+      } else if (keyName === 'quote_text') {
+        label = '引用'
+      } else {
+        label = ''
+      }
+
+      if (or) {
+        label += `${label ? ' (OR)' : 'OR'}`
+      }
+
+      return `${label}${label ? ':' : ''}`
+    },
+  },
+  methods: {
+    removeQuery(key, query = this.query) {
+      const queryOrigin = { ...query }
+
+      if (key) {
+        delete query[key]
+        delete query.page
+      } else {
+        query = {}
+      }
+
+      // OR検索だけになったらAND検索に置換
+      const keys = Object.keys(query)
+      const hasAnd = keys.some((e) => e.match(/^(?!.*_or).*$/) !== null)
+
+      if (!hasAnd) {
+        query = {}
+        keys.forEach((key) => {
+          const value = queryOrigin[key]
+          const keyName = key.replace(/_or$/, '')
+          query[keyName] = value
+        })
+      }
+
+      this.$router.push({
+        path: this.$route.path,
+        query,
+      })
     },
   },
 }

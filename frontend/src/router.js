@@ -15,8 +15,6 @@ const EmailSettingsPage = () => import('@/pages/settings/EmailSettingsPage.vue')
 const PasswordChangePage = () =>
   import('@/pages/settings/PasswordChangePage.vue')
 const BookDetailPage = () => import('@/pages/BookDetailPage.vue')
-const StatusLog = () => import('@/components/StatusLog.vue')
-const NoteList = () => import('@/components/NoteList.vue')
 const CalendarPage = () => import('@/pages/CalendarPage.vue')
 const SocialAuthPage = () => import('@/pages/SocialAuthPage.vue')
 const NotePage = () => import('@/pages/NotePage.vue')
@@ -68,30 +66,6 @@ const router = new VueRouter({
           }
         },
       },
-      children: [
-        {
-          path: '/',
-          name: 'book_detail_status',
-          component: StatusLog,
-          meta: {
-            title: '本の詳細',
-            isShowMenuButton: false,
-            noScroll: true,
-            breadcrumb: '進捗',
-          },
-        },
-        {
-          path: 'note/',
-          name: 'book_detail_note',
-          component: NoteList,
-          meta: {
-            title: '本の詳細',
-            isShowMenuButton: false,
-            noScroll: true,
-            breadcrumb: 'ノート',
-          },
-        },
-      ],
     },
     {
       path: '/calendar',

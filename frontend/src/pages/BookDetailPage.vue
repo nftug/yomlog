@@ -68,24 +68,10 @@
               削除
             </v-btn>
           </template>
-
-          <template v-else-if="toolbar.mode === 'search'">
-            <v-chip
-              class="ma-1"
-              v-for="(q, key) in $route.query"
-              :key="key"
-              close
-              small
-              @click:close="removeQuery(key, { ...$route.query })"
-            >
-              {{ key | searchLabel }}
-              {{ q }}
-            </v-chip>
-          </template>
         </v-toolbar>
 
         <v-tabs v-show="!isShowToolbar" v-model="activeTab" grow>
-          <v-tab v-for="tab in tabs" :key="tab.type" :to="tab.path" replace>
+          <v-tab v-for="tab in tabs" :key="tab.type">
             {{ tab.label }}
             <div class="px-2">
               <v-chip small color="grey darken-1" dark>
@@ -96,18 +82,25 @@
         </v-tabs>
 
         <v-tabs-items v-model="activeTab">
-          <v-tab-item v-for="tab in tabs" :key="tab.type" :value="tab.path">
-            <div style="height: 500px">
-              <router-view
-                v-if="activeTab === tab.path"
-                :item="item"
-                height="500"
-                @edit="onEditProp"
-                @delete="onDeleteProp"
-                @set="onSetProp"
-                @set-toolbar="setToolbar"
-              ></router-view>
-            </div>
+          <v-tab-item>
+            <StatusLog
+              :item="item"
+              height="500"
+              @edit="onEditProp"
+              @delete="onDeleteProp"
+              @set="onSetProp"
+              @set-toolbar="setToolbar"
+            ></StatusLog>
+          </v-tab-item>
+          <v-tab-item>
+            <NoteList
+              :item="item"
+              height="500"
+              @edit="onEditProp"
+              @delete="onDeleteProp"
+              @set="onSetProp"
+              @set-toolbar="setToolbar"
+            ></NoteList>
           </v-tab-item>
         </v-tabs-items>
       </div>
@@ -124,6 +117,8 @@ import Mixins, { BookListMixin, ListViewMixin } from '@/mixins'
 import BookDetailInfo from '@/components/BookDetailInfo.vue'
 import BookDetailMenu from '@/components/BookDetailMenu.vue'
 import BookDetailFab from '@/components/BookDetailFab.vue'
+import StatusLog from '@/components/StatusLog.vue'
+import NoteList from '@/components/NoteList.vue'
 
 export default {
   mixins: [Mixins, BookListMixin, ListViewMixin],
@@ -133,6 +128,8 @@ export default {
     BookDetailInfo,
     BookDetailMenu,
     BookDetailFab,
+    StatusLog,
+    NoteList,
   },
   data() {
     return {
@@ -145,12 +142,10 @@ export default {
         {
           label: '進捗',
           type: 'status',
-          path: `/book/${this.$route.params.state}/${this.$route.params.id}/`,
         },
         {
           label: 'ノート',
           type: 'note',
-          path: `/book/${this.$route.params.state}/${this.$route.params.id}/note`,
         },
       ],
     }

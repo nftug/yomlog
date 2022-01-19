@@ -228,7 +228,7 @@ export default {
       this.state = this.$route.params.state
     },
     doSearch() {
-      const query = {}
+      let query = {}
       let or = false
       for (const field of this.formSearch) {
         const value = field.value
@@ -245,8 +245,8 @@ export default {
         to.name = 'shelf'
         to.params = { state: this.state }
       } else if (this.type === 'note' && this.bookId) {
-        to.name = 'book_detail_note'
-        to.params = { id: this.$route.params.id }
+        to.name = 'note'
+        query = { book: this.$route.params.id, ...query }
       }
 
       if (this.hash) {

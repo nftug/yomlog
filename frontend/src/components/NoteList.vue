@@ -80,7 +80,6 @@ import Mixins, { BookListMixin, BookDetailChildMixin } from '@/mixins'
 import NotePostDialog from '@/components/NotePostDialog.vue'
 import SearchDialog from '@/components/SearchDialog.vue'
 import ItemDeleteDialog from '@/components/ItemDeleteDialog.vue'
-import api from '@/services/api'
 
 export default {
   mixins: [Mixins, BookListMixin, BookDetailChildMixin],
@@ -93,37 +92,7 @@ export default {
     isLoading: false,
   }),
   mounted() {
-    this.fetchBookNote()
-  },
-  watch: {
-    '$route.query'() {
-      this.fetchBookNote()
-    },
-  },
-  methods: {
-    async fetchBookNote() {
-      try {
-        this.isLoading = true
-        const params = {
-          ...this.$route.query,
-          book: this.item.id,
-          no_pagination: true,
-        }
-        const { data } = await api.get('/note/', { params })
-        this.$emit('set', { prop: 'note', data })
-
-        // ツールバーの制御
-        const toolbar = {}
-        if (Object.keys(this.$route.query).length) {
-          toolbar.type = 'note'
-          toolbar.mode = 'search'
-        }
-        this.$emit('set-toolbar', toolbar)
-      } finally {
-        this.isLoading = false
-        this.initCheckbox('note')
-      }
-    },
+    this.initCheckbox('note')
   },
 }
 </script>
