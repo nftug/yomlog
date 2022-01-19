@@ -70,19 +70,21 @@
           </template>
         </v-toolbar>
 
-        <v-tabs v-show="!isShowToolbar" v-model="activeTab" grow>
-          <v-tab v-for="(tab, index) in tabs" :key="index">
-            {{ tab.label }}
-            <div v-if="tab.type" class="px-2">
+        <v-tabs v-show="!isShowToolbar" v-model="activeTab" fixed-tabs>
+          <v-tab v-for="(tab, index) in tabs" :key="index" :to="`#${tab.name}`">
+            <v-icon class="hidden-sm-and-up" v-text="tab.icon"></v-icon>
+            <div class="hidden-xs-only" v-text="tab.label"></div>
+
+            <div v-if="tab.count" class="hidden-xs-only px-2">
               <v-chip small color="grey darken-1" dark>
-                {{ item[tab.type].length }}
+                {{ item[tab.name].length }}
               </v-chip>
             </div>
           </v-tab>
         </v-tabs>
 
         <v-tabs-items v-model="activeTab">
-          <v-tab-item>
+          <v-tab-item value="status">
             <StatusLog
               :item="item"
               height="500"
@@ -92,7 +94,7 @@
               @set-toolbar="setToolbar"
             ></StatusLog>
           </v-tab-item>
-          <v-tab-item>
+          <v-tab-item value="note">
             <NoteList
               :item="item"
               height="500"
@@ -102,7 +104,7 @@
               @set-toolbar="setToolbar"
             ></NoteList>
           </v-tab-item>
-          <v-tab-item>
+          <v-tab-item value="calendar">
             <Calendar
               v-model="date"
               height="500"
@@ -151,14 +153,21 @@ export default {
       tabs: [
         {
           label: '進捗',
-          type: 'status',
+          icon: 'mdi-bookmark',
+          name: 'status',
+          count: true,
         },
         {
           label: 'ノート',
-          type: 'note',
+          icon: 'mdi-note',
+          name: 'note',
+          count: true,
         },
         {
           label: 'カレンダー',
+          icon: 'mdi-calendar',
+          name: 'calendar',
+          count: false,
         },
       ],
       date: moment().format('yyyy-MM-DD'),
