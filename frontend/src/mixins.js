@@ -54,7 +54,12 @@ export const BookListMixin = {
           return {
             id: null,
             state: 'to_be_read',
-            position: { value: 0, percentage: 0, page: 0 },
+            position: {
+              value: 0,
+              percentage: 0,
+              page: 0,
+              created_at: new Date(),
+            },
           }
         }
       }

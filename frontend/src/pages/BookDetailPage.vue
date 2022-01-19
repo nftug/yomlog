@@ -71,9 +71,9 @@
         </v-toolbar>
 
         <v-tabs v-show="!isShowToolbar" v-model="activeTab" grow>
-          <v-tab v-for="tab in tabs" :key="tab.type">
+          <v-tab v-for="(tab, index) in tabs" :key="index">
             {{ tab.label }}
-            <div class="px-2">
+            <div v-if="tab.type" class="px-2">
               <v-chip small color="grey darken-1" dark>
                 {{ item[tab.type].length }}
               </v-chip>
@@ -102,6 +102,13 @@
               @set-toolbar="setToolbar"
             ></NoteList>
           </v-tab-item>
+          <v-tab-item>
+            <Calendar
+              v-model="date"
+              height="500"
+              :query="{ book: item.id }"
+            ></Calendar>
+          </v-tab-item>
         </v-tabs-items>
       </div>
     </v-col>
@@ -119,6 +126,8 @@ import BookDetailMenu from '@/components/BookDetailMenu.vue'
 import BookDetailFab from '@/components/BookDetailFab.vue'
 import StatusLog from '@/components/StatusLog.vue'
 import NoteList from '@/components/NoteList.vue'
+import Calendar from '@/components/Calendar.vue'
+import moment from 'moment'
 
 export default {
   mixins: [Mixins, BookListMixin, ListViewMixin],
@@ -130,6 +139,7 @@ export default {
     BookDetailFab,
     StatusLog,
     NoteList,
+    Calendar,
   },
   data() {
     return {
@@ -147,7 +157,11 @@ export default {
           label: 'ノート',
           type: 'note',
         },
+        {
+          label: 'カレンダー',
+        },
       ],
+      date: moment().format('yyyy-MM-DD'),
     }
   },
   async created() {
@@ -159,6 +173,11 @@ export default {
         id: this.$route.params.id,
         state: this.$route.params.state,
       })
+
+      // カレンダーの日付を進捗の最終更新日に合わせる
+      this.date = moment(this.currentState(this.item).created_at).format(
+        'yyyy-MM-DD'
+      )
     } catch (error) {
       this.error = error.response ? error.response.status : 404
     } finally {
