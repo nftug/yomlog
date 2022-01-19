@@ -330,15 +330,23 @@ const parentRoutesModule = {
   strict: process.env.NODE_ENV !== 'production',
   namespaced: true,
   state: {
-    routes: {},
+    route: {},
+    query: {},
+    params: {},
     historyBack: false,
   },
   getters: {
-    route: (state) => (childName) => state.routes[childName] || {},
+    route: (state) => (childName) => state.route[childName] || {},
+    query: (state) => (parentName) => state.query[parentName] || {},
+    params: (state) => (parentName) => state.params[parentName] || {},
   },
   mutations: {
     set(state, { child, parent }) {
-      state.routes[child.name] = parent
+      state.route[child.name] = parent
+    },
+    saveParentSettings(state, { parent }) {
+      state.query[parent.name] = parent.query
+      state.params[parent.name] = parent.params
     },
     setHistoryBack(state, value) {
       state.historyBack = value

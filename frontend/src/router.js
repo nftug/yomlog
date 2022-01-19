@@ -243,6 +243,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (isNotHistoryBack && parentFrom.name !== parentNext.name) {
     store.commit('parentRoutes/set', { child: parentNext, parent: parentFrom })
+    store.commit('parentRoutes/saveParentSettings', { parent: from })
   }
 
   // エラーなし→通知をクリア

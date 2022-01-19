@@ -18,7 +18,7 @@ export default {
         return {
           text: this.getBreadcrumb(crumb.meta.breadcrumb),
           disabled: this.$breadcrumbs.length - 1 === i,
-          to: this.getPath(crumb),
+          to: this.getRoute(crumb),
         }
       })
     },
@@ -33,12 +33,11 @@ export default {
       }
       return name
     },
-    getPath(crumb) {
-      let { path } = crumb
-      for (const [key, value] of Object.entries(this.$route.params)) {
-        path = path.replace(`:${key}`, value)
-      }
-      return path
+    getRoute(crumb) {
+      const { name } = crumb
+      const getQuery = this.$store.getters['parentRoutes/query']
+      const getParams = this.$store.getters['parentRoutes/params']
+      return { ...crumb, params: getParams(name), query: getQuery(name) }
     },
   },
 }
