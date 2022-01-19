@@ -140,8 +140,6 @@ export const BookDetailChildMixin = {
       let toolbar = {}
       if (this.checkbox.some((e) => e)) {
         toolbar = { type: type, mode: 'checked' }
-      } else if (Object.keys(this.$route.query).length) {
-        toolbar = { type: type, mode: 'search' }
       }
       this.$emit('set-toolbar', toolbar)
     },

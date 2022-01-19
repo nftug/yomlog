@@ -60,6 +60,7 @@ const router = new VueRouter({
         breadcrumb() {
           const getRoute = store.getters['parentRoutes/route']
           const parentRoute = getRoute('book_detail')
+
           return {
             label: '本の詳細',
             parent: parentRoute.name || 'shelf',
@@ -72,9 +73,10 @@ const router = new VueRouter({
       name: 'book_note',
       component: NotePage,
       meta: {
-        title: 'ノート (書籍内検索)',
+        title: '書籍内ノート',
         requiresAuth: true,
         isShowMenuButton: false,
+        keepSearchField: true,
         breadcrumb: { label: '書籍内ノート', parent: 'book_detail' },
       },
     },
@@ -226,9 +228,14 @@ router.beforeEach(async (to, from, next) => {
   const parentFrom = from.matched.find((r) => r.parent === undefined) || {}
   const parentNext = to.matched.find((r) => r.parent === undefined) || {}
   const isNotHistoryBack = !store.state.parentRoutes.historyBack
+  const fromParentName = from.meta.breadcrumb ? from.meta.breadcrumb.parent : ''
 
-  if (isNotHistoryBack && parentFrom.name !== parentNext.name) {
-    store.commit('parentRoutes/set', { child: parentNext, parent: parentFrom })
+  if (
+    isNotHistoryBack &&
+    parentFrom.name !== parentNext.name &&
+    fromParentName !== to.name
+  ) {
+    store.commit('parentRoutes/set', { child: parentNext, parent: from })
     store.commit('parentRoutes/saveParentSettings', { parent: from })
   }
 
