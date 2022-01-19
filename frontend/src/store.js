@@ -326,15 +326,22 @@ const bookListModule = {
 }
 
 // ルート履歴モジュール (パンくずリスト用)
-const prevRouteModule = {
+const parentRoutesModule = {
   strict: process.env.NODE_ENV !== 'production',
   namespaced: true,
   state: {
-    value: {},
+    routes: {},
+    historyBack: false,
+  },
+  getters: {
+    route: (state) => (childName) => state.routes[childName] || {},
   },
   mutations: {
-    set(state) {
-      state.value = router.history.current
+    set(state, { child, parent }) {
+      state.routes[child.name] = parent
+    },
+    setHistoryBack(state, value) {
+      state.historyBack = value
     },
   },
 }
@@ -345,7 +352,7 @@ const store = new Vuex.Store({
     message: messageModule,
     drawer: drawerModule,
     bookList: bookListModule,
-    prevRoute: prevRouteModule,
+    parentRoutes: parentRoutesModule,
   },
 })
 

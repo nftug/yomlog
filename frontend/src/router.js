@@ -59,10 +59,11 @@ const router = new VueRouter({
         requiresAuth: true,
         isShowMenuButton: false,
         breadcrumb() {
-          const prevRoute = store.state.prevRoute.value
+          const getRoute = store.getters['parentRoutes/route']
+          const parentRoute = getRoute('book_detail')
           return {
             label: '本の詳細',
-            parent: prevRoute.name || 'shelf',
+            parent: parentRoute.name || 'shelf',
           }
         },
       },
@@ -234,12 +235,14 @@ const router = new VueRouter({
 router.beforeEach(async (to, from, next) => {
   const isLoggedIn = store.state.auth.isLoggedIn
 
-  // ページ遷移前にprevRouteをセット (パンくずリスト用)
-  // 遷移元と遷移先の親ルートが異なる場合にのみ、prevRouteをセットする
+  // 遷移元と遷移先の親ルートが異なる場合にのみ、ルートの親子情報をセットする
+  // (パンくずリスト用)
   const parentFrom = from.matched.find((r) => r.parent === undefined) || {}
   const parentNext = to.matched.find((r) => r.parent === undefined) || {}
-  if (parentFrom.name !== parentNext.name) {
-    store.commit('prevRoute/set')
+  const isNotHistoryBack = !store.state.parentRoutes.historyBack
+
+  if (isNotHistoryBack && parentFrom.name !== parentNext.name) {
+    store.commit('parentRoutes/set', { child: parentNext, parent: parentFrom })
   }
 
   // エラーなし→通知をクリア

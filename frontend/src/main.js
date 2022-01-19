@@ -20,9 +20,11 @@ Vue.prototype.$browserBackFlg = false
 history.replaceState(null, '', null)
 addEventListener('popstate', function () {
   Vue.prototype.$isBrowserBack = true
+  store.commit('parentRoutes/setHistoryBack', true)
 
   setTimeout(() => {
     Vue.prototype.$isBrowserBack = false
+    store.commit('parentRoutes/setHistoryBack', false)
   }, 500)
 })
 
