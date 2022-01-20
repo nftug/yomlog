@@ -70,8 +70,13 @@
           </template>
         </v-toolbar>
 
-        <v-tabs v-show="!isShowToolbar" v-model="activeTab" fixed-tabs>
-          <v-tab v-for="(tab, index) in tabs" :key="index" :to="`#${tab.name}`">
+        <v-tabs
+          v-show="!isShowToolbar"
+          v-model="activeTab"
+          fixed-tabs
+          @change="onClickTab"
+        >
+          <v-tab v-for="(tab, index) in tabs" :key="index">
             <v-icon class="hidden-sm-and-up" v-text="tab.icon"></v-icon>
             <div class="hidden-xs-only" v-text="tab.label"></div>
 
@@ -84,7 +89,7 @@
         </v-tabs>
 
         <v-tabs-items v-model="activeTab">
-          <v-tab-item value="status">
+          <v-tab-item>
             <StatusLog
               :item="item"
               height="500"
@@ -94,7 +99,7 @@
               @set-toolbar="setToolbar"
             ></StatusLog>
           </v-tab-item>
-          <v-tab-item value="note">
+          <v-tab-item>
             <NoteList
               :item="item"
               height="500"
@@ -104,7 +109,7 @@
               @set-toolbar="setToolbar"
             ></NoteList>
           </v-tab-item>
-          <v-tab-item value="calendar">
+          <v-tab-item>
             <Calendar
               v-model="date"
               height="500"
@@ -148,7 +153,7 @@ export default {
       item: {},
       isLoading: false,
       error: null,
-      activeTab: null,
+      activeTab: 0,
       toolbar: {},
       tabs: [
         {
@@ -174,6 +179,10 @@ export default {
     }
   },
   async created() {
+    // URLのハッシュに基づいてアクティブなタブを設定
+    this.setTabFromHash()
+
+    // 書籍データをストア or Web APIから取得
     // NOTE: ストアから取得するのはアイテムのコピーになる
     // ⇒ページ内情報の更新とbookListストアの更新処理は別々に行うこと
     try {
@@ -199,6 +208,16 @@ export default {
     },
   },
   methods: {
+    setTabFromHash() {
+      const hashName = this.$route.hash.replace(/^#/, '')
+      const index = this.tabs.findIndex((item) => item.name === hashName)
+      this.activeTab = index > -1 ? index : 0
+    },
+    onClickTab() {
+      // activeTabのindexに応じてhashを変更する
+      const hashName = this.tabs[this.activeTab].name
+      this.$router.replace(`#${hashName}`)
+    },
     onAddProp({ prop, data }) {
       this.$store.dispatch('bookList/addProp', {
         book: this.item,
