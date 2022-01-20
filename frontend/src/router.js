@@ -67,7 +67,7 @@ const router = new VueRouter({
       meta: {
         title: '本棚',
         requiresAuth: true,
-        isShowMenuButton: false,
+        isShowMenuButton: true,
         breadcrumb: { label: '本棚', parent: 'home' },
       },
     },
