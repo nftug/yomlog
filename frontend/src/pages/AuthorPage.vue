@@ -6,30 +6,20 @@
     <template v-else-if="authors.length">
       <v-col sm="10" lg="9" xl="7" class="mx-auto">
         <!-- 件数 -->
-        <v-card class="mx-auto text-body-2">
-          <div class="pa-2">
-            <div class="ma-4">
-              <strong>{{ total }}名</strong>
-              の著者が見つかりました。
-            </div>
-          </div>
-        </v-card>
+        <div class="mx-auto text-body-2 pa-2">
+          <strong>{{ total }}名</strong>
+          の著者が見つかりました。
+        </div>
 
         <!-- トップ10のグラフ -->
-        <v-card class="mt-4 pb-4 mx-auto">
-          <v-card-title class="mx-3 my-3">トップ10の著者</v-card-title>
-          <v-card-text>
-            <v-row justify="center">
-              <GraphDoughnut
-                :data="graphData"
-                :options="graphOptions"
-                :height="350"
-                :width="325"
-                :styles="{ display: 'flex', 'justify-content': 'center' }"
-              ></GraphDoughnut>
-            </v-row>
-          </v-card-text>
-        </v-card>
+        <AuthorGraphCard
+          title="トップ10の著者"
+          :data="authorsTop"
+          :height="245"
+          class="mt-4 pb-4 mx-auto"
+        >
+          <template #footer><div></div></template>
+        </AuthorGraphCard>
 
         <!-- 著者リストテーブル -->
         <v-card class="mt-8 mx-auto">
@@ -72,17 +62,16 @@
 <script>
 import { ListViewMixin } from '@/mixins'
 import api from '@/services/api'
-import GraphDoughnut from '@/components/Common/GraphDoughnut.vue'
+import AuthorGraphCard from '@/components/Analytics/AuthorGraphCard.vue'
 import Spinner from '@/components/Common/Spinner.vue'
 import Pagination from '@/components/Common/Pagination.vue'
 
 export default {
   mixins: [ListViewMixin],
-  components: { GraphDoughnut, Spinner, Pagination },
+  components: { AuthorGraphCard, Spinner, Pagination },
   data: () => ({
     authors: [],
     authorsTop: [],
-    graphData: {},
     graphOptions: {
       responsive: true,
       maintainAspectRatio: false,
@@ -108,39 +97,10 @@ export default {
     }
     next()
   },
-  computed: {
-    authorsCount() {
-      const authors = this.authorsTop.map((item) => item.name)
-      const counts = this.authorsTop.map((item) => item.count)
-      return { authors, counts }
-    },
-  },
   async mounted() {
     this.fetchAuthors()
   },
   methods: {
-    setGraphData() {
-      // 著者ランキングデータ (グラフ用)
-      // データの先頭8件を切り出す
-      this.graphData = {
-        labels: this.authorsCount.authors,
-        datasets: [
-          {
-            data: this.authorsCount.counts,
-            backgroundColor: [
-              '#0288D1',
-              '#039BE5',
-              '#03A9F4',
-              '#29B6F6',
-              '#4FC3F7',
-              '#81D4FA',
-              '#B3E5FC',
-              '#E1F5FE',
-            ],
-          },
-        ],
-      }
-    },
     async fetchAuthors({ route = this.$route } = {}) {
       this.page = Number(route.query.page || 1)
 
@@ -170,8 +130,6 @@ export default {
           } else {
             this.authorsTop = this.authors.slice(0, 10)
           }
-
-          this.setGraphData()
         }
       } catch (error) {
         if (error.response) {

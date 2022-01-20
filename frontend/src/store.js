@@ -26,35 +26,6 @@ const authModule = {
   },
   getters: {
     created_at: (state) => moment(state.date_joined).format('yyyy/MM/DD'),
-    authorsCount: ({ analytics: { authors_count } }) => ({
-      authors: authors_count.map((item) => item.name),
-      counts: authors_count.map((item) => item.count),
-    }),
-    pagesDaily: ({ analytics: { pages_daily } }) => {
-      const keys = Object.keys(pages_daily)
-      keys.sort()
-
-      // 最近一週間に範囲を限定
-      const start = moment().startOf('day').subtract(6, 'day')
-      const end = moment().startOf('day')
-
-      // 日付範囲で結果の配列を生成
-      const [date, pages] = [[], []]
-
-      for (let d = start; d <= end; d = moment(d).add(1, 'days')) {
-        date.push(moment(d).format('MM/DD'))
-
-        const key = moment(d).format('yyyy-MM-DD')
-        const index = pages_daily.findIndex((e) => e.date === key)
-        if (index > -1) {
-          pages.push(pages_daily[index].pages)
-        } else {
-          pages.push(0)
-        }
-      }
-
-      return { date, pages }
-    },
   },
   mutations: {
     set(state, { user }) {
