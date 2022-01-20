@@ -142,17 +142,20 @@ export default {
     total: 0,
     isLoading: false,
   }),
-  beforeRouteUpdate(to, from, next) {
-    // ナビゲーションガード
-    // routeがアップデートされるたびにリロードする
-    const isSameParams =
-      JSON.stringify(to.params) === JSON.stringify(from.params)
-    const isSameQuery = JSON.stringify(to.query) === JSON.stringify(from.query)
+  watch: {
+    $route(to, from) {
+      // ナビゲーションガード
+      // routeがアップデートされるたびにリロードする
+      const isSameName = to.name === from.name
+      const isSameParams =
+        JSON.stringify(to.params) === JSON.stringify(from.params)
+      const isSameQuery =
+        JSON.stringify(to.query) === JSON.stringify(from.query)
 
-    if (!(isSameParams && isSameQuery)) {
-      this.fetchNoteList({ route: to })
-    }
-    next()
+      if (!(isSameName && isSameParams && isSameQuery)) {
+        this.fetchNoteList({ route: to })
+      }
+    },
   },
   created() {
     this.fetchNoteList()
