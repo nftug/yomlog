@@ -17,9 +17,7 @@
           :data="authorsTop"
           :height="245"
           class="mt-4 pb-4 mx-auto"
-        >
-          <template #footer><div></div></template>
-        </AuthorGraphCard>
+        ></AuthorGraphCard>
 
         <!-- 著者リストテーブル -->
         <v-card class="mt-8 mx-auto">

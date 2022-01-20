@@ -14,10 +14,7 @@
     </v-card-text>
 
     <v-card-actions>
-      <slot name="footer">
-        <v-spacer></v-spacer>
-        <v-btn text color="primary" to="/author">もっと見る</v-btn>
-      </slot>
+      <slot name="footer"></slot>
     </v-card-actions>
   </v-card>
 </template>

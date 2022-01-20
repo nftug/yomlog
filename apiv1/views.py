@@ -27,10 +27,10 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
         })
 
 
-class LogPagination(CustomPageNumberPagination):
-    """ページネーションクラス (ログ用)"""
+class PagesDailyPagination(CustomPageNumberPagination):
+    """ページネーションクラス (ページ数集計用)"""
 
-    page_size = 24
+    page_size = 31
 
 
 class AuthorPagination(CustomPageNumberPagination):
@@ -89,7 +89,7 @@ class StatusLogViewSet(viewsets.ModelViewSet):
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = StatusLogFilter
 
-    pagination_class = LogPagination
+    pagination_class = CustomPageNumberPagination
 
     def get_queryset(self):
         # ページネーションなしのオプションの場合
@@ -110,7 +110,7 @@ class NoteViewSet(viewsets.ModelViewSet):
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = NoteFilter
 
-    pagination_class = LogPagination
+    pagination_class = CustomPageNumberPagination
 
     def get_queryset(self):
         # ページネーションなしのオプションの場合
@@ -165,7 +165,7 @@ class PagesDailyAPIView(generics.ListAPIView):
 
     queryset = StatusLog.objects.none()
     serializer_class = PagesDailySerializer
-    pagination_class = LogPagination
+    pagination_class = PagesDailyPagination
 
     filter_backends = [django_filter.DjangoFilterBackend]
     filterset_class = StatusLogFilter

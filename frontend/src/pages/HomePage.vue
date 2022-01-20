@@ -57,20 +57,31 @@
         <v-col cols="12" md="6">
           <AuthorGraphCard
             :data="authorsCount"
-            :width="graphWidth"
-            :height="graphHeight"
+            :height="245"
             class="fill-height"
             outlined
-          ></AuthorGraphCard>
+          >
+            <template #footer>
+              <v-spacer></v-spacer>
+              <v-btn text color="primary" to="/author">もっと見る</v-btn>
+            </template>
+          </AuthorGraphCard>
         </v-col>
 
         <!-- 一日ごとのページ数集計グラフ -->
         <v-col cols="12" md="6">
           <PagesGraphCard
             :data="pagesDaily"
+            :start="pagesDateRange.start"
+            :end="pagesDateRange.end"
             class="fill-height"
             outlined
-          ></PagesGraphCard>
+          >
+            <template #footer>
+              <v-spacer></v-spacer>
+              <v-btn text color="primary" to="/analytics">もっと見る</v-btn>
+            </template>
+          </PagesGraphCard>
         </v-col>
       </v-row>
     </v-col>
@@ -78,6 +89,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import { mapGetters, mapState } from 'vuex'
 import AnalyticsCard from '@/components/Analytics/AnalyticsCard.vue'
 import ReadingDataCard from '@/components/Analytics/ReadingDataCard.vue'
@@ -111,6 +123,12 @@ export default {
     },
     graphWidth() {
       return window.innerWidth / 4
+    },
+    pagesDateRange() {
+      return {
+        start: moment().startOf('day').subtract(6, 'day').format('yyyy-MM-DD'),
+        end: moment().format('yyyy-MM-DD'),
+      }
     },
   },
 }

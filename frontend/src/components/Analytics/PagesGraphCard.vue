@@ -5,7 +5,7 @@
       <v-sheet class="v-sheet--offset mx-auto" max-width="calc(100% - 32px)">
         <div class="mt-md-6">
           <v-sparkline
-            :labels="pagesDaily.date"
+            :labels="noLabel ? [] : pagesDaily.date"
             :value="pagesDaily.pages"
             color="primary"
             line-width="2"
@@ -17,10 +17,7 @@
     </v-card-text>
 
     <v-card-actions>
-      <slot name="footer">
-        <v-spacer></v-spacer>
-        <v-btn text color="primary">もっと見る</v-btn>
-      </slot>
+      <slot name="footer"></slot>
     </v-card-actions>
   </v-card>
 </template>
@@ -32,18 +29,18 @@ export default {
   props: {
     title: { type: String, default: '最近の読書量' },
     data: { type: Array, require: true },
+    start: { type: String, require: true },
+    end: { type: String, require: true },
+    noLabel: { type: Boolean, default: false },
   },
   computed: {
     pagesDaily() {
       const keys = Object.keys(this.data)
       keys.sort()
 
-      // 最近一週間に範囲を限定
-      const start = moment().startOf('day').subtract(6, 'day')
-      const end = moment().startOf('day')
-
       // 日付範囲で結果の配列を生成
       const [date, pages] = [[], []]
+      const [start, end] = [moment(this.start), moment(this.end)]
 
       for (let d = start; d <= end; d = moment(d).add(1, 'days')) {
         date.push(moment(d).format('MM/DD'))

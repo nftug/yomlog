@@ -19,6 +19,7 @@ const CalendarPage = () => import('@/pages/CalendarPage.vue')
 const SocialAuthPage = () => import('@/pages/SocialAuthPage.vue')
 const NotePage = () => import('@/pages/NotePage.vue')
 const AuthorsPage = () => import('@/pages/AuthorPage.vue')
+const AnalyticsPage = () => import('@/pages/AnalyticsPage.vue')
 
 Vue.use(VueRouter)
 
@@ -38,13 +39,35 @@ const router = new VueRouter({
       },
     },
     {
+      path: '/author',
+      name: 'author',
+      component: AuthorsPage,
+      meta: {
+        title: '著者リスト',
+        requiresAuth: true,
+        isShowMenuButton: false,
+        breadcrumb: { label: '著者リスト', parent: 'home' },
+      },
+    },
+    {
+      path: '/analytics',
+      name: 'analytics',
+      component: AnalyticsPage,
+      meta: {
+        title: '読書状況の分析',
+        requiresAuth: true,
+        isShowMenuButton: false,
+        breadcrumb: { label: '読書状況の分析', parent: 'home' },
+      },
+    },
+    {
       path: '/shelf/:state',
       name: 'shelf',
       component: ShelfPage,
       meta: {
         title: '本棚',
         requiresAuth: true,
-        isShowMenuButton: true,
+        isShowMenuButton: false,
         breadcrumb: { label: '本棚', parent: 'home' },
       },
     },
@@ -60,7 +83,6 @@ const router = new VueRouter({
         breadcrumb() {
           const getRoute = store.getters['parentRoutes/route']
           const parentRoute = getRoute('book_detail')
-
           return {
             label: '本の詳細',
             parent: parentRoute.name || 'shelf',
@@ -100,17 +122,6 @@ const router = new VueRouter({
         requiresAuth: true,
         isShowMenuButton: true,
         breadcrumb: { label: 'ノート', parent: 'home' },
-      },
-    },
-    {
-      path: '/author',
-      name: 'author',
-      component: AuthorsPage,
-      meta: {
-        title: '著者リスト',
-        requiresAuth: true,
-        isShowMenuButton: true,
-        breadcrumb: { label: '著者リスト', parent: 'home' },
       },
     },
     {
