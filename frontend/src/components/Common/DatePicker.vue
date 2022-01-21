@@ -10,11 +10,11 @@
         slot="activator"
         v-model="date"
         :label="label"
-        readonly
-        v-on="on"
         prepend-icon="mdi-calendar"
         append-icon="mdi-restore"
         @click:append="date = defaultValue"
+        v-on="on"
+        v-bind="$attrs"
       />
     </template>
     <v-date-picker
@@ -46,6 +46,9 @@ export default {
   },
   data: () => ({
     menu: false,
+    dateTimeRules: [
+      (v) => moment(v).isValid() || '正しい日時を入力してください',
+    ],
   }),
   computed: {
     date: {

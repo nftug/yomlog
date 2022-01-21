@@ -13,11 +13,11 @@
         slot="activator"
         v-model="time"
         :label="label"
-        readonly
-        v-on="on"
         prepend-icon="mdi-clock"
         append-icon="mdi-restore"
         @click:append="time = defaultValue"
+        v-on="on"
+        v-bind="$attrs"
       />
     </template>
     <v-time-picker v-model="time" v-bind="$attrs">

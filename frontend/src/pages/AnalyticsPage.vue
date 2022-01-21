@@ -4,15 +4,28 @@
       <!-- 範囲選択 -->
       <v-row justify-content="end">
         <v-spacer></v-spacer>
-        <v-col cols="12" sm="7" md="5" lg="4" xl="3">
-          <v-select
-            placeholder="日付の範囲"
-            :items="dateRanges"
-            v-model="dateRange"
-            @change="onChangeDateRange"
-            dense
-          ></v-select>
+        <v-spacer></v-spacer>
+        <v-col cols="12" md="5">
+          <div class="d-flex">
+            <v-select
+              placeholder="日付の範囲"
+              :items="dateRanges"
+              v-model="dateRange"
+              @input="onChangeDateRange"
+              dense
+            ></v-select>
+            <v-btn
+              small
+              class="ml-2"
+              elevation="1"
+              @click="selectDateRangeManually"
+            >
+              <v-icon left>mdi-calendar</v-icon>
+              日付指定
+            </v-btn>
+          </div>
         </v-col>
+        <DateRangeDialog ref="dateRange"></DateRangeDialog>
       </v-row>
 
       <!-- Spinner -->
@@ -74,13 +87,20 @@ import { ListViewMixin } from '@/mixins'
 import api from '@/services/api'
 import moment from 'moment'
 import Spinner from '@/components/Common/Spinner.vue'
+import DateRangeDialog from '@/components/Dialog/DateRangeDialog.vue'
 import AnalyticsCard from '@/components/Analytics/AnalyticsCard.vue'
 import PagesGraphCard from '@/components/Analytics/PagesGraphCard.vue'
 import Pagination from '@/components/Common/Pagination.vue'
 
 export default {
   mixins: [ListViewMixin],
-  components: { Spinner, AnalyticsCard, PagesGraphCard, Pagination },
+  components: {
+    Spinner,
+    DateRangeDialog,
+    AnalyticsCard,
+    PagesGraphCard,
+    Pagination,
+  },
   data() {
     return {
       analytics: {},
@@ -93,7 +113,9 @@ export default {
       graphRange: {},
       dateRanges: [],
       dateRange: 30,
-      ranges: [7, 30, 90, 180, 365, 'all', 'other'],
+      dateRangeOld: null,
+      ranges: [7, 30, 90, 180, 365, 'all', 'user'],
+      pageSize: 31,
     }
   },
   beforeRouteUpdate(to, from, next) {
@@ -115,8 +137,8 @@ export default {
       let text
       if (range === 'all') {
         text = '全ての期間'
-      } else if (range === 'other') {
-        text = 'その他'
+      } else if (range === 'user') {
+        text = 'ユーザー指定'
       } else {
         text = `過去${range}日間`
       }
@@ -126,10 +148,15 @@ export default {
 
     this.initPage()
   },
+  watch: {
+    dateRange(newVal, oldVal) {
+      this.dateRangeOld = oldVal
+    },
+  },
   computed: {
     pagedList() {
-      const start = (this.page - 1) * 5
-      const end = start + 5
+      const start = (this.page - 1) * this.pageSize
+      const end = start + this.pageSize
       return this.pagesDaily.slice(start, end)
     },
   },
@@ -138,7 +165,11 @@ export default {
       this.query = { ...route.query }
 
       // 日付範囲クエリの設定 & セレクトボックスのデフォルト値の設定
-      if (!isNaN(route.query.days_range)) {
+      if (route.query.created_at_after || route.query.created_at_before) {
+        this.dateRange = 'user'
+      } else if (route.query.days_range === 'all') {
+        this.dateRange = 'all'
+      } else {
         let days_range = Number(route.query.days_range)
         if (!this.ranges.includes(days_range)) days_range = 30
 
@@ -149,10 +180,6 @@ export default {
 
         const target = this.dateRanges.find((item) => item.value === days_range)
         this.dateRange = target.value
-      } else if (route.query.days_range === 'all') {
-        this.dateRange = 'all'
-      } else {
-        this.dateRange = 'other'
       }
 
       this.fetchAnalyticsData()
@@ -160,12 +187,32 @@ export default {
 
       this.page = Number(route.query.page || 1)
     },
-    onChangeDateRange(value) {
-      this.$router.push({
-        ...this.$route,
-        query: { days_range: value },
-        hash: undefined,
-      })
+    async onChangeDateRange(value) {
+      if (value === 'user') {
+        try {
+          await this.selectDateRangeManually()
+        } catch {
+          this.dateRange = this.dateRangeOld
+        }
+      } else {
+        this.$router.push({
+          query: { days_range: value },
+        })
+      }
+    },
+    async selectDateRangeManually() {
+      // ダイアログから範囲を入力して、クエリを指定
+      try {
+        const { start, end } = await this.$refs.dateRange.showDateRangeDialog({
+          start: this.graphRange.start,
+          end: this.graphRange.end,
+        })
+        this.$router.push({
+          query: { created_at_after: start, created_at_before: end },
+        })
+      } catch (error) {
+        throw error
+      }
     },
     async fetchAnalyticsData() {
       try {
@@ -185,7 +232,7 @@ export default {
       this.pagesDaily = data.map((item) => item)
 
       this.total = this.pagesDaily.length
-      this.totalPages = Math.ceil(this.pagesDaily.length / 5)
+      this.totalPages = Math.ceil(this.pagesDaily.length / this.pageSize)
 
       if (this.total) {
         this.graphRange = {
