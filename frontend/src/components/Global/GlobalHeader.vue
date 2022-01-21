@@ -20,7 +20,7 @@
 
     <!-- Right -->
     <template v-if="isLoggedIn">
-      <SearchField>
+      <SearchField placeholder="本を検索">
         <v-toolbar-title style="cursor: pointer">
           <div class="hidden-lg-and-up">
             {{ $route.meta.title || appName }}
