@@ -15,53 +15,56 @@
         </v-col>
       </v-row>
 
-      <!-- 分析カード -->
-      <AnalyticsCard
-        v-if="!isLoading"
-        :num-of-books="analytics.number_of_books"
-        :pages="analytics.pages_read"
-        :days="analytics.days"
-        outlined
-      ></AnalyticsCard>
+      <!-- Spinner -->
+      <Spinner v-if="isLoading"></Spinner>
 
-      <!-- ページ数集計グラフ -->
-      <PagesGraphCard
-        title="期間内の読書量"
-        :data="pagesDaily"
-        :start="graphRange.start"
-        :end="graphRange.end"
-        no-label
-        class="mt-4 pb-4 mx-auto"
-        outlined
-      ></PagesGraphCard>
+      <template v-else>
+        <!-- 分析カード -->
+        <AnalyticsCard
+          :num-of-books="analytics.number_of_books"
+          :pages="analytics.pages_read"
+          :days="analytics.days"
+          outlined
+        ></AnalyticsCard>
 
-      <!-- ページ数集計テーブル -->
-      <v-card class="mt-8 mx-auto" id="table">
-        <v-simple-table>
-          <thead>
-            <tr>
-              <th class="text-left">日付</th>
-              <th class="text-left">ページ数</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, index) in pagedList" :key="index">
-              <td>
-                {{ item.date }}
-              </td>
-              <td>{{ item.pages }}</td>
-            </tr>
-          </tbody>
-        </v-simple-table>
-      </v-card>
+        <!-- ページ数集計グラフ -->
+        <PagesGraphCard
+          title="期間内の読書量"
+          :data="pagesDaily"
+          :start="graphRange.start"
+          :end="graphRange.end"
+          no-label
+          class="mt-4 pb-4 mx-auto"
+          outlined
+        ></PagesGraphCard>
 
-      <!-- ページネーション -->
-      <Pagination
-        v-model="page"
-        :length="totalPages"
-        :total-visible="5"
-        hash="#table"
-      ></Pagination>
+        <!-- ページ数集計テーブル -->
+        <v-card class="mt-8 mx-auto" id="paged-list">
+          <v-simple-table>
+            <thead>
+              <tr>
+                <th class="text-left">日付</th>
+                <th class="text-left">ページ数</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in pagedList" :key="index">
+                <td>
+                  {{ item.date }}
+                </td>
+                <td>{{ item.pages }}</td>
+              </tr>
+            </tbody>
+          </v-simple-table>
+        </v-card>
+
+        <!-- ページネーション -->
+        <Pagination
+          v-model="page"
+          :length="totalPages"
+          :total-visible="5"
+        ></Pagination>
+      </template>
     </v-col>
   </v-container>
 </template>
@@ -70,13 +73,14 @@
 import { ListViewMixin } from '@/mixins'
 import api from '@/services/api'
 import moment from 'moment'
+import Spinner from '@/components/Common/Spinner.vue'
 import AnalyticsCard from '@/components/Analytics/AnalyticsCard.vue'
 import PagesGraphCard from '@/components/Analytics/PagesGraphCard.vue'
 import Pagination from '@/components/Common/Pagination.vue'
 
 export default {
   mixins: [ListViewMixin],
-  components: { AnalyticsCard, PagesGraphCard, Pagination },
+  components: { Spinner, AnalyticsCard, PagesGraphCard, Pagination },
   data() {
     return {
       analytics: {},

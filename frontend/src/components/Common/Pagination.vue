@@ -17,7 +17,6 @@
 export default {
   props: {
     value: { type: Number, require: true },
-    hash: { type: String, require: false },
   },
   computed: {
     page: {
@@ -40,7 +39,6 @@ export default {
           this.$router.push({
             path: this.$route.path,
             query,
-            hash: this.hash,
           })
         }
       })

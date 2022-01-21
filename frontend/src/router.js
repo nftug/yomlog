@@ -56,6 +56,7 @@ const router = new VueRouter({
       meta: {
         title: '読書状況の分析',
         requiresAuth: true,
+        pageHash: '#paged-list',
         isShowMenuButton: false,
         breadcrumb: { label: '読書状況の分析', parent: 'home' },
       },
@@ -225,6 +226,8 @@ const router = new VueRouter({
       } else {
         return { selector: to.hash }
       }
+    } else if (to.query.page && to.meta.pageHash) {
+      return { selector: to.meta.pageHash }
     } else if (to.meta.noScroll) {
       const parent = from.matched[0].path
       if (parent === to.matched[0].path) {
