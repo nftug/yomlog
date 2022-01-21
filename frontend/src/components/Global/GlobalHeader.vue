@@ -70,7 +70,7 @@ export default {
   methods: {
     goParentRoute() {
       const index = this.$breadcrumbs.length - 2
-      const name = this.$breadcrumbs[index].parent
+      const name = this.$breadcrumbs[index > 0 ? index : 0].parent
 
       if (name) {
         const getQuery = this.$store.getters['parentRoutes/query']
