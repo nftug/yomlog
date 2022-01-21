@@ -69,7 +69,8 @@ export default {
   components: { ShelfTabBar, SearchField },
   methods: {
     goParentRoute() {
-      const name = this.$route.meta.breadcrumb.parent
+      const index = this.$breadcrumbs.length - 2
+      const name = this.$breadcrumbs[index].parent
 
       if (name) {
         const getQuery = this.$store.getters['parentRoutes/query']
