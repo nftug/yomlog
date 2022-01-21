@@ -8,7 +8,7 @@
       ></v-app-bar-nav-icon>
     </template>
     <template v-else-if="$route.name != 'login'">
-      <v-app-bar-nav-icon class="hidden-lg-and-up" @click="$router.go(-1)">
+      <v-app-bar-nav-icon class="hidden-lg-and-up" @click="goParentRoute">
         <v-icon>mdi-arrow-left</v-icon>
       </v-app-bar-nav-icon>
     </template>
@@ -36,7 +36,7 @@
     <template v-else>
       <v-toolbar-title style="cursor: pointer">
         <div class="hidden-lg-and-up">
-          {{ $route.meta.title }}
+          {{ $route.meta.title || appName }}
         </div>
         <router-link tag="div" class="hidden-md-and-down" to="/">
           {{ appName }}
@@ -67,6 +67,23 @@ import SearchField from '@/components/Header/SearchField.vue'
 export default {
   mixins: [Mixin, WindowResizeMixin],
   components: { ShelfTabBar, SearchField },
+  methods: {
+    goParentRoute() {
+      const name = this.$route.meta.breadcrumb.parent
+
+      if (name) {
+        const getQuery = this.$store.getters['parentRoutes/query']
+        const getParams = this.$store.getters['parentRoutes/params']
+        this.$router.push({
+          name,
+          query: getQuery(name),
+          params: getParams(name),
+        })
+      } else {
+        this.$router.go(-1)
+      }
+    },
+  },
 }
 </script>
 
