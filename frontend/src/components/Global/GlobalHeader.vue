@@ -70,7 +70,13 @@ export default {
   methods: {
     goParentRoute() {
       const index = this.$breadcrumbs.length - 2
-      const name = this.$breadcrumbs[index > 0 ? index : 0].parent
+      let name
+
+      if (index > 0) {
+        name = this.$breadcrumbs[index].parent
+      } else {
+        if (this.$store.state.auth.isLoggedIn) name = 'home'
+      }
 
       if (name) {
         const getQuery = this.$store.getters['parentRoutes/query']
