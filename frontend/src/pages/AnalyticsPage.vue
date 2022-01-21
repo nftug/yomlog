@@ -36,7 +36,7 @@
       ></PagesGraphCard>
 
       <!-- ページ数集計テーブル -->
-      <v-card class="mt-8 mx-auto">
+      <v-card class="mt-8 mx-auto" id="table">
         <v-simple-table>
           <thead>
             <tr>
@@ -45,7 +45,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in pagesDailyList" :key="index">
+            <tr v-for="(item, index) in pagedList" :key="index">
               <td>
                 {{ item.date }}
               </td>
@@ -60,6 +60,7 @@
         v-model="page"
         :length="totalPages"
         :total-visible="5"
+        hash="#table"
       ></Pagination>
     </v-col>
   </v-container>
@@ -88,13 +89,16 @@ export default {
       graphRange: {},
       dateRanges: [],
       dateRange: 30,
-      ranges: [7, 30, 90, 180, 365, 'all'],
+      ranges: [7, 30, 90, 180, 365, 'all', 'other'],
     }
   },
   beforeRouteUpdate(to, from, next) {
+    const toQuery = { ...to.query, page: null }
+    const fromQuery = { ...from.query, page: null }
+
     const isSameParams =
       JSON.stringify(to.params) === JSON.stringify(from.params)
-    const isSameQuery = JSON.stringify(to.query) === JSON.stringify(from.query)
+    const isSameQuery = JSON.stringify(toQuery) === JSON.stringify(fromQuery)
 
     if (!(isSameParams && isSameQuery)) {
       this.initPage({ route: to })
@@ -104,18 +108,25 @@ export default {
   created() {
     // セレクトボックスの初期化
     for (const range of this.ranges) {
-      this.dateRanges.push({
-        text: range === 'all' ? '全ての期間' : `過去${range}日間`,
-        value: range,
-      })
+      let text
+      if (range === 'all') {
+        text = '全ての期間'
+      } else if (range === 'other') {
+        text = 'その他'
+      } else {
+        text = `過去${range}日間`
+      }
+
+      this.dateRanges.push({ text, value: range })
     }
 
     this.initPage()
   },
   computed: {
-    pagesDailyList() {
-      // 進捗0ページを除いたpagesDailyのリストを取得
-      return this.pagesDaily.filter((item) => item.pages > 0)
+    pagedList() {
+      const start = (this.page - 1) * 5
+      const end = start + 5
+      return this.pagesDaily.slice(start, end)
     },
   },
   methods: {
@@ -123,7 +134,7 @@ export default {
       this.query = { ...route.query }
 
       // 日付範囲クエリの設定 & セレクトボックスのデフォルト値の設定
-      if (route.query.days_range !== 'all') {
+      if (!isNaN(route.query.days_range)) {
         let days_range = Number(route.query.days_range)
         if (!this.ranges.includes(days_range)) days_range = 30
 
@@ -134,17 +145,22 @@ export default {
 
         const target = this.dateRanges.find((item) => item.value === days_range)
         this.dateRange = target.value
-      } else {
+      } else if (route.query.days_range === 'all') {
         this.dateRange = 'all'
+      } else {
+        this.dateRange = 'other'
       }
 
       this.fetchAnalyticsData()
-      this.fetchPagesDailyData({ route })
+      this.fetchPagesDailyData()
+
+      this.page = Number(route.query.page || 1)
     },
     onChangeDateRange(value) {
       this.$router.push({
         ...this.$route,
         query: { days_range: value },
+        hash: undefined,
       })
     },
     async fetchAnalyticsData() {
@@ -158,37 +174,25 @@ export default {
         this.isLoading = false
       }
     },
-    async fetchPagesDailyData({ route = this.$route } = {}) {
-      this.page = Number(route.query.page || 1)
-      const page = this.page
-      this.pagesDaily = []
+    async fetchPagesDailyData() {
+      const { data } = await api.get('/pages/', {
+        params: { ...this.query },
+      })
+      this.pagesDaily = data.map((item) => item)
 
-      try {
-        const { data } = await api.get('/pages/', {
-          params: { ...this.query, page },
-        })
-        data.results.forEach((item) => {
-          this.pagesDaily.push(item)
-        })
+      this.total = this.pagesDaily.length
+      this.totalPages = Math.ceil(this.pagesDaily.length / 5)
 
-        this.total = this.pagesDailyList.length
-        this.totalPages = Math.ceil(this.pagesDailyList.length / data.pageSize)
-
-        const dataLen = this.pagesDaily.length
-        if (dataLen) {
-          this.graphRange = {
-            start: this.pagesDaily[dataLen - 1].date,
-            end: this.pagesDaily[0].date,
-          }
+      if (this.total) {
+        this.graphRange = {
+          start:
+            this.query.created_at_after || this.pagesDaily[this.total - 1].date,
+          end: this.query.created_at_before || moment().format('yyyy-MM-DD'),
         }
-      } catch (error) {
-        if (error.response) {
-          const { response } = error
-          if (response.status === 404) {
-            // ページ数超過の場合、最終ページに遷移
-            const params = { ...response.config.params }
-            this.replaceWithFinalPage('/pages/', params)
-          }
+      } else {
+        this.graphRange = {
+          start: this.$store.state.auth.date_joined,
+          end: this.query.created_at_before || moment().format('yyyy-MM-DD'),
         }
       }
     },

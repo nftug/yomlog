@@ -212,11 +212,19 @@ const router = new VueRouter({
     { path: '*', component: NotFoundPage },
   ],
   // 画面遷移時のスクロール
-  scrollBehavior: (to, from, savedPosition) => {
+  scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
     } else if (to.hash) {
-      return { selector: to.hash }
+      if (to.meta.waitForHash) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ selector: to.hash })
+          }, 500)
+        })
+      } else {
+        return { selector: to.hash }
+      }
     } else if (to.meta.noScroll) {
       const parent = from.matched[0].path
       if (parent === to.matched[0].path) {

@@ -161,36 +161,20 @@ class AuthorListAPIView(generics.ListAPIView):
         return response.Response(serializer.data)
 
 
-class PagesDailyAPIView(generics.ListAPIView):
+class PagesDailyAPIView(views.APIView):
     """日毎のページ数を集計するAPI"""
 
-    queryset = StatusLog.objects.none()
-    serializer_class = PagesDailySerializer
-    pagination_class = PagesDailyPagination
-
-    filter_backends = [django_filter.DjangoFilterBackend]
-    filterset_class = StatusLogFilter
-
-    def list(self, request: Request):
+    def get(self, request: Request):
         queryset = StatusLog.objects.filter(created_by=request.user, position__gt=0).select_related('book')
-        filterset = self.filterset_class(request.query_params, queryset=queryset)
-        queryset = filterset.qs.order_by('-created_at')
+        filterset = StatusLogFilter(request.query_params, queryset=queryset)
+        queryset = filterset.qs
 
         if not filterset.is_valid():
             raise ValidationError(filterset.errors)
 
-        # filtersetの値から日付リストを作成
-        created_at = filterset.form.cleaned_data.get('created_at')
-        start_date = created_at.start.date() if hasattr(created_at, 'start') \
-            else localtime(queryset.last().created_at).date()
-        end_date = created_at.end.date() if hasattr(created_at, 'end') \
-            else date.today()
-        days = (end_date - start_date).days + 1
-        date_list = [end_date - timedelta(days=x) for x in range(days)]
+        # 日付リストを作成
+        date_set = set(queryset.values_list('created_at__date', flat=True))
+        date_list = sorted(list(date_set), reverse=True)
 
-        # date_listをページネーションで分ける
-        paged_date_list = self.paginate_queryset(date_list)
-
-        # ページネーションで分けられたdate_listをコンテキストに渡し、シリアライザを実行
-        serializer = self.get_serializer(paged_date_list, many=True, context={'queryset': queryset})
-        return self.get_paginated_response(serializer.data)
+        serializer = PagesDailySerializer(date_list, many=True, context={'queryset': queryset})
+        return response.Response(serializer.data)
