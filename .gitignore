@@ -157,3 +157,6 @@ yarn-error.log*
 # static
 static/webpack_bundles/
 templates/index.html
+
+# VSCode
+.VSCodeCounter/
