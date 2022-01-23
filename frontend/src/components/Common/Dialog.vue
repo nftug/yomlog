@@ -110,7 +110,7 @@ export default {
       if (this.hash) {
         if (newVal && !hasRouteHash) {
           this.fromRoute = { ...this.$route }
-          this.$router.push({ hash: `#${this.hash}` })
+          this.$router.push({ ...this.$route, hash: `#${this.hash}` })
         } else if (!newVal && hasRouteHash) {
           // this.$router.back()
           this.$router.replace(this.fromRoute)

@@ -228,6 +228,8 @@ export default {
       this.state = this.$route.params.state
     },
     doSearch() {
+      this.$refs.dialogSearch.hideDialog()
+
       let query = {}
       let or = false
       for (const field of this.formSearch) {
