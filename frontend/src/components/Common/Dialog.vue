@@ -97,11 +97,14 @@ export default {
     answer: null,
   }),
   watch: {
-    '$route.hash'(newHash) {
+    '$route.hash'(newHash, oldHash) {
       // ブラウザの戻るボタンを押した時、ダイアログを閉じる
       if (this.hash) {
-        if (newHash !== `#${this.hash}` && this.$isBrowserBack) {
+        if (oldHash === `#${this.hash}` && this.$isBrowserBack) {
           this.dialog = false
+          if (this.answer === null) {
+            this.$emit('answeredDialog', null)
+          }
         }
       }
     },
@@ -114,7 +117,7 @@ export default {
         } else if (!newVal && hasRouteHash) {
           // answeredDialogイベントが発行されていなければ発行 (主に領域外タップの場合)
           if (this.answer === null) {
-            this.$emit('answeredDialog', false)
+            this.$emit('answeredDialog', null)
           }
           this.$router.replace(this.fromRoute)
         }
