@@ -342,27 +342,6 @@ const parentRoutesModule = {
   },
 }
 
-// ダイアログ管理用モジュール
-const dialogModule = {
-  strict: process.env.NODE_ENV !== 'production',
-  namespaced: true,
-  state: {
-    dialog: [],
-  },
-  getters: {
-    current: ({ dialog }) => dialog[dialog.length - 1],
-  },
-  mutations: {
-    set({ dialog }, name) {
-      dialog.push(name)
-    },
-    delete({ dialog }, name) {
-      const index = dialog.indexOf(name)
-      dialog.splice(index, 1)
-    },
-  },
-}
-
 const store = new Vuex.Store({
   modules: {
     auth: authModule,
@@ -370,7 +349,6 @@ const store = new Vuex.Store({
     navbar: navbarModule,
     bookList: bookListModule,
     parentRoutes: parentRoutesModule,
-    dialog: dialogModule,
   },
 })
 
