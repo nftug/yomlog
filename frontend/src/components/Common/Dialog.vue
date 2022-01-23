@@ -102,7 +102,6 @@ export default {
       if (this.hash) {
         if (newHash !== `#${this.hash}` && this.$isBrowserBack) {
           this.dialog = false
-          this.$emit('answeredDialog', false)
         }
       }
     },
@@ -113,11 +112,18 @@ export default {
           this.fromRoute = { ...this.$route }
           this.$router.push({ ...this.$route, hash: `#${this.hash}` })
         } else if (!newVal && hasRouteHash) {
-          // this.$router.back()
-          this.$emit('answeredDialog', false)
+          // answeredDialogイベントが発行されていなければ発行 (主に領域外タップの場合)
+          if (this.answer === null) {
+            this.$emit('answeredDialog', false)
+          }
           this.$router.replace(this.fromRoute)
         }
       }
+
+      // answerをnullに戻す
+      this.$nextTick(() => {
+        this.answer = null
+      })
     },
   },
   mounted() {
@@ -128,6 +134,7 @@ export default {
       this.dialog = true
       return new Promise((resolve) => {
         this.$once('answeredDialog', (value) => {
+          this.answer = value
           this.dialog = false
           resolve(value)
         })
