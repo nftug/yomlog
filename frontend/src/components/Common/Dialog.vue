@@ -96,27 +96,33 @@ export default {
     fromRoute: {},
     answer: null,
   }),
+  computed: {
+    currentDialog() {
+      return this.$store.getters['dialog/current']
+    },
+  },
   watch: {
-    '$route.hash'(newHash) {
-      // ブラウザの戻るボタンを押した時、ダイアログを閉じる
+    currentDialog(value, oldValue) {
       if (this.hash) {
-        if (newHash !== `#${this.hash}` && this.$isBrowserBack) {
+        if (oldValue === this.hash && this.$isBrowserBack) {
           this.dialog = false
+          if (this.answer === null) {
+            this.$emit('answeredDialog', null)
+          }
         }
       }
     },
     dialog(newVal) {
-      const hasRouteHash = this.$route.hash == `#${this.hash}`
+      const isActive = this.currentDialog === this.hash
+
       if (this.hash) {
-        if (newVal && !hasRouteHash) {
-          this.fromRoute = { ...this.$route }
-          this.$router.push({ ...this.$route, hash: `#${this.hash}` })
-        } else if (!newVal && hasRouteHash) {
-          // answeredDialogイベントが発行されていなければ発行 (主に領域外タップの場合)
+        if (newVal && !isActive) {
+          this.$store.commit('dialog/set', this.hash)
+        } else if (!newVal && isActive) {
           if (this.answer === null) {
-            this.$emit('answeredDialog', false)
+            this.$emit('answeredDialog', null)
           }
-          this.$router.replace(this.fromRoute)
+          this.$store.commit('dialog/delete', this.hash)
         }
       }
 

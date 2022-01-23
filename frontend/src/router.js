@@ -252,6 +252,15 @@ router.beforeEach(async (to, from, next) => {
   const isNotHistoryBack = !store.state.parentRoutes.historyBack
   const fromParentName = from.meta.breadcrumb ? from.meta.breadcrumb.parent : ''
 
+  const currentDialog = store.getters['dialog/current']
+
+  if (!isNotHistoryBack && currentDialog) {
+    // 戻る/進むボタンを押した時に名前付きダイアログが開かれている場合、ダイアログを閉じる
+    store.commit('dialog/delete', currentDialog)
+    next(false)
+    return
+  }
+
   if (
     isNotHistoryBack &&
     parentFrom.name !== parentNext.name &&
