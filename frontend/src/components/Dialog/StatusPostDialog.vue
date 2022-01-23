@@ -1,5 +1,10 @@
 <template>
-  <Dialog ref="dialogStatusAdd" title="進捗状況の入力" :max-width="350">
+  <Dialog
+    ref="dialogStatusAdd"
+    title="進捗状況の入力"
+    :max-width="350"
+    :hash="hash"
+  >
     <v-form ref="formStatusAdd" v-model="isValid" @submit.prevent>
       <v-text-field
         v-model="position"

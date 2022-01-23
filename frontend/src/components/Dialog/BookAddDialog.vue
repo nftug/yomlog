@@ -77,7 +77,7 @@
       </v-card-text>
 
       <!-- Kindle本のデータ入力ダイアログ -->
-      <BookEditDialog ref="bookEdit"></BookEditDialog>
+      <BookEditDialog ref="bookEdit" hash="edit-book"></BookEditDialog>
     </template>
   </Dialog>
 </template>

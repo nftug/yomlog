@@ -128,9 +128,14 @@
       </v-menu>
     </v-sheet>
 
-    <StatusEditDialog ref="statusEdit" @post="onEditProp"></StatusEditDialog>
+    <StatusEditDialog
+      ref="statusEdit"
+      hash="edit-status"
+      @post="onEditProp"
+    ></StatusEditDialog>
     <NotePostDialog
       ref="noteEdit"
+      hash="edit-note"
       @post="onEditProp"
       @delete="onDeleteProp"
     ></NotePostDialog>

@@ -52,10 +52,12 @@
 
     <StatusPostDialog
       ref="statusAdd"
+      hash="add-status"
       @post="$emit('post', $event)"
     ></StatusPostDialog>
     <NotePostDialog
       ref="noteAdd"
+      hash="add-note"
       @post="$emit('post', $event)"
     ></NotePostDialog>
   </div>

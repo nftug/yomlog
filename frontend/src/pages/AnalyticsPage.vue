@@ -25,7 +25,7 @@
             </v-btn>
           </div>
         </v-col>
-        <DateRangeDialog ref="dateRange"></DateRangeDialog>
+        <DateRangeDialog ref="dateRange" hash="date-range"></DateRangeDialog>
       </v-row>
 
       <!-- Spinner -->

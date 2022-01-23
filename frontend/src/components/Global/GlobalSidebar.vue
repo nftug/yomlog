@@ -45,6 +45,7 @@
 
     <Dialog
       ref="dialogLogout"
+      hash="logout"
       title="ログアウト"
       message="ログアウトしますか？"
       label-ok="ログアウト"

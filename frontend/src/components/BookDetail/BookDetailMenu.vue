@@ -72,6 +72,7 @@
     <!-- ダイアログ -->
     <BookEditDialog
       ref="bookEdit"
+      hash="edit-book"
       @post="$emit('edit-book', $event)"
     ></BookEditDialog>
     <ItemDeleteDialog
@@ -81,9 +82,14 @@
     ></ItemDeleteDialog>
     <StatusAddDialog
       ref="statusAdd"
+      hash="add-status"
       @post="$emit('post', $event)"
     ></StatusAddDialog>
-    <NoteAddDialog ref="noteAdd" @post="$emit('post', $event)"></NoteAddDialog>
+    <NoteAddDialog
+      ref="noteAdd"
+      hash="add-note"
+      @post="$emit('post', $event)"
+    ></NoteAddDialog>
   </v-row>
 </template>
 

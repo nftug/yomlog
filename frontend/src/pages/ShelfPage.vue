@@ -108,8 +108,12 @@
     </v-col>
 
     <!-- ダイアログ -->
-    <StatusAddDialog ref="statusAdd" @post="handleReload"></StatusAddDialog>
-    <NoteAddDialog ref="noteAdd"></NoteAddDialog>
+    <StatusAddDialog
+      ref="statusAdd"
+      hash="add-status"
+      @post="handleReload"
+    ></StatusAddDialog>
+    <NoteAddDialog ref="noteAdd" hash="add-note"></NoteAddDialog>
     <ItemDeleteDialog
       ref="bookDelete"
       type="book"

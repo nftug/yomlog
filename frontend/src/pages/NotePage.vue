@@ -106,6 +106,7 @@
 
     <NotePostDialog
       ref="noteEdit"
+      hash="edit-note"
       @post="fetchNoteList"
       @delete="fetchNoteList"
     ></NotePostDialog>

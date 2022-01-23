@@ -93,19 +93,14 @@ export default {
   },
   data: () => ({
     dialog: false,
+    fromRoute: {},
     answer: null,
   }),
   watch: {
-    $route() {
-      if (!this.hash) {
-        this.dialog = false
-      }
-    },
-    '$route.hash'(newHash, oldHash) {
+    '$route.hash'(newHash) {
+      // ブラウザの戻るボタンを押した時、ダイアログを閉じる
       if (this.hash) {
-        if (newHash === `#${this.hash}`) {
-          this.dialog = true
-        } else if (oldHash === `#${this.hash}`) {
+        if (newHash !== `#${this.hash}` && this.$isBrowserBack) {
           this.dialog = false
         }
       }
@@ -114,20 +109,14 @@ export default {
       const hasRouteHash = this.$route.hash == `#${this.hash}`
       if (this.hash) {
         if (newVal && !hasRouteHash) {
-          this.$router.push({
-            ...this.$route,
-            hash: `#${this.hash}`,
-          })
-        } else if (!newVal && hasRouteHash && !this.answer) {
-          this.$router.back()
+          this.fromRoute = { ...this.$route }
+          this.$router.push({ hash: `#${this.hash}` })
+        } else if (!newVal && hasRouteHash) {
+          // this.$router.back()
+          this.$router.replace(this.fromRoute)
         }
       }
     },
-  },
-  created() {
-    if (this.hash && this.$route.hash === `#${this.hash}`) {
-      this.dialog = true
-    }
   },
   mounted() {
     this.$emit('mount')

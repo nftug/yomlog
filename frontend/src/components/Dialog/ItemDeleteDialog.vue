@@ -3,6 +3,7 @@
     ref="dialogDeleteBook"
     :title="`${typeStr}の削除`"
     :message="`この${typeStr}を削除しますか？`"
+    :hash="`delete-${this.type}`"
   ></Dialog>
 </template>
 
@@ -17,11 +18,12 @@ export default {
   props: {
     type: {
       type: String,
-      default: 'book',
+      require: true,
       validator(value) {
         return ['book', 'status', 'note'].indexOf(value) !== -1
       },
     },
+    hash: { type: String },
   },
   computed: {
     typeStr() {

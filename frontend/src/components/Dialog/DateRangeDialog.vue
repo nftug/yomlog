@@ -1,5 +1,6 @@
 <template>
   <Dialog
+    :hash="hash"
     ref="dialogDateRange"
     title="日付範囲の指定"
     :max-width="350"
@@ -28,15 +29,14 @@ import DatePicker from '@/components/Common/DatePicker.vue'
 
 export default {
   components: { Dialog, DatePicker },
-  data() {
-    return {
-      isValid: false,
-      start: '',
-      end: '',
-      startDefault: '',
-      endDefault: '',
-    }
-  },
+  props: { hash: { type: String } },
+  data: () => ({
+    isValid: false,
+    start: '',
+    end: '',
+    startDefault: '',
+    endDefault: '',
+  }),
   methods: {
     async showDateRangeDialog({ start, end }) {
       ;[this.start, this.end] = [start, end]

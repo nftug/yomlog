@@ -7,6 +7,7 @@
     no-template
     transition="dialog-bottom-transition"
     :form-valid="isValid"
+    :hash="hash"
   >
     <template #default="{ ok, cancel }">
       <v-toolbar dark color="primary">
@@ -110,6 +111,7 @@ import { BookListMixin, WindowResizeMixin } from '@/mixins'
 
 export default {
   mixins: [BookListMixin, WindowResizeMixin],
+  props: { hash: { type: String } },
   components: {
     Dialog,
     Spinner,
