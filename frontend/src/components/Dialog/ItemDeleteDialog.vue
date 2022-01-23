@@ -42,18 +42,18 @@ export default {
     async showItemDeleteDialog(id) {
       if (!(await this.$refs.dialogDeleteBook.showDialog())) return false
 
-      try {
-        if (Array.isArray(id)) {
-          const promises = id.map((e) => this.deleteItem(e))
-          return await Promise.all(promises)
-        } else {
-          return await this.deleteItem(id)
-        }
-      } finally {
-        this.$store.dispatch('message/setInfoMessage', {
-          message: `${this.typeStr}を削除しました。`,
-        })
+      if (Array.isArray(id)) {
+        const promises = id.map((e) => this.deleteItem(e))
+        await Promise.all(promises)
+      } else {
+        await this.deleteItem(id)
       }
+
+      this.$store.dispatch('message/setInfoMessage', {
+        message: `${this.typeStr}を削除しました。`,
+      })
+
+      return true
     },
     async deleteItem(id) {
       await api({

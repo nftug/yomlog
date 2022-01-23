@@ -224,6 +224,9 @@ export default {
       // ユーザーデータを更新
       this.$store.dispatch('auth/reload')
 
+      // bookListを更新
+      this.$store.commit('bookList/setDirty', true)
+
       // 書籍の詳細ページに遷移
       this.$router.replace(`/book/to_be_read/${data.id}`)
 

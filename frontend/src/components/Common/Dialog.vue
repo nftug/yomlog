@@ -102,6 +102,7 @@ export default {
       if (this.hash) {
         if (newHash !== `#${this.hash}` && this.$isBrowserBack) {
           this.dialog = false
+          this.$emit('answeredDialog', false)
         }
       }
     },
@@ -113,6 +114,7 @@ export default {
           this.$router.push({ ...this.$route, hash: `#${this.hash}` })
         } else if (!newVal && hasRouteHash) {
           // this.$router.back()
+          this.$emit('answeredDialog', false)
           this.$router.replace(this.fromRoute)
         }
       }
