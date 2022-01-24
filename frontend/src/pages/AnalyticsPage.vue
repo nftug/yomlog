@@ -14,12 +14,7 @@
               @input="onChangeDateRange"
               dense
             ></v-select>
-            <v-btn
-              small
-              class="ml-2"
-              elevation="1"
-              @click="selectDateRangeManually"
-            >
+            <v-btn class="ml-3" elevation="1" @click="selectDateRangeManually">
               <v-icon left>mdi-calendar</v-icon>
               日付指定
             </v-btn>
@@ -207,9 +202,11 @@ export default {
           start: this.graphRange.start,
           end: this.graphRange.end,
         })
-        this.$router.push({
-          query: { created_at_after: start, created_at_before: end },
-        })
+        setTimeout(() => {
+          this.$router.push({
+            query: { created_at_after: start, created_at_before: end },
+          })
+        }, 100)
       } catch (error) {
         throw error
       }
