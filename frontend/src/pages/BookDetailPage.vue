@@ -24,9 +24,7 @@
           <BookDetailMenu
             :item="item"
             class="my-2 hidden-xs-only"
-            @post="onAddProp"
-            @edit-book="onEditBook"
-            @delete-book="onDeleteBook"
+            @dialog="showDialog"
           ></BookDetailMenu>
         </v-col>
 
@@ -43,9 +41,7 @@
       <BookDetailMenu
         :item="item"
         class="my-2 hidden-sm-and-up"
-        @post="onAddProp"
-        @edit-book="onEditBook"
-        @delete-book="onDeleteBook"
+        @dialog="showDialog"
       ></BookDetailMenu>
 
       <!-- 状態表示 -->
@@ -120,7 +116,29 @@
       </div>
     </v-col>
 
-    <BookDetailFab :item="item" @post="onAddProp"></BookDetailFab>
+    <BookDetailFab :item="item" @dialog="showDialog"></BookDetailFab>
+
+    <!-- ダイアログ -->
+    <BookEditDialog
+      ref="bookEdit"
+      hash="edit-book"
+      @post="onEditBook"
+    ></BookEditDialog>
+    <ItemDeleteDialog
+      ref="bookDelete"
+      type="book"
+      @delete="onDeleteBook"
+    ></ItemDeleteDialog>
+    <StatusAddDialog
+      ref="statusAdd"
+      hash="add-status"
+      @post="onAddProp"
+    ></StatusAddDialog>
+    <NoteAddDialog
+      ref="noteAdd"
+      hash="add-note"
+      @post="onAddProp"
+    ></NoteAddDialog>
   </v-container>
 </template>
 
@@ -134,6 +152,11 @@ import BookDetailFab from '@/components/BookDetail/BookDetailFab.vue'
 import StatusLog from '@/components/BookDetail/StatusLog.vue'
 import NoteList from '@/components/BookDetail/NoteList.vue'
 import Calendar from '@/components/Common/Calendar.vue'
+import StatusAddDialog from '@/components/Dialog/StatusPostDialog.vue'
+import NoteAddDialog from '@/components/Dialog/NotePostDialog.vue'
+import BookEditDialog from '@/components/Dialog/BookEditDialog.vue'
+import ItemDeleteDialog from '@/components/Dialog/ItemDeleteDialog.vue'
+
 import moment from 'moment'
 
 export default {
@@ -147,6 +170,10 @@ export default {
     StatusLog,
     NoteList,
     Calendar,
+    StatusAddDialog,
+    NoteAddDialog,
+    ItemDeleteDialog,
+    BookEditDialog,
   },
   data() {
     return {
@@ -208,6 +235,17 @@ export default {
     },
   },
   methods: {
+    showDialog(name, payload) {
+      if (name === 'add-note') {
+        this.$refs.noteAdd.showNotePostDialog(payload)
+      } else if (name === 'add-status') {
+        this.$refs.statusAdd.showStatusPostDialog(payload)
+      } else if (name === 'edit-book') {
+        this.$refs.bookEdit.showBookEditDialog(payload)
+      } else if (name === 'delete-book') {
+        this.$refs.bookDelete.showItemDeleteDialog(payload)
+      }
+    },
     setTabFromHash() {
       const hashName = this.$route.hash.replace(/^#/, '')
       const index = this.tabs.findIndex((item) => item.name === hashName)

@@ -21,15 +21,15 @@
             fab
             dark
             small
-            color="indigo"
+            color="green"
             v-on="on"
             v-bind="attrs"
-            @click="$refs.noteAdd.showNotePostDialog({ book: item })"
+            @click="$emit('dialog', 'add-status', { book: item })"
           >
-            <v-icon>mdi-pen-plus</v-icon>
+            <v-icon>mdi-bookmark-plus</v-icon>
           </v-btn>
         </template>
-        <span>ノートの追加</span>
+        <span>進捗の追加</span>
       </v-tooltip>
 
       <v-tooltip left>
@@ -38,40 +38,22 @@
             fab
             dark
             small
-            color="green"
+            color="indigo"
             v-on="on"
             v-bind="attrs"
-            @click="$refs.statusAdd.showStatusPostDialog({ book: item })"
+            @click="$emit('dialog', 'add-note', { book: item })"
           >
-            <v-icon>mdi-bookmark-plus</v-icon>
+            <v-icon>mdi-pen-plus</v-icon>
           </v-btn>
         </template>
-        <span>進捗の追加</span>
+        <span>ノートの追加</span>
       </v-tooltip>
     </v-speed-dial>
-
-    <StatusPostDialog
-      ref="statusAdd"
-      hash="add-status"
-      @post="$emit('post', $event)"
-    ></StatusPostDialog>
-    <NotePostDialog
-      ref="noteAdd"
-      hash="add-note"
-      @post="$emit('post', $event)"
-    ></NotePostDialog>
   </div>
 </template>
 
 <script>
-import StatusPostDialog from '@/components/Dialog/StatusPostDialog.vue'
-import NotePostDialog from '@/components/Dialog/NotePostDialog.vue'
-
 export default {
-  components: {
-    StatusPostDialog,
-    NotePostDialog,
-  },
   props: {
     item: {
       type: Object,

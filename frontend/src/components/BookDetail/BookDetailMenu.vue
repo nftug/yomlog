@@ -6,7 +6,7 @@
         small
         dark
         block
-        @click="$refs.noteAdd.showNotePostDialog({ book: item })"
+        @click="$emit('dialog', 'add-note', { book: item })"
       >
         <v-icon small>mdi-pen-plus</v-icon>
         ノートを追加
@@ -19,7 +19,7 @@
         small
         dark
         block
-        @click="$refs.statusAdd.showStatusPostDialog({ book: item })"
+        @click="$emit('dialog', 'add-status', { book: item })"
       >
         <v-icon small>mdi-bookmark-plus</v-icon>
         進捗を追加
@@ -40,14 +40,11 @@
         <v-list dense>
           <v-list-item
             link
-            @click="$refs.bookEdit.showBookEditDialog({ book: item })"
+            @click="$emit('dialog', 'edit-book', { book: item })"
           >
             <v-list-item-title>書籍の編集</v-list-item-title>
           </v-list-item>
-          <v-list-item
-            link
-            @click="$refs.bookDelete.showItemDeleteDialog(item.id)"
-          >
+          <v-list-item link @click="$emit('dialog', 'delete-book', item.id)">
             <v-list-item-title>書籍の削除</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -68,36 +65,10 @@
         Google Books
       </v-btn>
     </v-col>
-
-    <!-- ダイアログ -->
-    <BookEditDialog
-      ref="bookEdit"
-      hash="edit-book"
-      @post="$emit('edit-book', $event)"
-    ></BookEditDialog>
-    <ItemDeleteDialog
-      ref="bookDelete"
-      type="book"
-      @delete="$emit('delete-book', $event)"
-    ></ItemDeleteDialog>
-    <StatusAddDialog
-      ref="statusAdd"
-      hash="add-status"
-      @post="$emit('post', $event)"
-    ></StatusAddDialog>
-    <NoteAddDialog
-      ref="noteAdd"
-      hash="add-note"
-      @post="$emit('post', $event)"
-    ></NoteAddDialog>
   </v-row>
 </template>
 
 <script>
-import StatusAddDialog from '@/components/Dialog/StatusPostDialog.vue'
-import NoteAddDialog from '@/components/Dialog/NotePostDialog.vue'
-import BookEditDialog from '@/components/Dialog/BookEditDialog.vue'
-import ItemDeleteDialog from '@/components/Dialog/ItemDeleteDialog.vue'
 import { WindowResizeMixin, BookListMixin } from '@/mixins'
 
 export default {
@@ -106,12 +77,6 @@ export default {
     item: {
       type: Object,
     },
-  },
-  components: {
-    StatusAddDialog,
-    NoteAddDialog,
-    ItemDeleteDialog,
-    BookEditDialog,
   },
   computed: {
     googleLink() {
