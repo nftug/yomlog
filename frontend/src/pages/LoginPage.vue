@@ -33,13 +33,17 @@
           </v-card-text>
 
           <v-card-actions>
-            <v-btn color="primary" block type="submit">
+            <v-btn color="primary" block type="submit" aria-label="login">
               <v-icon left>mdi-login</v-icon>
               ログイン
             </v-btn>
           </v-card-actions>
           <v-card-actions>
-            <v-btn block to="/login/social/start/google-oauth2">
+            <v-btn
+              block
+              to="/login/social/start/google-oauth2"
+              aria-label="google-login"
+            >
               <v-icon left>mdi-google</v-icon>
               Googleでログイン
             </v-btn>

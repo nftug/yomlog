@@ -24,7 +24,9 @@ export default {
     },
   },
   mounted() {
-    this.renderChart(this.data, this.options)
+    if (process.env.NODE_ENV !== 'test') {
+      this.renderChart(this.data, this.options)
+    }
   },
 }
 </script>
