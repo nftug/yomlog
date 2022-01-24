@@ -62,7 +62,7 @@
                       v-on="on"
                       :to="`/book/${currentState(note.book).state}/${
                         note.book.id
-                      }`"
+                      }/#note`"
                     >
                       <v-icon>mdi-book</v-icon>
                     </v-btn>

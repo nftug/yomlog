@@ -303,9 +303,6 @@ export default {
     },
     disableToolbar() {
       this.$router.app.$emit('clear-checkbox', this.toolbar.type)
-      if (this.toolbar.mode === 'search') {
-        this.removeQuery()
-      }
       this.toolbar = {}
     },
     deleteItems() {

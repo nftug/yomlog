@@ -172,7 +172,7 @@ export default {
   created() {
     if (this.type === 'book') {
       this.formSearch.push(...this.formSearchBook)
-    } else if (this.type.startsWith('note')) {
+    } else if (this.type === 'note') {
       this.formSearch.push(...this.formSearchBookNote)
       if (!this.bookId) this.formSearch.push(...this.formSearchNote)
     }
