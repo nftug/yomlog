@@ -8,18 +8,19 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <v-container v-if="message.error">
+
+    <div class="col-12 col-md-8 alert-bar">
       <v-alert
         v-model="showError"
-        border="left"
-        color="red"
-        dark
         dismissible
+        elevation="2"
+        type="error"
         class="mb-0"
+        transition="scale-transition"
       >
         {{ message.error }}
       </v-alert>
-    </v-container>
+    </div>
   </div>
 </template>
 
@@ -48,3 +49,15 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.alert-bar {
+  position: absolute;
+  margin-top: 0rem;
+  top: -0.5rem;
+  left: 0px;
+  right: 0px;
+  margin: auto;
+  z-index: 20;
+}
+</style>
