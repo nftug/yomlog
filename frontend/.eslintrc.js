@@ -8,6 +8,7 @@ module.exports = {
     'plugin:vue/base',
     'plugin:vue/essential',
     'prettier',
+    'jest',
   ],
   rules: {
     'no-console': 'off',
