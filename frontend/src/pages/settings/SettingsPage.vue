@@ -56,34 +56,32 @@ import { WindowResizeMixin } from '@/mixins'
 
 export default {
   mixins: [WindowResizeMixin],
-  data() {
-    return {
-      selectedIndex: 0,
-      pages: [
-        {
-          path: '/settings/profile',
-          icon: 'mdi-account-circle',
-          title: 'プロフィールの設定',
-          titleTab: 'プロフィール',
-        },
-        {
-          path: '/settings/email',
-          icon: 'mdi-email',
-          title: 'メールアドレスの設定',
-          titleTab: 'メールアドレス',
-        },
-        {
-          path: '/settings/password',
-          icon: 'mdi-lock',
-          title: 'パスワードの変更',
-          titleTab: 'パスワード',
-        },
-      ],
-      notChangeRoute: false,
-    }
-  },
+  data: () => ({
+    selectedIndex: 0,
+    pages: [
+      {
+        path: '/settings/profile',
+        icon: 'mdi-account-circle',
+        title: 'プロフィールの設定',
+        titleTab: 'プロフィール',
+      },
+      {
+        path: '/settings/email',
+        icon: 'mdi-email',
+        title: 'メールアドレスの設定',
+        titleTab: 'メールアドレス',
+      },
+      {
+        path: '/settings/password',
+        icon: 'mdi-lock',
+        title: 'パスワードの変更',
+        titleTab: 'パスワード',
+      },
+    ],
+    notChangeRoute: false,
+  }),
   watch: {
-    $route: function () {
+    $route() {
       this.changeIndex()
     },
   },
@@ -92,7 +90,7 @@ export default {
     this.notChangeRoute = false
   },
   methods: {
-    changeIndex: function () {
+    changeIndex() {
       if (!this.isLessThanLg && this.$route.name === 'settings') {
         // 画面サイズがlarge以上でpathがルートなら、プロフィールページに遷移
         this.$router.replace('/settings/profile')
@@ -109,7 +107,7 @@ export default {
         this.notChangeRoute = true
       }
     },
-    onChangeTab: function () {
+    onChangeTab() {
       if (!(this.isLessThanLg || this.notChangeRoute)) {
         let path = this.pages[this.selectedIndex]
         if (this.$route.path != path) this.$router.push(path)

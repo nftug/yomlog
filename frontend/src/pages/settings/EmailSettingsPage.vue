@@ -29,29 +29,27 @@ export default {
   components: {
     SendForm,
   },
-  data() {
-    return {
-      changeEmailForm: {
-        new_email: {
-          label: '新しいメールアドレス',
-          type: 'email',
-          required: true,
-          value: '',
-          warnings: [],
-        },
-        current_password: {
-          label: '現在のパスワード',
-          type: 'password',
-          required: true,
-          value: '',
-          warnings: [],
-        },
+  data: () => ({
+    changeEmailForm: {
+      new_email: {
+        label: '新しいメールアドレス',
+        type: 'email',
+        required: true,
+        value: '',
+        warnings: [],
       },
-    }
-  },
+      current_password: {
+        label: '現在のパスワード',
+        type: 'password',
+        required: true,
+        value: '',
+        warnings: [],
+      },
+    },
+  }),
   methods: {
     // パスワード変更押下
-    onSucceedChangeEmail: function () {
+    onSucceedChangeEmail() {
       this.$store.dispatch('auth/reload')
       this.$store.dispatch('message/setInfoMessage', {
         message: 'メールアドレスを変更しました。',

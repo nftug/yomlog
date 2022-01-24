@@ -23,18 +23,18 @@ export const WindowResizeMixin = {
     window.removeEventListener('resize', this.onWindowResize)
   },
   computed: {
-    isLessThanSm: function () {
+    isLessThanSm() {
       return this.innerWidth < 600
     },
-    isLessThanMd: function () {
+    isLessThanMd() {
       return this.innerWidth < 960
     },
-    isLessThanLg: function () {
+    isLessThanLg() {
       return this.innerWidth < 1264
     },
   },
   methods: {
-    onWindowResize: function () {
+    onWindowResize() {
       this.innerWidth = window.innerWidth
       this.innerHeight = window.innerHeight
     },
@@ -162,7 +162,7 @@ export const BookDetailChildMixin = {
 
 export default {
   filters: {
-    isoToDateTime: function (value) {
+    isoToDateTime(value) {
       if (!value) return
 
       let dateStr
@@ -227,13 +227,13 @@ export default {
     },
   },
   computed: {
-    isLoggedIn: function () {
+    isLoggedIn() {
       return this.$store.state.auth.isLoggedIn
     },
-    isShowMenuButton: function () {
+    isShowMenuButton() {
       return this.$route.meta.isShowMenuButton
     },
-    isSameDateTime: function () {
+    isSameDateTime() {
       return function (value_1, value_2) {
         let dt_1 = new Date(Date.parse(value_1))
         let dt_2 = new Date(Date.parse(value_2))
@@ -243,32 +243,25 @@ export default {
         return dt_1.getTime() === dt_2.getTime()
       }
     },
-    appName: function () {
+    appName() {
       return process.env.VUE_APP_APPNAME
     },
   },
   methods: {
-    isEmptyObj: function (obj) {
+    isEmptyObj(obj) {
       let ret = true
       Object.keys(obj).forEach((key) => {
         if (obj[key].length) ret = false
       })
       return ret
     },
-    getUserInfo: function (username) {
+    getUserInfo(username) {
       return api.get('/auth/users/').then((response) => {
         const index = response.data.findIndex(
           (item) => item.username === username
         )
         if (index != -1) return Promise.resolve(response.data[index])
         else return Promise.reject()
-      })
-    },
-    logout: function () {
-      // Data clear
-      this.$store.dispatch('auth/logout')
-      this.$store.dispatch('message/setInfoMessage', {
-        message: 'ログアウトしました。',
       })
     },
   },

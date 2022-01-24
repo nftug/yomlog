@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     // パスワード変更押下
-    onSucceedChangeUserInfo: function () {
+    onSucceedChangeUserInfo() {
       this.$store.dispatch('auth/reload')
       this.$store.dispatch('message/setInfoMessage', {
         message: 'ユーザー情報を設定しました。',

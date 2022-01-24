@@ -54,12 +54,10 @@
 </template>
 
 <script>
-import Mixin from '@/mixins'
 import Dialog from '@/components/Common/Dialog.vue'
 import { mapState } from 'vuex'
 
 export default {
-  mixins: [Mixin],
   components: {
     Dialog,
   },
@@ -125,6 +123,12 @@ export default {
     async showLogoutDialog() {
       let ret = await this.$refs.dialogLogout.showDialog()
       if (ret) this.logout()
+    },
+    logout() {
+      this.$store.dispatch('auth/logout')
+      this.$store.dispatch('message/setInfoMessage', {
+        message: 'ログアウトしました。',
+      })
     },
   },
 }

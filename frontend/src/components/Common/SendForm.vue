@@ -106,7 +106,7 @@ export default {
     })
   },
   methods: {
-    inputFile: function (event, key) {
+    inputFile(event, key) {
       let field = this.form[key]
       field.warnings = []
       if (event) {
@@ -117,14 +117,14 @@ export default {
       }
       this.$emit('input', this.form)
     },
-    clearFile: function (fieldName) {
+    clearFile(fieldName) {
       let field = this.form[fieldName]
       field.warnings = []
       field.value = null
       field.prevSrc = ''
       this.$emit('input', this.form)
     },
-    submitForm: async function () {
+    async submitForm() {
       // データを取り出し & バリデーションをクリア
       let data
       let postMethod = this.method
@@ -184,65 +184,64 @@ export default {
         }
       }
 
-      // フォーム送信
-      this.isSending = true
-      await api({
-        method: postMethod,
-        url: this.action,
-        data: data,
-      })
-        .then((response) => {
-          this.isSending = false
-          // フォーム送信完了イベント発火
-          this.$emit('form-success', response.data)
+      try {
+        // フォーム送信
+        this.isSending = true
+        const response = await api({
+          method: postMethod,
+          url: this.action,
+          data,
         })
-        .catch((error) => {
-          this.isSending = false
-          // バリデーションNG
-          let errData = error.response.data
-          Object.keys(errData).forEach((key) => {
-            if (key === 'token' || key === 'uid') {
-              this.$store.dispatch('message/setErrorMessage', {
-                message: '不正なトークンです。',
-              })
-            } else if (key === 'non_field_errors') {
-              if (errData[key][0].includes('password')) {
-                const prefix = this.form.new_password ? 'new_' : ''
-                this.form[`${prefix}password`].warnings.push(
-                  'パスワードが一致しません。'
-                )
-                this.form[`re_${prefix}password`].warnings.push(
-                  'パスワードが一致しません。'
-                )
-              } else {
-                this.form.non_field.warnings = errData[key]
-              }
-            } else if (key === 'current_password') {
-              this.form.current_password.warnings.push(
-                'パスワードが正しくありません。'
+
+        // フォーム送信完了イベント発火
+        this.$emit('form-success', response.data)
+      } catch (error) {
+        // バリデーションNG
+        let errData = error.response.data
+        Object.keys(errData).forEach((key) => {
+          if (key === 'token' || key === 'uid') {
+            this.$store.dispatch('message/setErrorMessage', {
+              message: '不正なトークンです。',
+            })
+          } else if (key === 'non_field_errors') {
+            if (errData[key][0].includes('password')) {
+              const prefix = this.form.new_password ? 'new_' : ''
+              this.form[`${prefix}password`].warnings.push(
+                'パスワードが一致しません。'
+              )
+              this.form[`re_${prefix}password`].warnings.push(
+                'パスワードが一致しません。'
               )
             } else {
-              if (this.form[key].fields) {
-                // 複数コラムの場合、フィールドのエラーを一つずつ処理
-                Object.keys(this.form[key].fields).forEach((key2) => {
-                  if (key2 === key) {
-                    this.form[key].fields[key2].warnings = errData[key2]
-                  }
-                })
-              } else {
-                this.form[key].warnings = errData[key]
-              }
+              this.form.non_field.warnings = errData[key]
             }
-          })
-
-          // バリデーションNGイベント発火
-          this.$emit('form-error', error.response.data)
-          return Promise.reject(error)
+          } else if (key === 'current_password') {
+            this.form.current_password.warnings.push(
+              'パスワードが正しくありません。'
+            )
+          } else {
+            if (this.form[key].fields) {
+              // 複数コラムの場合、フィールドのエラーを一つずつ処理
+              Object.keys(this.form[key].fields).forEach((key2) => {
+                if (key2 === key) {
+                  this.form[key].fields[key2].warnings = errData[key2]
+                }
+              })
+            } else {
+              this.form[key].warnings = errData[key]
+            }
+          }
         })
 
-      this.$emit('input', this.form)
+        // バリデーションNGイベント発火
+        this.$emit('form-error', error.response.data)
+        return Promise.reject(error)
+      } finally {
+        this.isSending = false
+        this.$emit('input', this.form)
+      }
     },
-    onInputField: function (event, key, key2) {
+    onInputField(event, key, key2) {
       let field = key2 ? this.form[key].fields[key2] : this.form[key]
 
       // dataに反映

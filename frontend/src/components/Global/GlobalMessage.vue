@@ -27,7 +27,7 @@
 <script>
 export default {
   computed: {
-    message: function () {
+    message() {
       return this.$store.state.message
     },
     showError: {

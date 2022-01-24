@@ -31,36 +31,34 @@ export default {
   components: {
     SendForm,
   },
-  data() {
-    return {
-      formChangePassword: {
-        current_password: {
-          label: '現在のパスワード',
-          type: 'password',
-          required: true,
-          value: '',
-          warnings: [],
-        },
-        new_password: {
-          label: '新しいパスワード',
-          type: 'password',
-          required: true,
-          value: '',
-          warnings: [],
-        },
-        re_new_password: {
-          label: '新しいパスワード (確認用)',
-          type: 'password',
-          required: true,
-          value: '',
-          warnings: [],
-        },
+  data: () => ({
+    formChangePassword: {
+      current_password: {
+        label: '現在のパスワード',
+        type: 'password',
+        required: true,
+        value: '',
+        warnings: [],
       },
-    }
-  },
+      new_password: {
+        label: '新しいパスワード',
+        type: 'password',
+        required: true,
+        value: '',
+        warnings: [],
+      },
+      re_new_password: {
+        label: '新しいパスワード (確認用)',
+        type: 'password',
+        required: true,
+        value: '',
+        warnings: [],
+      },
+    },
+  }),
   methods: {
     // パスワード変更押下
-    onSucceedChangePassword: function () {
+    onSucceedChangePassword() {
       this.$store.dispatch('message/setInfoMessage', {
         message: 'パスワードを変更しました。',
       })

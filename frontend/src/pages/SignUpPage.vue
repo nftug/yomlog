@@ -68,61 +68,59 @@ export default {
     Spinner,
     SendForm,
   },
-  data() {
-    return {
-      dialog: false,
-      formSignUp: {
-        username: {
-          label: 'ユーザー名',
-          type: 'text',
-          required: true,
-          value: '',
-          warnings: [],
-        },
-        fullname: {
-          label: 'お名前',
-          type: 'group',
-          fields: {
-            last_name: {
-              class: 'col-6',
-              label: '姓',
-              type: 'text',
-              value: '',
-              warnings: [],
-            },
-            first_name: {
-              class: 'col-6',
-              label: '名',
-              type: 'text',
-              value: '',
-              warnings: [],
-            },
+  data: () => ({
+    dialog: false,
+    formSignUp: {
+      username: {
+        label: 'ユーザー名',
+        type: 'text',
+        required: true,
+        value: '',
+        warnings: [],
+      },
+      fullname: {
+        label: 'お名前',
+        type: 'group',
+        fields: {
+          last_name: {
+            class: 'col-6',
+            label: '姓',
+            type: 'text',
+            value: '',
+            warnings: [],
+          },
+          first_name: {
+            class: 'col-6',
+            label: '名',
+            type: 'text',
+            value: '',
+            warnings: [],
           },
         },
-        password: {
-          label: 'パスワード',
-          type: 'password',
-          required: true,
-          value: '',
-          warnings: [],
-        },
-        re_password: {
-          label: 'パスワード (確認用)',
-          type: 'password',
-          required: true,
-          value: '',
-          warnings: [],
-        },
-        avatar: {
-          label: 'プロフィール画像',
-          type: 'image',
-          value: null,
-          prevSrc: '',
-          warnings: [],
-        },
       },
-    }
-  },
+      password: {
+        label: 'パスワード',
+        type: 'password',
+        required: true,
+        value: '',
+        warnings: [],
+      },
+      re_password: {
+        label: 'パスワード (確認用)',
+        type: 'password',
+        required: true,
+        value: '',
+        warnings: [],
+      },
+      avatar: {
+        label: 'プロフィール画像',
+        type: 'image',
+        value: null,
+        prevSrc: '',
+        warnings: [],
+      },
+    },
+  }),
   created() {
     // UIDとトークンを指定→ユーザーのアクティベーションに進む
     if (this.$route.params.uid && this.$route.params.token) {
@@ -131,7 +129,7 @@ export default {
   },
   methods: {
     // フォーム送信成功
-    onSucceedSend: async function ({ is_active }) {
+    async onSucceedSend({ is_active }) {
       if (is_active) {
         // アカウントがアクティブの場合、そのままログイン
         await this.$store.dispatch('auth/login', {
@@ -148,36 +146,36 @@ export default {
       }
     },
     // ユーザーのアクティベーション
-    activateUser: function () {
-      api({
-        method: 'post',
-        url: '/auth/users/activation/',
-        data: {
-          uid: this.$route.params.uid,
-          token: this.$route.params.token,
-        },
-      })
-        .then(() => {
-          this.$router.replace('/login/')
-          this.$store.dispatch('message/setInfoMessage', {
-            message: 'アカウントが承認されました。',
-          })
+    async activateUser() {
+      try {
+        await api({
+          method: 'post',
+          url: '/auth/users/activation/',
+          data: {
+            uid: this.$route.params.uid,
+            token: this.$route.params.token,
+          },
         })
-        .catch((error) => {
-          this.$router.replace('/login/')
-          const status = error.response ? error.response.status : 500
-          let message
 
-          if (status === 403) {
-            message = 'アカウントは既に承認されています。'
-          } else {
-            message = '不正なトークンです。'
-          }
-          this.$store.dispatch('message/setErrorMessage', { message: message })
+        this.$router.replace('/login/')
+        this.$store.dispatch('message/setInfoMessage', {
+          message: 'アカウントが承認されました。',
         })
+      } catch (error) {
+        this.$router.replace('/login/')
+        const status = error.response ? error.response.status : 500
+        let message
+
+        if (status === 403) {
+          message = 'アカウントは既に承認されています。'
+        } else {
+          message = '不正なトークンです。'
+        }
+        this.$store.dispatch('message/setErrorMessage', { message: message })
+      }
     },
     // ユーザー登録ダイアログ: OK
-    onClickDialogOk: function () {
+    onClickDialogOk() {
       this.dialog = false
       this.$router.push('/login/')
     },

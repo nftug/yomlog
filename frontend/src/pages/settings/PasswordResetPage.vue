@@ -57,43 +57,41 @@ export default {
   components: {
     SendForm,
   },
-  data() {
-    return {
-      formEmailPassword: {
-        email: {
-          label: 'メールアドレス',
-          type: 'email',
-          required: true,
-          warnings: [],
-          value: this.$store.state.auth.email,
-          readonly: this.$store.state.auth.email.length > 0,
-        },
+  data: () => ({
+    formEmailPassword: {
+      email: {
+        label: 'メールアドレス',
+        type: 'email',
+        required: true,
+        warnings: [],
+        value: this.$store.state.auth.email,
+        readonly: this.$store.state.auth.email.length > 0,
       },
-      formResetPassword: {
-        new_password: {
-          label: '新しいパスワード',
-          type: 'password',
-          required: true,
-          value: '',
-          warnings: [],
-        },
-        re_new_password: {
-          label: '新しいパスワード (確認用)',
-          type: 'password',
-          required: true,
-          value: '',
-          warnings: [],
-        },
+    },
+    formResetPassword: {
+      new_password: {
+        label: '新しいパスワード',
+        type: 'password',
+        required: true,
+        value: '',
+        warnings: [],
       },
-      tokenData: {
-        uid: this.$route.params.uid,
-        token: this.$route.params.token,
+      re_new_password: {
+        label: '新しいパスワード (確認用)',
+        type: 'password',
+        required: true,
+        value: '',
+        warnings: [],
       },
-    }
-  },
+    },
+    tokenData: {
+      uid: this.$route.params.uid,
+      token: this.$route.params.token,
+    },
+  }),
   methods: {
     // メール送信成功
-    onSucceedSendEmail: function () {
+    onSucceedSendEmail() {
       if (this.$store.state.auth.isLoggedIn) {
         // ログイン時はルートに遷移
         this.$router.push('/')
@@ -107,7 +105,7 @@ export default {
       })
     },
     // パスワードリセット成功
-    onSucceedResetPassword: function () {
+    onSucceedResetPassword() {
       // リセット後は強制的にログアウト
       if (this.$store.state.auth.isLoggedIn) {
         // console.log('Logout.')
