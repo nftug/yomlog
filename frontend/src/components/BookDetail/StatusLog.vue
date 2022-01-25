@@ -60,11 +60,7 @@
       type="status"
       @delete="sendDeleteProp"
     ></ItemDeleteDialog>
-    <StatusEditDialog
-      ref="statusEdit"
-      hash="edit-status"
-      @post="sendEditProp"
-    ></StatusEditDialog>
+    <StatusEditDialog ref="statusEdit" hash="edit-status"></StatusEditDialog>
   </div>
 </template>
 

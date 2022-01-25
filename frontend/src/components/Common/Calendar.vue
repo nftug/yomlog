@@ -131,13 +131,13 @@
     <StatusEditDialog
       ref="statusEdit"
       hash="edit-status"
-      @post="reflectBookProp"
+      @post="getEvents(period)"
     ></StatusEditDialog>
     <NotePostDialog
       ref="noteEdit"
       hash="edit-note"
-      @post="reflectBookProp"
-      @delete="reflectBookProp"
+      @post="getEvents(period)"
+      @delete="getEvents(period)"
     ></NotePostDialog>
   </div>
 </template>
@@ -324,9 +324,6 @@ export default {
     },
     setToday() {
       this.date = moment().format('yyyy-MM-DD')
-    },
-    async reflectProp() {
-      this.getEvents(this.period)
     },
   },
 }
