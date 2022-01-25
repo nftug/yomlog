@@ -221,7 +221,7 @@ export default {
           this.$refs.dialogNoteAdd.hideDialog()
 
           this.$emit('post', { prop: 'note', data })
-          this.$store.dispatch('bookList/reflectBookProp', { data })
+          this.$store.dispatch('bookList/reflectBookProp', { book: this.book })
 
           this.$store.dispatch('message/setInfoMessage', {
             message: `ノートを${this.noteId ? '編集' : '追加'}しました。`,

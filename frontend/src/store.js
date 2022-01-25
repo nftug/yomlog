@@ -257,13 +257,11 @@ const bookListModule = {
         return Promise.reject(error)
       }
     },
-    async reflectBookProp({ commit, dispatch }, { data }) {
+    async reflectBookProp({ commit, dispatch }, { book: { id } }) {
       // dataからbookのidを受け取り、APIから現在の書籍データに更新
       // TODO: 書籍データのidを直接渡すように変更する
 
-      const book = await dispatch('getBookItem', {
-        id: data.book.id,
-      })
+      const book = await dispatch('getBookItem', { id })
 
       // 本のstatusが前と異なる場合、各種データの更新処理を行う
       // （処理内容はコールバック関数を引数callbackで渡すこと)

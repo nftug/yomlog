@@ -78,6 +78,7 @@ export default {
   data() {
     return {
       statusId: '',
+      book: {},
       bookId: '',
       position: 0,
       total: 0,
@@ -123,6 +124,7 @@ export default {
       }
 
       // 各種データを入力
+      this.book = book
       this.bookId = book.id
       this.format_type = book.format_type
       this.total = book.total
@@ -178,7 +180,7 @@ export default {
         this.$refs.dialogStatusAdd.hideDialog()
 
         this.$emit('post', { prop: 'status', data })
-        this.$store.dispatch('bookList/reflectBookProp', { data })
+        this.$store.dispatch('bookList/reflectBookProp', { book: this.book })
 
         this.$store.dispatch('message/setInfoMessage', {
           message: '進捗状況を記録しました。',

@@ -56,7 +56,7 @@ export default {
 
       // すべての処理が終了したら書籍データを再取得
       if (book) {
-        this.$store.dispatch('bookList/reflectBookProp', { data: { book } })
+        this.$store.dispatch('bookList/reflectBookProp', { book })
       }
 
       return true
