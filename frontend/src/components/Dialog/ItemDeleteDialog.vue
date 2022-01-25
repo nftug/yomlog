@@ -61,6 +61,7 @@ export default {
         method: 'delete',
       })
 
+      // TODO: API処理が連続した時に失敗しやすい→配列とかでどうにかする
       this.$emit('delete', { prop: this.type, data: item })
     },
   },

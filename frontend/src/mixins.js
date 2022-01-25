@@ -136,7 +136,9 @@ export const BookDetailChildMixin = {
       // ツールバーの解除
       this.setToolbar(prop)
 
-      this.$store.dispatch('bookList/reflectBookProp', { data })
+      this.$store.dispatch('bookList/reflectBookProp', {
+        data: { book: this.item },
+      })
     },
     sendEditProp({ data }) {
       this.$store.dispatch('bookList/reflectBookProp', { data })

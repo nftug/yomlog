@@ -259,6 +259,7 @@ const bookListModule = {
     },
     async reflectBookProp({ commit, dispatch }, { data }) {
       // dataからbookのidを受け取り、APIから現在の書籍データに更新
+      // TODO: 書籍データのidを直接渡すように変更する
 
       const book = await dispatch('getBookItem', {
         id: data.book.id,
