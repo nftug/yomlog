@@ -325,8 +325,7 @@ export default {
     setToday() {
       this.date = moment().format('yyyy-MM-DD')
     },
-    async reflectProp({ data }) {
-      await this.$store.dispatch('bookList/reflectBookProp', { data })
+    async reflectProp() {
       this.getEvents(this.period)
     },
   },

@@ -176,7 +176,10 @@ export default {
         const { data } = await api({ url, method, data: params })
 
         this.$refs.dialogStatusAdd.hideDialog()
+
         this.$emit('post', { prop: 'status', data })
+        this.$store.dispatch('bookList/reflectBookProp', { data })
+
         this.$store.dispatch('message/setInfoMessage', {
           message: '進捗状況を記録しました。',
         })

@@ -123,16 +123,8 @@
       type="book"
       @delete="onDeleteBook"
     ></ItemDeleteDialog>
-    <StatusAddDialog
-      ref="statusAdd"
-      hash="add-status"
-      @post="reflectBookProp"
-    ></StatusAddDialog>
-    <NoteAddDialog
-      ref="noteAdd"
-      hash="add-note"
-      @post="reflectBookProp"
-    ></NoteAddDialog>
+    <StatusAddDialog ref="statusAdd" hash="add-status"></StatusAddDialog>
+    <NoteAddDialog ref="noteAdd" hash="add-note"></NoteAddDialog>
   </v-container>
 </template>
 
@@ -249,13 +241,10 @@ export default {
       const hashName = this.tabs[this.activeTab].name
       this.$router.replace(`#${hashName}`)
     },
-    reflectBookProp({ data }) {
-      this.$store.dispatch('bookList/reflectBookProp', { data })
-    },
     onEditBook(book) {
       this.$store.dispatch('auth/reload')
-      this.item = book
       this.$store.commit('bookList/set', book)
+      this.item = book
     },
     onDeleteBook(book) {
       this.$store.dispatch('auth/reload')

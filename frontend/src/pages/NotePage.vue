@@ -77,7 +77,12 @@
                       color="error"
                       v-bind="attrs"
                       v-on="on"
-                      @click="$refs.noteDelete.showItemDeleteDialog(note)"
+                      @click="
+                        $refs.noteDelete.showItemDeleteDialog({
+                          item: note,
+                          book: note.book,
+                        })
+                      "
                     >
                       <v-icon>mdi-trash-can</v-icon>
                     </v-btn>
@@ -107,14 +112,14 @@
     <NotePostDialog
       ref="noteEdit"
       hash="edit-note"
-      @post="onEditProp"
-      @delete="onDeleteProp"
+      @post="fetchNoteList"
+      @delete="fetchNoteList"
     ></NotePostDialog>
 
     <ItemDeleteDialog
       ref="noteDelete"
       type="note"
-      @delete="onDeleteProp"
+      @delete="fetchNoteList"
     ></ItemDeleteDialog>
   </v-container>
 </template>
@@ -191,14 +196,6 @@ export default {
       } finally {
         this.isLoading = false
       }
-    },
-    onEditProp({ data }) {
-      this.$store.dispatch('bookList/reflectBookProp', { data })
-      this.fetchNoteList()
-    },
-    onDeleteProp({ data }) {
-      this.$store.dispatch('bookList/reflectBookProp', { data })
-      this.fetchNoteList()
     },
   },
 }

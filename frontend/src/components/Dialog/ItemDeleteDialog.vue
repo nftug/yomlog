@@ -39,12 +39,13 @@ export default {
     },
   },
   methods: {
-    async showItemDeleteDialog(item) {
+    async showItemDeleteDialog({ item, book }) {
       if (!(await this.$refs.dialogDeleteBook.showDialog())) return false
 
       if (Array.isArray(item)) {
         const promises = item.map((e) => this.deleteItem(e))
         await Promise.all(promises)
+        item = item[0]
       } else {
         await this.deleteItem(item)
       }
@@ -52,6 +53,11 @@ export default {
       this.$store.dispatch('message/setInfoMessage', {
         message: `${this.typeStr}を削除しました。`,
       })
+
+      // すべての処理が終了したら書籍データを再取得
+      if (book) {
+        this.$store.dispatch('bookList/reflectBookProp', { data: { book } })
+      }
 
       return true
     },
@@ -61,7 +67,6 @@ export default {
         method: 'delete',
       })
 
-      // TODO: API処理が連続した時に失敗しやすい→配列とかでどうにかする
       this.$emit('delete', { prop: this.type, data: item })
     },
   },

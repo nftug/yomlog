@@ -44,7 +44,7 @@
           >
             <v-list-item-title>書籍の編集</v-list-item-title>
           </v-list-item>
-          <v-list-item link @click="$emit('dialog', 'delete-book', item.id)">
+          <v-list-item link @click="$emit('dialog', 'delete-book', { item })">
             <v-list-item-title>書籍の削除</v-list-item-title>
           </v-list-item>
         </v-list>

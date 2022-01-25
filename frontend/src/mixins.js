@@ -129,19 +129,11 @@ export const BookDetailChildMixin = {
       this.checkbox.splice(0, this.checkbox.length)
       this.item[type].forEach(() => this.checkbox.push(false))
     },
-    sendDeleteProp({ prop, data }) {
+    sendDeleteProp({ prop }) {
       // チェックボックスの解除
-      const index = this.item[prop].findIndex((e) => e.id === data.id)
-      this.checkbox.splice(index, 1)
+      this.initCheckbox(prop)
       // ツールバーの解除
       this.setToolbar(prop)
-
-      this.$store.dispatch('bookList/reflectBookProp', {
-        data: { book: this.item },
-      })
-    },
-    sendEditProp({ data }) {
-      this.$store.dispatch('bookList/reflectBookProp', { data })
     },
     setToolbar(type) {
       let toolbar = {}
@@ -157,7 +149,10 @@ export const BookDetailChildMixin = {
           items.push(this.item[type][index])
         }
       })
-      this.$refs.itemDelete.showItemDeleteDialog(items)
+      this.$refs.itemDelete.showItemDeleteDialog({
+        item: items,
+        book: this.item,
+      })
     },
   },
 }

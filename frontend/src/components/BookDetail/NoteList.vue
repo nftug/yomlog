@@ -64,7 +64,6 @@
     <NotePostDialog
       ref="noteEdit"
       hash="edit-note"
-      @post="sendEditProp"
       @delete="sendDeleteProp"
     ></NotePostDialog>
 

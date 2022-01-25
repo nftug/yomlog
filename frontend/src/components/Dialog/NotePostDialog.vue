@@ -221,6 +221,7 @@ export default {
           this.$refs.dialogNoteAdd.hideDialog()
 
           this.$emit('post', { prop: 'note', data })
+          this.$store.dispatch('bookList/reflectBookProp', { data })
 
           this.$store.dispatch('message/setInfoMessage', {
             message: `ノートを${this.noteId ? '編集' : '追加'}しました。`,
@@ -248,7 +249,10 @@ export default {
       this.prevSrc = ''
     },
     async onClickDeleteNote(callback) {
-      const ret = await this.$refs.noteDelete.showItemDeleteDialog(this.note)
+      const ret = await this.$refs.noteDelete.showItemDeleteDialog({
+        item: this.note,
+        book: this.book,
+      })
 
       if (ret) {
         this.$refs.dialogNoteAdd.hideDialog(false)
