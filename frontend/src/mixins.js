@@ -122,24 +122,24 @@ export const BookDetailChildMixin = {
     this.$router.app.$off('clear-checkbox')
     this.$router.app.$on('clear-checkbox', this.initCheckbox)
     this.$router.app.$off('delete-items')
-    this.$router.app.$on('delete-items', this.onDeleteItems)
+    this.$router.app.$on('delete-items', this.onClickDeleteItems)
   },
   methods: {
     initCheckbox(type) {
       this.checkbox.splice(0, this.checkbox.length)
       this.item[type].forEach(() => this.checkbox.push(false))
     },
-    sendDeleteProp({ prop, id }) {
+    sendDeleteProp({ prop, data }) {
       // チェックボックスの解除
-      const index = this.item[prop].findIndex((e) => e.id === id)
+      const index = this.item[prop].findIndex((e) => e.id === data.id)
       this.checkbox.splice(index, 1)
       // ツールバーの解除
       this.setToolbar(prop)
 
-      this.$emit('delete', { prop, id })
+      this.$store.dispatch('bookList/reflectBookProp', { data })
     },
-    sendEditProp({ prop, data }) {
-      this.$emit('edit', { prop, data })
+    sendEditProp({ data }) {
+      this.$store.dispatch('bookList/reflectBookProp', { data })
     },
     setToolbar(type) {
       let toolbar = {}
@@ -148,14 +148,14 @@ export const BookDetailChildMixin = {
       }
       this.$emit('set-toolbar', toolbar)
     },
-    onDeleteItems(type) {
-      const ids = []
+    onClickDeleteItems(type) {
+      const items = []
       this.checkbox.forEach((checked, index) => {
         if (checked) {
-          ids.push(this.item[type][index].id)
+          items.push(this.item[type][index])
         }
       })
-      this.$refs.itemDelete.showItemDeleteDialog(ids)
+      this.$refs.itemDelete.showItemDeleteDialog(items)
     },
   },
 }

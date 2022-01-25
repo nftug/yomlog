@@ -85,7 +85,7 @@
                       color="error"
                       v-bind="attrs"
                       v-on="on"
-                      @click="$refs.bookDelete.showItemDeleteDialog(item.id)"
+                      @click="$refs.bookDelete.showItemDeleteDialog(item)"
                     >
                       <v-icon>mdi-trash-can</v-icon>
                     </v-btn>

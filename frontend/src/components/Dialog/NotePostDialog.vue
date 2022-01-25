@@ -120,6 +120,7 @@ export default {
   data() {
     return {
       book: {},
+      note: {},
       bookId: '',
       noteId: '',
       format_type: 0,
@@ -157,6 +158,7 @@ export default {
 
       // 各種データを入力
       this.book = book
+      this.note = note
       this.bookId = book.id
       this.format_type = book.format_type
       this.total = book.total
@@ -246,11 +248,11 @@ export default {
       this.prevSrc = ''
     },
     async onClickDeleteNote(callback) {
-      const ret = await this.$refs.noteDelete.showItemDeleteDialog(this.noteId)
+      const ret = await this.$refs.noteDelete.showItemDeleteDialog(this.note)
 
       if (ret) {
         this.$refs.dialogNoteAdd.hideDialog(false)
-        this.$emit('delete', { prop: 'note', id: this.noteId })
+        this.$emit('delete', { prop: 'note', data: this.note })
         callback()
       }
     },

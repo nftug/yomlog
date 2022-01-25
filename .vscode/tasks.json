@@ -20,6 +20,15 @@
       "detail": "vue-cli-service build"
     },
     {
+      "type": "npm",
+      "script": "test",
+      "path": "frontend/",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "npm: test - frontend",
+      "detail": "jest"
+    },
+    {
       "label": "Run Django server",
       "detail": "python manage.py runserver 0.0.0.0:8000",
       "type": "shell",

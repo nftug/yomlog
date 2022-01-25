@@ -89,9 +89,6 @@
             <StatusLog
               :item="item"
               height="500"
-              @edit="onEditProp"
-              @delete="onDeleteProp"
-              @set="onSetProp"
               @set-toolbar="setToolbar"
             ></StatusLog>
           </v-tab-item>
@@ -99,9 +96,6 @@
             <NoteList
               :item="item"
               height="500"
-              @edit="onEditProp"
-              @delete="onDeleteProp"
-              @set="onSetProp"
               @set-toolbar="setToolbar"
             ></NoteList>
           </v-tab-item>
@@ -132,12 +126,12 @@
     <StatusAddDialog
       ref="statusAdd"
       hash="add-status"
-      @post="onAddProp"
+      @post="reflectBookProp"
     ></StatusAddDialog>
     <NoteAddDialog
       ref="noteAdd"
       hash="add-note"
-      @post="onAddProp"
+      @post="reflectBookProp"
     ></NoteAddDialog>
   </v-container>
 </template>
@@ -210,8 +204,7 @@ export default {
     this.setTabFromHash()
 
     // 書籍データをストア or Web APIから取得
-    // NOTE: ストアから取得するのはアイテムのコピーになる
-    // ⇒ページ内情報の更新とbookListストアの更新処理は別々に行うこと
+
     try {
       this.isLoading = true
       this.item = await this.$store.dispatch('bookList/getBookItem', {
@@ -256,45 +249,20 @@ export default {
       const hashName = this.tabs[this.activeTab].name
       this.$router.replace(`#${hashName}`)
     },
-    onAddProp({ prop, data }) {
-      this.$store.dispatch('bookList/addProp', {
-        book: this.item,
-        prop,
-        data,
-      })
+    reflectBookProp({ data }) {
+      this.$store.dispatch('bookList/reflectBookProp', { data })
     },
-    onDeleteProp({ prop, id }) {
-      this.$store.dispatch('bookList/deleteProp', {
-        book: this.item,
-        prop,
-        id,
-      })
-    },
-    onEditProp({ prop, data }) {
-      this.$store.dispatch('bookList/editProp', {
-        book: this.item,
-        prop,
-        data,
-      })
-    },
-    onSetProp({ prop, data }) {
-      this.$store.dispatch('bookList/setProp', {
-        book: this.item,
-        prop,
-        data,
-      })
-    },
-    onEditBook(data) {
+    onEditBook(book) {
       this.$store.dispatch('auth/reload')
-      this.item = data
-      this.$store.commit('bookList/set', data)
+      this.item = book
+      this.$store.commit('bookList/set', book)
     },
-    onDeleteBook(data) {
+    onDeleteBook(book) {
       this.$store.dispatch('auth/reload')
       this.$router.replace({
         name: 'shelf',
         params: {
-          state: this.currentState(data).state,
+          state: this.currentState(book).state,
         },
       })
     },

@@ -131,13 +131,13 @@
     <StatusEditDialog
       ref="statusEdit"
       hash="edit-status"
-      @post="onEditProp"
+      @post="reflectBookProp"
     ></StatusEditDialog>
     <NotePostDialog
       ref="noteEdit"
       hash="edit-note"
-      @post="onEditProp"
-      @delete="onDeleteProp"
+      @post="reflectBookProp"
+      @delete="reflectBookProp"
     ></NotePostDialog>
   </div>
 </template>
@@ -325,20 +325,8 @@ export default {
     setToday() {
       this.date = moment().format('yyyy-MM-DD')
     },
-    onEditProp(prop, data) {
-      this.$store.dispatch('bookList/editProp', {
-        book: this.book,
-        prop,
-        data,
-      })
-      this.getEvents(this.period)
-    },
-    onDeleteProp(prop, id) {
-      this.$store.dispatch('bookList/deleteProp', {
-        book: this.book,
-        prop,
-        id,
-      })
+    async reflectProp({ data }) {
+      await this.$store.dispatch('bookList/reflectBookProp', { data })
       this.getEvents(this.period)
     },
   },

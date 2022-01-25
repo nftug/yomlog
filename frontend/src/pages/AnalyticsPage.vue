@@ -47,7 +47,7 @@
         ></PagesGraphCard>
 
         <!-- ページ数集計テーブル -->
-        <v-card class="mt-8 mx-auto" id="paged-list">
+        <v-card class="mt-8 mx-auto" id="paged-list" outlined>
           <v-simple-table>
             <thead>
               <tr>

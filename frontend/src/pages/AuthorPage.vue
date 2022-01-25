@@ -16,11 +16,12 @@
           title="トップ10の著者"
           :data="authorsTop"
           :height="245"
+          outlined
           class="mt-4 pb-4 mx-auto"
         ></AuthorGraphCard>
 
         <!-- 著者リストテーブル -->
-        <v-card class="mt-8 mx-auto">
+        <v-card class="mt-8 mx-auto" outlined>
           <v-simple-table>
             <thead>
               <tr>

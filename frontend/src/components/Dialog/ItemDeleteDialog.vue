@@ -39,14 +39,14 @@ export default {
     },
   },
   methods: {
-    async showItemDeleteDialog(id) {
+    async showItemDeleteDialog(item) {
       if (!(await this.$refs.dialogDeleteBook.showDialog())) return false
 
-      if (Array.isArray(id)) {
-        const promises = id.map((e) => this.deleteItem(e))
+      if (Array.isArray(item)) {
+        const promises = item.map((e) => this.deleteItem(e))
         await Promise.all(promises)
       } else {
-        await this.deleteItem(id)
+        await this.deleteItem(item)
       }
 
       this.$store.dispatch('message/setInfoMessage', {
@@ -55,13 +55,13 @@ export default {
 
       return true
     },
-    async deleteItem(id) {
+    async deleteItem(item) {
       await api({
-        url: `/${this.type}/${id}/`,
+        url: `/${this.type}/${item.id}/`,
         method: 'delete',
       })
 
-      this.$emit('delete', { prop: this.type, id })
+      this.$emit('delete', { prop: this.type, data: item })
     },
   },
 }

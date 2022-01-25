@@ -189,6 +189,7 @@ const bookListModule = {
   namespaced: true,
   state: {
     items: [],
+    caches: [],
     totalItems: 0,
     totalPages: 0,
     isLoading: false,
@@ -205,34 +206,40 @@ const bookListModule = {
     setDirty(state, val) {
       state.isDirty = val
     },
-    add(state, item) {
-      state.items.push(item)
+    add(state, book) {
+      state.items.push(book)
+      state.caches.push(book)
     },
-    set(state, item) {
-      const index = state.items.findIndex((e) => e.id === item.id)
-      state.items.splice(index, 1, { ...item })
-      state.isDirty = true
+    set(state, book) {
+      const listIndex = state.items.findIndex((e) => e.id === book.id)
+      state.items.splice(listIndex, 1, book)
+      const cacheIndex = state.caches.findIndex((e) => e.id === book.id)
+      state.caches.splice(cacheIndex, 1, book)
     },
-    delete(state, item) {
-      const index = state.items.findIndex((e) => e.id === item.id)
-      state.items.splice(index, 1)
+    delete(state, book) {
+      const listIndex = state.items.findIndex((e) => e.id === book.id)
+      state.items.splice(listIndex, 1)
+      const cacheIndex = state.caches.findIndex((e) => e.id === book.id)
+      state.caches.splice(cacheIndex, 1)
     },
     clear(state) {
       state.items = []
     },
   },
   actions: {
-    async getBookItem({ state: { items } }, { id, state = 'all' }) {
+    async getBookItem({ state: { caches } }, { id, state = 'all' }) {
       try {
         let result, currentState
 
-        // 本のデータをストア or APIから取得
-        const ret = { ...items.find((e) => e.id === id) }
-        if (Object.keys(ret).length) {
+        // 本のデータをキャッシュストア or APIから取得 (参照渡し)
+        const ret = caches.find((e) => e.id === id)
+
+        if (ret) {
           result = ret
         } else {
           const { data } = await api.get(`/book/${id}/`)
           result = data
+          caches.push(data)
         }
 
         // データから現在のstateを取得し、与えられた引数stateと照合する
@@ -250,13 +257,24 @@ const bookListModule = {
         return Promise.reject(error)
       }
     },
-    setDirtyWithDiffState({ commit, dispatch }, { book, callback }) {
+    async reflectBookProp({ commit, dispatch }, { data }) {
+      // dataからbookのidを受け取り、APIから現在の書籍データに更新
+
+      const book = await dispatch('getBookItem', {
+        id: data.book.id,
+      })
+
       // 本のstatusが前と異なる場合、各種データの更新処理を行う
       // （処理内容はコールバック関数を引数callbackで渡すこと)
       dispatch('auth/reload', null, { root: true }) // ユーザー情報の更新
 
       const oldState = JSON.stringify(book.status[0])
-      callback(book)
+
+      // NOTE: apiの更新への対応
+      const newBook = (await api.get(`/book/${book.id}/`)).data
+      book.note = newBook.note
+      book.status = newBook.status
+
       const newState = JSON.stringify(book.status[0])
 
       if (oldState !== newState) {
@@ -275,40 +293,6 @@ const bookListModule = {
       } else {
         return false
       }
-    },
-    addProp({ dispatch }, { book, prop, data }) {
-      return dispatch('setDirtyWithDiffState', {
-        book,
-        callback: (newBook) => {
-          newBook[prop].unshift(data)
-        },
-      })
-    },
-    editProp({ dispatch }, { book, prop, data }) {
-      return dispatch('setDirtyWithDiffState', {
-        book,
-        callback: (newBook) => {
-          const index = newBook[prop].findIndex((e) => e.id === data.id)
-          newBook[prop].splice(index, 1, data)
-        },
-      })
-    },
-    deleteProp({ dispatch }, { book, prop, id }) {
-      return dispatch('setDirtyWithDiffState', {
-        book,
-        callback: (newBook) => {
-          const index = newBook[prop].findIndex((e) => e.id === id)
-          newBook[prop].splice(index, 1)
-        },
-      })
-    },
-    setProp({ dispatch }, { book, prop, data }) {
-      return dispatch('setDirtyWithDiffState', {
-        book,
-        callback: (newBook) => {
-          newBook[prop] = data
-        },
-      })
     },
   },
 }
