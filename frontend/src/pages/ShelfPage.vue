@@ -166,6 +166,11 @@ export default {
     next()
   },
   created() {
+    if (!this.$route.params.state) {
+      this.$router.replace({ params: { state: 'all' } })
+      return
+    }
+
     this.initPage({
       isReload: this.bookList.isDirty || !this.$isBrowserBack,
     })
