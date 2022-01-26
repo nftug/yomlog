@@ -261,8 +261,10 @@ const bookListModule = {
       const newState = JSON.stringify(book.status[0])
 
       if (oldState !== newState) {
-        // 現在の本棚リストの更新
-        dispatch('refreshBookList')
+        // 本棚ページを表示中でない場合、バックグラウンドで現在の本棚リストを更新
+        if (router.history.current.name !== 'shelf') {
+          dispatch('refreshBookList')
+        }
       }
     },
     async refreshBookList({ state, commit }) {

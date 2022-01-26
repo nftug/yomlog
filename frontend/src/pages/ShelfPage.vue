@@ -156,14 +156,20 @@ export default {
   beforeRouteUpdate(to, from, next) {
     // ナビゲーションガード
     // routeがアップデートされるたびにモードを変更する
-    this.initPage({ route: to })
+    const isSameParams =
+      JSON.stringify(to.params) === JSON.stringify(from.params)
+    const isSameQuery = JSON.stringify(to.query) === JSON.stringify(from.query)
+
+    if (!(isSameParams && isSameQuery)) {
+      this.initPage({ isReload: true, route: to })
+    }
     next()
   },
   created() {
     this.initPage()
   },
   methods: {
-    initPage({ route = this.$route } = {}) {
+    initPage({ isReload, route = this.$route } = {}) {
       this.state = route.params.state !== 'all' ? route.params.state : ''
       this.page = Number(route.query.page || 1)
 
@@ -172,7 +178,7 @@ export default {
       const { query: storeQuery } = this.$store.state.bookList
       const isDiffQuery = JSON.stringify(query) !== JSON.stringify(storeQuery)
 
-      if (hasNoItems || isDiffQuery) {
+      if (isReload || hasNoItems || isDiffQuery) {
         this.fetchBookList({ query })
       }
 
@@ -207,7 +213,7 @@ export default {
         this.$store.commit('bookList/setLoading', false)
       }
     },
-    handleReload(data) {
+    handleReload({ data }) {
       this.$store.dispatch('auth/reload') // ユーザー情報の更新
 
       if (!data.state) {

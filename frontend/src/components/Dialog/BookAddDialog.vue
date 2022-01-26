@@ -223,7 +223,7 @@ export default {
       this.$store.dispatch('auth/reload')
 
       // bookListを更新
-      const { status: stateName } = this.$store.state.bookList.params
+      const { status: stateName } = this.$store.state.bookList.query
       if (stateName === 'to_be_read' || stateName === 'all') {
         this.$store.dispatch('bookList/refreshBookList')
       }
