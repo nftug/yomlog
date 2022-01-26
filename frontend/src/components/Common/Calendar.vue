@@ -86,14 +86,14 @@
                       <v-list-item v-for="(event, i) in item.events" :key="i">
                         <v-list-item-content>
                           <v-list-item-title>
-                            {{ event.item | getItemTitle }}
+                            {{ getEventTitle(event) }}
                           </v-list-item-title>
                           <v-list-item-subtitle>
-                            {{ event.item.book.title }}
+                            {{ getBookTitle(event) }}
                           </v-list-item-subtitle>
                         </v-list-item-content>
 
-                        <v-list-item-action>
+                        <v-list-item-action v-if="!hasBookProp">
                           <v-btn
                             icon
                             small
@@ -164,6 +164,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    book: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   components: {
     StatusEditDialog,
@@ -186,7 +190,7 @@ export default {
     selectedDate: null,
     selectedElement: null,
     selectedOpen: false,
-    book: {},
+    eventBook: {},
     period: { start: '', end: '' },
   }),
   computed: {
@@ -211,82 +215,115 @@ export default {
       }
       return ret
     },
-  },
-  filters: {
-    getItemTitle(item) {
-      // TODO: ノートにもページ数表記を返すようにNoteSerializerを変更する
-      if (item.diff) {
-        return `${item.position.page}ページ (+${item.diff.page}ページ)`
-      } else {
-        return `${item.position}${item.book.format_type === 1 ? '' : 'ページ'}`
+    hasBookProp() {
+      return Object.keys(this.book).length > 0
+    },
+    getEventTitle() {
+      return function (event) {
+        // TODO: ノートにもページ数表記を返すようにNoteSerializerを変更する
+        const { item } = event
+        if (item.diff) {
+          return `${item.position.page}ページ (+${item.diff.page}ページ)`
+        } else {
+          const book = this.hasBookProp ? this.book : item.book
+          return `${item.position}${book.format_type === 1 ? '' : 'ページ'}`
+        }
+      }
+    },
+    getBookTitle() {
+      return function ({ item }) {
+        if (this.hasBookProp) {
+          return this.book.title
+        } else {
+          return item.book.title
+        }
       }
     },
   },
   methods: {
     async getEvents({ start, end }) {
-      try {
-        this.isLoading = true
+      let status, note
+      this.events = []
+      this.period = { start, end }
+      const startDate = moment(start.date).subtract(1, 'M').date(26)
+      const endDate = moment(end.date).add(1, 'M').date(6)
 
-        const created_at_after = moment(start.date)
-          .subtract(1, 'M')
-          .format('yyyy-MM-26')
-        const created_at_before = moment(end.date)
-          .add(1, 'M')
-          .format('yyyy-MM-06')
+      if (this.hasBookProp) {
+        // propsでbookが設定されていた場合、propsからデータを読み込む
+        status = this.book.status.filter((item) => {
+          if (startDate <= item.created_at <= endDate) {
+            return true
+          }
+        })
+        note = this.book.note.filter((item) => {
+          if (startDate <= item.created_at <= endDate) {
+            return true
+          }
+        })
+      } else {
+        // 通常時はAPIからデータを読み込む
+        try {
+          this.isLoading = true
+          const params = {
+            no_pagination: true,
+            only_progress: true,
+            created_at_after: startDate.format('yyyy-MM-DD'),
+            created_at_before: endDate.format('yyyy-MM-DD'),
+            ...this.query,
+          }
 
-        const params = {
-          no_pagination: true,
-          only_progress: true,
-          created_at_after,
-          created_at_before,
-          ...this.query,
+          status = (await api.get('/status/', { params })).data
+          note = (await api.get('/note/', { params })).data
+        } finally {
+          this.isLoading = false
         }
-        this.events = []
-
-        const { data: status } = await api.get('/status/', { params })
-        status.forEach((item) => {
-          this.events.push({
-            name: `${item.book.title} (+${item.diff.page})`,
-            start: new Date(item.created_at),
-            end: new Date(item.created_at),
-            color: 'blue',
-            category: 'status',
-            item: item,
-            timed: false,
-          })
-        })
-
-        const { data: note } = await api.get('/note/', { params })
-        note.forEach((item) => {
-          this.events.push({
-            name: `${item.book.title} (${item.position})`,
-            start: new Date(item.created_at),
-            end: new Date(item.created_at),
-            color: 'green',
-            category: 'note',
-            item: item,
-            timed: false,
-          })
-        })
-      } finally {
-        this.isLoading = false
-        this.period = { start, end }
       }
+
+      // 取得したデータからイベントを設定
+      status.forEach((item) => {
+        const bookTitle = this.book.title || item.book.title
+        this.events.push({
+          name: `${bookTitle} (+${item.diff.page})`,
+          start: new Date(item.created_at),
+          end: new Date(item.created_at),
+          color: 'blue',
+          category: 'status',
+          item: item,
+          timed: false,
+        })
+      })
+      note.forEach((item) => {
+        const bookTitle = this.book.title || item.book.title
+        this.events.push({
+          name: `${bookTitle} (${item.position})`,
+          start: new Date(item.created_at),
+          end: new Date(item.created_at),
+          color: 'green',
+          category: 'note',
+          item: item,
+          timed: false,
+        })
+      })
     },
     async showEvent({ event, nativeEvent }) {
       const type = event.item.diff ? 'status' : 'note'
-      this.book = await this.$store.dispatch('bookList/getBookItem', {
-        id: event.item.book.id,
-      })
+
+      if (this.hasBookProp) {
+        this.eventBook = this.book
+      } else {
+        this.eventBook = await this.$store.dispatch('bookList/getBookItem', {
+          id: event.item.book.id,
+        })
+      }
 
       if (type === 'status') {
         this.$refs.statusEdit.showStatusPostDialog({
-          book: this.book,
+          book: this.eventBook,
           status: event.item,
         })
       } else {
         this.$refs.noteEdit.showNotePostDialog({
-          book: this.book,
+          book: this.eventBook,
           note: event.item,
         })
       }

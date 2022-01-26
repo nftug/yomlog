@@ -100,11 +100,7 @@
             ></NoteList>
           </v-tab-item>
           <v-tab-item>
-            <Calendar
-              v-model="date"
-              height="500"
-              :query="{ book: item.id }"
-            ></Calendar>
+            <Calendar v-model="date" height="500" :book="item"></Calendar>
           </v-tab-item>
         </v-tabs-items>
       </div>
