@@ -156,40 +156,34 @@ export default {
   beforeRouteUpdate(to, from, next) {
     // ナビゲーションガード
     // routeがアップデートされるたびにモードを変更する
-    const isSameParams =
-      JSON.stringify(to.params) === JSON.stringify(from.params)
-    const isSameQuery = JSON.stringify(to.query) === JSON.stringify(from.query)
-
-    if (!(isSameParams && isSameQuery)) {
-      this.initPage({ isReload: true, route: to })
-    }
+    this.initPage({ route: to })
     next()
   },
   created() {
-    const { query } = this.$store.state.bookList
-    const isDiffQuery = JSON.stringify(query) !== JSON.stringify(this.$route.query)
-    const hasNoItems = !this.bookList.items.length
-
-    this.initPage({ isReload: hasNoItems || isDiffQuery })
+    this.initPage()
   },
   methods: {
-    initPage({ isReload, route = this.$route } = {}) {
+    initPage({ route = this.$route } = {}) {
       this.state = route.params.state !== 'all' ? route.params.state : ''
       this.page = Number(route.query.page || 1)
 
-      if (isReload) {
-        this.fetchBookList({ route })
+      const hasNoItems = !this.bookList.items.length
+      const query = { ...route.query, page: this.page, status: this.state }
+      const { query: storeQuery } = this.$store.state.bookList
+      const isDiffQuery = JSON.stringify(query) !== JSON.stringify(storeQuery)
+
+      if (hasNoItems || isDiffQuery) {
+        this.fetchBookList({ query })
       }
 
       // クエリから検索バーに値をセット
       this.$store.commit('navbar/setSearch', route.query.q || '')
     },
-    async fetchBookList({ route = this.$route } = {}) {
+    async fetchBookList({ query }) {
       this.$store.commit('bookList/setLoading', true)
       this.$store.commit('bookList/clear')
 
       try {
-        const query = { ...route.query, page: this.page, status: this.state }
         const { data } = await api.get('/book/', { params: query })
         this.$store.commit('bookList/setPageInfo', {
           totalItems: data.count,
