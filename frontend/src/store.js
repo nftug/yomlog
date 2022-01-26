@@ -207,8 +207,10 @@ const bookListModule = {
       state.isDirty = val
     },
     add(state, book) {
-      state.items.push(book)
-      state.caches.push(book)
+      const listIndex = state.items.findIndex((e) => e.id === book.id)
+      if (listIndex < 0) state.items.push(book)
+      const cacheIndex = state.caches.findIndex((e) => e.id === book.id)
+      if (cacheIndex < 0) state.caches.push(book)
     },
     set(state, book) {
       const listIndex = state.items.findIndex((e) => e.id === book.id)
@@ -231,7 +233,6 @@ const bookListModule = {
       try {
         // 本のデータをキャッシュストア or APIから取得 (参照渡し)
         let result = caches.find((e) => e.id === id)
-
         if (!result) {
           result = (await api.get(`/book/${id}/`)).data
           caches.push(result)
@@ -243,8 +244,7 @@ const bookListModule = {
       }
     },
     async reflectBookProp({ commit, dispatch }, { id }) {
-      // dataからbookのidを受け取り、APIから現在の書籍データに更新
-      // TODO: 書籍データのidを直接渡すように変更する
+      // 指定されたidの本をAPIから取得し、キャッシュストアに反映させる
 
       dispatch('auth/reload', null, { root: true }) // ユーザー情報の更新
 
