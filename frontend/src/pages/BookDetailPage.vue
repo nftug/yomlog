@@ -103,7 +103,7 @@
               @delete="getCalendarEvents"
             ></NoteList>
           </v-tab-item>
-          <v-tab-item eager>
+          <v-tab-item>
             <Calendar
               v-model="date"
               height="500"
@@ -210,6 +210,8 @@ export default {
 
     // 書籍データをストア or Web APIから取得
     try {
+      console.log('start')
+
       this.isLoading = true
       this.item = await this.$store.dispatch('bookList/getBookItem', {
         id: this.$route.params.id,
@@ -223,6 +225,7 @@ export default {
       this.error = error.response ? error.response.status : 404
     } finally {
       this.isLoading = false
+      console.log('end')
     }
   },
   computed: {
@@ -278,7 +281,9 @@ export default {
       this.$router.app.$emit('delete-items', type)
     },
     getCalendarEvents() {
-      this.$refs.calendar.getEvents()
+      if (this.$refs.calendar) {
+        this.$refs.calendar.getEvents()
+      }
     },
   },
 }
