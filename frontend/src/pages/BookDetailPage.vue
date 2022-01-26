@@ -214,7 +214,6 @@ export default {
       this.isLoading = true
       this.item = await this.$store.dispatch('bookList/getBookItem', {
         id: this.$route.params.id,
-        state: this.$route.params.state,
       })
 
       // カレンダーの日付を進捗の最終更新日に合わせる

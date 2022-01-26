@@ -10,7 +10,7 @@
                   <v-list-item-title class="font-weight-medium">
                     <router-link
                       v-if="state"
-                      :to="`/book/${state}/${item.id}`"
+                      :to="`/book/detail/${item.id}`"
                       class="black--text"
                     >
                       {{ item.title }}
@@ -41,7 +41,7 @@
               </v-col>
 
               <v-col cols="4">
-                <router-link v-if="state" :to="`/book/${state}/${item.id}`">
+                <router-link v-if="state" :to="`/book/detail/${item.id}`">
                   <v-img
                     contain
                     :src="item.thumbnail"
@@ -71,10 +71,7 @@
 </template>
 
 <script>
-import { BookListMixin } from '@/mixins'
-
 export default {
-  mixins: [BookListMixin],
   props: {
     items: {
       type: Array,

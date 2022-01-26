@@ -23,7 +23,7 @@
             v-show="!!noteId && !isBookDetailPage"
             dark
             icon
-            :to="`/book/${currentState(book).state}/${bookId}`"
+            :to="`/book/detail/${bookId}`"
           >
             <v-icon>mdi-book</v-icon>
           </v-btn>
@@ -217,7 +217,7 @@ export default {
         this.$refs.dialogNoteAdd.hideDialog()
 
         await this.$store.dispatch('bookList/reflectBookProp', {
-          book: this.book,
+          id: this.book.id,
         })
         this.$emit('post', { prop: 'note', data })
 

@@ -56,7 +56,7 @@ export default {
 
       // すべての処理が終了したら書籍データを再取得
       if (book) {
-        await this.$store.dispatch('bookList/reflectBookProp', { book })
+        await this.$store.dispatch('bookList/reflectBookProp', { id: book.id })
       }
 
       this.$emit('delete', { prop: this.type, data: item })

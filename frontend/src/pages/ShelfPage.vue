@@ -27,23 +27,7 @@
 
             <!-- メニュー -->
             <v-row class="col-11" no-gutters>
-              <v-col cols="3">
-                <v-tooltip bottom>
-                  <template #activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      color="secondary"
-                      v-bind="attrs"
-                      v-on="on"
-                      :to="`/book/${currentState(item).state}/${item.id}`"
-                    >
-                      <v-icon>mdi-eye</v-icon>
-                    </v-btn>
-                  </template>
-                  <span>詳細</span>
-                </v-tooltip>
-              </v-col>
-              <v-col cols="3">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
                     <v-btn
@@ -59,7 +43,7 @@
                   <span>ノートを追加</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
                     <v-btn
@@ -77,7 +61,7 @@
                   <span>進捗を記録</span>
                 </v-tooltip>
               </v-col>
-              <v-col cols="3">
+              <v-col cols="4">
                 <v-tooltip bottom>
                   <template #activator="{ on, attrs }">
                     <v-btn

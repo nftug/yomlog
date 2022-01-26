@@ -227,29 +227,14 @@ const bookListModule = {
     },
   },
   actions: {
-    async getBookItem({ state: { caches } }, { id, state = 'all' }) {
+    async getBookItem({ state: { caches } }, { id }) {
       try {
-        let result, currentState
-
         // 本のデータをキャッシュストア or APIから取得 (参照渡し)
-        const ret = caches.find((e) => e.id === id)
+        let result = caches.find((e) => e.id === id)
 
-        if (ret) {
-          result = ret
-        } else {
-          const { data } = await api.get(`/book/${id}/`)
-          result = data
-          caches.push(data)
-        }
-
-        // データから現在のstateを取得し、与えられた引数stateと照合する
-        currentState = result.status.length
-          ? result.status[0].state
-          : 'to_be_read'
-
-        if (state !== 'all' && state !== currentState) {
-          // ステータスが一致しなければエラーを返す
-          throw new Error('State of the book is not corresponded')
+        if (!result) {
+          result = (await api.get(`/book/${id}/`)).data
+          caches.push(result)
         }
 
         return result
@@ -257,7 +242,7 @@ const bookListModule = {
         return Promise.reject(error)
       }
     },
-    async reflectBookProp({ commit, dispatch }, { book: { id } }) {
+    async reflectBookProp({ commit, dispatch }, { id }) {
       // dataからbookのidを受け取り、APIから現在の書籍データに更新
       // TODO: 書籍データのidを直接渡すように変更する
 
@@ -274,19 +259,6 @@ const bookListModule = {
 
       if (oldState !== newState) {
         commit('setDirty', true) // BookListの更新
-        // 書籍詳細の画面を表示していて、ルーターのstateがallではない場合:
-        // ルーターのstateを新しいstateに書き換える
-        const currentRoute = router.history.current
-        const isMatchedBookDetailPage = currentRoute.matched.some(
-          (r) => r.name === 'book_detail'
-        )
-        const isNotStateAll = currentRoute.params.state !== 'all'
-        if (isMatchedBookDetailPage && isNotStateAll) {
-          router.replace({ params: { state: JSON.parse(newState).state } })
-        }
-        return true
-      } else {
-        return false
       }
     },
   },

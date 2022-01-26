@@ -180,7 +180,7 @@ export default {
         this.$refs.dialogStatusAdd.hideDialog()
 
         await this.$store.dispatch('bookList/reflectBookProp', {
-          book: this.book,
+          id: this.book.id,
         })
         this.$emit('post', { prop: 'status', data })
 

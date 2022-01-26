@@ -73,7 +73,7 @@ const router = new VueRouter({
       },
     },
     {
-      path: '/book/:state/:id',
+      path: '/book/detail/:id',
       name: 'book_detail',
       component: BookDetailPage,
       meta: {
@@ -92,7 +92,7 @@ const router = new VueRouter({
       },
     },
     {
-      path: '/book/:state/:id/note',
+      path: '/book/note/:id',
       name: 'book_note',
       component: NotePage,
       meta: {

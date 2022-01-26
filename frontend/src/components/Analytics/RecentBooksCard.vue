@@ -7,7 +7,7 @@
         <v-list v-if="items.length">
           <template v-for="(book, index) in items">
             <div :key="index">
-              <v-list-item :to="`/book/${currentState(book).state}/${book.id}`">
+              <v-list-item :to="`/book/detail/${book.id}`">
                 <v-list-item-avatar tile size="50px">
                   <v-img contain :src="book.thumbnail"></v-img>
                 </v-list-item-avatar>
@@ -37,10 +37,7 @@
 </template>
 
 <script>
-import { BookListMixin } from '@/mixins'
-
 export default {
-  mixins: [BookListMixin],
   props: {
     items: { type: Array, require: true },
   },

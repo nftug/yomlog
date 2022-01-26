@@ -228,7 +228,7 @@ export default {
       this.$store.commit('bookList/setDirty', true)
 
       // 書籍の詳細ページに遷移
-      this.$router.replace(`/book/to_be_read/${data.id}`)
+      this.$router.replace(`/book/detail/${data.id}`)
 
       if (status === 201) {
         this.$store.dispatch('message/setInfoMessage', {

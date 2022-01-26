@@ -97,9 +97,7 @@
                           <v-btn
                             icon
                             small
-                            :to="`/book/${
-                              currentState(event.item.book).state
-                            }/${event.item.book.id}`"
+                            :to="`/book/detail/${event.item.book.id}`"
                           >
                             <v-icon>mdi-book</v-icon>
                           </v-btn>
