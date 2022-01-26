@@ -203,7 +203,6 @@ const bookListModule = {
       state.totalItems = totalItems
       state.totalPages = totalPages
       state.params = params
-      console.log(state.params)
     },
     addList(state, book) {
       const listIndex = state.items.findIndex((e) => e.id === book.id)
