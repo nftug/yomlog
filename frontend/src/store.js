@@ -266,11 +266,21 @@ const bookListModule = {
       }
     },
     async refreshBookList({ state, commit }) {
+      commit('setLoading', true)
       const { data } = await api.get('/book/', { params: state.params })
+
+      commit('setPageInfo', {
+        totalItems: data.count,
+        totalPages: data.totalPages,
+        params: state.params,
+      })
+
       commit('clear')
       data.results.forEach((item) => {
         commit('addList', item)
       })
+
+      commit('setLoading', false)
     },
   },
 }

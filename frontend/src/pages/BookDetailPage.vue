@@ -256,18 +256,22 @@ export default {
       this.$router.replace(`#${hashName}`)
     },
     onEditBook(book) {
-      this.$store.dispatch('auth/reload')
       this.$store.commit('bookList/set', book)
       this.item = book
+
+      this.$store.dispatch('auth/reload')
     },
     onDeleteBook() {
-      this.$store.dispatch('auth/reload')
+      // リストを初期化して本棚にページ遷移する
+      const params = { state: this.currentState(this.item).state }
+      this.$store.commit('bookList/setParams', { params })
+      this.$store.dispatch('bookList/refreshBookList')
       this.$router.replace({
         name: 'shelf',
-        params: {
-          state: this.currentState(this.item).state,
-        },
+        params,
       })
+
+      this.$store.dispatch('auth/reload')
     },
     setToolbar(val) {
       this.toolbar = val
