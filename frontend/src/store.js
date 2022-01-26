@@ -193,22 +193,23 @@ const bookListModule = {
     totalItems: 0,
     totalPages: 0,
     isLoading: false,
-    isDirty: false,
+    params: {},
   },
   mutations: {
     setLoading(state, val) {
       state.isLoading = val
     },
-    setProps(state, payload) {
-      state.totalItems = payload.totalItems
-      state.totalPages = payload.totalPages
+    setPageInfo(state, { totalItems, totalPages, params }) {
+      state.totalItems = totalItems
+      state.totalPages = totalPages
+      state.params = params
+      console.log(state.params)
     },
-    setDirty(state, val) {
-      state.isDirty = val
-    },
-    add(state, book) {
+    addList(state, book) {
       const listIndex = state.items.findIndex((e) => e.id === book.id)
       if (listIndex < 0) state.items.push(book)
+    },
+    addCache(state, book) {
       const cacheIndex = state.caches.findIndex((e) => e.id === book.id)
       if (cacheIndex < 0) state.caches.push(book)
     },
@@ -229,21 +230,24 @@ const bookListModule = {
     },
   },
   actions: {
-    async getBookItem({ state: { caches } }, { id }) {
+    addBook({ commit }, book) {
+      commit('addList', book)
+      commit('addCache', book)
+    },
+    async getBookItem({ state, commit }, { id }) {
       try {
         // 本のデータをキャッシュストア or APIから取得 (参照渡し)
-        let result = caches.find((e) => e.id === id)
+        let result = state.caches.find((e) => e.id === id)
         if (!result) {
           result = (await api.get(`/book/${id}/`)).data
-          caches.push(result)
+          commit('addCache', result)
         }
-
         return result
       } catch (error) {
         return Promise.reject(error)
       }
     },
-    async reflectBookProp({ commit, dispatch }, { id }) {
+    async reflectBookProp({ dispatch }, { id }) {
       // 指定されたidの本をAPIから取得し、キャッシュストアに反映させる
 
       dispatch('auth/reload', null, { root: true }) // ユーザー情報の更新
@@ -258,8 +262,16 @@ const bookListModule = {
       const newState = JSON.stringify(book.status[0])
 
       if (oldState !== newState) {
-        commit('setDirty', true) // BookListの更新
+        // 現在の本棚リストの更新
+        dispatch('refreshBookList')
       }
+    },
+    async refreshBookList({ state, commit }) {
+      const { data } = await api.get('/book/', { params: state.params })
+      commit('clear')
+      data.results.forEach((item) => {
+        commit('addList', item)
+      })
     },
   },
 }

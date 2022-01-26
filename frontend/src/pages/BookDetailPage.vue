@@ -209,7 +209,6 @@ export default {
     this.setTabFromHash()
 
     // 書籍データをストア or Web APIから取得
-
     try {
       this.isLoading = true
       this.item = await this.$store.dispatch('bookList/getBookItem', {

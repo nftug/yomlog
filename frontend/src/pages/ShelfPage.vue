@@ -166,25 +166,14 @@ export default {
     next()
   },
   created() {
-    if (!this.$route.params.state) {
-      this.$router.replace({ params: { state: 'all' } })
-      return
-    }
-
-    this.initPage({
-      isReload: this.bookList.isDirty || !this.$isBrowserBack,
-    })
-
-    if (this.bookList.isDirty) {
-      this.$store.commit('bookList/setDirty', false)
-    }
+    this.initPage({ isReload: !this.bookList.items.length })
   },
   methods: {
-    initPage({ isReload, route = this.$route }) {
+    initPage({ isReload, route = this.$route } = {}) {
       this.state = route.params.state !== 'all' ? route.params.state : ''
       this.page = Number(route.query.page || 1)
 
-      if (isReload || !this.bookList.items.length) {
+      if (isReload) {
         this.fetchBookList({ route })
       }
 
@@ -196,15 +185,15 @@ export default {
       this.$store.commit('bookList/clear')
 
       try {
-        const { data } = await api.get('/book/', {
-          params: { ...route.query, page: this.page, status: this.state },
-        })
-        this.$store.commit('bookList/setProps', {
+        const params = { ...route.query, page: this.page, status: this.state }
+        const { data } = await api.get('/book/', { params })
+        this.$store.commit('bookList/setPageInfo', {
           totalItems: data.count,
           totalPages: data.totalPages,
+          params,
         })
         data.results.forEach((item) => {
-          this.$store.commit('bookList/add', item)
+          this.$store.dispatch('bookList/addBook', item)
         })
       } catch (error) {
         if (error.response) {

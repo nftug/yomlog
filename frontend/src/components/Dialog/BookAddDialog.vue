@@ -206,9 +206,7 @@ export default {
         delete item.total_page
       }
 
-      item = await this.$refs.bookEdit.showBookEditDialog({
-        book: item,
-      })
+      item = await this.$refs.bookEdit.showBookEditDialog({ book: item })
 
       // ダイアログがキャンセルの場合
       if (!item) return
@@ -225,7 +223,10 @@ export default {
       this.$store.dispatch('auth/reload')
 
       // bookListを更新
-      this.$store.commit('bookList/setDirty', true)
+      const { status: stateName } = this.$store.state.bookList.params
+      if (stateName === 'to_be_read' || stateName === 'all') {
+        this.$store.dispatch('bookList/refreshBookList')
+      }
 
       // 書籍の詳細ページに遷移
       this.$router.replace(`/book/detail/${data.id}`)
