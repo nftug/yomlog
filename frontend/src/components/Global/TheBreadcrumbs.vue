@@ -37,7 +37,13 @@ export default {
       const { name } = crumb
       const getQuery = this.$store.getters['parentRoutes/query']
       const getParams = this.$store.getters['parentRoutes/params']
-      return { name, query: getQuery(name), params: getParams(name) }
+
+      let params = getParams(name)
+      if (!Object.keys(params).length) {
+        params = { state: 'all' }
+      }
+
+      return { name, query: getQuery(name), params }
     },
   },
 }

@@ -258,12 +258,12 @@ export default {
       this.$store.commit('bookList/set', book)
       this.item = book
     },
-    onDeleteBook({ item: book }) {
+    onDeleteBook() {
       this.$store.dispatch('auth/reload')
       this.$router.replace({
         name: 'shelf',
         params: {
-          state: this.currentState(book).state,
+          state: this.currentState(this.item).state,
         },
       })
     },

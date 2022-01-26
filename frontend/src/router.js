@@ -62,7 +62,7 @@ const router = new VueRouter({
       },
     },
     {
-      path: '/shelf/:state',
+      path: '/shelf/:state(to_be_read|reading|read|all)',
       name: 'shelf',
       component: ShelfPage,
       meta: {
