@@ -166,7 +166,11 @@ export default {
     next()
   },
   created() {
-    this.initPage({ isReload: !this.bookList.items.length })
+    const { query } = this.$store.state.bookList
+    const isDiffQuery = JSON.stringify(query) !== JSON.stringify(this.$route.query)
+    const hasNoItems = !this.bookList.items.length
+
+    this.initPage({ isReload: hasNoItems || isDiffQuery })
   },
   methods: {
     initPage({ isReload, route = this.$route } = {}) {
@@ -185,12 +189,12 @@ export default {
       this.$store.commit('bookList/clear')
 
       try {
-        const params = { ...route.query, page: this.page, status: this.state }
-        const { data } = await api.get('/book/', { params })
+        const query = { ...route.query, page: this.page, status: this.state }
+        const { data } = await api.get('/book/', { params: query })
         this.$store.commit('bookList/setPageInfo', {
           totalItems: data.count,
           totalPages: data.totalPages,
-          params,
+          query,
         })
         data.results.forEach((item) => {
           this.$store.dispatch('bookList/addBook', item)

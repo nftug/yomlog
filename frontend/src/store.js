@@ -193,16 +193,16 @@ const bookListModule = {
     totalItems: 0,
     totalPages: 0,
     isLoading: false,
-    params: {},
+    query: {},
   },
   mutations: {
     setLoading(state, val) {
       state.isLoading = val
     },
-    setPageInfo(state, { totalItems, totalPages, params }) {
+    setPageInfo(state, { totalItems, totalPages, query }) {
       state.totalItems = totalItems
       state.totalPages = totalPages
-      state.params = params
+      state.query = query
     },
     addList(state, book) {
       const listIndex = state.items.findIndex((e) => e.id === book.id)
@@ -267,12 +267,12 @@ const bookListModule = {
     },
     async refreshBookList({ state, commit }) {
       commit('setLoading', true)
-      const { data } = await api.get('/book/', { params: state.params })
+      const { data } = await api.get('/book/', { params: state.query })
 
       commit('setPageInfo', {
         totalItems: data.count,
         totalPages: data.totalPages,
-        params: state.params,
+        query: state.query,
       })
 
       commit('clear')
