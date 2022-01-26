@@ -90,6 +90,8 @@
               :item="item"
               height="500"
               @set-toolbar="setToolbar"
+              @post="getCalendarEvents"
+              @delete="getCalendarEvents"
             ></StatusLog>
           </v-tab-item>
           <v-tab-item>
@@ -97,10 +99,17 @@
               :item="item"
               height="500"
               @set-toolbar="setToolbar"
+              @post="getCalendarEvents"
+              @delete="getCalendarEvents"
             ></NoteList>
           </v-tab-item>
-          <v-tab-item>
-            <Calendar v-model="date" height="500" :book="item"></Calendar>
+          <v-tab-item eager>
+            <Calendar
+              v-model="date"
+              height="500"
+              :book="item"
+              ref="calendar"
+            ></Calendar>
           </v-tab-item>
         </v-tabs-items>
       </div>
@@ -119,8 +128,17 @@
       type="book"
       @delete="onDeleteBook"
     ></ItemDeleteDialog>
-    <StatusAddDialog ref="statusAdd" hash="add-status"></StatusAddDialog>
-    <NoteAddDialog ref="noteAdd" hash="add-note"></NoteAddDialog>
+    <StatusAddDialog
+      ref="statusAdd"
+      hash="add-status"
+      @post="getCalendarEvents"
+    ></StatusAddDialog>
+    <NoteAddDialog
+      ref="noteAdd"
+      hash="add-note"
+      @post="getCalendarEvents"
+      @delete="getCalendarEvents"
+    ></NoteAddDialog>
   </v-container>
 </template>
 
@@ -138,7 +156,6 @@ import StatusAddDialog from '@/components/Dialog/StatusPostDialog.vue'
 import NoteAddDialog from '@/components/Dialog/NotePostDialog.vue'
 import BookEditDialog from '@/components/Dialog/BookEditDialog.vue'
 import ItemDeleteDialog from '@/components/Dialog/ItemDeleteDialog.vue'
-
 import moment from 'moment'
 
 export default {
@@ -242,7 +259,7 @@ export default {
       this.$store.commit('bookList/set', book)
       this.item = book
     },
-    onDeleteBook(book) {
+    onDeleteBook({ item: book }) {
       this.$store.dispatch('auth/reload')
       this.$router.replace({
         name: 'shelf',
@@ -261,6 +278,9 @@ export default {
     deleteItems() {
       const type = this.toolbar.type
       this.$router.app.$emit('delete-items', type)
+    },
+    getCalendarEvents() {
+      this.$refs.calendar.getEvents()
     },
   },
 }

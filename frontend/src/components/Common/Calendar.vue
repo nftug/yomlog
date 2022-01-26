@@ -131,13 +131,13 @@
     <StatusEditDialog
       ref="statusEdit"
       hash="edit-status"
-      @post="getEvents(period)"
+      @post="getEvents()"
     ></StatusEditDialog>
     <NotePostDialog
       ref="noteEdit"
       hash="edit-note"
-      @post="getEvents(period)"
-      @delete="getEvents(period)"
+      @post="getEvents()"
+      @delete="getEvents()"
     ></NotePostDialog>
   </div>
 </template>
@@ -241,7 +241,7 @@ export default {
     },
   },
   methods: {
-    async getEvents({ start, end }) {
+    async getEvents({ start, end } = this.period) {
       let status, note
       this.events = []
       this.period = { start, end }
@@ -251,7 +251,7 @@ export default {
       if (this.hasBookProp) {
         // propsでbookが設定されていた場合、propsからデータを読み込む
         status = this.book.status.filter((item) => {
-          if (startDate <= item.created_at <= endDate) {
+          if (startDate <= item.created_at <= endDate && item.diff.value > 0) {
             return true
           }
         })

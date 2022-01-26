@@ -185,18 +185,18 @@ export default {
 
       this.postNote()
     },
-    postNote() {
-      let data = new FormData()
-      data.append('book', this.bookId)
-      data.append('position', this.position)
-      data.append('content', this.content)
-      data.append('quote_text', this.quoteText)
+    async postNote() {
+      let form = new FormData()
+      form.append('book', this.bookId)
+      form.append('position', this.position)
+      form.append('content', this.content)
+      form.append('quote_text', this.quoteText)
 
       // ファイルのアップロード可否判定
       if (this.quoteImage) {
-        data.append('quote_image', this.quoteImage)
+        form.append('quote_image', this.quoteImage)
       } else if (!this.prevSrc) {
-        data.append('quote_image', new File([], ''))
+        form.append('quote_image', new File([], ''))
       }
 
       // POST/PATCHの切り替え
@@ -210,31 +210,27 @@ export default {
       }
 
       // フォーム送信
-      this.isSending = true
-      api({
-        url: url,
-        method: method,
-        data: data,
-      })
-        .then(({ data }) => {
-          // ダイアログを閉じる
-          this.$refs.dialogNoteAdd.hideDialog()
+      try {
+        this.isSending = true
+        const { data } = await api({ url, method, data: form })
 
-          this.$emit('post', { prop: 'note', data })
-          this.$store.dispatch('bookList/reflectBookProp', { book: this.book })
+        this.$refs.dialogNoteAdd.hideDialog()
 
-          this.$store.dispatch('message/setInfoMessage', {
-            message: `ノートを${this.noteId ? '編集' : '追加'}しました。`,
-          })
+        await this.$store.dispatch('bookList/reflectBookProp', {
+          book: this.book,
         })
-        .catch(() => {
-          this.$store.dispatch('message/setErrorMessage', {
-            message: 'エラーが発生しました',
-          })
+        this.$emit('post', { prop: 'note', data })
+
+        this.$store.dispatch('message/setInfoMessage', {
+          message: `ノートを${this.noteId ? '編集' : '追加'}しました。`,
         })
-        .finally(() => {
-          this.isSending = false
+      } catch {
+        this.$store.dispatch('message/setErrorMessage', {
+          message: 'エラーが発生しました',
         })
+      } finally {
+        this.isSending = false
+      }
     },
     inputQuoteImage(event) {
       if (event) {

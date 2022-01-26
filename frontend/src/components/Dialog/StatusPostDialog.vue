@@ -179,8 +179,10 @@ export default {
 
         this.$refs.dialogStatusAdd.hideDialog()
 
+        await this.$store.dispatch('bookList/reflectBookProp', {
+          book: this.book,
+        })
         this.$emit('post', { prop: 'status', data })
-        this.$store.dispatch('bookList/reflectBookProp', { book: this.book })
 
         this.$store.dispatch('message/setInfoMessage', {
           message: '進捗状況を記録しました。',

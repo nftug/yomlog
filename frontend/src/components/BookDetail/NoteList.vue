@@ -64,13 +64,14 @@
     <NotePostDialog
       ref="noteEdit"
       hash="edit-note"
-      @delete="sendDeleteProp"
+      @post="$emit('post', $event)"
+      @delete="onDeleteItems"
     ></NotePostDialog>
 
     <ItemDeleteDialog
       ref="itemDelete"
       type="note"
-      @delete="sendDeleteProp"
+      @delete="onDeleteItems"
     ></ItemDeleteDialog>
   </div>
 </template>

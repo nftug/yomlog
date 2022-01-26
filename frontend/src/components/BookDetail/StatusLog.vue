@@ -58,9 +58,13 @@
     <ItemDeleteDialog
       ref="itemDelete"
       type="status"
-      @delete="sendDeleteProp"
+      @delete="onDeleteItems"
     ></ItemDeleteDialog>
-    <StatusEditDialog ref="statusEdit" hash="edit-status"></StatusEditDialog>
+    <StatusEditDialog
+      ref="statusEdit"
+      hash="edit-status"
+      @post="$emit('post', $event)"
+    ></StatusEditDialog>
   </div>
 </template>
 

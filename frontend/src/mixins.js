@@ -129,11 +129,10 @@ export const BookDetailChildMixin = {
       this.checkbox.splice(0, this.checkbox.length)
       this.item[type].forEach(() => this.checkbox.push(false))
     },
-    sendDeleteProp({ prop }) {
-      // チェックボックスの解除
+    onDeleteItems({ prop }) {
       this.initCheckbox(prop)
-      // ツールバーの解除
       this.setToolbar(prop)
+      this.$emit('delete', { prop })
     },
     setToolbar(type) {
       let toolbar = {}

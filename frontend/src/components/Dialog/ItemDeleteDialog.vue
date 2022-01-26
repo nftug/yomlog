@@ -56,8 +56,10 @@ export default {
 
       // すべての処理が終了したら書籍データを再取得
       if (book) {
-        this.$store.dispatch('bookList/reflectBookProp', { book })
+        await this.$store.dispatch('bookList/reflectBookProp', { book })
       }
+
+      this.$emit('delete', { prop: this.type, data: item })
 
       return true
     },
@@ -66,8 +68,6 @@ export default {
         url: `/${this.type}/${item.id}/`,
         method: 'delete',
       })
-
-      this.$emit('delete', { prop: this.type, data: item })
     },
   },
 }

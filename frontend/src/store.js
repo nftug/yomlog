@@ -261,19 +261,15 @@ const bookListModule = {
       // dataからbookのidを受け取り、APIから現在の書籍データに更新
       // TODO: 書籍データのidを直接渡すように変更する
 
-      const book = await dispatch('getBookItem', { id })
-
-      // 本のstatusが前と異なる場合、各種データの更新処理を行う
-      // （処理内容はコールバック関数を引数callbackで渡すこと)
       dispatch('auth/reload', null, { root: true }) // ユーザー情報の更新
 
+      const book = await dispatch('getBookItem', { id })
       const oldState = JSON.stringify(book.status[0])
 
-      // NOTE: apiの更新への対応
-      const newBook = (await api.get(`/book/${book.id}/`)).data
+      // APIから更新された書籍データを取得
+      const newBook = (await api.get(`/book/${id}/`)).data
       book.note = newBook.note
       book.status = newBook.status
-
       const newState = JSON.stringify(book.status[0])
 
       if (oldState !== newState) {
