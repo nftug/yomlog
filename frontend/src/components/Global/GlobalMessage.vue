@@ -9,7 +9,7 @@
       </template>
     </v-snackbar>
 
-    <div class="col-12 col-md-8 alert-bar">
+    <div class="col-12 col-md-8 alert-bar" v-show="showError">
       <v-alert
         v-model="showError"
         dismissible
