@@ -4,7 +4,7 @@
     <SendForm
       v-model="userInfoForm"
       action="/auth/users/me/"
-      method="put"
+      method="patch"
       @form-success="onSucceedChangeUserInfo"
     >
       <template v-slot:footer>

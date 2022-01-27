@@ -29,7 +29,7 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
             'date_joined',
             'analytics'
         )
-        read_only_fields = (djoser_settings.LOGIN_FIELD, 'is_superuser', 'username')
+        read_only_fields = (djoser_settings.LOGIN_FIELD, 'is_superuser', 'username', 'date_joined')
 
     def get_fullname(self, instance):
         fullname = '{} {}'.format(instance.last_name, instance.first_name).strip()
@@ -52,10 +52,8 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
         authors_count = AuthorSerializer(authors, many=True).data
 
         # 直近一週間に読んだページ数を取得
-        start_date = date.today() - timedelta(days=6)
         end_date = date.today()
-        days = (end_date - start_date).days + 1
-        date_list = [end_date - timedelta(days=x) for x in range(days)]
+        date_list = [end_date - timedelta(days=x) for x in range(7)]
         pages_daily = PagesDailySerializer(date_list, many=True, context={'queryset': status_log}).data
 
         return {

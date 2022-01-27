@@ -2,7 +2,7 @@
   <!-- メインエリア (モバイル) -->
   <div v-if="isLessThanLg">
     <v-container v-if="$route.name === 'settings'">
-      <div class="col-md-6 col-sm-10 mx-auto">
+      <v-col sm="10" md="6" class="mx-auto">
         <v-card class="mx-auto" tile>
           <v-list-item-group v-model="selectedIndex" color="primary">
             <v-list-item v-for="(page, i) in pages" :key="i" :to="page.path">
@@ -15,12 +15,14 @@
             </v-list-item>
           </v-list-item-group>
         </v-card>
-      </div>
+      </v-col>
     </v-container>
 
     <v-container v-else>
       <v-container>
-        <router-view></router-view>
+        <v-col sm="10" md="6" class="mx-auto">
+          <router-view></router-view>
+        </v-col>
       </v-container>
     </v-container>
   </div>
@@ -28,7 +30,7 @@
   <!-- PC用 -->
   <div v-else>
     <v-container>
-      <div class="col-xl-4 col-lg-5 col-md-6 mx-auto">
+      <v-col xl="4" lg="5" md="6" class="mx-auto">
         <p class="text-h4 my-4">設定</p>
 
         <v-tabs v-model="selectedIndex" @change="onChangeTab()">
@@ -46,7 +48,7 @@
             </v-card>
           </v-tab-item>
         </v-tabs-items>
-      </div>
+      </v-col>
     </v-container>
   </div>
 </template>
@@ -109,7 +111,7 @@ export default {
     },
     onChangeTab() {
       if (!(this.isLessThanLg || this.notChangeRoute)) {
-        let path = this.pages[this.selectedIndex]
+        const path = this.pages[this.selectedIndex]
         if (this.$route.path != path) this.$router.push(path)
       }
       this.notChangeRoute = false

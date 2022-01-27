@@ -239,7 +239,9 @@ export default {
         }
       } else {
         this.graphRange = {
-          start: this.$store.state.auth.date_joined,
+          start: moment(this.$store.state.auth.date_joined).format(
+            'yyyy-MM-DD'
+          ),
           end: this.query.created_at_before || moment().format('yyyy-MM-DD'),
         }
       }
