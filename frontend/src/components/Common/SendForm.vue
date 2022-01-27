@@ -3,62 +3,66 @@
     <Spinner size="100" v-if="isSending" />
 
     <v-form v-else @submit.prevent="submitForm()">
-      <div v-for="(field, key) in form" :key="key">
+      <div v-for="(field, index) in form" :key="index">
         <template v-if="field.type != 'group'">
+          <!-- ファイル送信フィールド -->
           <template v-if="field.type === 'file' || field.type === 'image'">
             <v-file-input
-              :value="form[key].value"
-              :id="key"
+              :value="form[index].value"
+              :id="field.name"
               :label="field.label"
-              :ref="key"
+              :ref="field.name"
               :required="field.required"
               :readonly="field.readonly"
-              :error-messages="form[key].warnings"
+              :error-messages="form[index].warnings"
               :accept="field.type === 'image' ? 'image/*' : null"
-              @change="inputFile($event, key)"
+              @change="inputFile($event, index)"
             ></v-file-input>
 
             <template v-if="field.type === 'image'">
               <div v-show="field.prevSrc">
                 <img :src="field.prevSrc" alt="" width="150" />
                 <div>
-                  <v-btn text small color="primary" @click="clearFile(key)">
+                  <v-btn text small color="primary" @click="clearFile(index)">
                     クリア
                   </v-btn>
                 </div>
               </div>
             </template>
           </template>
+
+          <!-- 通常のフィールド -->
           <template v-else>
             <v-text-field
               :type="field.type"
-              :value="form[key].value"
-              :id="key"
+              :value="form[index].value"
+              :id="field.name"
               :label="field.label"
               :required="field.required"
               :readonly="field.readonly"
-              :error-messages="form[key].warnings"
-              @input="onInputField($event, key)"
+              :error-messages="form[index].warnings"
+              @input="onInputField($event, index)"
             ></v-text-field>
           </template>
         </template>
 
+        <!-- 複数カラムのフィールド -->
         <template v-else>
           <v-row>
             <div
-              v-for="(column, key2) in field.fields"
-              :key="key2"
+              v-for="(column, indexSub) in field.fields"
+              :key="indexSub"
               :class="column.class"
             >
               <v-text-field
-                :type="field.type"
-                :value="form[key].fields[key2].value"
-                :id="key2"
+                :type="column.type"
+                :value="form[index].fields[indexSub].value"
+                :id="column.name"
                 :label="column.label"
                 :required="column.required"
                 :readonly="column.readonly"
                 :error-messages="column.warnings"
-                @input="onInputField($event, key, key2)"
+                @input="onInputField($event, index, indexSub)"
               ></v-text-field>
             </div>
           </v-row>
@@ -80,15 +84,15 @@ import Spinner from '@/components/Common/Spinner.vue'
 
 export default {
   props: {
-    value: Object,
-    action: String,
-    method: String,
-    additionalData: Object,
+    value: { type: Array, require: true },
+    action: { type: String, require: true },
+    method: { type: String, default: 'post' },
+    additionalData: { type: Object, require: false },
   },
   data() {
     return {
       form: this.value,
-      fileFieldNames: [],
+      fileFieldIndexes: [],
       isSending: false,
     }
   },
@@ -98,16 +102,15 @@ export default {
   created() {
     // ファイルフィールドを検索し、フィールド名をimageFieldsNameに追加
     // (複数コラムには未対応)
-    Object.keys(this.form).forEach((key) => {
-      let field = this.form[key]
+    this.form.forEach((field, index) => {
       if (field.type === 'file' || field.type === 'image') {
-        this.fileFieldNames.push(key)
+        this.fileFieldIndexes.push(index)
       }
     })
   },
   methods: {
-    inputFile(event, key) {
-      let field = this.form[key]
+    inputFile(event, index) {
+      const field = this.form[index]
       field.warnings = []
       if (event) {
         field.prevSrc = URL.createObjectURL(event)
@@ -117,8 +120,8 @@ export default {
       }
       this.$emit('input', this.form)
     },
-    clearFile(fieldName) {
-      let field = this.form[fieldName]
+    clearFile(index) {
+      const field = this.form[index]
       field.warnings = []
       field.value = null
       field.prevSrc = ''
@@ -127,19 +130,19 @@ export default {
     async submitForm() {
       // データを取り出し & バリデーションをクリア
       let data
-      let postMethod = this.method
+      let method = this.method
 
-      if (this.fileFieldNames.length) {
+      if (this.fileFieldIndexes.length) {
         // ファイルフィールドありの場合
         data = new FormData()
-        Object.keys(this.form).forEach((key) => {
-          if (this.form[key].type != 'group') {
-            data.append(key, this.form[key].value)
-            this.form[key].warnings = []
+        this.form.forEach((field) => {
+          if (field.type !== 'group') {
+            data.append(field.name, field.value)
+            field.warnings = []
           } else {
-            Object.keys(this.form[key].fields).forEach((key2) => {
-              data.append(key2, this.form[key].fields[key2].value)
-              this.form[key].fields[key2].warnings = []
+            field.fields.forEach((column) => {
+              data.append(column.name, column.value)
+              column.warnings = []
             })
           }
         })
@@ -150,32 +153,32 @@ export default {
         }
 
         // 各ファイルフィールドに対して、アップロードの可否判定
-        this.fileFieldNames.forEach((key) => {
-          let fileField = this.form[key]
+        this.fileFieldIndexes.forEach((index) => {
+          const fileField = this.form[index]
 
           if (!fileField.value) {
             if (fileField.required) {
               this.fileField.warnings.push('この項目は空にできません。')
               return Promise.reject()
             } else if (fileField.prevSrc) {
-              data.delete(key)
-              postMethod = 'patch'
+              data.delete(fileField.name)
+              method = 'patch'
             } else {
-              data.set(key, new File([], ''))
+              data.set(fileField.name, new File([], ''))
             }
           }
         })
       } else {
         // 写真なしの場合
         data = {}
-        Object.keys(this.form).forEach((key) => {
-          if (this.form[key].type != 'group') {
-            data[key] = this.form[key].value
-            this.form[key].warnings = []
+        this.form.forEach((field) => {
+          if (field.type !== 'group') {
+            data[field.name] = field.value
+            field.warnings = []
           } else {
-            Object.keys(this.form[key].fields).forEach((key2) => {
-              data[key2] = this.form[key].fields[key2].value
-              this.form[key].fields[key2].warnings = []
+            field.fields.forEach((column) => {
+              data[column.name] = column.value
+              column.warnings = []
             })
           }
         })
@@ -184,70 +187,81 @@ export default {
         }
       }
 
+      // NOTE: デバッグ用
+      // TODO: 送信時にフィールドの値が反映されないのでどうにかする
+      console.log(data)
+
       try {
         // フォーム送信
         this.isSending = true
-        const response = await api({
-          method: postMethod,
-          url: this.action,
-          data,
-        })
+        const response = await api({ method, url: this.action, data })
 
         // フォーム送信完了イベント発火
         this.$emit('form-success', response.data)
       } catch (error) {
         // バリデーションNG
-        let errData = error.response.data
-        Object.keys(errData).forEach((key) => {
+        const errorData = error.response.data
+
+        Object.keys(errorData).forEach((key) => {
           if (key === 'token' || key === 'uid') {
             this.$store.dispatch('message/setErrorMessage', {
               message: '不正なトークンです。',
             })
           } else if (key === 'non_field_errors') {
-            if (errData[key][0].includes('password')) {
-              const prefix = this.form.new_password ? 'new_' : ''
-              this.form[`${prefix}password`].warnings.push(
-                'パスワードが一致しません。'
+            if (errorData[key][0].includes('password')) {
+              const passwordFields = this.form.filter(
+                (field) => field.type === 'password'
               )
-              this.form[`re_${prefix}password`].warnings.push(
-                'パスワードが一致しません。'
-              )
+              passwordFields.forEach((field) => {
+                field.warnings.push('パスワードが一致しません。')
+              })
             } else {
-              this.form.non_field.warnings = errData[key]
+              this.$store.dispatch('message/setErrorMessage', {
+                message: errorData[key],
+              })
             }
           } else if (key === 'current_password') {
             this.form.current_password.warnings.push(
               'パスワードが正しくありません。'
             )
           } else {
-            if (this.form[key].fields) {
-              // 複数コラムの場合、フィールドのエラーを一つずつ処理
-              Object.keys(this.form[key].fields).forEach((key2) => {
-                if (key2 === key) {
-                  this.form[key].fields[key2].warnings = errData[key2]
+            let targetField = this.form.find(({ name }) => name === key)
+            // エラーのキーが複数カラムに存在する場合、探索してtargetFieldを設定
+            if (!targetField) {
+              loop: for (const field of this.form) {
+                const row = field.fields
+                if (row && Array.isArray(row)) {
+                  for (const column of row) {
+                    if (column.name === key) {
+                      targetField = column
+                      break loop
+                    }
+                  }
                 }
-              })
-            } else {
-              this.form[key].warnings = errData[key]
+              }
             }
+
+            targetField.warnings = errorData[key]
           }
         })
 
         // バリデーションNGイベント発火
-        this.$emit('form-error', error.response.data)
+        this.$emit('form-error', errorData)
         return Promise.reject(error)
       } finally {
         this.isSending = false
         this.$emit('input', this.form)
       }
     },
-    onInputField(event, key, key2) {
-      let field = key2 ? this.form[key].fields[key2] : this.form[key]
+    onInputField(event, index, indexSub) {
+      const targetField = indexSub
+        ? this.form[index].fields[indexSub]
+        : this.form[index]
 
       // dataに反映
-      field.value = event
+      targetField.value = event
       // warningsをクリア
-      field.warnings = []
+      targetField.warnings = []
       // v-modelで指定されたformにinputする
       this.$emit('input', this.form)
     },

@@ -25,35 +25,39 @@ export default {
   },
   data() {
     return {
-      userInfoForm: {
-        fullname: {
+      userInfoForm: [
+        {
+          name: 'fullname',
           label: 'お名前',
           type: 'group',
-          fields: {
-            last_name: {
+          fields: [
+            {
+              name: 'last_name',
               class: 'col-6',
               label: '姓',
               type: 'text',
               value: this.$store.state.auth.last_name,
               warnings: [],
             },
-            first_name: {
+            {
+              name: 'first_name',
               class: 'col-6',
               label: '名',
               type: 'text',
               value: this.$store.state.auth.first_name,
               warnings: [],
             },
-          },
+          ],
         },
-        avatar: {
+        {
+          name: 'avatar',
           label: 'プロフィール画像',
           type: 'image',
           value: null,
           prevSrc: this.$store.state.auth.avatar,
           warnings: [],
         },
-      },
+      ],
     }
   },
   methods: {

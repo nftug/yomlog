@@ -108,7 +108,6 @@ export default {
   async mounted() {
     // メールアドレスが設定されていない状態でリセットを試みた場合
     // ダイアログを表示してメールアドレスの設定に遷移
-    console.log('created')
     if (!this.hasResetToken && !this.$store.state.auth.email) {
       await this.$refs.dialogNoEmail.showDialog()
       this.$router.replace({ name: 'settings_email' })
