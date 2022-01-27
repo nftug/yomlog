@@ -132,33 +132,33 @@ export default {
   },
   methods: {
     removeQuery(key) {
-      const queryOrigin = { ...this.query }
+      let query = { ...this.query }
 
       if (key) {
-        delete this.query[key]
-        delete this.query.page
+        delete query[key]
+        delete query.page
       } else {
-        for (const key in this.query) {
-          delete this.query[key]
+        for (const key in query) {
+          delete query[key]
         }
       }
 
       // OR検索だけになったらAND検索に置換
-      const keys = Object.keys(this.query)
+      const keys = Object.keys(query)
       const hasAnd = keys.some((e) => e.match(/^(?!.*_or).*$/) !== null)
-
       if (!hasAnd) {
-        this.query = {}
+        const queryOrigin = { ...query }
+        query = {}
         keys.forEach((key) => {
           const value = queryOrigin[key]
           const keyName = key.replace(/_or$/, '')
-          this.query[keyName] = value
+          query[keyName] = value
         })
       }
 
       this.$router.push({
         path: this.$route.path,
-        query: this.query,
+        query,
       })
     },
   },
