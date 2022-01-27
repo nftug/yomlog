@@ -1,8 +1,11 @@
 <template>
   <v-container fluid>
     <v-col sm="10" class="mx-auto">
-      <!-- 検索カード -->
-      <SearchCard :total="total" type="note">
+      <!--
+        検索カード
+        routerのパラメータにidがあった場合、ダイアログでは書籍内検索のフォームを表示
+      -->
+      <SearchCard :total="total" type="note" :book-id="$route.params.id">
         <strong>{{ total }}件</strong>
         のノートが見つかりました。
       </SearchCard>

@@ -9,19 +9,19 @@
           </slot>
         </div>
         <div class="ma-4">
-          <SearchDialog :type="type" :hash="`search-${type}`">
+          <SearchDialog :type="type" :hash="`search-${type}`" :book-id="bookId">
             <template #activator="{ on: { click } }">
               <v-btn
                 dark
                 color="indigo"
-                :small="!hasQuery"
-                :x-small="hasQuery"
-                :fab="hasQuery"
+                :small="!isXSmallButton"
+                :x-small="isXSmallButton"
+                :fab="isXSmallButton"
                 elevation="1"
                 class="ma-1"
                 @click="click"
               >
-                <template v-if="hasQuery">
+                <template v-if="isXSmallButton">
                   <v-icon>mdi-magnify-plus-outline</v-icon>
                 </template>
                 <template v-else>
@@ -32,7 +32,28 @@
             </template>
           </SearchDialog>
 
+          <v-btn
+            v-if="hasQuery"
+            dark
+            color="red"
+            :small="!isXSmallButton"
+            :x-small="isXSmallButton"
+            :fab="isXSmallButton"
+            elevation="1"
+            class="ma-1"
+            @click="removeQuery()"
+          >
+            <template v-if="isXSmallButton">
+              <v-icon>mdi-close</v-icon>
+            </template>
+            <template v-else>
+              <v-icon left>mdi-close</v-icon>
+              クリア
+            </template>
+          </v-btn>
+
           <span class="ml-2">
+            <div class="mt-2 hidden-sm-and-up"></div>
             <template v-for="(value, key) in query">
               <v-chip
                 v-if="key !== 'page'"
@@ -45,6 +66,7 @@
                 {{ key | searchLabel }}
                 {{ value }}
               </v-chip>
+              <span class="mt-2" :key="`${key}-2`"></span>
             </template>
           </span>
         </div>
@@ -55,11 +77,14 @@
 
 <script>
 import SearchDialog from '@/components/Common/SearchDialog.vue'
+import { WindowResizeMixin } from '@/mixins'
 
 export default {
+  mixins: [WindowResizeMixin],
   props: {
     total: { type: Number, require: true },
     type: { type: String, require: true },
+    bookId: { type: String, require: false },
   },
   components: {
     SearchDialog,
@@ -67,6 +92,9 @@ export default {
   computed: {
     hasQuery() {
       return Object.keys(this.query).length > 0
+    },
+    isXSmallButton() {
+      return this.hasQuery && !this.isLessThanSm
     },
     query() {
       const query = { ...this.$route.query }
@@ -103,32 +131,34 @@ export default {
     },
   },
   methods: {
-    removeQuery(key, query = this.query) {
-      const queryOrigin = { ...query }
+    removeQuery(key) {
+      const queryOrigin = { ...this.query }
 
       if (key) {
-        delete query[key]
-        delete query.page
+        delete this.query[key]
+        delete this.query.page
       } else {
-        query = {}
+        for (const key in this.query) {
+          delete this.query[key]
+        }
       }
 
       // OR検索だけになったらAND検索に置換
-      const keys = Object.keys(query)
+      const keys = Object.keys(this.query)
       const hasAnd = keys.some((e) => e.match(/^(?!.*_or).*$/) !== null)
 
       if (!hasAnd) {
-        query = {}
+        this.query = {}
         keys.forEach((key) => {
           const value = queryOrigin[key]
           const keyName = key.replace(/_or$/, '')
-          query[keyName] = value
+          this.query[keyName] = value
         })
       }
 
       this.$router.push({
         path: this.$route.path,
-        query,
+        query: this.query,
       })
     },
   },
