@@ -30,7 +30,7 @@ class BookQuerySet(models.QuerySet):
         if not state:
             return self
 
-        queryset = self
+        queryset = self.distinct()
         ids = []
 
         for book in queryset:
@@ -48,7 +48,7 @@ class BookQuerySet(models.QuerySet):
                 elif state == 'read' and position >= book.total:
                     ids.append(book.id)
 
-        return queryset.filter(id__in=ids).distinct()
+        return queryset.filter(id__in=ids)
 
     def annotate_accessed_at(self):
         return self.annotate(accessed_at=Coalesce(Max('status_log__created_at'), F('created_at')))

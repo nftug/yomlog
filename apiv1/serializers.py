@@ -280,12 +280,13 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
         # ステータスの対象にある本と、ステータスのない本を検索
         books = Book.objects.filter(
             Q(status_log__in=status_log) | Q(created_by=user, status_log=None)
-        ).prefetch_related('status_log')
+        ).prefetch_related('status_log').distinct()
 
         return {
             'to_be_read': books.filter_by_state('to_be_read').count(),
             'reading': books.filter_by_state('reading').count(),
-            'read': books.filter_by_state('read').count()
+            'read': books.filter_by_state('read').count(),
+            'all': books.count()
         }
 
     def get_pages_read(self, status_log: StatusLog):

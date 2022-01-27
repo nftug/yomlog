@@ -53,6 +53,13 @@ export default {
         value: this.numOfBooks.to_be_read,
         to: '/shelf/to_be_read',
       },
+      {
+        title: 'すべての本',
+        icon: 'mdi-book',
+        color: 'indigo',
+        value: this.numOfBooks.all,
+        to: '/shelf/all',
+      },
     ]
   },
 }
