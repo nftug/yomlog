@@ -33,15 +33,15 @@
       <v-card-text style="height: 100vh" id="book-add-content">
         <v-container>
           <!-- 検索結果リスト -->
-          <BookList :items="items" :loading="true">
-            <template #content="{ item }">
+          <BookList :books="books" :loading="true">
+            <template #content="{ book }">
               <v-list-item>
-                <v-btn color="green" dark block @click="addBook(item, 0)">
+                <v-btn color="green" dark block @click="addBook(book, 0)">
                   本を登録
                 </v-btn>
               </v-list-item>
               <v-list-item>
-                <v-btn color="orange" dark block @click="addBook(item, 1)">
+                <v-btn color="orange" dark block @click="addBook(book, 1)">
                   Kindle本を登録
                 </v-btn>
               </v-list-item>
@@ -105,7 +105,7 @@ export default {
   },
   data: () => ({
     searchValue: '',
-    items: [],
+    books: [],
     total: 0,
     page: 1,
     maxResults: 12,
@@ -158,7 +158,7 @@ export default {
             amazon_dp = null
           }
 
-          this.items.push({
+          this.books.push({
             title: volumeInfo.title,
             authors: volumeInfo.authors || ['不明'],
             thumbnail: volumeInfo.imageLinks
@@ -192,7 +192,7 @@ export default {
       }
 
       this.page = 1
-      this.items = []
+      this.books = []
     },
     async addBook(book, format_type) {
       let item = { ...book }

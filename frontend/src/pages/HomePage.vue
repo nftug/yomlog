@@ -47,7 +47,7 @@
         <!-- 最近読んだ/追加した本 -->
         <v-col cols="12" md="6">
           <RecentBooksCard
-            :items="recentBooks"
+            :books="recentBooks"
             class="fill-height"
             outlined
           ></RecentBooksCard>

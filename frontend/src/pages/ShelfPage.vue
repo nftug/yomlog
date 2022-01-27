@@ -9,19 +9,19 @@
 
       <template v-else>
         <!-- 本棚 -->
-        <BookList :items="bookList.items" :state="$route.params.state">
-          <template #content="{ item }">
+        <BookList :books="bookList.items" :state="$route.params.state">
+          <template #content="{ book }">
             <!-- 追加の情報 -->
             <v-list-item>
               <v-chip
-                :color="item.format_type === 1 ? 'orange' : 'green'"
+                :color="book.format_type === 1 ? 'orange' : 'green'"
                 dark
                 small
                 class="mr-2"
-                v-text="item.format_type === 1 ? 'Kindle' : 'Book'"
+                v-text="book.format_type === 1 ? 'Kindle' : 'Book'"
               ></v-chip>
               <v-chip small>
-                {{ currentState(item).position.percentage }}%
+                {{ currentState(book).position.percentage }}%
               </v-chip>
             </v-list-item>
 
@@ -35,7 +35,7 @@
                       color="primary"
                       v-bind="attrs"
                       v-on="on"
-                      @click="$refs.noteAdd.showNotePostDialog({ book: item })"
+                      @click="$refs.noteAdd.showNotePostDialog({ book })"
                     >
                       <v-icon>mdi-pen-plus</v-icon>
                     </v-btn>
@@ -51,9 +51,7 @@
                       color="success"
                       v-bind="attrs"
                       v-on="on"
-                      @click="
-                        $refs.statusAdd.showStatusPostDialog({ book: item })
-                      "
+                      @click="$refs.statusAdd.showStatusPostDialog({ book })"
                     >
                       <v-icon>mdi-bookmark-plus</v-icon>
                     </v-btn>
@@ -69,7 +67,9 @@
                       color="error"
                       v-bind="attrs"
                       v-on="on"
-                      @click="$refs.bookDelete.showItemDeleteDialog({ item })"
+                      @click="
+                        $refs.bookDelete.showItemDeleteDialog({ item: book })
+                      "
                     >
                       <v-icon>mdi-trash-can</v-icon>
                     </v-btn>

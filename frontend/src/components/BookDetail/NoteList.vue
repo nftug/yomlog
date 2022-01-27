@@ -1,5 +1,5 @@
 <template>
-  <div id="note-list" v-if="item.note">
+  <div id="note-list" v-if="book.note">
     <v-card outlined class="mx-auto overflow-hidden" :height="height">
       <div v-if="isLoading" class="text-center">
         <v-progress-circular
@@ -9,8 +9,8 @@
       </div>
 
       <v-sheet v-else flat class="overflow-y-auto fill-height">
-        <template v-if="item.note.length">
-          <div v-for="(note, index) in item.note" :key="index">
+        <template v-if="book.note.length">
+          <div v-for="(note, index) in book.note" :key="index">
             <v-list-item two-line link>
               <v-list-item-action>
                 <v-checkbox
@@ -20,11 +20,11 @@
               </v-list-item-action>
 
               <v-list-item-content
-                @click="$refs.noteEdit.showNotePostDialog({ book: item, note })"
+                @click="$refs.noteEdit.showNotePostDialog({ book, note })"
               >
                 <v-list-item-title>
                   {{ note.position
-                  }}{{ item.format_type === 1 ? '' : 'ページ' }}
+                  }}{{ book.format_type === 1 ? '' : 'ページ' }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
                   {{ note.content }}
@@ -42,7 +42,7 @@
       </v-sheet>
 
       <!-- 検索 -->
-      <SearchDialog type="note" :book-id="item.id">
+      <SearchDialog type="note" :book-id="book.id">
         <template #activator="{ on, attrs }">
           <v-btn
             color="pink"

@@ -1,9 +1,9 @@
 <template>
-  <div id="status-log" v-if="item.status">
+  <div id="status-log" v-if="book.status">
     <v-card outlined class="mx-auto overflow-hidden" :height="height">
       <v-sheet flat class="overflow-y-auto fill-height">
-        <template v-if="item.status.length">
-          <div v-for="(state, index) in item.status" :key="index">
+        <template v-if="book.status.length">
+          <div v-for="(state, index) in book.status" :key="index">
             <v-list-item link>
               <v-list-item-action>
                 <v-checkbox
@@ -15,7 +15,7 @@
               <v-list-item-content
                 @click="
                   $refs.statusEdit.showStatusPostDialog({
-                    book: item,
+                    book,
                     status: state,
                   })
                 "
@@ -32,7 +32,7 @@
               <v-list-item-action
                 @click="
                   $refs.statusEdit.showStatusPostDialog({
-                    book: item,
+                    book,
                     status: state,
                   })
                 "
@@ -45,7 +45,7 @@
                 </v-chip>
               </v-list-item-action>
             </v-list-item>
-            <v-divider v-if="index + 1 < item.status.length"></v-divider>
+            <v-divider v-if="index + 1 < book.status.length"></v-divider>
           </div>
         </template>
 

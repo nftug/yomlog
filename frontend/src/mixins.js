@@ -47,9 +47,9 @@ export const BookListMixin = {
       return this.$store.state.bookList
     },
     currentState() {
-      return function (item) {
-        if (item.status !== undefined && item.status.length) {
-          return item.status[0]
+      return function (book) {
+        if (book.status !== undefined && book.status.length) {
+          return book.status[0]
         } else {
           return {
             id: null,
@@ -106,7 +106,7 @@ export const ListViewMixin = {
 
 export const BookDetailChildMixin = {
   props: {
-    item: {
+    book: {
       type: Object,
       require: true,
     },
@@ -127,7 +127,7 @@ export const BookDetailChildMixin = {
   methods: {
     initCheckbox(type) {
       this.checkbox.splice(0, this.checkbox.length)
-      this.item[type].forEach(() => this.checkbox.push(false))
+      this.book[type].forEach(() => this.checkbox.push(false))
     },
     onDeleteItems({ prop }) {
       this.initCheckbox(prop)
@@ -145,12 +145,12 @@ export const BookDetailChildMixin = {
       const items = []
       this.checkbox.forEach((checked, index) => {
         if (checked) {
-          items.push(this.item[type][index])
+          items.push(this.book[type][index])
         }
       })
       this.$refs.itemDelete.showItemDeleteDialog({
         item: items,
-        book: this.item,
+        book: this.book,
       })
     },
   },

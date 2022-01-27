@@ -1,32 +1,32 @@
 <template>
   <div id="book-list">
-    <v-row v-if="items.length">
-      <v-col v-for="item in items" :key="item.id" cols="12" md="6" xl="4">
+    <v-row v-if="books.length">
+      <v-col v-for="book in books" :key="book.id" cols="12" md="6" xl="4">
         <v-card class="mx-auto">
           <v-card-text>
             <v-list-item two-line>
-              <slot name="header" :item="item">
+              <slot name="header" :book="book">
                 <v-list-item-content>
                   <v-list-item-title class="font-weight-medium">
                     <router-link
                       v-if="state"
-                      :to="`/book/detail/${item.id}`"
+                      :to="`/book/detail/${book.id}`"
                       class="black--text"
                     >
-                      {{ item.title }}
+                      {{ book.title }}
                     </router-link>
                     <template v-else>
-                      {{ item.title }}
+                      {{ book.title }}
                     </template>
                   </v-list-item-title>
                   <v-list-item-subtitle>
-                    <span v-for="(author, index) in item.authors" :key="index">
+                    <span v-for="(author, index) in book.authors" :key="index">
                       <router-link
                         :to="`/shelf/all/?authors=${author}`"
                         v-text="author"
                       ></router-link>
                       <span
-                        v-if="index + 1 < item.authors.length"
+                        v-if="index + 1 < book.authors.length"
                         v-text="', '"
                       ></span>
                     </span>
@@ -37,14 +37,14 @@
 
             <v-row no-gutters>
               <v-col cols="8">
-                <slot name="content" :item="item"></slot>
+                <slot name="content" :book="book"></slot>
               </v-col>
 
               <v-col cols="4">
-                <router-link v-if="state" :to="`/book/detail/${item.id}`">
+                <router-link v-if="state" :to="`/book/detail/${book.id}`">
                   <v-img
                     contain
-                    :src="item.thumbnail"
+                    :src="book.thumbnail"
                     max-height="185"
                     min-height="185"
                   ></v-img>
@@ -52,7 +52,7 @@
                 <template v-else>
                   <v-img
                     contain
-                    :src="item.thumbnail"
+                    :src="book.thumbnail"
                     max-height="185"
                     min-height="185"
                   ></v-img>
@@ -73,7 +73,7 @@
 <script>
 export default {
   props: {
-    items: {
+    books: {
       type: Array,
       required: true,
     },

@@ -4,8 +4,8 @@
 
     <v-card-text class="pb-0">
       <v-sheet flat class="overflow-y-auto" height="200px" outlined>
-        <v-list v-if="items.length">
-          <template v-for="(book, index) in items">
+        <v-list v-if="books.length">
+          <template v-for="(book, index) in books">
             <div :key="index">
               <v-list-item :to="`/book/detail/${book.id}`">
                 <v-list-item-avatar tile size="50px">
@@ -18,7 +18,7 @@
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider v-if="index + 1 < items.length"></v-divider>
+              <v-divider v-if="index + 1 < books.length"></v-divider>
             </div>
           </template>
         </v-list>
@@ -39,7 +39,7 @@
 <script>
 export default {
   props: {
-    items: { type: Array, require: true },
+    books: { type: Array, require: true },
   },
 }
 </script>

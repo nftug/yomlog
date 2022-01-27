@@ -6,7 +6,7 @@
         small
         dark
         block
-        @click="$emit('dialog', 'add-note', { book: item })"
+        @click="$emit('dialog', 'add-note', { book })"
       >
         <v-icon small>mdi-pen-plus</v-icon>
         ノートを追加
@@ -19,7 +19,7 @@
         small
         dark
         block
-        @click="$emit('dialog', 'add-status', { book: item })"
+        @click="$emit('dialog', 'add-status', { book })"
       >
         <v-icon small>mdi-bookmark-plus</v-icon>
         進捗を追加
@@ -38,13 +38,13 @@
           </v-btn>
         </template>
         <v-list dense>
-          <v-list-item
-            link
-            @click="$emit('dialog', 'edit-book', { book: item })"
-          >
+          <v-list-item link @click="$emit('dialog', 'edit-book', { book })">
             <v-list-item-title>書籍の編集</v-list-item-title>
           </v-list-item>
-          <v-list-item link @click="$emit('dialog', 'delete-book', { item })">
+          <v-list-item
+            link
+            @click="$emit('dialog', 'delete-book', { item: book })"
+          >
             <v-list-item-title>書籍の削除</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -74,13 +74,14 @@ import { WindowResizeMixin, BookListMixin } from '@/mixins'
 export default {
   mixins: [WindowResizeMixin, BookListMixin],
   props: {
-    item: {
+    book: {
       type: Object,
+      require: true,
     },
   },
   computed: {
     googleLink() {
-      return `https://books.google.co.jp/books/?id=${this.item.id_google}`
+      return `https://books.google.co.jp/books/?id=${this.book.id_google}`
     },
   },
 }

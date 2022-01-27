@@ -10,19 +10,19 @@
       <v-row class="pb-4">
         <v-col cols="12" sm="9">
           <!-- 書籍情報 -->
-          <div class="text-h6 my-2 font-weight-bold" v-text="item.title"></div>
+          <div class="text-h6 my-2 font-weight-bold" v-text="book.title"></div>
           <div class="text-body-2 mb-sm-5">
-            <span v-for="(author, index) in item.authors" :key="index">
+            <span v-for="(author, index) in book.authors" :key="index">
               <router-link
                 :to="`/shelf/all/?authors=${author}`"
                 v-text="author"
               ></router-link>
-              <span v-if="index + 1 < item.authors.length" v-text="', '"></span>
+              <span v-if="index + 1 < book.authors.length" v-text="', '"></span>
             </span>
           </div>
 
           <BookDetailMenu
-            :item="item"
+            :book="book"
             class="my-2 hidden-xs-only"
             @dialog="showDialog"
           ></BookDetailMenu>
@@ -31,7 +31,7 @@
         <v-col cols="12" sm="3">
           <v-img
             contain
-            :src="item.thumbnail"
+            :src="book.thumbnail"
             max-height="185"
             min-height="185"
           ></v-img>
@@ -39,14 +39,14 @@
       </v-row>
 
       <BookDetailMenu
-        :item="item"
+        :book="book"
         class="my-2 hidden-sm-and-up"
         @dialog="showDialog"
       ></BookDetailMenu>
 
       <!-- 状態表示 -->
       <div class="pb-4">
-        <BookDetailInfo :item="item"></BookDetailInfo>
+        <BookDetailInfo :book="book"></BookDetailInfo>
       </div>
 
       <!-- 進捗とメモ -->
@@ -78,7 +78,7 @@
 
             <div v-if="tab.count" class="hidden-xs-only px-2">
               <v-chip small color="grey darken-1" dark>
-                {{ item[tab.name].length }}
+                {{ book[tab.name].length }}
               </v-chip>
             </div>
           </v-tab>
@@ -87,7 +87,7 @@
         <v-tabs-items v-model="activeTab">
           <v-tab-item>
             <StatusLog
-              :item="item"
+              :book="book"
               height="500"
               @set-toolbar="setToolbar"
               @post="getCalendarEvents"
@@ -96,7 +96,7 @@
           </v-tab-item>
           <v-tab-item>
             <NoteList
-              :item="item"
+              :book="book"
               height="500"
               @set-toolbar="setToolbar"
               @post="getCalendarEvents"
@@ -107,7 +107,7 @@
             <Calendar
               v-model="date"
               height="500"
-              :book="item"
+              :book="book"
               ref="calendar"
             ></Calendar>
           </v-tab-item>
@@ -115,7 +115,7 @@
       </div>
     </v-col>
 
-    <BookDetailFab :item="item" @dialog="showDialog"></BookDetailFab>
+    <BookDetailFab :book="book" @dialog="showDialog"></BookDetailFab>
 
     <!-- ダイアログ -->
     <BookEditDialog
@@ -176,7 +176,7 @@ export default {
   },
   data() {
     return {
-      item: {},
+      book: {},
       isLoading: false,
       error: null,
       activeTab: 0,
@@ -211,12 +211,12 @@ export default {
     // 書籍データをストア or Web APIから取得
     try {
       this.isLoading = true
-      this.item = await this.$store.dispatch('bookList/getBookItem', {
+      this.book = await this.$store.dispatch('bookList/getBookItem', {
         id: this.$route.params.id,
       })
 
       // カレンダーの日付を進捗の最終更新日に合わせる
-      this.date = moment(this.currentState(this.item).created_at).format(
+      this.date = moment(this.currentState(this.book).created_at).format(
         'yyyy-MM-DD'
       )
     } catch (error) {
@@ -244,7 +244,7 @@ export default {
     },
     setTabFromHash() {
       const hashName = this.$route.hash.replace(/^#/, '')
-      const index = this.tabs.findIndex((item) => item.name === hashName)
+      const index = this.tabs.findIndex(({ name }) => name === hashName)
       this.activeTab = index > -1 ? index : 0
     },
     onClickTab() {
@@ -254,13 +254,13 @@ export default {
     },
     onEditBook(book) {
       this.$store.commit('bookList/set', book)
-      this.item = book
+      this.book = book
 
       this.$store.dispatch('auth/reload')
     },
     onDeleteBook() {
       // リストを初期化して本棚にページ遷移する
-      const params = { state: this.currentState(this.item).state }
+      const params = { state: this.currentState(this.book).state }
       this.$store.commit('bookList/setParams', { params })
       this.$store.dispatch('bookList/refreshBookList')
       this.$router.replace({

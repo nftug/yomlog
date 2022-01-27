@@ -24,7 +24,7 @@
             color="green"
             v-on="on"
             v-bind="attrs"
-            @click="$emit('dialog', 'add-status', { book: item })"
+            @click="$emit('dialog', 'add-status', { book })"
           >
             <v-icon>mdi-bookmark-plus</v-icon>
           </v-btn>
@@ -41,7 +41,7 @@
             color="indigo"
             v-on="on"
             v-bind="attrs"
-            @click="$emit('dialog', 'add-note', { book: item })"
+            @click="$emit('dialog', 'add-note', { book })"
           >
             <v-icon>mdi-pen-plus</v-icon>
           </v-btn>
@@ -55,7 +55,7 @@
 <script>
 export default {
   props: {
-    item: {
+    book: {
       type: Object,
       require: true,
     },
