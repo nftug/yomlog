@@ -13,9 +13,15 @@
           :additional-data="tokenData"
           @form-success="onSucceedResetPassword"
         >
-          <template v-slot:footer>
+          <template #footer="{ isValid }">
             <div class="mt-4">
-              <v-btn type="submit" color="primary" block dark>
+              <v-btn
+                type="submit"
+                color="primary"
+                block
+                :dark="isValid"
+                :disabled="!isValid"
+              >
                 パスワードのリセット
               </v-btn>
             </div>
@@ -37,8 +43,18 @@
           method="post"
           @form-success="onSucceedSendEmail"
         >
-          <template v-slot:footer>
-            <v-btn type="submit" color="primary" block dark>メールを送信</v-btn>
+          <template #footer="{ isValid }">
+            <div class="mt-4">
+              <v-btn
+                type="submit"
+                color="primary"
+                block
+                :dark="isValid"
+                :disabled="!isValid"
+              >
+                メールを送信
+              </v-btn>
+            </div>
           </template>
         </SendForm>
       </div>

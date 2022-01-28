@@ -2,7 +2,7 @@
   <div id="send-form">
     <Spinner size="100" v-if="isSending" />
 
-    <v-form v-else @submit.prevent="submitForm()">
+    <v-form v-else @submit.prevent="submitForm()" v-model="isValid">
       <div v-for="(field, index) in form" :key="index">
         <template v-if="field.type != 'group'">
           <!-- ファイル送信フィールド -->
@@ -17,6 +17,7 @@
               :error-messages="form[index].warnings"
               :accept="field.type === 'image' ? 'image/*' : null"
               @change="inputFile($event, index)"
+              @click:clear="clearFile(index)"
             ></v-file-input>
 
             <template v-if="field.type === 'image'">
@@ -69,9 +70,17 @@
         </template>
       </div>
 
-      <slot name="footer">
+      <slot name="footer" :is-valid="isValid">
         <div class="pt-5">
-          <v-btn type="submit" color="primary" block>送信</v-btn>
+          <v-btn
+            type="submit"
+            color="primary"
+            block
+            :dark="isValid"
+            :disabled="!isValid"
+          >
+            送信
+          </v-btn>
         </div>
       </slot>
     </v-form>
@@ -83,6 +92,7 @@ import api from '@/services/api'
 import Spinner from '@/components/Common/Spinner.vue'
 
 export default {
+  components: { Spinner },
   props: {
     value: { type: Array, require: true },
     action: { type: String, require: true },
@@ -91,20 +101,31 @@ export default {
   },
   data() {
     return {
-      form: this.value,
+      form: [],
+      fields: [],
       fileFieldIndexes: [],
       isSending: false,
+      isValid: false,
     }
   },
-  components: {
-    Spinner,
-  },
   created() {
-    // ファイルフィールドを検索し、フィールド名をimageFieldsNameに追加
-    // (複数コラムには未対応)
+    // propsからフォームをディープコピー
+    this.form = JSON.parse(JSON.stringify(this.value))
+
     this.form.forEach((field, index) => {
+      // ファイルフィールドを検索し、フィールド名をimageFieldsNameに追加
+      // (複数コラムには未対応)
       if (field.type === 'file' || field.type === 'image') {
         this.fileFieldIndexes.push(index)
+      }
+
+      // fieldsに与えられたフィールドをすべて入れる
+      if (field.type !== 'group') {
+        this.fields.push(field)
+      } else {
+        field.fields.forEach((column) => {
+          this.fields.push(column)
+        })
       }
     })
   },
@@ -118,14 +139,32 @@ export default {
       } else {
         field.prevSrc = ''
       }
-      this.$emit('input', this.form)
+
+      this.setModelValue()
     },
     clearFile(index) {
       const field = this.form[index]
       field.warnings = []
       field.value = null
       field.prevSrc = ''
-      this.$emit('input', this.form)
+
+      this.setModelValue()
+    },
+    onInputField($event, index, indexSub) {
+      const targetField =
+        indexSub !== undefined
+          ? this.form[index].fields[indexSub]
+          : this.form[index]
+
+      targetField.value = $event
+      targetField.warnings = []
+
+      this.setModelValue()
+    },
+    setModelValue() {
+      // フォームの内容を親に反映させる
+      const formCopied = JSON.parse(JSON.stringify(this.form))
+      this.$emit('input', formCopied)
     },
     async submitForm() {
       // データを取り出し & バリデーションをクリア
@@ -135,15 +174,12 @@ export default {
       if (this.fileFieldIndexes.length) {
         // ファイルフィールドありの場合
         data = new FormData()
-        this.form.forEach((field) => {
-          if (field.type !== 'group') {
-            data.append(field.name, field.value)
-            field.warnings = []
-          } else {
-            field.fields.forEach((column) => {
-              data.append(column.name, column.value)
-              column.warnings = []
-            })
+        this.fields.forEach((field) => {
+          const { name, type, value } = field
+          if (value !== undefined && value !== null) {
+            data.append(name, value)
+          } else if ((type === 'file' || type === 'image') && !field.prevSrc) {
+            data.append(name, new File([], ''))
           }
         })
         if (this.additionalData) {
@@ -151,36 +187,11 @@ export default {
             data.append(key, this.additionalData[key])
           })
         }
-
-        // 各ファイルフィールドに対して、アップロードの可否判定
-        this.fileFieldIndexes.forEach((index) => {
-          const fileField = this.form[index]
-
-          if (!fileField.value) {
-            if (fileField.required) {
-              this.fileField.warnings.push('この項目は空にできません。')
-              return Promise.reject()
-            } else if (fileField.prevSrc) {
-              data.delete(fileField.name)
-              method = 'patch'
-            } else {
-              data.set(fileField.name, new File([], ''))
-            }
-          }
-        })
       } else {
         // 写真なしの場合
         data = {}
-        this.form.forEach((field) => {
-          if (field.type !== 'group') {
-            data[field.name] = field.value
-            field.warnings = []
-          } else {
-            field.fields.forEach((column) => {
-              data[column.name] = column.value
-              column.warnings = []
-            })
-          }
+        this.fields.forEach((field) => {
+          data[field.name] = field.value
         })
         if (this.additionalData) {
           Object.assign(data, this.additionalData)
@@ -191,76 +202,49 @@ export default {
         // フォーム送信
         this.isSending = true
         const response = await api({ method, url: this.action, data })
-
         // フォーム送信完了イベント発火
         this.$emit('form-success', response.data)
+        //
       } catch (error) {
         // バリデーションNG
         const errorData = error.response.data
-
         Object.keys(errorData).forEach((key) => {
-          if (key === 'token' || key === 'uid') {
-            this.$store.dispatch('message/setErrorMessage', {
-              message: '不正なトークンです。',
-            })
-          } else if (key === 'non_field_errors') {
-            if (errorData[key][0].includes('password')) {
-              const passwordFields = this.form.filter(
-                (field) => field.type === 'password'
-              )
-              passwordFields.forEach((field) => {
-                field.warnings.push('パスワードが一致しません。')
-              })
-            } else {
-              this.$store.dispatch('message/setErrorMessage', {
-                message: errorData[key],
-              })
-            }
-          } else if (key === 'current_password') {
-            this.form.current_password.warnings.push(
-              'パスワードが正しくありません。'
-            )
-          } else {
-            let targetField = this.form.find(({ name }) => name === key)
-            // エラーのキーが複数カラムに存在する場合、探索してtargetFieldを設定
-            if (!targetField) {
-              loop: for (const field of this.form) {
-                const row = field.fields
-                if (row && Array.isArray(row)) {
-                  for (const column of row) {
-                    if (column.name === key) {
-                      targetField = column
-                      break loop
-                    }
-                  }
-                }
-              }
-            }
-
-            targetField.warnings = errorData[key]
-          }
+          this.setError(key, errorData[key])
         })
 
-        // バリデーションNGイベント発火
+        // バリデーションNGイベント発火 & warningの反映
         this.$emit('form-error', errorData)
+        this.setModelValue()
         return Promise.reject(error)
       } finally {
         this.isSending = false
-        this.$emit('input', this.form)
       }
     },
-    onInputField(event, index, indexSub) {
-      const targetField =
-        indexSub !== undefined
-          ? this.form[index].fields[indexSub]
-          : this.form[index]
-
-      // dataに反映
-      targetField.value = event
-      // warningsをクリア
-      targetField.warnings = []
-      // v-modelで指定されたformにinputする
-      this.$emit('input', this.form)
+    setError(key, value) {
+      // エラー処理用
+      if (key === 'token' || key === 'uid') {
+        this.$store.dispatch('message/setErrorMessage', {
+          message: '不正なトークンです。',
+        })
+      } else if (key === 'non_field_errors') {
+        if (value[0].includes('password')) {
+          const passwordFields = this.fields.filter(
+            (field) =>
+              field.type === 'password' && field.name !== 'current_password'
+          )
+          passwordFields.forEach((field) => {
+            field.warnings.push('パスワードが一致しません。')
+          })
+        } else {
+          this.$store.dispatch('message/setErrorMessage', {
+            message: value,
+          })
+        }
+      } else {
+        const targetField = this.fields.find(({ name }) => name === key)
+        if (key === 'current_password') value = 'パスワードが正しくありません。'
+        targetField.warnings = value
+      }
     },
   },
 }

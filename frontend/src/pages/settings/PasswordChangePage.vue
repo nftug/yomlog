@@ -6,9 +6,15 @@
       method="post"
       @form-success="onSucceedChangePassword"
     >
-      <template v-slot:footer>
+      <template #footer="{ isValid }">
         <div class="mt-4">
-          <v-btn type="submit" color="primary" block dark>
+          <v-btn
+            type="submit"
+            color="primary"
+            block
+            :dark="isValid"
+            :disabled="!isValid"
+          >
             パスワードの変更
           </v-btn>
         </div>

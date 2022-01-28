@@ -20,9 +20,15 @@
             method="post"
             @form-success="onSucceedSend"
           >
-            <template #footer>
-              <div class="pt-5">
-                <v-btn type="submit" color="primary" block>
+            <template #footer="{ isValid }">
+              <div class="mt-4">
+                <v-btn
+                  type="submit"
+                  color="primary"
+                  block
+                  :dark="isValid"
+                  :disabled="!isValid"
+                >
                   <v-icon left>mdi-account-plus</v-icon>
                   ユーザー登録
                 </v-btn>

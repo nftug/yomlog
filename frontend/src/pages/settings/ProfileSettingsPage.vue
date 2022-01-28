@@ -7,9 +7,17 @@
       method="patch"
       @form-success="onSucceedChangeUserInfo"
     >
-      <template v-slot:footer>
+      <template #footer="{ isValid }">
         <div class="mt-4">
-          <v-btn type="submit" color="primary" block dark>設定の変更</v-btn>
+          <v-btn
+            type="submit"
+            color="primary"
+            block
+            :dark="isValid"
+            :disabled="!isValid"
+          >
+            設定の変更
+          </v-btn>
         </div>
       </template>
     </SendForm>
