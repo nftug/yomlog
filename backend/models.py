@@ -13,11 +13,11 @@ class CustomUser(AbstractUser):
 
     class Meta:
         db_table = 'user'
-        verbose_name_plural = 'ユーザー'
+        verbose_name = 'ユーザー'
         ordering = ['username']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(_('email address'), unique=True)
     avatar = models.ImageField('写真', blank=True, null=True, default=None)
 
     # EMAIL_FIELD = 'email'
