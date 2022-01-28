@@ -83,6 +83,7 @@
                   ref="quote_image"
                   accept="image/*"
                   @change="inputQuoteImage($event)"
+                  @click:clear="clearQuoteImage"
                 ></v-file-input>
 
                 <div v-show="prevSrc" class="mb-4 mx-4">
