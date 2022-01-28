@@ -22,15 +22,16 @@ export default {
   },
   data() {
     return {
-      changeEmailForm: {
-        email: {
+      changeEmailForm: [
+        {
+          name: 'email',
           label: 'メールアドレス',
           type: 'email',
           required: true,
           value: this.$store.state.auth.email,
           warnings: [],
         },
-      },
+      ],
     }
   },
   methods: {

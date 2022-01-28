@@ -32,29 +32,32 @@ export default {
     SendForm,
   },
   data: () => ({
-    formChangePassword: {
-      current_password: {
+    formChangePassword: [
+      {
+        name: 'current_password',
         label: '現在のパスワード',
         type: 'password',
         required: true,
         value: '',
         warnings: [],
       },
-      new_password: {
+      {
+        name: 'new_password',
         label: '新しいパスワード',
         type: 'password',
         required: true,
         value: '',
         warnings: [],
       },
-      re_new_password: {
+      {
+        name: 're_new_password',
         label: '新しいパスワード (確認用)',
         type: 'password',
         required: true,
         value: '',
         warnings: [],
       },
-    },
+    ],
   }),
   methods: {
     // パスワード変更押下

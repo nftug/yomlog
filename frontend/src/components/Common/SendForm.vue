@@ -187,10 +187,6 @@ export default {
         }
       }
 
-      // NOTE: デバッグ用
-      // TODO: 送信時にフィールドの値が反映されないのでどうにかする
-      console.log(data)
-
       try {
         // フォーム送信
         this.isSending = true
@@ -254,9 +250,10 @@ export default {
       }
     },
     onInputField(event, index, indexSub) {
-      const targetField = indexSub
-        ? this.form[index].fields[indexSub]
-        : this.form[index]
+      const targetField =
+        indexSub !== undefined
+          ? this.form[index].fields[indexSub]
+          : this.form[index]
 
       // dataに反映
       targetField.value = event

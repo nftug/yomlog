@@ -70,56 +70,63 @@ export default {
   },
   data: () => ({
     dialog: false,
-    formSignUp: {
-      username: {
+    formSignUp: [
+      {
+        name: 'username',
         label: 'ユーザー名',
         type: 'text',
         required: true,
         value: '',
         warnings: [],
       },
-      fullname: {
+      {
+        name: 'fullname',
         label: 'お名前',
         type: 'group',
-        fields: {
-          last_name: {
+        fields: [
+          {
+            name: 'last_name',
             class: 'col-6',
             label: '姓',
             type: 'text',
             value: '',
             warnings: [],
           },
-          first_name: {
+          {
+            name: 'first_name',
             class: 'col-6',
             label: '名',
             type: 'text',
             value: '',
             warnings: [],
           },
-        },
+        ],
       },
-      password: {
+      {
+        name: 'password',
         label: 'パスワード',
         type: 'password',
         required: true,
         value: '',
         warnings: [],
       },
-      re_password: {
+      {
+        name: 're_password',
         label: 'パスワード (確認用)',
         type: 'password',
         required: true,
         value: '',
         warnings: [],
       },
-      avatar: {
+      {
+        name: 'avatar',
         label: 'プロフィール画像',
         type: 'image',
         value: null,
         prevSrc: '',
         warnings: [],
       },
-    },
+    ],
   }),
   created() {
     // UIDとトークンを指定→ユーザーのアクティベーションに進む
@@ -129,13 +136,14 @@ export default {
   },
   methods: {
     // フォーム送信成功
-    async onSucceedSend({ is_active }) {
+    async onSucceedSend({ username, is_active }) {
       if (is_active) {
         // アカウントがアクティブの場合、そのままログイン
-        await this.$store.dispatch('auth/login', {
-          username: this.formSignUp.username.value,
-          password: this.formSignUp.password.value,
-        })
+        const { value: password } = this.formSignUp.find(
+          ({ name }) => name === 'password'
+        )
+
+        await this.$store.dispatch('auth/login', { username, password })
         this.$router.replace({ name: 'home' })
         this.$store.dispatch('message/setInfoMessage', {
           message: 'アカウントを作成しました。',

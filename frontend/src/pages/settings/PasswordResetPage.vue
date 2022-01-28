@@ -73,8 +73,9 @@ export default {
   },
   data() {
     return {
-      formEmailPassword: {
-        email: {
+      formEmailPassword: [
+        {
+          name: 'email',
           label: 'メールアドレス',
           type: 'email',
           required: true,
@@ -82,23 +83,25 @@ export default {
           value: this.$store.state.auth.email,
           readonly: this.$store.state.auth.email.length > 0,
         },
-      },
-      formResetPassword: {
-        new_password: {
+      ],
+      formResetPassword: [
+        {
+          name: 'new_password',
           label: '新しいパスワード',
           type: 'password',
           required: true,
           value: '',
           warnings: [],
         },
-        re_new_password: {
+        {
+          name: 're_new_password',
           label: '新しいパスワード (確認用)',
           type: 'password',
           required: true,
           value: '',
           warnings: [],
         },
-      },
+      ],
       tokenData: {
         uid: this.$route.params.uid,
         token: this.$route.params.token,
@@ -108,7 +111,9 @@ export default {
   async mounted() {
     // メールアドレスが設定されていない状態でリセットを試みた場合
     // ダイアログを表示してメールアドレスの設定に遷移
-    if (!this.hasResetToken && !this.$store.state.auth.email) {
+    const { email, isLoggedIn } = this.$store.state.auth
+
+    if (isLoggedIn && !this.hasResetToken && !email) {
       await this.$refs.dialogNoEmail.showDialog()
       this.$router.replace({ name: 'settings_email' })
     }
