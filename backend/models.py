@@ -18,7 +18,7 @@ class CustomUser(AbstractUser):
         ordering = ['username']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(_('email address'), unique=True, blank=True)
     avatar = models.ImageField('写真', blank=True, null=True, default=None)
 
     # EMAIL_FIELD = 'email'

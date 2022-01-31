@@ -86,7 +86,7 @@ const router = new VueRouter({
           const parentRoute = getRoute('book_detail')
           return {
             label: '本の詳細',
-            parent: parentRoute.name || 'shelf',
+            parent: parentRoute.name || 'home',
           }
         },
       },
