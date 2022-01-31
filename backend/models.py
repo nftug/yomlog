@@ -31,7 +31,7 @@ class BookQuerySet(models.QuerySet):
         if not state:
             return self
 
-        queryset = self.distinct()
+        queryset = self.prefetch_related('status_log').distinct()
         ids = []
 
         for book in queryset:

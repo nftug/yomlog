@@ -1,4 +1,3 @@
-from venv import create
 from rest_framework import serializers
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
@@ -280,7 +279,7 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
         # ステータスの対象にある本と、ステータスのない本を検索
         books = Book.objects.filter(
             Q(status_log__in=status_log) | Q(created_by=user, status_log=None)
-        ).prefetch_related('status_log').distinct()
+        )
 
         return {
             'to_be_read': books.filter_by_state('to_be_read').count(),
