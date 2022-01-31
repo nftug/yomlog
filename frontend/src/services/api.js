@@ -17,9 +17,6 @@ const config = {
   },
 }
 
-// リトライなしのAPIメソッド
-const rawApi = axios.create({ ...config })
-
 // リトライありのAPIメソッド
 const api = axios.create({
   ...config,
@@ -27,43 +24,8 @@ const api = axios.create({
     retry: 3,
     noResponseRetries: 2,
     retryDelay: 1000,
-    statusCodesToRetry: [
-      [100, 199],
-      [401, 429],
-      [500, 599],
-    ],
-    httpMethodsToRetry: [
-      'GET',
-      'HEAD',
-      'OPTIONS',
-      'DELETE',
-      'PUT',
-      'PATCH',
-      'POST',
-    ],
-    shouldRetry: async (error) => {
-      const raxConfig = rax.getConfig(error)
-      if (raxConfig.currentRetryAttempt >= raxConfig.retry) return false
-
-      const status = error.response ? error.response.status : 500
-      if (status === 401 && error.response.data.code === 'token_not_valid') {
-        // 認証エラー
-        try {
-          // トークンのリフレッシュ
-          console.log('Access token expired. Trying to refresh...')
-          const access = await store.dispatch('auth/refresh')
-          console.log('Refresh succeeded. Retrying to request...')
-          // ヘッダー更新
-          error.config.headers.Authorization = 'JWT ' + access
-          return true
-        } catch (error) {
-          console.log('Refresh token expired.')
-          return false
-        }
-      } else {
-        return rax.shouldRetryRequest(error)
-      }
-    },
+    statusCodesToRetry: [[500, 599]],
+    httpMethodsToRetry: ['GET', 'HEAD', 'OPTIONS'],
   },
 })
 
@@ -89,7 +51,7 @@ api.interceptors.response.use(
   (response) => {
     return response
   },
-  (error) => {
+  async (error) => {
     console.log('error.response=', error.response)
     const status = error.response ? error.response.status : 500
 
@@ -101,13 +63,26 @@ api.interceptors.response.use(
     } else {
       if (status === 401) {
         if (error.response.data.code === 'token_not_valid') {
-          store.dispatch('auth/logout', {
-            next: router.history.current.fullPath,
-          })
-          message = 'ログインの期限切れです。'
+          // トークン期限切れの場合、更新処理を入れる
+          try {
+            // トークンのリフレッシュ
+            // console.log('Access token expired. Trying to refresh...')
+            const access = await store.dispatch('auth/refresh')
+            // console.log('Refresh succeeded. Retrying to request...')
+            // ヘッダー更新
+            error.config.headers.Authorization = 'JWT ' + access
+            // リトライ
+            return api.request(error.config)
+          } catch (error) {
+            // console.log('Refresh token expired.')
+            store.dispatch('auth/logout', {
+              next: router.history.current.fullPath,
+            })
+            message = 'ログインの期限切れです。'
+          }
         } else {
-          message = '認証エラーです。'
           store.dispatch('auth/logout')
+          message = '認証エラーです。'
         }
       } else if (status === 403) {
         // 権限エラー
@@ -122,4 +97,4 @@ api.interceptors.response.use(
   }
 )
 
-export { api as default, rawApi }
+export default api

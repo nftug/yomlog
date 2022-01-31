@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import api, { rawApi } from '@/services/api'
+import api from '@/services/api'
 import router from './router'
 import moment from 'moment'
 
@@ -99,7 +99,7 @@ const authModule = {
       const refresh = localStorage.getItem('refresh')
 
       try {
-        const { data } = await rawApi.post('/auth/jwt/refresh/', { refresh })
+        const { data } = await api.post('/auth/jwt/refresh/', { refresh })
         localStorage.setItem('access', data.access)
         localStorage.setItem('refresh', refresh)
         return data.access

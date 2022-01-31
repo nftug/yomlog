@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import api, { rawApi } from '@/services/api'
+import api from '@/services/api'
 
 export default {
   created() {
@@ -47,7 +47,7 @@ export default {
       // トークンの取得
       try {
         // NOTE: トークン取得は同一のルートからのみ有効 (vue-cliのテスト用サーバーでは無効)
-        const { data } = await rawApi({
+        const { data } = await api({
           method: 'post',
           url: `/auth/social/o/${provider}/`,
           data: params,
