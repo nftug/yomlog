@@ -185,18 +185,18 @@ class BookSerializer(PostSerializer):
             del ret['note']
         return ret
 
-    def _get_or_create_authors(self, validated_data):
+    def _get_or_create_authors(self, authors_name):
         authors = []
 
         # 関連先のAuthorオブジェクトを登録
-        for name in validated_data['authors']:
+        for name in authors_name:
             author, created = Author.objects.get_or_create(name=name)
             authors.append(author)
 
         return authors
 
     def create(self, validated_data):
-        authors = self._get_or_create_authors(validated_data)
+        authors = self._get_or_create_authors(validated_data['authors'])
 
         # 登録したAuthorオブジェクトをbookに紐付けする
         del validated_data['authors']
@@ -208,19 +208,25 @@ class BookSerializer(PostSerializer):
         return book
 
     def update(self, instance, validated_data):
-        authors = self._get_or_create_authors(validated_data)
+        authors_name = validated_data.get('authors')
 
-        del validated_data['authors']
-        book = super().update(instance, validated_data)
+        if authors_name:
+            authors = self._get_or_create_authors(authors_name)
 
-        # 事前に中間テーブルを削除しておく
-        BookAuthorRelation.objects.filter(book=book).delete()
+            del validated_data['authors']
+            book = super().update(instance, validated_data)
 
-        for i, author in enumerate(authors):
-            BookAuthorRelation.objects.create(order=i, book=book, author=author)
+            # 事前に中間テーブルを削除しておく
+            BookAuthorRelation.objects.filter(book=book).delete()
 
-        # orphanedなAuthorオブジェクトを削除
-        Author.objects.filter(books=None).delete()
+            for i, author in enumerate(authors):
+                BookAuthorRelation.objects.create(order=i, book=book, author=author)
+
+            # orphanedなAuthorオブジェクトを削除
+            Author.objects.filter(books=None).delete()
+
+        else:
+            book = super().update(instance, validated_data)
 
         return book
 
