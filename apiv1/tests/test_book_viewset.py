@@ -36,7 +36,7 @@ class BookViewSetTestCase(UserAPITestCase):
         """setUpメソッド"""
 
         super().setUp()
-        self.NEW_BOOK_PARAMS = {
+        self.FIRST_BOOK_PARAMS = {
             'title': 'test',
             'authors': ['author 1', 'author 2'],
             'id_google': 'xxx',
@@ -46,15 +46,22 @@ class BookViewSetTestCase(UserAPITestCase):
             'total_page': None,
             'amazon_dp': None
         }
+        self.SECOND_BOOK_PARAMS = {
+            'id_google': 'yyy',
+            'title': 'test updated',
+            'authors': ['author 1', 'author 2', 'author 3'],
+            'format_type': 1,
+            'total': 2000
+        }
 
-    def _create_dummy_book(self):
+    def _create_dummy_book(self, params):
         """書籍のダミーデータを作成"""
 
-        dummy_book_params = {**self.NEW_BOOK_PARAMS}
+        dummy_book_params = {**params}
         del dummy_book_params['authors']
         book = Book.objects.create(**dummy_book_params, created_by=self.user)
 
-        for (i, author_name) in enumerate(self.NEW_BOOK_PARAMS['authors']):
+        for (i, author_name) in enumerate(params['authors']):
             author = Author.objects.create(name=author_name)
             BookAuthorRelation.objects.create(order=i, book=book, author=author)
 
@@ -75,7 +82,7 @@ class BookViewSetTestCase(UserAPITestCase):
             'title': params.get('title') or book.title,
             'authors': authors_expected,
             'id_google': params.get('id_google') or book.id_google,
-            'thumbnail': self.DUMMY_THUMBNAIL_URL,
+            'thumbnail': params.get('thumbnail') or book.thumbnail or self.DUMMY_THUMBNAIL_URL,
             'format_type': params.get('format_type') or book.format_type,
             'total': params.get('total') or book.total,
             'total_page': params.get('total_page') or book.total_page,
@@ -96,7 +103,7 @@ class TestBookCreateAPIView(BookViewSetTestCase):
         self.client.force_authenticate(user=self.user)
 
         """Act"""
-        params = self.NEW_BOOK_PARAMS
+        params = self.FIRST_BOOK_PARAMS
         response = self.client.post(self.TARGET_URL, params, format='json')
 
         """Assert"""
@@ -107,6 +114,28 @@ class TestBookCreateAPIView(BookViewSetTestCase):
         expected_json = self._get_expected_json(params, book)
         self.assertJSONEqual(response.content, expected_json)
 
+    def test_create_failure_existed(self):
+        """登録APIへのPOSTリクエスト (異常系: Google Books IDの重複)"""
+
+        """Arrange"""
+        book = self._create_dummy_book(self.FIRST_BOOK_PARAMS)
+        self.client.force_authenticate(user=self.user)
+
+        """Act"""
+        params = {
+            **self.SECOND_BOOK_PARAMS,
+            'id_google': self.FIRST_BOOK_PARAMS['id_google']
+        }
+        response = self.client.post(self.TARGET_URL, params, format='json')
+
+        """Assert"""
+        self.assertEqual(Book.objects.count(), 1)
+        self.assertEqual(response.status_code, 200)
+
+        book = Book.objects.get()
+        expected_json = self._get_expected_json({}, book)
+        self.assertJSONEqual(response.content, expected_json)
+
     def test_create_failure_validation(self):
         """登録APIへのPOSTリクエスト (異常系: バリデーションNG)"""
 
@@ -115,7 +144,7 @@ class TestBookCreateAPIView(BookViewSetTestCase):
 
         """Act"""
         params = {
-            **self.NEW_BOOK_PARAMS,
+            **self.FIRST_BOOK_PARAMS,
             'title': ''
         }
         response = self.client.post(self.TARGET_URL, params, format='json')
@@ -130,7 +159,7 @@ class TestBookCreateAPIView(BookViewSetTestCase):
         """Arrange"""
 
         """Act"""
-        params = self.NEW_BOOK_PARAMS
+        params = self.FIRST_BOOK_PARAMS
         response = self.client.post(self.TARGET_URL, params, format='json')
 
         """Assert"""
@@ -148,17 +177,12 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
 
         """Arrange"""
         self.client.force_authenticate(user=self.user)
-        book = self._create_dummy_book()
+        book = self._create_dummy_book(self.FIRST_BOOK_PARAMS)
 
         """Act"""
-        authors = ['author 1', 'author 2', 'author 3']
         params = {
-            'id': book.id,
-            'id_google': 'yyy',
-            'title': 'test updated',
-            'authors': authors,
-            'format_type': 1,
-            'total': 2000
+            **self.SECOND_BOOK_PARAMS,
+            'id': book.id
         }
         response = self.client.put(self.TARGET_URL_WITH_PK.format(book.id), params, format='json')
 
@@ -173,7 +197,7 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
 
         """Arrange"""
         self.client.force_authenticate(user=self.user)
-        book = self._create_dummy_book()
+        book = self._create_dummy_book(self.FIRST_BOOK_PARAMS)
 
         """Act"""
         params = {}
@@ -187,17 +211,12 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
 
         """Arrange"""
         self.client.force_authenticate(user=self.user)
-        book = self._create_dummy_book()
+        book = self._create_dummy_book(self.FIRST_BOOK_PARAMS)
 
         """Act"""
-        authors = ['author 1', 'author 2', 'author 3']
         params = {
-            'id': book.id,
-            'id_google': 'yyy',
-            'title': 'test updated',
-            'authors': authors,
-            'format_type': 1,
-            'total': 2000
+            **self.SECOND_BOOK_PARAMS,
+            'id': book.id
         }
         self.client.force_authenticate(user=self.user2)
         response = self.client.put(self.TARGET_URL_WITH_PK.format(book.id), params, format='json')
@@ -212,7 +231,7 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
 
         """Arrange"""
         self.client.force_authenticate(user=self.user)
-        book = self._create_dummy_book()
+        book = self._create_dummy_book(self.FIRST_BOOK_PARAMS)
 
         """Act"""
         params = {'title': 'test updated'}
@@ -243,7 +262,7 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
 
         """Arrange"""
         self.client.force_authenticate(user=self.user)
-        book = self._create_dummy_book()
+        book = self._create_dummy_book(self.FIRST_BOOK_PARAMS)
 
         """Act"""
         self.client.force_authenticate(user=self.user2)
@@ -253,4 +272,4 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
         """Assert"""
         self.assertEqual(response.status_code, 404)
 
-# TODO: GETとDELETEのテストの実装
+# TODO: RetrieveとListとDeleteのテストの実装
