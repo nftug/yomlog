@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <v-container fluid v-if="auth.isLoggedIn">
     <v-col sm="10" lg="9" xl="7" class="mx-auto">
       <div class="pb-2">
         <!-- ユーザー情報 -->

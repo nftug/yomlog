@@ -42,6 +42,8 @@ const authModule = {
           state[key] = false
         } else if (typeof value === 'number') {
           state[key] = 0
+        } else if (value !== null && typeof value === 'object') {
+          state[key] = {}
         } else {
           state[key] = null
         }
@@ -84,7 +86,9 @@ const authModule = {
       if (router.history.current.name !== 'login') {
         const query = {}
         if (next) query.next = next
-        router.push({ name: 'login', query })
+        setTimeout(() => {
+          router.push({ name: 'login', query })
+        }, 100)
       }
     },
     // ユーザー情報更新
