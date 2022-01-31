@@ -71,6 +71,16 @@ const authModule = {
       localStorage.removeItem('refresh')
       commit('clear')
 
+      // bookListのクリア
+      commit('bookList/clear', null, { root: true })
+      commit('bookList/clearCache', null, { root: true })
+
+      // 検索バーのクリア
+      commit('navbar/clearSearch', null, { root: true })
+
+      // ルート履歴のクリア
+      commit('parentRoutes/clear', null, { root: true })
+
       if (router.history.current.name !== 'login') {
         const query = {}
         if (next) query.next = next
@@ -227,6 +237,9 @@ const bookListModule = {
     clear(state) {
       state.items = []
     },
+    clearCache(state) {
+      state.caches = []
+    },
   },
   actions: {
     addBook({ commit }, book) {
@@ -312,6 +325,11 @@ const parentRoutesModule = {
     },
     setHistoryBack(state, value) {
       state.historyBack = value
+    },
+    clear(state) {
+      state.route = {}
+      state.query = {}
+      state.params = {}
     },
   },
 }
