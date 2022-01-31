@@ -28,12 +28,6 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
         })
 
 
-class PagesDailyPagination(CustomPageNumberPagination):
-    """ページネーションクラス (ページ数集計用)"""
-
-    page_size = 31
-
-
 class AuthorPagination(CustomPageNumberPagination):
     """ページネーションクラス (著者用)"""
 

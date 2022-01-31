@@ -88,16 +88,23 @@ class CustomUserCreateSerializer(UserCreatePasswordRetypeSerializer):
             djoser_settings.USER_ID_FIELD,
             'first_name',
             'last_name',
+            'email',
             'password',
             'avatar',
             'is_active'
         )
         read_only_fields = ('is_active',)
+        extra_kwargs = {
+            'email': {'required': False},
+        }
 
     def create(self, validated_data):
-        if validated_data.get('email'):
+        email = validated_data.get('email')
+        username = validated_data.get('username')
+
+        if email and not username:
             # メールアドレスからユーザー名を生成
-            username_base = validated_data['email'].split('@')[0]
+            username_base = email.split('@')[0]
             user_model = get_user_model()
 
             username = username_base

@@ -14,6 +14,7 @@ class CustomUser(AbstractUser):
     class Meta:
         db_table = 'user'
         verbose_name = 'ユーザー'
+        verbose_name_plural = 'User'
         ordering = ['username']
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

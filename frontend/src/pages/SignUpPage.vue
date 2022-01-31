@@ -86,6 +86,14 @@ export default {
         warnings: [],
       },
       {
+        name: 'email',
+        label: 'メールアドレス (任意)',
+        type: 'email',
+        required: false,
+        value: '',
+        warnings: [],
+      },
+      {
         name: 'fullname',
         label: 'お名前',
         type: 'group',
@@ -93,7 +101,7 @@ export default {
           {
             name: 'last_name',
             class: 'col-6',
-            label: '姓',
+            label: '姓 (任意)',
             type: 'text',
             value: '',
             warnings: [],
@@ -101,7 +109,7 @@ export default {
           {
             name: 'first_name',
             class: 'col-6',
-            label: '名',
+            label: '名 (任意)',
             type: 'text',
             value: '',
             warnings: [],
