@@ -266,8 +266,11 @@ router.beforeEach(async (to, from, next) => {
     store.dispatch('message/clearMessages')
   }
 
-  // 検索フィールドをクリア
-  if (!to.matched.some((r) => r.meta.keepSearchField)) {
+  // 違うnameのルートへの遷移→検索フィールドをクリア
+  if (
+    parentFrom.name !== parentNext.name &&
+    !to.matched.some((r) => r.meta.keepSearchField)
+  ) {
     store.commit('navbar/clearSearch')
   }
 
