@@ -25,8 +25,8 @@ class UserAPITestCase(APITestCase):
         )
 
 
-class TestBookViewSet(UserAPITestCase):
-    """BookViewSetのテストクラス"""
+class BookViewSetTestCase(UserAPITestCase):
+    """雛形: BookViewSetのテストクラス"""
 
     TARGET_URL = '/api/v1/book/'
     TARGET_URL_WITH_PK = '/api/v1/book/{}/'
@@ -85,9 +85,9 @@ class TestBookViewSet(UserAPITestCase):
 
         return expected_json
 
-    """
-    POST
-    """
+
+class TestBookCreateAPIView(BookViewSetTestCase):
+    """BookViewSetのテストクラス (POST)"""
 
     def test_create_success(self):
         """登録APIへのPOSTリクエスト (正常系)"""
@@ -137,9 +137,11 @@ class TestBookViewSet(UserAPITestCase):
         self.assertEqual(Book.objects.count(), 0)
         self.assertEqual(response.status_code, 401)
 
-    """
-    PUT
-    """
+
+class TestBookUpdateAPIView(BookViewSetTestCase):
+    """BookViewSetのテストクラス (PATCH/PUT)"""
+
+    """PUT"""
 
     def test_put_success(self):
         """登録APIへのPUTリクエスト (正常系)"""
@@ -203,9 +205,7 @@ class TestBookViewSet(UserAPITestCase):
         """Assert"""
         self.assertEqual(response.status_code, 404)
 
-    """
-    PATCH
-    """
+    """PATCH"""
 
     def _test_patch_success(self, authors):
         """雛形: 登録APIへのPATCHリクエスト (正常系)"""
@@ -253,10 +253,4 @@ class TestBookViewSet(UserAPITestCase):
         """Assert"""
         self.assertEqual(response.status_code, 404)
 
-    """
-    GET
-    """
-
-    """
-    DELETE
-    """
+# TODO: GETとDELETEのテストの実装
