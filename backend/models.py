@@ -34,6 +34,9 @@ class BookQuerySet(models.QuerySet):
         queryset = self.prefetch_related('status_log').distinct()
         ids = []
 
+        if state == 'all':
+            return queryset
+
         for book in queryset:
             status_log = book.status_log
             position = status_log.first().position if status_log.exists() else 0

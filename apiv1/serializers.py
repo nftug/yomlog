@@ -285,7 +285,7 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
             'to_be_read': books.filter_by_state('to_be_read').count(),
             'reading': books.filter_by_state('reading').count(),
             'read': books.filter_by_state('read').count(),
-            'all': books.count()
+            'all': books.filter_by_state('all').count()
         }
 
     def get_pages_read(self, status_log: StatusLog):
