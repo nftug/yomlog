@@ -196,6 +196,12 @@ class BookSerializer(PostSerializer):
         return authors
 
     def create(self, validated_data):
+        authors_name = validated_data.get('authors')
+
+        # TODO: できればmodelでデフォルト値を設定したい
+        if not authors_name or len(authors_name) == 0:
+            authors_name = ['不明']
+
         authors = self._get_or_create_authors(validated_data['authors'])
 
         # 登録したAuthorオブジェクトをbookに紐付けする
