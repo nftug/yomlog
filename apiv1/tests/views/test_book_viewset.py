@@ -1,33 +1,9 @@
-from typing import Dict, OrderedDict
-from django.contrib.auth import get_user_model
+from typing import OrderedDict
 from django.db.models.query import QuerySet
 from django.utils.timezone import localtime, now, timedelta
-from rest_framework.test import APITestCase
-import random
-import string
-from apiv1.views import BookViewSet
 
-
+from apiv1.tests.mixins import UserAPITestCase
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
-
-
-class UserAPITestCase(APITestCase):
-    """APITestCase (ユーザー認証)"""
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # ログインユーザーを初期登録
-        cls.user = get_user_model().objects.create_user(
-            username='user',
-            email='user@example.com',
-            password='secret'
-        )
-        cls.user2 = get_user_model().objects.create_user(
-            username='user2',
-            email='user2@example.com',
-            password='secret'
-        )
 
 
 class BookViewSetTestCase(UserAPITestCase):
@@ -36,34 +12,6 @@ class BookViewSetTestCase(UserAPITestCase):
     TARGET_URL = '/api/v1/book/'
     TARGET_URL_WITH_PK = '/api/v1/book/{}/'
     DUMMY_THUMBNAIL_URL = 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image'
-
-    def setUp(self):
-        """setUpメソッド"""
-
-        super().setUp()
-        self.FIRST_BOOK_PARAMS = {
-            'title': 'test',
-            'authors': ['author 1', 'author 2'],
-            'id_google': 'xxx',
-            'thumbnail': None,
-            'format_type': 0,
-            'total': 100,
-            'total_page': None,
-            'amazon_dp': None
-        }
-        self.SECOND_BOOK_PARAMS = {
-            'id_google': 'yyy',
-            'title': 'test updated',
-            'authors': ['author 1', 'author 2', 'author 3'],
-            'format_type': 1,
-            'total': 2000
-        }
-
-    def _get_rand_id(self, n=12):
-        """ランダムなID文字列を生成"""
-
-        randlist = [random.choice(string.ascii_letters + string.digits) for _ in range(n)]
-        return ''.join(randlist)
 
     def _create_dummy_book(self, params, user):
         """書籍のダミーデータを作成"""
@@ -336,6 +284,8 @@ class TestBookListAPIView(BookViewSetTestCase):
         出力結果と書籍レコードの内容を比較
         (プロパティの型変換も行う)
         """
+
+        # 結果をOrderedDictから普通の辞書に変換
         result_dict = dict(result)
         # AuthorをQuerySetからstr型のlistに変換する
         authors: QuerySet = result_dict['authors']
@@ -414,6 +364,10 @@ class TestBookListAPIView(BookViewSetTestCase):
         # 最初に作成した本に対してステータスを記録する
         StatusLog.objects.create(
             book=books[-1], position=10, created_by=self.user, created_at=now() + timedelta(days=1)
+        )
+        # 2番目に作成した本に対してノートを記録 (ソートには影響なしを想定)
+        Note.objects.create(
+            book=books[-2], position=10, created_by=self.user, created_at=now() + timedelta(days=2)
         )
 
         self.client.force_authenticate(user=self.user)
