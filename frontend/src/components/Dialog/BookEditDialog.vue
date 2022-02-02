@@ -1,4 +1,8 @@
 <template>
+  <!--
+    TODO: 書籍のバリデーションエラーに対応させる
+  -->
+
   <Dialog
     ref="dialogBookEdit"
     :title="`書籍の${book.id ? '編集' : '登録'}`"

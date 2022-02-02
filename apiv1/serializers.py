@@ -245,6 +245,23 @@ class BookSerializer(PostSerializer):
 
         return authors
 
+    def validate_total(self, value):
+        """ページ数 or 位置No総数のバリデーション"""
+
+        if value <= 0:
+            raise ValidationError('0よりも大きな整数を入力してください。')
+
+        return value
+
+    def validate(self, data):
+        """Kindle本の場合: ページ数に対するバリデーション"""
+
+        invalid_total_page = not data.get('total_page') or data.get('total_page') <= 0
+        if data.get('format_type') == 1 and invalid_total_page:
+            raise ValidationError({'total_page': '0よりも大きな整数を入力してください。'})
+
+        return data
+
     def get_status(self, instance):
         status_log = instance.status_log.order_by('-created_at')
 
