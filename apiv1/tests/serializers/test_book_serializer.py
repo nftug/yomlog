@@ -112,7 +112,16 @@ class TestBookSerializer(UserAPITestCase):
         data = BookSerializer(book).data
 
         """Assert"""
-        self.assertEqual(len(data['status']), 10)
+        status = data['status']
+        self.assertEqual(len(status), 10)
+
+        for state in status:
+            self.assertEqual('id' in state, True)
+            self.assertEqual('state' in state, True)
+            self.assertEqual('diff' in state, True)
+            self.assertEqual('position' in state, True)
+            self.assertEqual('created_at' in state, True)
+            self.assertNotEqual('created_by' in state, True)
 
     def test_get_with_note(self):
         """ノート欄の取得 (正常系)"""
@@ -127,7 +136,17 @@ class TestBookSerializer(UserAPITestCase):
         data = BookSerializer(book).data
 
         """Assert"""
-        self.assertEqual(len(data['note']), 10)
+        notes = data['note']
+        self.assertEqual(len(notes), 10)
+
+        for note in notes:
+            self.assertEqual('id' in note, True)
+            self.assertEqual('position' in note, True)
+            self.assertEqual('quote_text' in note, True)
+            self.assertEqual('quote_image' in note, True)
+            self.assertEqual('created_at' in note, True)
+            self.assertEqual('created_at' in note, True)
+            self.assertNotEqual('created_by' in note, True)
 
     def _test_create_invalid(self, field, error, value=None, params=None, omit=False):
         """雛形: 入力データのバリデーション (異常系: 必須フィールドが不正)"""

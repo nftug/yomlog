@@ -30,7 +30,7 @@ class TestBookCreateAPIView(BookViewSetTestCase):
         self.assertEqual(response.status_code, 201)
 
         book = Book.objects.get()
-        expected_json = self._get_expected_json(params, book)
+        expected_json = self._get_expected_book_json(params, book)
         self.assertJSONEqual(response.content, expected_json)
 
     def test_create_failure_existed_gid(self):
@@ -52,7 +52,7 @@ class TestBookCreateAPIView(BookViewSetTestCase):
         self.assertEqual(response.status_code, 200)
 
         book = Book.objects.get()
-        expected_json = self._get_expected_json({}, book)
+        expected_json = self._get_expected_book_json({}, book)
         self.assertJSONEqual(response.content, expected_json)
 
     def test_create_failure_validation(self):
@@ -106,7 +106,7 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
         """Assert"""
         self.assertEqual(response.status_code, 200)
         book = Book.objects.get()
-        expected_json = self._get_expected_json(params, book)
+        expected_json = self._get_expected_book_json(params, book)
         self.assertJSONEqual(response.content, expected_json)
 
     def test_put_failure_validation(self):
@@ -156,7 +156,7 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
         """Assert"""
         self.assertEqual(response.status_code, 200)
         book = Book.objects.get()
-        expected_json = self._get_expected_json(params, book)
+        expected_json = self._get_expected_book_json(params, book)
         self.assertJSONEqual(response.content, expected_json)
 
 
@@ -175,7 +175,7 @@ class TestBookRetrieveAPIView(BookViewSetTestCase):
 
         """Assert"""
         self.assertEqual(response.status_code, 200)
-        expected_json = self._get_expected_json({}, book)
+        expected_json = self._get_expected_book_json({}, book)
         self.assertJSONEqual(response.content, expected_json)
 
     def test_retrieve_failure_invalid_user(self):

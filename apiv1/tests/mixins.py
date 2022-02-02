@@ -46,7 +46,8 @@ class UserAPITestCase(APITestCase):
             'title': 'test updated',
             'authors': ['author 1', 'author 2', 'author 3'],
             'format_type': 1,
-            'total': 2000
+            'total': 2000,
+            'total_page': 100
         }
 
     def _get_rand_id(self, n=12):
@@ -68,8 +69,23 @@ class UserAPITestCase(APITestCase):
 
         return book
 
-    def _get_expected_json(self, params, book):
-        """Assert対象のJSONデータを生成"""
+    def _create_dummy_books(self, n, user):
+        """n冊分のダミーデータを作成"""
+
+        books = []
+        for i in range(n):
+            params = {
+                **self.FIRST_BOOK_PARAMS,
+                'id_google': self._get_rand_id(10),
+                'created_at': now() + timedelta(seconds=i)
+            }
+            book = self._create_dummy_book(params=params, user=user)
+            books.insert(0, book)
+
+        return books
+
+    def _get_expected_book_json(self, params, book):
+        """Assert対象のJSON書籍データを生成"""
 
         if 'authors' in params:
             authors_expected = [_ for _ in params['authors']]
@@ -93,20 +109,25 @@ class UserAPITestCase(APITestCase):
 
         return expected_json
 
-    def _create_dummy_books(self, n, user):
-        """n冊分のダミーデータを作成"""
+    def _create_dummy_state(self, params, user):
+        """ダミーの進捗を作成"""
 
-        books = []
+        state = StatusLog.objects.create(**params, created_by=user)
+        return state
+
+    def _create_dummy_status(self, params, n, user):
+        """ダミーの進捗をn個作成"""
+
+        status = []
         for i in range(n):
             params = {
-                **self.FIRST_BOOK_PARAMS,
-                'id_google': self._get_rand_id(10),
+                **params,
                 'created_at': now() + timedelta(seconds=i)
             }
-            book = self._create_dummy_book(params=params, user=user)
-            books.insert(0, book)
+            state = self._create_dummy_state(params=params, user=user)
+            status.insert(0, state)
 
-        return books
+        return status
 
     def _assertEqual_result_with_book(self, result: OrderedDict, book: Book):
         """
@@ -120,5 +141,5 @@ class UserAPITestCase(APITestCase):
         authors: QuerySet = result_dict['authors']
         result_dict['authors'] = list(authors.values_list('author__name', flat=True))
 
-        expected_json = self._get_expected_json({}, book)
+        expected_json = self._get_expected_book_json({}, book)
         self.assertEqual(result_dict, expected_json)
