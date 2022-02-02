@@ -164,7 +164,8 @@ class BookSerializer(PostSerializer):
     status = serializers.SerializerMethodField()
     note = serializers.SerializerMethodField()
     authors = serializers.ListField(
-        child=serializers.CharField(max_length=100), write_only=True
+        child=serializers.CharField(max_length=100), write_only=True,
+        default=serializers.CreateOnlyDefault(['不明'])
     )
 
     class Meta:
@@ -196,16 +197,10 @@ class BookSerializer(PostSerializer):
         return authors
 
     def create(self, validated_data):
-        authors_name = validated_data.get('authors')
-
-        # TODO: できればmodelでデフォルト値を設定したい
-        if not authors_name or len(authors_name) == 0:
-            authors_name = ['不明']
-
-        authors = self._get_or_create_authors(validated_data['authors'])
+        authors_name = validated_data.pop('authors')
+        authors = self._get_or_create_authors(authors_name)
 
         # 登録したAuthorオブジェクトをbookに紐付けする
-        del validated_data['authors']
         book = super().create(validated_data)
 
         for i, author in enumerate(authors):
@@ -239,10 +234,14 @@ class BookSerializer(PostSerializer):
     def validate_authors(self, values):
         """著者名の正規化"""
 
-        authors = []
-        for value in values:
-            value = re.sub(r'([^0-9a-z]) |　', r'\1', value)
-            authors.append(value)
+        if not len(values):
+            authors = ['不明']
+        else:
+            authors = []
+            for value in values:
+                value = value.replace('　', ' ')
+                value = re.sub(r'([亜-熙ぁ-んァ-ヶ]) ([亜-熙ぁ-んァ-ヶ])', r'\1\2', value)
+                authors.append(value)
 
         return authors
 
