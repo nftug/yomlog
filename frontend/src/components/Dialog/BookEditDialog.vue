@@ -17,6 +17,8 @@
         v-model="book.title"
         label="タイトル"
         :rules="requiredRules"
+        :error-messages="errors.title"
+        @input="errors.title = []"
       ></v-text-field>
       <v-combobox
         v-model="book.authors"
@@ -26,12 +28,16 @@
         label="著者"
         multiple
         :rules="authorsRules"
+        :error-messages="errors.authors"
+        @input="errors.authors = []"
       ></v-combobox>
       <v-text-field
         v-model="book.amazon_dp"
         label="ASIN/ISBNコード"
         :rules="dpRules"
+        :error-messages="errors.amazon_dp"
         maxlength="13"
+        @input="errors.amazon_dp = []"
       ></v-text-field>
       <v-text-field
         v-model="book.total"
@@ -39,6 +45,8 @@
         type="number"
         min="0"
         :rules="totalRules"
+        :error-messages="errors.total"
+        @input="errors.total = []"
       ></v-text-field>
       <v-text-field
         v-if="book.format_type === 1"
@@ -46,8 +54,21 @@
         label="ページ数"
         type="number"
         min="0"
+        :rules="totalRules"
+        :error-messages="errors.total_page"
+        @input="errors.total_page = []"
       ></v-text-field>
     </v-form>
+
+    <template #actions>
+      <v-spacer></v-spacer>
+      <v-btn color="green darken-1" text @click="$emit('post', null)">
+        キャンセル
+      </v-btn>
+      <v-btn color="green darken-1" text @click="postBook" :disabled="!isValid">
+        {{ book.id ? '編集' : '追加' }}
+      </v-btn>
+    </template>
   </Dialog>
 </template>
 
@@ -77,9 +98,16 @@ export default {
     totalRules: [(v) => v > 0 || '0より大きい数値を入力してください'],
     authorsRules: [(v) => v.length > 0 || 'この項目は入力必須です'],
     authorItems: [],
+    errors: {
+      title: [],
+      authors: [],
+      amazon_dp: [],
+      total: [],
+      total_page: [],
+    },
   }),
   methods: {
-    async showBookEditDialog({ book } = {}) {
+    showBookEditDialog({ book } = {}) {
       // bookに対する直接の操作は行わない
       // オブジェクト属性の書き換えは呼び出し元に担当させる
 
@@ -93,25 +121,54 @@ export default {
       this.authorItems = [...this.book.authors]
 
       // ダイアログを表示
-      if (!(await this.$refs.dialogBookEdit.showDialog()))
-        return Promise.resolve(false)
+      this.$refs.dialogBookEdit.dialog = true
 
+      return new Promise((resolve) => {
+        this.$once('post', async (value) => {
+          if (value) {
+            resolve(value)
+          } else {
+            this.$refs.dialogBookEdit.dialog = false
+            resolve(null)
+          }
+        })
+      })
+    },
+    async postBook() {
       // total_pageのデフォルト値を設定
       if (!this.book.total_page) this.book.total_page = 0
 
-      if (book.id) {
-        // idが存在する場合、データをpatch後にpostイベントを発行
-        const { data } = await api({
-          url: `/book/${book.id}/`,
-          method: 'patch',
+      // Bookのデータを登録 or 編集
+      // 既に登録されている場合は該当のデータが返却される (statusは200)
+      try {
+        var { data, status } = await api({
+          url: this.book.id ? `/book/${this.book.id}/` : '/book/',
+          method: this.book.id ? 'patch' : 'post',
           data: this.book,
         })
-        this.$store.dispatch('message/setInfoMessage', {
-          message: '書籍情報を編集しました。',
+      } catch (error) {
+        const errorData = error.response.data
+        Object.keys(errorData).forEach((key) => {
+          this.$set(this.errors, key, errorData[key])
         })
-        this.$emit('post', data)
+        return Promise.reject(error)
       }
 
+      this.$refs.dialogBookEdit.dialog = false
+
+      let message
+      if (status === 201) {
+        message = '書籍を登録しました。'
+      } else if (this.book.id) {
+        message = '書籍情報を編集しました。'
+      } else {
+        message = 'この書籍は既に登録されています。'
+      }
+
+      this.book = data
+      this.$store.dispatch('message/setInfoMessage', { message })
+
+      this.$emit('post', this.book)
       return Promise.resolve(this.book)
     },
   },

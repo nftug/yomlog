@@ -86,7 +86,6 @@
 import axios from 'axios'
 import Spinner from '@/components/Common/Spinner.vue'
 import InfiniteLoading from 'vue-infinite-loading'
-import api from '@/services/api'
 import Mixin, { FormRulesMixin, WindowResizeMixin } from '@/mixins'
 import Dialog from '@/components/Common/Dialog.vue'
 import BookList from '@/components/Common/BookList.vue'
@@ -211,14 +210,6 @@ export default {
       // ダイアログがキャンセルの場合
       if (!item) return
 
-      // Bookのデータを登録
-      // 既に登録されている場合は該当のデータが返却される (statusは200)
-      const { data, status } = await api({
-        url: '/book/',
-        method: 'post',
-        data: item,
-      })
-
       // ユーザーデータを更新
       this.$store.dispatch('auth/reload')
 
@@ -229,17 +220,9 @@ export default {
       }
 
       // 書籍の詳細ページに遷移
-      this.$router.replace(`/book/detail/${data.id}`)
-
-      if (status === 201) {
-        this.$store.dispatch('message/setInfoMessage', {
-          message: '書籍を登録しました。',
-        })
-      } else {
-        this.$store.dispatch('message/setInfoMessage', {
-          message: 'この本は既に登録されています。',
-        })
-      }
+      setTimeout(() => {
+        this.$router.replace(`/book/detail/${item.id}`)
+      }, 100)
     },
     scrollToTop() {
       const element = document.getElementById('book-add-content')

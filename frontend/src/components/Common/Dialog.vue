@@ -107,17 +107,17 @@ export default {
         }
       }
     },
-    dialog(newVal) {
+    async dialog(newVal) {
       const hasRouteHash = this.$route.hash == `#${this.hash}`
       if (this.hash) {
         if (newVal && !hasRouteHash) {
-          this.$router.push({ ...this.$route, hash: `#${this.hash}` })
+          await this.$router.push({ ...this.$route, hash: `#${this.hash}` })
         } else if (!newVal && hasRouteHash) {
           // answeredDialogイベントが発行されていなければ発行 (主に領域外タップの場合)
           if (this.answer === null) {
             this.$emit('answeredDialog', null)
           }
-          this.$router.go(-1)
+          await this.$router.go(-1)
         }
       }
 
