@@ -139,6 +139,11 @@ class StatusLogSerializer(BookIncludedSerializer, PageCountSerializerMixin):
             'page': page
         }
 
+    def validate_position(self, value):
+        if value < 0:
+            raise ValidationError('0以上の整数を入力してください。')
+        return value
+
 
 class NoteSerializer(BookIncludedSerializer):
     class Meta:
@@ -167,6 +172,7 @@ class BookSerializer(PostSerializer):
         child=serializers.CharField(max_length=100), write_only=True,
         default=serializers.CreateOnlyDefault(['不明'])
     )
+    accessed_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
@@ -281,6 +287,14 @@ class BookSerializer(PostSerializer):
     def get_thumbnail(self, instance):
         NO_COVER_IMAGE = 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image'
         return instance.thumbnail or NO_COVER_IMAGE
+
+    def get_accessed_at(self, instance):
+        if not hasattr(instance, 'accessed_at'):
+            state_created_at = instance.status_log.order_by('-created_at').first().created_at
+            book_created_at = instance.created_at
+            return localtime(max(state_created_at, book_created_at))
+        else:
+            return localtime(instance.accessed_at)
 
 
 class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
