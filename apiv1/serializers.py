@@ -183,7 +183,7 @@ class BookSerializer(PostSerializer):
         ret['thumbnail'] = self.get_thumbnail(instance)
 
         if self.context.get('inside'):
-            del ret['note']
+            del ret['note'], ret['status']
         return ret
 
     def _get_or_create_authors(self, authors_name):
@@ -269,15 +269,7 @@ class BookSerializer(PostSerializer):
             data = StatusLogSerializer(status_log, many=True, read_only=True, context={'inside': True}).data
             return data
         else:
-            current_position = status_log.values_list('position', flat=True).first()
-            if not current_position:
-                state = 'to_be_read'
-            elif current_position < instance.total:
-                state = 'reading'
-            else:
-                state = 'read'
-
-            return [{'state': state}]
+            return None
 
     def get_note(self, instance):
         if not self.context.get('inside'):
