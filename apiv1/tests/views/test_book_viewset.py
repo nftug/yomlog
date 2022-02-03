@@ -9,7 +9,6 @@ class BookViewSetTestCase(UserAPITestCase):
 
     TARGET_URL = '/api/v1/book/'
     TARGET_URL_WITH_PK = '/api/v1/book/{}/'
-    DUMMY_THUMBNAIL_URL = 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image'
 
 
 class TestBookCreateAPIView(BookViewSetTestCase):

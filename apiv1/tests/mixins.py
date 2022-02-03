@@ -31,6 +31,11 @@ class UserAPITestCase(APITestCase):
         """setUpメソッド"""
 
         super().setUp()
+
+        self.maxDiff = 1000
+
+        self.DUMMY_THUMBNAIL_URL = 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image'
+
         self.FIRST_BOOK_PARAMS = {
             'title': 'test',
             'authors': ['author 1', 'author 2'],
@@ -48,6 +53,9 @@ class UserAPITestCase(APITestCase):
             'format_type': 1,
             'total': 2000,
             'total_page': 100
+        }
+        self.STATUS_FIXTURE = {
+            'position': 10
         }
 
     def _get_rand_id(self, n=12):
@@ -84,7 +92,7 @@ class UserAPITestCase(APITestCase):
 
         return books
 
-    def _get_expected_book_json(self, params, book):
+    def _get_expected_book_json(self, params, book: Book):
         """Assert対象のJSON書籍データを生成"""
 
         if 'authors' in params:
@@ -128,6 +136,41 @@ class UserAPITestCase(APITestCase):
             status.insert(0, state)
 
         return status
+
+    def _get_expected_status_json(self, params, status: StatusLog):
+        """
+        Assert対象のJSON進捗データを生成
+        (書籍はformat_type=0、記録は初回分のデータにのみ有効)
+        """
+
+        if status.position == 0:
+            state = 'to_be_read'
+        elif status.position < status.book.total:
+            state = 'reading'
+        else:
+            state = 'read'
+
+        book_json = self._get_expected_book_json({}, status.book)
+        del book_json['note'], book_json['status']
+
+        expected_json = {
+            'id': str(status.id),
+            'state': state,
+            'diff': {
+                'value': status.position,
+                'percentage': int(status.position / status.book.total * 100),
+                'page': status.position
+            },
+            'position': {
+                'value': status.position,
+                'percentage': int(status.position / status.book.total * 100),
+                'page': status.position
+            },
+            'created_at': str(localtime(status.created_at)).replace(' ', 'T'),
+            'book': book_json
+        }
+
+        return expected_json
 
     def _assertEqual_result_with_book(self, result: OrderedDict, book: Book):
         """
