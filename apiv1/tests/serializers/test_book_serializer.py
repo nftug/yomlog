@@ -1,4 +1,4 @@
-from apiv1.tests.mixins import UserAPITestCase
+from apiv1.tests.mixins import *
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
 from apiv1.serializers import BookSerializer
 
@@ -69,7 +69,7 @@ class TestBookSerializer(UserAPITestCase):
 
         """Arrange"""
         params = self.FIRST_BOOK_PARAMS
-        book = self._create_dummy_book(params, self.user)
+        book = create_dummy_book(params, self.user)
         input_data = {'authors': ['テスト太郎']}
 
         """Act"""
@@ -87,7 +87,7 @@ class TestBookSerializer(UserAPITestCase):
 
         """Arrange"""
         params = {**self.FIRST_BOOK_PARAMS, 'authors': ['テスト太郎']}
-        book = self._create_dummy_book(params, self.user)
+        book = create_dummy_book(params, self.user)
         input_data = {'title': 'テスト'}
 
         """Act"""
@@ -104,7 +104,7 @@ class TestBookSerializer(UserAPITestCase):
 
         """Arrange"""
         params = self.FIRST_BOOK_PARAMS
-        book = self._create_dummy_book(params, self.user)
+        book = create_dummy_book(params, self.user)
         for i in range(10):
             StatusLog.objects.create(book=book, position=i + 1, created_by=self.user)
 
@@ -128,7 +128,7 @@ class TestBookSerializer(UserAPITestCase):
 
         """Arrange"""
         params = self.FIRST_BOOK_PARAMS
-        book = self._create_dummy_book(params, self.user)
+        book = create_dummy_book(params, self.user)
         for i in range(10):
             Note.objects.create(book=book, position=i + 1, created_by=self.user)
 
