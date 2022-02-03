@@ -17,7 +17,7 @@ class GenericSearchFilterSet(django_filter.FilterSet):
         fields_for_search = []
 
     def _clean_fields_for_search(self):
-        if self.request.GET.get('book'):
+        if self.form.cleaned_data.get('book'):
             # 本が指定されている場合、フリーワードの検索基準から本の情報を除外する
             fields = self.Meta.fields_for_search
             try:
