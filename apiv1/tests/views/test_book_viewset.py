@@ -30,7 +30,7 @@ class TestBookCreateAPIView(BookViewSetTestCase):
 
         book = Book.objects.get()
         expected_json = get_expected_book_json(params, book)
-        self.assertJSONEqual(response.content, expected_json)
+        self.assertJSONEqual(str(response.content, encoding='utf8'), expected_json)
 
     def test_create_failure_existed_gid(self):
         """登録APIへのPOSTリクエスト (異常系: Google Books IDの重複)"""
@@ -52,7 +52,7 @@ class TestBookCreateAPIView(BookViewSetTestCase):
 
         book = Book.objects.get()
         expected_json = get_expected_book_json({}, book)
-        self.assertJSONEqual(response.content, expected_json)
+        self.assertJSONEqual(str(response.content, encoding='utf8'), expected_json)
 
     def test_create_failure_validation(self):
         """登録APIへのPOSTリクエスト (異常系: バリデーションNG)"""
@@ -106,7 +106,7 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
         self.assertEqual(response.status_code, 200)
         book = Book.objects.get()
         expected_json = get_expected_book_json(params, book)
-        self.assertJSONEqual(response.content, expected_json)
+        self.assertJSONEqual(str(response.content, encoding='utf8'), expected_json)
 
     def test_put_failure_validation(self):
         """登録APIへのPUTリクエスト (異常系: バリデーションNG)"""
@@ -156,7 +156,7 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
         self.assertEqual(response.status_code, 200)
         book = Book.objects.get()
         expected_json = get_expected_book_json(params, book)
-        self.assertJSONEqual(response.content, expected_json)
+        self.assertJSONEqual(str(response.content, encoding='utf8'), expected_json)
 
 
 class TestBookRetrieveAPIView(BookViewSetTestCase):
@@ -175,7 +175,7 @@ class TestBookRetrieveAPIView(BookViewSetTestCase):
         """Assert"""
         self.assertEqual(response.status_code, 200)
         expected_json = get_expected_book_json({}, book)
-        self.assertJSONEqual(response.content, expected_json)
+        self.assertJSONEqual(str(response.content, encoding='utf8'), expected_json)
 
     def test_retrieve_failure_invalid_user(self):
         """APIへのGETリクエスト [Retrieve] (異常系: 異なるユーザーによる権限エラー)"""
@@ -223,7 +223,8 @@ class TestBookListAPIView(BookViewSetTestCase):
         self.assertEqual(len(results), len(books))
 
         for i in range(10):
-            self.assertEqual_result_with_book(result=results[i], book=books[i])
+            result_id, book_id = results[i]['id'], str(books[i].id)
+            self.assertEqual(result_id, book_id)
 
     def test_list_success_pagination(self):
         """APIへのGETリクエスト [List] (正常系: ページネーション)"""
@@ -242,7 +243,8 @@ class TestBookListAPIView(BookViewSetTestCase):
         results = list(response.data['results'])
         self.assertEqual(len(results), 1)
 
-        self.assertEqual_result_with_book(result=results[0], book=books[-1])
+        result_id, book_id = results[0]['id'], str(books[-1].id)
+        self.assertEqual(result_id, book_id)
 
     def test_list_success_exclude_other_users(self):
         """APIへのGETリクエスト [List] (正常系: 自ユーザー作成のデータのみ表示)"""
@@ -253,7 +255,7 @@ class TestBookListAPIView(BookViewSetTestCase):
         books[-1].created_by = self.user2
         books[-1].save()
 
-        self.client.force_authenticate(user=self.user)
+        self.client.force_authenticate(user=self.user2)
 
         """Act"""
         response = self.client.get(self.TARGET_URL, format='json')
@@ -261,14 +263,13 @@ class TestBookListAPIView(BookViewSetTestCase):
         """Assert"""
         self.assertEqual(response.status_code, 200)
         results = list(response.data['results'])
-        self.assertEqual(len(results), len(books) - 1)
+        self.assertEqual(len(results), 1)
 
-        books.pop()
-        for i in range(9):
-            self.assertEqual_result_with_book(result=results[i], book=books[i])
+        result_id, book_id = results[0]['id'], str(books[-1].id)
+        self.assertEqual(result_id, book_id)
 
     def test_list_success_sort_by_accessed_at(self):
-        """APIへのGETリクエスト [List] (正常系: アクセス日時でソート)"""
+        """APIへのGETリクエスト [List] (正常系: アクセス日時で降順ソート)"""
 
         """Arrange"""
         books = create_dummy_books(n=10, params=self.FIRST_BOOK_PARAMS, user=self.user)
@@ -292,8 +293,6 @@ class TestBookListAPIView(BookViewSetTestCase):
         results = list(response.data['results'])
         self.assertEqual(len(results), len(books))
 
-        # 結果にのみstatusの中身が加わっているので、そのままだと検証に失敗する
-        # →idのみ検証
         self.assertEqual(results[0]['id'], str(books[-1].id))
 
     def test_list_failure_no_auth(self):
@@ -320,8 +319,7 @@ class TestBookDeleteAPIView(BookViewSetTestCase):
         self.client.force_authenticate(user=self.user)
 
         """Act"""
-        params = self.FIRST_BOOK_PARAMS
-        response = self.client.delete(self.TARGET_URL_WITH_PK.format(book.id), params, format='json')
+        response = self.client.delete(self.TARGET_URL_WITH_PK.format(book.id), format='json')
 
         """Assert"""
         self.assertEqual(Book.objects.count(), 0)
@@ -337,8 +335,7 @@ class TestBookDeleteAPIView(BookViewSetTestCase):
         self.client.force_authenticate(user=self.user2)
 
         """Act"""
-        params = self.FIRST_BOOK_PARAMS
-        response = self.client.delete(self.TARGET_URL_WITH_PK.format(book.id), params, format='json')
+        response = self.client.delete(self.TARGET_URL_WITH_PK.format(book.id), format='json')
 
         """Assert"""
         self.assertEqual(Book.objects.count(), 1)
@@ -351,8 +348,7 @@ class TestBookDeleteAPIView(BookViewSetTestCase):
         book = create_dummy_book(self.FIRST_BOOK_PARAMS, user=self.user)
 
         """Act"""
-        params = self.FIRST_BOOK_PARAMS
-        response = self.client.delete(self.TARGET_URL_WITH_PK.format(book.id), params, format='json')
+        response = self.client.delete(self.TARGET_URL_WITH_PK.format(book.id), format='json')
 
         """Assert"""
         self.assertEqual(Book.objects.count(), 1)

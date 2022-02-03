@@ -58,20 +58,11 @@ class UserAPITestCase(APITestCase):
             'position': 10
         }
 
-    def assertEqual_result_with_book(self, result: OrderedDict, book: Book):
-        """
-        出力結果と書籍レコードの内容を比較
-        (プロパティの型変換も行う)
-        """
 
-        # 結果をOrderedDictから普通の辞書に変換
-        result_dict = dict(result)
-        # AuthorをQuerySetからstr型のlistに変換する
-        authors: QuerySet = result_dict['authors']
-        result_dict['authors'] = list(authors.values_list('author__name', flat=True))
+def convert_time_into_json_str(time):
+    """timeをJSON形式に変換"""
 
-        expected_json = get_expected_book_json({}, book)
-        self.assertEqual(result_dict, expected_json)
+    return str(localtime(time)).replace(' ', 'T')
 
 
 def get_rand_id(n=12):
@@ -131,7 +122,7 @@ def get_expected_book_json(params, book: Book):
         'total': params.get('total') or book.total,
         'total_page': params.get('total_page') or book.total_page,
         'amazon_dp': params.get('amazon_dp') or book.amazon_dp,
-        'created_at': str(localtime(book.created_at)).replace(' ', 'T')
+        'created_at': convert_time_into_json_str(book.created_at),
     }
 
     return expected_json
@@ -146,7 +137,7 @@ def create_dummy_state_and_book(params_state, params_book, user):
     return state, book
 
 
-def create_dummy_status(params_state, params_book, n, user):
+def create_dummy_status_and_book(params_state, params_book, n, user):
     """ダミーの進捗をn個作成"""
 
     status = []
@@ -161,37 +152,37 @@ def create_dummy_status(params_state, params_book, n, user):
     return status, book
 
 
-def get_expected_status_json(params, status: StatusLog):
+def get_expected_state_json(params, state: StatusLog):
     """
     Assert対象のJSON進捗データを生成
     (書籍はformat_type=0、記録は初回分のデータにのみ有効)
     """
 
-    if status.position == 0:
-        state = 'to_be_read'
-    elif status.position < status.book.total:
-        state = 'reading'
+    if state.position == 0:
+        state_name = 'to_be_read'
+    elif state.position < state.book.total:
+        state_name = 'reading'
     else:
-        state = 'read'
+        state_name = 'read'
 
-    book_json = get_expected_book_json({}, status.book)
+    book_json = get_expected_book_json({}, state.book)
     del book_json['note'], book_json['status']
-    position = params.get('position') or status.position
+    position = params.get('position') or state.position
 
     expected_json = {
-        'id': str(status.id),
-        'state': state,
+        'id': str(state.id),
+        'state': state_name,
         'diff': {
             'value': position,
-            'percentage': int(position / status.book.total * 100),
+            'percentage': int(position / state.book.total * 100),
             'page': position
         },
         'position': {
             'value': position,
-            'percentage': int(position / status.book.total * 100),
+            'percentage': int(position / state.book.total * 100),
             'page': position
         },
-        'created_at': str(localtime(status.created_at)).replace(' ', 'T'),
+        'created_at': convert_time_into_json_str(state.created_at),
         'book': book_json
     }
 
