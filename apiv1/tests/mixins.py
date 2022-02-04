@@ -36,23 +36,11 @@ class UserAPITestCase(APITestCase):
 
         self.maxDiff = 1000
 
-        self.FIRST_BOOK_PARAMS = {
+        self.BOOK_FIXTURE = {
             'title': 'test',
-            'authors': ['author 1', 'author 2'],
-            'id_google': 'xxx',
-            'thumbnail': None,
             'format_type': 0,
             'total': 100,
-            'total_page': None,
-            'amazon_dp': None
-        }
-        self.SECOND_BOOK_PARAMS = {
-            'id_google': 'yyy',
-            'title': 'test updated',
-            'authors': ['author 1', 'author 2', 'author 3'],
-            'format_type': 1,
-            'total': 2000,
-            'total_page': 100
+            'id_google': 'xxxxxxxxxx'
         }
         self.STATUS_FIXTURE = {
             'position': 10
@@ -70,36 +58,6 @@ def get_rand_id(n=12):
 
     randlist = [random.choice(string.ascii_letters + string.digits) for _ in range(n)]
     return ''.join(randlist)
-
-
-def create_dummy_book(params, user):
-    """書籍のダミーデータを作成"""
-
-    dummy_book_params = {**params}
-    del dummy_book_params['authors']
-    book = Book.objects.create(**dummy_book_params, created_by=user)
-
-    for (i, author_name) in enumerate(params['authors']):
-        author = Author.objects.create(name=author_name)
-        BookAuthorRelation.objects.create(order=i, book=book, author=author)
-
-    return book
-
-
-def create_dummy_books(n, user, params):
-    """n冊分のダミーデータを作成"""
-
-    books = []
-    for i in range(n):
-        params = {
-            **params,
-            'id_google': get_rand_id(10),
-            'created_at': now() + timedelta(seconds=i)
-        }
-        book = create_dummy_book(params=params, user=user)
-        books.insert(0, book)
-
-    return books
 
 
 def get_expected_book_json(params, book: Book):
@@ -126,30 +84,6 @@ def get_expected_book_json(params, book: Book):
     }
 
     return expected_json
-
-
-def create_dummy_state_and_book(params_state, params_book, user):
-    """ダミーの進捗を作成"""
-
-    book = create_dummy_book(params_book, user)
-    params = {**params_state, 'book': book}
-    state = StatusLog.objects.create(**params, created_by=user)
-    return state, book
-
-
-def create_dummy_status_and_book(params_state, params_book, n, user):
-    """ダミーの進捗をn個作成"""
-
-    status = []
-    for i in range(n):
-        params = {
-            **params_state,
-            'created_at': now() + timedelta(seconds=i)
-        }
-        state, book = create_dummy_state_and_book(params_state=params, params_book=params_book, user=user)
-        status.insert(0, state)
-
-    return status, book
 
 
 def get_expected_state_json(params, state: StatusLog):

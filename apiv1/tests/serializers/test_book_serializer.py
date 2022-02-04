@@ -1,6 +1,7 @@
 from apiv1.tests.mixins import *
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
 from apiv1.serializers import BookSerializer
+from apiv1.tests.factries import BookFactory, StatusLogFactory, NoteFactory
 
 
 class TestBookSerializer(UserAPITestCase):
@@ -10,7 +11,7 @@ class TestBookSerializer(UserAPITestCase):
         """入力データのバリデーション (正常系)"""
 
         """Arrange"""
-        input_data = self.FIRST_BOOK_PARAMS
+        input_data = {**self.BOOK_FIXTURE, 'authors': ['テスト太郎']}
 
         """Act"""
         serializer = BookSerializer(data=input_data)
@@ -22,7 +23,7 @@ class TestBookSerializer(UserAPITestCase):
         """入力データのバリデーション (正常系: 著者名欄が空)"""
 
         """Arrange"""
-        input_data = {**self.FIRST_BOOK_PARAMS, 'authors': []}
+        input_data = {**self.BOOK_FIXTURE, 'authors': []}
 
         """Act"""
         serializer = BookSerializer(data=input_data)
@@ -35,8 +36,7 @@ class TestBookSerializer(UserAPITestCase):
         """入力データのバリデーション (正常系: 著者名欄なし)"""
 
         """Arrange"""
-        input_data = {**self.FIRST_BOOK_PARAMS}
-        del input_data['authors']
+        input_data = {**self.BOOK_FIXTURE}
 
         """Act"""
         serializer = BookSerializer(data=input_data)
@@ -50,7 +50,7 @@ class TestBookSerializer(UserAPITestCase):
 
         """Arrange"""
         input_data = {
-            **self.FIRST_BOOK_PARAMS,
+            **self.BOOK_FIXTURE,
             'authors': ['テスト　太郎', 'テスト 太郎', 'テスト　Taro', 'Test Taro']
         }
 
@@ -68,8 +68,7 @@ class TestBookSerializer(UserAPITestCase):
         """部分更新時のバリデーション (正常系: 著者名の更新)"""
 
         """Arrange"""
-        params = self.FIRST_BOOK_PARAMS
-        book = create_dummy_book(params, self.user)
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
         input_data = {'authors': ['テスト太郎']}
 
         """Act"""
@@ -86,8 +85,9 @@ class TestBookSerializer(UserAPITestCase):
         """部分更新時のバリデーション (正常系: 著者名が空)"""
 
         """Arrange"""
-        params = {**self.FIRST_BOOK_PARAMS, 'authors': ['テスト太郎']}
-        book = create_dummy_book(params, self.user)
+        book = BookFactory(
+            **self.BOOK_FIXTURE, authors__author__name='テスト太郎', created_by=self.user
+        )
         input_data = {'title': 'テスト'}
 
         """Act"""
@@ -103,10 +103,9 @@ class TestBookSerializer(UserAPITestCase):
         """ステータス欄の取得 (正常系)"""
 
         """Arrange"""
-        params = self.FIRST_BOOK_PARAMS
-        book = create_dummy_book(params, self.user)
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
         for i in range(10):
-            StatusLog.objects.create(book=book, position=i + 1, created_by=self.user)
+            StatusLogFactory(book=book, position=i + 1, created_by=self.user)
 
         """Act"""
         data = BookSerializer(book).data
@@ -127,10 +126,9 @@ class TestBookSerializer(UserAPITestCase):
         """ノート欄の取得 (正常系)"""
 
         """Arrange"""
-        params = self.FIRST_BOOK_PARAMS
-        book = create_dummy_book(params, self.user)
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
         for i in range(10):
-            Note.objects.create(book=book, position=i + 1, created_by=self.user)
+            NoteFactory(book=book, position=i + 1, created_by=self.user)
 
         """Act"""
         data = BookSerializer(book).data
@@ -152,7 +150,7 @@ class TestBookSerializer(UserAPITestCase):
         """雛形: 入力データのバリデーション (異常系: 必須フィールドが不正)"""
 
         """Arrange"""
-        params = params or self.FIRST_BOOK_PARAMS
+        params = params or self.BOOK_FIXTURE
         input_data = {**params}
 
         if omit:
@@ -244,7 +242,7 @@ class TestBookSerializer(UserAPITestCase):
     def test_create_invalid_with_total_page_zero(self):
         """入力データのバリデーション (異常系: Kindle本のページ量が0)"""
 
-        params = {**self.FIRST_BOOK_PARAMS, 'format_type': 1}
+        params = {**self.BOOK_FIXTURE, 'format_type': 1, 'total_page': 100}
         self._test_create_invalid(
             field='total_page', value=0, error='0よりも大きな整数を入力してください。', params=params
         )
@@ -252,7 +250,7 @@ class TestBookSerializer(UserAPITestCase):
     def test_create_invalid_with_total_page_omitted(self):
         """入力データのバリデーション (異常系: Kindle本のページ量なし)"""
 
-        params = {**self.FIRST_BOOK_PARAMS, 'format_type': 1}
+        params = {**self.BOOK_FIXTURE, 'format_type': 1, 'total_page': 100}
         self._test_create_invalid(
             field='total_page', omit=True, error='0よりも大きな整数を入力してください。', params=params
         )
@@ -260,7 +258,7 @@ class TestBookSerializer(UserAPITestCase):
     def test_create_invalid_with_total_page_null(self):
         """入力データのバリデーション (異常系: Kindle本のページ量がnull)"""
 
-        params = {**self.FIRST_BOOK_PARAMS, 'format_type': 1}
+        params = {**self.BOOK_FIXTURE, 'format_type': 1, 'total_page': 100}
         self._test_create_invalid(
             field='total_page', value=None, error='0よりも大きな整数を入力してください。', params=params
         )

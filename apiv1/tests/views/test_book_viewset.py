@@ -1,6 +1,7 @@
 from django.utils.timezone import now, timedelta
 
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
+from apiv1.tests.factries import BookFactory, create_dummy_books
 from apiv1.tests.mixins import *
 
 
@@ -21,7 +22,7 @@ class TestBookCreateAPIView(BookViewSetTestCase):
         self.client.force_authenticate(user=self.user)
 
         """Act"""
-        params = self.FIRST_BOOK_PARAMS
+        params = self.BOOK_FIXTURE
         response = self.client.post(self.TARGET_URL, params, format='json')
 
         """Assert"""
@@ -36,14 +37,11 @@ class TestBookCreateAPIView(BookViewSetTestCase):
         """登録APIへのPOSTリクエスト (異常系: Google Books IDの重複)"""
 
         """Arrange"""
-        book = create_dummy_book(params=self.FIRST_BOOK_PARAMS, user=self.user)
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
         self.client.force_authenticate(user=self.user)
+        params = {**self.BOOK_FIXTURE, 'id_google': book.id_google}
 
         """Act"""
-        params = {
-            **self.SECOND_BOOK_PARAMS,
-            'id_google': self.FIRST_BOOK_PARAMS['id_google']
-        }
         response = self.client.post(self.TARGET_URL, params, format='json')
 
         """Assert"""
@@ -59,12 +57,9 @@ class TestBookCreateAPIView(BookViewSetTestCase):
 
         """Arrange"""
         self.client.force_authenticate(user=self.user)
+        params = {**self.BOOK_FIXTURE, 'title': ''}
 
         """Act"""
-        params = {
-            **self.FIRST_BOOK_PARAMS,
-            'title': ''
-        }
         response = self.client.post(self.TARGET_URL, params, format='json')
 
         """Assert"""
@@ -75,9 +70,9 @@ class TestBookCreateAPIView(BookViewSetTestCase):
         """登録APIへのPOSTリクエスト (異常系: 認証なし)"""
 
         """Arrange"""
+        params = self.BOOK_FIXTURE
 
         """Act"""
-        params = self.FIRST_BOOK_PARAMS
         response = self.client.post(self.TARGET_URL, params, format='json')
 
         """Assert"""
@@ -92,14 +87,11 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
         """登録APIへのPUTリクエスト (正常系)"""
 
         """Arrange"""
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
         self.client.force_authenticate(user=self.user)
-        book = create_dummy_book(params=self.FIRST_BOOK_PARAMS, user=self.user)
+        params = {**self.BOOK_FIXTURE, 'id': book.id, 'title': 'Title Updated'}
 
         """Act"""
-        params = {
-            **self.SECOND_BOOK_PARAMS,
-            'id': book.id
-        }
         response = self.client.put(self.TARGET_URL_WITH_PK.format(book.id), params, format='json')
 
         """Assert"""
@@ -108,48 +100,15 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
         expected_json = get_expected_book_json(params, book)
         self.assertJSONEqual(str(response.content, encoding='utf8'), expected_json)
 
-    def test_put_failure_validation(self):
-        """登録APIへのPUTリクエスト (異常系: バリデーションNG)"""
-
-        """Arrange"""
-        self.client.force_authenticate(user=self.user)
-        book = create_dummy_book(params=self.FIRST_BOOK_PARAMS, user=self.user)
-
-        """Act"""
-        params = {}
-        response = self.client.put(self.TARGET_URL_WITH_PK.format(book.id), params, format='json')
-
-        """Assert"""
-        self.assertEqual(response.status_code, 400)
-
-    def test_put_failure_invalid_user(self):
-        """登録APIへのPUTリクエスト (異常系: 異なるユーザーによる権限エラー)"""
-
-        """Arrange"""
-        self.client.force_authenticate(user=self.user)
-        book = create_dummy_book(params=self.FIRST_BOOK_PARAMS, user=self.user)
-
-        """Act"""
-        params = {
-            **self.SECOND_BOOK_PARAMS,
-            'id': book.id
-        }
-        self.client.force_authenticate(user=self.user2)
-        response = self.client.put(self.TARGET_URL_WITH_PK.format(book.id), params, format='json')
-
-        """Assert"""
-        self.assertEqual(response.status_code, 404)
-
     def test_patch_success(self):
         """雛形: 登録APIへのPATCHリクエスト (正常系)"""
 
         """Arrange"""
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
         self.client.force_authenticate(user=self.user)
-        book = create_dummy_book(params=self.FIRST_BOOK_PARAMS, user=self.user)
-
-        """Act"""
         params = {'title': 'test updated'}
 
+        """Act"""
         response = self.client.patch(self.TARGET_URL_WITH_PK.format(book.id), params, format='json')
 
         """Assert"""
@@ -166,7 +125,7 @@ class TestBookRetrieveAPIView(BookViewSetTestCase):
         """APIへのGETリクエスト [Retrieve] (正常系)"""
 
         """Arrange"""
-        book = create_dummy_book(params=self.FIRST_BOOK_PARAMS, user=self.user)
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
         self.client.force_authenticate(user=self.user)
 
         """"Act"""
@@ -181,7 +140,7 @@ class TestBookRetrieveAPIView(BookViewSetTestCase):
         """APIへのGETリクエスト [Retrieve] (異常系: 異なるユーザーによる権限エラー)"""
 
         """Arrange"""
-        book = create_dummy_book(params=self.FIRST_BOOK_PARAMS, user=self.user)
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
         self.client.force_authenticate(user=self.user2)
 
         """"Act"""
@@ -194,7 +153,7 @@ class TestBookRetrieveAPIView(BookViewSetTestCase):
         """APIへのGETリクエスト [Retrieve] (異常系: 認証なし)"""
 
         """Arrange"""
-        book = create_dummy_book(params=self.FIRST_BOOK_PARAMS, user=self.user)
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
 
         """"Act"""
         response = self.client.get(self.TARGET_URL_WITH_PK.format(book.id), format='json')
@@ -210,8 +169,7 @@ class TestBookListAPIView(BookViewSetTestCase):
         """APIへのGETリクエスト [List] (正常系)"""
 
         """Arrange"""
-        books = create_dummy_books(n=10, params=self.FIRST_BOOK_PARAMS, user=self.user)
-
+        books = create_dummy_books(params_dict={**self.BOOK_FIXTURE, 'created_by': self.user}, n=10)
         self.client.force_authenticate(user=self.user)
 
         """Act"""
@@ -230,35 +188,12 @@ class TestBookListAPIView(BookViewSetTestCase):
         """APIへのGETリクエスト [List] (正常系: ページネーション)"""
 
         """Arrange"""
-        books = create_dummy_books(n=13, params=self.FIRST_BOOK_PARAMS, user=self.user)
-
+        books = create_dummy_books(params_dict={**self.BOOK_FIXTURE, 'created_by': self.user}, n=13)
+        params = {'page': 2}
         self.client.force_authenticate(user=self.user)
 
         """Act"""
-        params = {'page': 2}
         response = self.client.get(self.TARGET_URL, params, format='json')
-
-        """Assert"""
-        self.assertEqual(response.status_code, 200)
-        results = list(response.data['results'])
-        self.assertEqual(len(results), 1)
-
-        result_id, book_id = results[0]['id'], str(books[-1].id)
-        self.assertEqual(result_id, book_id)
-
-    def test_list_success_exclude_other_users(self):
-        """APIへのGETリクエスト [List] (正常系: 自ユーザー作成のデータのみ表示)"""
-
-        """Arrange"""
-        books = create_dummy_books(n=10, params=self.FIRST_BOOK_PARAMS, user=self.user)
-        # 最後の一件のみ、レコードの作成者をuser2に設定する
-        books[-1].created_by = self.user2
-        books[-1].save()
-
-        self.client.force_authenticate(user=self.user2)
-
-        """Act"""
-        response = self.client.get(self.TARGET_URL, format='json')
 
         """Assert"""
         self.assertEqual(response.status_code, 200)
@@ -272,7 +207,7 @@ class TestBookListAPIView(BookViewSetTestCase):
         """APIへのGETリクエスト [List] (正常系: アクセス日時で降順ソート)"""
 
         """Arrange"""
-        books = create_dummy_books(n=10, params=self.FIRST_BOOK_PARAMS, user=self.user)
+        books = create_dummy_books(params_dict={**self.BOOK_FIXTURE, 'created_by': self.user}, n=10)
 
         # 最初に作成した本に対してステータスを記録する
         StatusLog.objects.create(
@@ -295,18 +230,6 @@ class TestBookListAPIView(BookViewSetTestCase):
 
         self.assertEqual(results[0]['id'], str(books[-1].id))
 
-    def test_list_failure_no_auth(self):
-        """APIへのGETリクエスト [List] (異常系: 認証なし)"""
-
-        """Arrange"""
-        create_dummy_books(n=10, params=self.FIRST_BOOK_PARAMS, user=self.user)
-
-        """Act"""
-        response = self.client.get(self.TARGET_URL, format='json')
-
-        """Assert"""
-        self.assertEqual(response.status_code, 401)
-
 
 class TestBookDeleteAPIView(BookViewSetTestCase):
     """BookViewSetのテストクラス (DELETE)"""
@@ -315,7 +238,7 @@ class TestBookDeleteAPIView(BookViewSetTestCase):
         """APIへのDELETEリクエスト (正常系)"""
 
         """Arrange"""
-        book = create_dummy_book(self.FIRST_BOOK_PARAMS, user=self.user)
+        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
         self.client.force_authenticate(user=self.user)
 
         """Act"""
@@ -326,30 +249,3 @@ class TestBookDeleteAPIView(BookViewSetTestCase):
         self.assertEqual(BookAuthorRelation.objects.count(), 0)
         self.assertEqual(Author.objects.count(), 0)
         self.assertEqual(response.status_code, 204)
-
-    def test_delete_failure_invalid_user(self):
-        """APIへのDELETEリクエスト (異常系: 他ユーザーのデータの削除不可)"""
-
-        """Arrange"""
-        book = create_dummy_book(self.FIRST_BOOK_PARAMS, user=self.user)
-        self.client.force_authenticate(user=self.user2)
-
-        """Act"""
-        response = self.client.delete(self.TARGET_URL_WITH_PK.format(book.id), format='json')
-
-        """Assert"""
-        self.assertEqual(Book.objects.count(), 1)
-        self.assertEqual(response.status_code, 404)
-
-    def test_delete_failure_no_auth(self):
-        """APIへのDELETEリクエスト (異常系: 認証なし)"""
-
-        """Arrange"""
-        book = create_dummy_book(self.FIRST_BOOK_PARAMS, user=self.user)
-
-        """Act"""
-        response = self.client.delete(self.TARGET_URL_WITH_PK.format(book.id), format='json')
-
-        """Assert"""
-        self.assertEqual(Book.objects.count(), 1)
-        self.assertEqual(response.status_code, 401)

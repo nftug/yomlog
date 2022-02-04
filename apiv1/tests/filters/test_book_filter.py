@@ -4,6 +4,7 @@ from django.http import QueryDict
 
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
 from apiv1.filters import BookFilter
+from apiv1.tests.factries import BookFactory
 
 
 class TestBookFilter(UserAPITestCase):
@@ -26,8 +27,8 @@ class TestBookFilter(UserAPITestCase):
             authors=['テスト太郎', 'Jane Doe'],
             amazon_dp='0234567890123'
         )
-        book_first = create_dummy_book(book_first_fixture, self.user)
-        book_second = create_dummy_book(book_second_fixture, self.user)
+        book_first = BookFactory(**book_first_fixture, created_by=self.user)
+        book_second = BookFactory(**book_second_fixture, created_by=self.user)
         qd = QueryDict('title=test')
         filterset = BookFilter(qd, queryset=Book.objects.all())
         queryset = filterset.qs
