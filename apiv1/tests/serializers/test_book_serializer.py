@@ -5,7 +5,7 @@ from apiv1.tests.factories import BookFactory, StatusLogFactory, NoteFactory
 
 
 class TestBookSerializer(UserSerializerTestCase):
-    """BookSerializerのテストクラス (投稿)"""
+    """BookSerializerのテストクラス"""
 
     def test_create_valid(self):
         """入力データのバリデーション (正常系)"""

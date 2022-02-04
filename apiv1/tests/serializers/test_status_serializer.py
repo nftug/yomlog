@@ -6,8 +6,8 @@ from apiv1.serializers import StatusLogSerializer
 from apiv1.tests.factories import BookFactory, StatusLogFactory, NoteFactory
 
 
-class TestBookSerializer(UserSerializerTestCase):
-    """BookSerializerのテストクラス (投稿)"""
+class TestStatusLogSerializer(UserSerializerTestCase):
+    """StatusLogSerializerのテストクラス"""
 
     def setUp(self):
         super().setUp()
