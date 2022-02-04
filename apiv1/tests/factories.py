@@ -57,7 +57,7 @@ def create_dummy_books(params_dict, n):
 
 class StatusLogFactory(factory.django.DjangoModelFactory):
     book = factory.SubFactory(BookFactory)
-    position = 10
+    position = 1
 
     class Meta:
         model = StatusLog
@@ -70,7 +70,7 @@ def create_dummy_status(params_dict, n):
         params = {
             **params_dict,
             'book': book,
-            'position': 10 + i,
+            'position': i + 1,
             'created_at': now() + timedelta(seconds=1)
         }
         state = StatusLogFactory(**params)
