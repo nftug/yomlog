@@ -2,7 +2,7 @@ import factory
 from django.utils.timezone import now, timedelta
 
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
-from apiv1.tests.mixins import get_rand_id
+from apiv1.tests.testing import get_rand_id
 
 
 class AuthorFactory(factory.django.DjangoModelFactory):
@@ -36,9 +36,9 @@ class BookFactory(BookBaseFactory):
 
 
 class BookFactoryWithThreeAuthors(BookBaseFactory):
-    authors1 = factory.RelatedFactory(BookAuthorRelationFactory, 'book', author__name='Author 1', order=0)
-    authors2 = factory.RelatedFactory(BookAuthorRelationFactory, 'book', author__name='Author 2', order=1)
-    authors3 = factory.RelatedFactory(BookAuthorRelationFactory, 'book', author__name='Author 3', order=2)
+    authors1 = factory.RelatedFactory(BookAuthorRelationFactory, 'book', author__name='テスト太郎', order=0)
+    authors2 = factory.RelatedFactory(BookAuthorRelationFactory, 'book', author__name='Test Taro', order=1)
+    authors3 = factory.RelatedFactory(BookAuthorRelationFactory, 'book', author__name='Jane Doe', order=2)
 
 
 def create_dummy_books(params_dict, n):

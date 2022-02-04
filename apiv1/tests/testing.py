@@ -2,11 +2,9 @@ from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 import random
 import string
-from typing import OrderedDict
-from django.db.models.query import QuerySet
-from django.utils.timezone import localtime, now, timedelta
+from django.utils.timezone import localtime
 
-from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
+from backend.models import Book, Note, StatusLog
 
 DUMMY_THUMBNAIL_URL = 'https://dummyimage.com/140x185/c4c4c4/636363.png&text=No+Image'
 
@@ -63,17 +61,12 @@ def get_rand_id(n=12):
 def get_expected_book_json(params, book: Book):
     """Assert対象のJSON書籍データを生成"""
 
-    if 'authors' in params:
-        authors_expected = [_ for _ in params['authors']]
-    else:
-        authors_expected = [_ for _ in book.get_author_names()]
-
     expected_json = {
         'id': str(book.id),
         'status': [],
         'note': [],
         'title': params.get('title') or book.title,
-        'authors': authors_expected,
+        'authors': [_ for _ in book.get_author_names()],
         'id_google': params.get('id_google') or book.id_google,
         'thumbnail': params.get('thumbnail') or book.thumbnail or DUMMY_THUMBNAIL_URL,
         'format_type': params.get('format_type') or book.format_type,

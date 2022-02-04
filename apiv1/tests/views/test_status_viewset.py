@@ -1,8 +1,8 @@
 from django.utils.timezone import now, timedelta
 
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
-from apiv1.tests.mixins import *
-from apiv1.tests.factries import BookFactory, StatusLogFactory, create_dummy_status
+from apiv1.tests.testing import *
+from apiv1.tests.factories import BookFactory, StatusLogFactory, create_dummy_status
 
 
 class StatusLogTestCase(UserAPITestCase):

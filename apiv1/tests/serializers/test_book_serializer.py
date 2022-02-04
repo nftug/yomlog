@@ -1,7 +1,7 @@
-from apiv1.tests.mixins import *
+from apiv1.tests.testing import *
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
 from apiv1.serializers import BookSerializer
-from apiv1.tests.factries import BookFactory, StatusLogFactory, NoteFactory
+from apiv1.tests.factories import BookFactory, StatusLogFactory, NoteFactory
 
 
 class TestBookSerializer(UserAPITestCase):

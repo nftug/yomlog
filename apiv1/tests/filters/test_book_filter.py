@@ -1,10 +1,10 @@
 from django_filters import rest_framework as django_filter
-from apiv1.tests.mixins import *
+from apiv1.tests.testing import *
 from django.http import QueryDict
 
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
 from apiv1.filters import BookFilter
-from apiv1.tests.factries import BookFactory, BookFactoryWithThreeAuthors
+from apiv1.tests.factories import BookFactory, BookFactoryWithThreeAuthors
 
 
 class TestBookFilter(UserAPITestCase):
@@ -18,23 +18,8 @@ class TestBookFilter(UserAPITestCase):
         """タイトルによる絞り込み (正常系)"""
 
         # Arrange
-        book_first = BookFactoryWithThreeAuthors(
-            title='Test Book',
-            authors1__author__name='テスト太郎',
-            authors2__author__name='Test Taro',
-            authors3__author__name='Jane Doe',
-            amazon_dp='1234567890123',
-            created_by=self.user
-        )
-        book_second = BookFactoryWithThreeAuthors(
-            title='テスト用の本',
-            authors1__author__name='テスト太郎',
-            authors2__author__name='Test Taro',
-            authors3__author__name='Jane Doe',
-            amazon_dp='0234567890123',
-            created_by=self.user
-        )
-
+        book_first = BookFactoryWithThreeAuthors(title='Test Book', created_by=self.user)
+        book_second = BookFactoryWithThreeAuthors(title='テスト用の本', created_by=self.user)
         qd = QueryDict('title=test')
 
         # Act
@@ -49,23 +34,8 @@ class TestBookFilter(UserAPITestCase):
         """著者名による絞り込み (正常系)"""
 
         # Arrange
-        book_first = BookFactoryWithThreeAuthors(
-            title='Test Book',
-            authors1__author__name='テスト次郎',
-            authors2__author__name='Test Taro',
-            authors3__author__name='Jane Doe',
-            amazon_dp='1234567890123',
-            created_by=self.user
-        )
-        book_second = BookFactoryWithThreeAuthors(
-            title='テスト用の本',
-            authors1__author__name='テスト太郎',
-            authors2__author__name='Test Taro',
-            authors3__author__name='Jane Doe',
-            amazon_dp='0234567890123',
-            created_by=self.user
-        )
-
+        book_first = BookFactoryWithThreeAuthors(authors1__author__name='テスト次郎', created_by=self.user)
+        book_second = BookFactoryWithThreeAuthors(created_by=self.user)
         qd = QueryDict('authors=次郎')
 
         # Act
