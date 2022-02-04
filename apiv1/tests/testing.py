@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 import random
 import string
 from django.utils.timezone import localtime
+from apiv1.serializers import BookSerializer, StatusLogSerializer
 
 from backend.models import Book, Note, StatusLog
 
@@ -43,6 +44,25 @@ class UserAPITestCase(APITestCase):
         self.STATUS_FIXTURE = {
             'position': 10
         }
+
+
+class UserSerializerTestCase(UserAPITestCase):
+    def serializer_invalid(self, serializer, params, field, error, context=None):
+        """雛形: 入力データのバリデーション (異常系: 必須フィールドが不正)"""
+
+        """Arrange"""
+        input_data = {**params}
+
+        """Act"""
+        serializer = serializer(data=input_data, context=context)
+
+        """Assert"""
+        self.assertEqual(serializer.is_valid(), False)
+        self.assertCountEqual(serializer.errors.keys(), [field])
+        self.assertCountEqual(
+            [str(x) for x in serializer.errors[field]],
+            [error]
+        )
 
 
 def convert_time_into_json_str(time):

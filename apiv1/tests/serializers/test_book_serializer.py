@@ -4,7 +4,7 @@ from apiv1.serializers import BookSerializer
 from apiv1.tests.factories import BookFactory, StatusLogFactory, NoteFactory
 
 
-class TestBookSerializer(UserAPITestCase):
+class TestBookSerializer(UserSerializerTestCase):
     """BookSerializerのテストクラス (投稿)"""
 
     def test_create_valid(self):
@@ -99,6 +99,126 @@ class TestBookSerializer(UserAPITestCase):
         book = Book.objects.get()
         self.assertEqual(list(book.get_author_names()), ['テスト太郎'])
 
+    def test_create_invalid_with_title_blank(self):
+        """入力データのバリデーション (異常系: タイトルが空)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'title': ''}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='title',
+            error='この項目は空にできません。'
+        )
+
+    def test_create_invalid_with_title_omitted(self):
+        """入力データのバリデーション (異常系: タイトルなし)"""
+
+        input_data = {**self.BOOK_FIXTURE}
+        del input_data['title']
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='title',
+            error='この項目は必須です。'
+        )
+
+    def test_create_invalid_with_title_null(self):
+        """入力データのバリデーション (異常系: タイトルがnull)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'title': None}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='title',
+            error='この項目はnullにできません。'
+        )
+
+    def test_create_invalid_with_id_google_blank(self):
+        """入力データのバリデーション (異常系: Google Books IDが空)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'id_google': ''}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='id_google',
+            error='この項目は空にできません。'
+        )
+
+    def test_create_invalid_with_id_google_omitted(self):
+        """入力データのバリデーション (異常系: Google Books IDなし)"""
+
+        input_data = {**self.BOOK_FIXTURE}
+        del input_data['id_google']
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='id_google',
+            error='この項目は必須です。'
+        )
+
+    def test_create_invalid_with_id_google_null(self):
+        """入力データのバリデーション (異常系: Google Books IDがnull)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'id_google': None}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='id_google',
+            error='この項目はnullにできません。'
+        )
+
+    def test_create_invalid_with_invalid_format_type(self):
+        """入力データのバリデーション (異常系: フォーマットが不正)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'format_type': 2}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='format_type',
+            error='"2"は有効な選択肢ではありません。'
+        )
+
+    def test_create_invalid_with_total_zero(self):
+        """入力データのバリデーション (異常系: ページ量が0)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'total': 0}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='total',
+            error='0より大きな整数を入力してください。'
+        )
+
+    def test_create_invalid_with_total_omitted(self):
+        """入力データのバリデーション (異常系: ページ量なし)"""
+
+        input_data = {**self.BOOK_FIXTURE}
+        del input_data['total']
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='total',
+            error='この項目は必須です。'
+        )
+
+    def test_create_invalid_with_total_null(self):
+        """入力データのバリデーション (異常系: ページ量がnull)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'total': None}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='total',
+            error='この項目はnullにできません。'
+        )
+
+    def test_create_invalid_with_total_page_zero(self):
+        """入力データのバリデーション (異常系: Kindle本のページ量が0)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'format_type': 1, 'total_page': 0}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='total_page',
+            error='0より大きな整数を入力してください。'
+        )
+
+    def test_create_invalid_with_total_page_omitted(self):
+        """入力データのバリデーション (異常系: Kindle本のページ量なし)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'format_type': 1}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='total_page',
+            error='0より大きな整数を入力してください。'
+        )
+
+    def test_create_invalid_with_total_page_null(self):
+        """入力データのバリデーション (異常系: Kindle本のページ量がnull)"""
+
+        input_data = {**self.BOOK_FIXTURE, 'format_type': 1, 'total_page': None}
+        self.serializer_invalid(
+            serializer=BookSerializer, params=input_data, field='total_page',
+            error='0より大きな整数を入力してください。'
+        )
+
     def test_get_with_status(self):
         """ステータス欄の取得 (正常系)"""
 
@@ -145,120 +265,3 @@ class TestBookSerializer(UserAPITestCase):
             self.assertEqual('created_at' in note, True)
             self.assertEqual('created_at' in note, True)
             self.assertNotEqual('created_by' in note, True)
-
-    def _test_create_invalid(self, field, error, value=None, params=None, omit=False):
-        """雛形: 入力データのバリデーション (異常系: 必須フィールドが不正)"""
-
-        """Arrange"""
-        params = params or self.BOOK_FIXTURE
-        input_data = {**params}
-
-        if omit:
-            del input_data[field]
-        else:
-            input_data = {**params, field: value}
-
-        """Act"""
-        serializer = BookSerializer(data=input_data)
-
-        """Assert"""
-        self.assertEqual(serializer.is_valid(), False)
-        self.assertCountEqual(serializer.errors.keys(), [field])
-        self.assertCountEqual(
-            [str(x) for x in serializer.errors[field]],
-            [error]
-        )
-
-    def test_create_invalid_with_title_blank(self):
-        """入力データのバリデーション (異常系: タイトルが空)"""
-
-        self._test_create_invalid(
-            field='title', value='', error='この項目は空にできません。'
-        )
-
-    def test_create_invalid_with_title_omitted(self):
-        """入力データのバリデーション (異常系: タイトルなし)"""
-
-        self._test_create_invalid(
-            field='title', omit=True, error='この項目は必須です。'
-        )
-
-    def test_create_invalid_with_title_null(self):
-        """入力データのバリデーション (異常系: タイトルがnull)"""
-
-        self._test_create_invalid(
-            field='title', value=None, error='この項目はnullにできません。'
-        )
-
-    def test_create_invalid_with_id_google_blank(self):
-        """入力データのバリデーション (異常系: Google Books IDが空)"""
-
-        self._test_create_invalid(
-            field='id_google', value='', error='この項目は空にできません。'
-        )
-
-    def test_create_invalid_with_id_google_omitted(self):
-        """入力データのバリデーション (異常系: Google Books IDなし)"""
-
-        self._test_create_invalid(
-            field='id_google', omit=True, error='この項目は必須です。'
-        )
-
-    def test_create_invalid_with_id_google_null(self):
-        """入力データのバリデーション (異常系: Google Books IDがnull)"""
-
-        self._test_create_invalid(
-            field='id_google', value=None, error='この項目はnullにできません。'
-        )
-
-    def test_create_invalid_with_invalid_format_type(self):
-        """入力データのバリデーション (異常系: フォーマットが不正)"""
-
-        self._test_create_invalid(
-            field='format_type', value=2, error='"2"は有効な選択肢ではありません。'
-        )
-
-    def test_create_invalid_with_total_zero(self):
-        """入力データのバリデーション (異常系: ページ量が0)"""
-
-        self._test_create_invalid(
-            field='total', value=0, error='0よりも大きな整数を入力してください。'
-        )
-
-    def test_create_invalid_with_total_omitted(self):
-        """入力データのバリデーション (異常系: ページ量なし)"""
-
-        self._test_create_invalid(
-            field='total', omit=True, error='この項目は必須です。'
-        )
-
-    def test_create_invalid_with_total_null(self):
-        """入力データのバリデーション (異常系: ページ量がnull)"""
-
-        self._test_create_invalid(
-            field='total', value=None, error='この項目はnullにできません。'
-        )
-
-    def test_create_invalid_with_total_page_zero(self):
-        """入力データのバリデーション (異常系: Kindle本のページ量が0)"""
-
-        params = {**self.BOOK_FIXTURE, 'format_type': 1, 'total_page': 100}
-        self._test_create_invalid(
-            field='total_page', value=0, error='0よりも大きな整数を入力してください。', params=params
-        )
-
-    def test_create_invalid_with_total_page_omitted(self):
-        """入力データのバリデーション (異常系: Kindle本のページ量なし)"""
-
-        params = {**self.BOOK_FIXTURE, 'format_type': 1, 'total_page': 100}
-        self._test_create_invalid(
-            field='total_page', omit=True, error='0よりも大きな整数を入力してください。', params=params
-        )
-
-    def test_create_invalid_with_total_page_null(self):
-        """入力データのバリデーション (異常系: Kindle本のページ量がnull)"""
-
-        params = {**self.BOOK_FIXTURE, 'format_type': 1, 'total_page': 100}
-        self._test_create_invalid(
-            field='total_page', value=None, error='0よりも大きな整数を入力してください。', params=params
-        )

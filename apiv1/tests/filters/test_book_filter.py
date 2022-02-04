@@ -197,13 +197,7 @@ class TestBookFilter(UserAPITestCase):
         """フリーワードによる絞り込み (正常系)"""
 
         # Arrange
-        book_first = BookFactoryWithThreeAuthors(
-            title='あいうえお',
-            authors1__author__name='テスト太郎',
-            authors2__author__name='Test Taro',
-            authors3__author__name='Jane Doe',
-            created_by=self.user
-        )
+        book_first = BookFactory(title='あいうえお', authors__author__name='テスト太郎', created_by=self.user)
         book_second = BookFactoryWithThreeAuthors(
             title='かきくけこ',
             authors1__author__name='テスト太郎',
@@ -211,13 +205,7 @@ class TestBookFilter(UserAPITestCase):
             authors3__author__name='あいうえお',
             created_by=self.user
         )
-        book_third = BookFactoryWithThreeAuthors(
-            title='さしすせそ',
-            authors1__author__name='テスト太郎',
-            authors2__author__name='Test Taro',
-            authors3__author__name='Jane Doe',
-            created_by=self.user
-        )
+        book_third = BookFactory(title='さしすせそ', authors__author__name='テスト太郎', created_by=self.user)
         qd = QueryDict('q=あいうえお')
 
         # Act
@@ -229,7 +217,108 @@ class TestBookFilter(UserAPITestCase):
         self.assertEqual(queryset.filter(id=book_first.id).exists(), True)
         self.assertEqual(queryset.filter(id=book_second.id).exists(), True)
 
-    # test_and_search_inside_field
-    # test_and_search_between_fields
-    # test_or_search_inside_field
-    # test_or_search_between_fields
+    def test_and_search_inside_field(self):
+        """AND検索 (フィールド内)"""
+
+        # Arrange
+        book_first = BookFactory(title='ほげほげ1', authors__author__name='テスト一郎', created_by=self.user)
+        book_second = BookFactory(title='ほげほげ2', authors__author__name='テスト二郎', created_by=self.user)
+        book_third = BookFactory(title='ほげほげ3', authors__author__name='テスト三郎', created_by=self.user)
+        qd = QueryDict('q=ほげほげ　一郎')
+
+        # Act
+        filterset = BookFilter(qd, queryset=Book.objects.all())
+        queryset = filterset.qs.sort_by_accessed_at()
+
+        # Assert
+        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(queryset.filter(id=book_first.id).exists(), True)
+
+    def test_and_search_between_fields(self):
+        """AND検索 (フィールド間)"""
+
+        # Arrange
+        book_first = BookFactory(title='ほげほげ1', authors__author__name='テスト一郎', created_by=self.user)
+        book_second = BookFactory(title='ほげほげ2', authors__author__name='テスト二郎', created_by=self.user)
+        book_third = BookFactory(title='ほげほげ3', authors__author__name='テスト三郎', created_by=self.user)
+        qd = QueryDict('title=ほげほげ&authors=一郎')
+
+        # Act
+        filterset = BookFilter(qd, queryset=Book.objects.all())
+        queryset = filterset.qs.sort_by_accessed_at()
+
+        # Assert
+        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(queryset.filter(id=book_first.id).exists(), True)
+
+    def test_or_search_inside_field(self):
+        """OR検索 (フィールド内)"""
+
+        # Arrange
+        book_first = BookFactory(title='ほげほげ1', authors__author__name='テスト一郎', created_by=self.user)
+        book_second = BookFactory(title='ほげほげ2', authors__author__name='テスト二郎', created_by=self.user)
+        book_third = BookFactory(title='ほげほげ3', authors__author__name='テスト三郎', created_by=self.user)
+        qd = QueryDict('q=ほげほげ1 OR 二郎')
+
+        # Act
+        filterset = BookFilter(qd, queryset=Book.objects.all())
+        queryset = filterset.qs.sort_by_accessed_at()
+
+        # Assert
+        self.assertEqual(queryset.count(), 2)
+        self.assertEqual(queryset.filter(id=book_first.id).exists(), True)
+        self.assertEqual(queryset.filter(id=book_second.id).exists(), True)
+
+    def test_or_search_between_fields(self):
+        """OR検索 (フィールド間)"""
+
+        # Arrange
+        book_first = BookFactory(title='ほげほげ1', authors__author__name='テスト一郎', created_by=self.user)
+        book_second = BookFactory(title='ほげほげ2', authors__author__name='テスト二郎', created_by=self.user)
+        book_third = BookFactory(title='ほげほげ3', authors__author__name='テスト三郎', created_by=self.user)
+        qd = QueryDict('title=ほげほげ1&authors_or=二郎')
+
+        # Act
+        filterset = BookFilter(qd, queryset=Book.objects.all())
+        queryset = filterset.qs.sort_by_accessed_at()
+
+        # Assert
+        self.assertEqual(queryset.count(), 2)
+        self.assertEqual(queryset.filter(id=book_first.id).exists(), True)
+        self.assertEqual(queryset.filter(id=book_second.id).exists(), True)
+
+    def test_or_and_search_inside_field(self):
+        """AND/OR検索の併用 (フィールド内)"""
+
+        # Arrange
+        book_first = BookFactory(title='ほげほげ1', authors__author__name='テスト一郎', created_by=self.user)
+        book_second = BookFactory(title='ほげほげ2', authors__author__name='テスト二郎', created_by=self.user)
+        book_third = BookFactory(title='ほげほげ3', authors__author__name='テスト三郎', created_by=self.user)
+        qd = QueryDict('q=ほげほげ 一郎 OR 二郎')
+
+        # Act
+        filterset = BookFilter(qd, queryset=Book.objects.all())
+        queryset = filterset.qs.sort_by_accessed_at()
+
+        # Assert
+        self.assertEqual(queryset.count(), 2)
+        self.assertEqual(queryset.filter(id=book_first.id).exists(), True)
+        self.assertEqual(queryset.filter(id=book_second.id).exists(), True)
+
+    def test_or_and_search_between_fields(self):
+        """AND/OR検索の併用 (フィールド間)"""
+
+        # Arrange
+        book_first = BookFactory(title='ほげほげ1', authors__author__name='テスト一郎', created_by=self.user)
+        book_second = BookFactory(title='ほげほげ2', authors__author__name='テスト二郎', created_by=self.user)
+        book_third = BookFactory(title='ほげほげ3', authors__author__name='テスト三郎', created_by=self.user)
+        qd = QueryDict('title=ほげほげ&authors=一郎&authors_or=二郎')
+
+        # Act
+        filterset = BookFilter(qd, queryset=Book.objects.all())
+        queryset = filterset.qs.sort_by_accessed_at()
+
+        # Assert
+        self.assertEqual(queryset.count(), 2)
+        self.assertEqual(queryset.filter(id=book_first.id).exists(), True)
+        self.assertEqual(queryset.filter(id=book_second.id).exists(), True)

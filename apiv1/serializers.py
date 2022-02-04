@@ -37,7 +37,7 @@ class BookIncludedSerializer(PostSerializer):
 
     def validate_book(self, data):
         if data.created_by != super().context['request'].user:
-            raise ValidationError('自ユーザーが作成した本を選択してください')
+            raise ValidationError('自ユーザーが作成した本を選択してください。')
 
         return data
 
@@ -254,7 +254,7 @@ class BookSerializer(PostSerializer):
         """ページ数 or 位置No総数のバリデーション"""
 
         if value <= 0:
-            raise ValidationError('0よりも大きな整数を入力してください。')
+            raise ValidationError('0より大きな整数を入力してください。')
 
         return value
 
@@ -263,7 +263,7 @@ class BookSerializer(PostSerializer):
 
         invalid_total_page = not data.get('total_page') or data.get('total_page') <= 0
         if data.get('format_type') == 1 and invalid_total_page:
-            raise ValidationError({'total_page': '0よりも大きな整数を入力してください。'})
+            raise ValidationError({'total_page': '0より大きな整数を入力してください。'})
 
         return data
 
