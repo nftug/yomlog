@@ -4,7 +4,7 @@ from django.http import QueryDict
 
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
 from apiv1.filters import BookFilter
-from apiv1.tests.factries import BookFactory
+from apiv1.tests.factries import BookFactory, BookFactoryWithThreeAuthors
 
 
 class TestBookFilter(UserAPITestCase):
@@ -17,26 +17,65 @@ class TestBookFilter(UserAPITestCase):
     def test_filter_title(self):
         """タイトルによる絞り込み (正常系)"""
 
-        book_first_fixture = get_book_fixture(
+        # Arrange
+        book_first = BookFactoryWithThreeAuthors(
             title='Test Book',
-            authors=['テスト太郎', 'Jane Doe'],
-            amazon_dp='1234567890123'
+            authors1__author__name='テスト太郎',
+            authors2__author__name='Test Taro',
+            authors3__author__name='Jane Doe',
+            amazon_dp='1234567890123',
+            created_by=self.user
         )
-        book_second_fixture = get_book_fixture(
+        book_second = BookFactoryWithThreeAuthors(
             title='テスト用の本',
-            authors=['テスト太郎', 'Jane Doe'],
-            amazon_dp='0234567890123'
+            authors1__author__name='テスト太郎',
+            authors2__author__name='Test Taro',
+            authors3__author__name='Jane Doe',
+            amazon_dp='0234567890123',
+            created_by=self.user
         )
-        book_first = BookFactory(**book_first_fixture, created_by=self.user)
-        book_second = BookFactory(**book_second_fixture, created_by=self.user)
+
         qd = QueryDict('title=test')
+
+        # Act
         filterset = BookFilter(qd, queryset=Book.objects.all())
         queryset = filterset.qs
 
+        # Assert
         self.assertEqual(queryset.count(), 1)
         self.assertEqual(queryset.first().id, book_first.id)
 
-    # test_filter_authors
+    def test_filter_authors(self):
+        """著者名による絞り込み (正常系)"""
+
+        # Arrange
+        book_first = BookFactoryWithThreeAuthors(
+            title='Test Book',
+            authors1__author__name='テスト次郎',
+            authors2__author__name='Test Taro',
+            authors3__author__name='Jane Doe',
+            amazon_dp='1234567890123',
+            created_by=self.user
+        )
+        book_second = BookFactoryWithThreeAuthors(
+            title='テスト用の本',
+            authors1__author__name='テスト太郎',
+            authors2__author__name='Test Taro',
+            authors3__author__name='Jane Doe',
+            amazon_dp='0234567890123',
+            created_by=self.user
+        )
+
+        qd = QueryDict('authors=次郎')
+
+        # Act
+        filterset = BookFilter(qd, queryset=Book.objects.all())
+        queryset = filterset.qs
+
+        # Assert
+        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(queryset.first().id, book_first.id)
+
     # test_filter_status
     # test_filter_status_invalid_value
     # test_filter_accessed_at

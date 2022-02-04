@@ -214,32 +214,3 @@ class TestStatusLogDeleteAPIView(StatusLogTestCase):
         """Assert"""
         self.assertEqual(response.status_code, 204)
         self.assertEqual(StatusLog.objects.count(), 0)
-
-    def test_delete_failure_invalid_user(self):
-        """DELETEリクエスト (異常系: 他ユーザーのデータ削除不可)"""
-
-        """Arrange"""
-        self.client.force_authenticate(user=self.user2)
-        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
-        state = StatusLogFactory(book=book, created_by=self.user)
-
-        """Act"""
-        response = self.client.delete(self.TARGET_URL_WITH_PK.format(state.id), format='json')
-
-        """Assert"""
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(StatusLog.objects.count(), 1)
-
-    def test_delete_failure_no_auth(self):
-        """DELETEリクエスト (異常系: 認証なし)"""
-
-        """Arrange"""
-        book = BookFactory(**self.BOOK_FIXTURE, created_by=self.user)
-        state = StatusLogFactory(book=book, created_by=self.user)
-
-        """Act"""
-        response = self.client.delete(self.TARGET_URL_WITH_PK.format(state.id), format='json')
-
-        """Assert"""
-        self.assertEqual(response.status_code, 401)
-        self.assertEqual(StatusLog.objects.count(), 1)

@@ -121,14 +121,3 @@ def get_expected_state_json(params, state: StatusLog):
     }
 
     return expected_json
-
-
-def get_book_fixture(title, authors, amazon_dp):
-    return {
-        'title': title,
-        'authors': authors,
-        'id_google': get_rand_id(),
-        'format_type': 0,
-        'total': 100,
-        'amazon_dp': amazon_dp
-    }
