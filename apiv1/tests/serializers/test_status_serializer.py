@@ -1,5 +1,6 @@
 from django.utils.timezone import now, timedelta
 from django.test import RequestFactory
+from django.db.models import QuerySet
 
 from apiv1.tests.testing import *
 from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
@@ -123,7 +124,7 @@ class TestStatusLogSerializer(UserSerializerTestCase):
         )
 
     def test_get_state(self):
-        """ステータスの取得 (正常系: 通常の書籍)"""
+        """ステータスの取得 (正常系)"""
 
         # Arrange
         book = BookFactory(total=110, format_type=0, created_by=self.user)
@@ -143,9 +144,7 @@ class TestStatusLogSerializer(UserSerializerTestCase):
             'position': {'value': 32, 'percentage': 29, 'page': 32},
             'created_at': convert_time_into_json_str(state.created_at),
         }
-
-        for (key, value) in expected_dict.items():
-            self.assertEqual(data[key], value)
+        self.assert_book_included_dict(data, expected_dict, book)
 
     def test_get_state_first_record(self):
         """ステータスの取得 (正常系: 初回の記録)"""
@@ -167,9 +166,7 @@ class TestStatusLogSerializer(UserSerializerTestCase):
             'position': {'value': 32, 'percentage': 29, 'page': 32},
             'created_at': convert_time_into_json_str(state.created_at),
         }
-
-        for (key, value) in expected_dict.items():
-            self.assertEqual(data[key], value)
+        self.assert_book_included_dict(data, expected_dict, book)
 
     def test_get_state_to_be_read(self):
         """ステータスの取得 (正常系: 積読状態)"""
@@ -192,9 +189,7 @@ class TestStatusLogSerializer(UserSerializerTestCase):
             'position': {'value': 32, 'percentage': 29, 'page': 32},
             'created_at': convert_time_into_json_str(state.created_at),
         }
-
-        for (key, value) in expected_dict.items():
-            self.assertEqual(data[key], value)
+        self.assert_book_included_dict(data, expected_dict, book)
 
     def test_get_state_read(self):
         """ステータスの取得 (正常系: 読了状態)"""
@@ -217,9 +212,7 @@ class TestStatusLogSerializer(UserSerializerTestCase):
             'position': {'value': 110, 'percentage': 100, 'page': 110},
             'created_at': convert_time_into_json_str(state.created_at),
         }
-
-        for (key, value) in expected_dict.items():
-            self.assertEqual(data[key], value)
+        self.assert_book_included_dict(data, expected_dict, book)
 
     def test_get_state_minus(self):
         """ステータスの取得 (正常系: マイナスの進捗)"""
@@ -242,9 +235,7 @@ class TestStatusLogSerializer(UserSerializerTestCase):
             'position': {'value': 31, 'percentage': 28, 'page': 31},
             'created_at': convert_time_into_json_str(state.created_at),
         }
-
-        for (key, value) in expected_dict.items():
-            self.assertEqual(data[key], value)
+        self.assert_book_included_dict(data, expected_dict, book)
 
     def test_get_state_after_zero(self):
         """ステータスの取得 (正常系: 積読状態からの復帰)"""
@@ -269,9 +260,7 @@ class TestStatusLogSerializer(UserSerializerTestCase):
             'position': {'value': 32, 'percentage': 29, 'page': 32},
             'created_at': convert_time_into_json_str(state.created_at),
         }
-
-        for (key, value) in expected_dict.items():
-            self.assertEqual(data[key], value)
+        self.assert_book_included_dict(data, expected_dict, book)
 
     def test_get_state_ebook(self):
         """ステータスの取得 (正常系: Kindle本の位置Noをページ数に変換)"""
@@ -294,6 +283,4 @@ class TestStatusLogSerializer(UserSerializerTestCase):
             'position': {'value': 1111, 'percentage': 44, 'page': 98},
             'created_at': convert_time_into_json_str(state.created_at),
         }
-
-        for (key, value) in expected_dict.items():
-            self.assertEqual(data[key], value)
+        self.assert_book_included_dict(data, expected_dict, book)

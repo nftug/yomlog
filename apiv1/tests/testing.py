@@ -1,5 +1,6 @@
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
+from django.db.models import QuerySet
 import random
 import string
 from django.utils.timezone import localtime
@@ -49,6 +50,22 @@ class UserAPITestCase(APITestCase):
             'content': 'test\nテスト',
             'quote_text': 'ほげほげ'
         }
+
+    def assert_book_included_dict(self, data, expected_dict, book):
+        """bookの項目を含む辞書のアサーション"""
+
+        for (key, value) in expected_dict.items():
+            value = data[key]
+            self.assertEqual(data[key], value)
+
+        # 書籍情報の照合
+
+        expected_book_json = get_expected_book_json({}, book, inside=True)
+        for (key, value) in expected_book_json.items():
+            book_value = data['book'][key]
+            if isinstance(book_value, QuerySet):
+                book_value = [_ for _ in book_value.values_list('author__name', flat=True).order_by('order')]
+            self.assertEqual(book_value, value)
 
 
 class UserSerializerTestCase(UserAPITestCase):

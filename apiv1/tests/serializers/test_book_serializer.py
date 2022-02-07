@@ -233,14 +233,11 @@ class TestBookSerializer(UserSerializerTestCase):
         """Assert"""
         status = data['status']
         self.assertEqual(len(status), 10)
+        expected_state_fields = ('id', 'state', 'diff', 'position', 'created_at')
 
         for state in status:
-            self.assertEqual('id' in state, True)
-            self.assertEqual('state' in state, True)
-            self.assertEqual('diff' in state, True)
-            self.assertEqual('position' in state, True)
-            self.assertEqual('created_at' in state, True)
-            self.assertNotEqual('created_by' in state, True)
+            for field in expected_state_fields:
+                self.assertIn(field, state)
 
     def test_get_with_note(self):
         """ノート欄の取得 (正常系)"""
@@ -256,12 +253,8 @@ class TestBookSerializer(UserSerializerTestCase):
         """Assert"""
         notes = data['note']
         self.assertEqual(len(notes), 10)
+        expected_note_fields = ('id', 'position', 'quote_text', 'quote_image', 'created_at')
 
         for note in notes:
-            self.assertEqual('id' in note, True)
-            self.assertEqual('position' in note, True)
-            self.assertEqual('quote_text' in note, True)
-            self.assertEqual('quote_image' in note, True)
-            self.assertEqual('created_at' in note, True)
-            self.assertEqual('created_at' in note, True)
-            self.assertNotEqual('created_by' in note, True)
+            for field in expected_note_fields:
+                self.assertIn(field, note)
