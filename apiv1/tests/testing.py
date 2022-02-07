@@ -78,7 +78,7 @@ def get_rand_id(n=12):
     return ''.join(randlist)
 
 
-def get_expected_book_json(params, book: Book):
+def get_expected_book_json(params, book: Book, inside=False):
     """Assert対象のJSON書籍データを生成"""
 
     expected_json = {
@@ -96,6 +96,9 @@ def get_expected_book_json(params, book: Book):
         'created_at': convert_time_into_json_str(book.created_at),
     }
 
+    if inside:
+        del expected_json['status'], expected_json['note']
+
     return expected_json
 
 
@@ -112,8 +115,7 @@ def get_expected_state_json(params, state: StatusLog):
     else:
         state_name = 'read'
 
-    book_json = get_expected_book_json({}, state.book)
-    del book_json['note'], book_json['status']
+    book_json = get_expected_book_json({}, state.book, inside=True)
     position = params.get('position') or state.position
 
     expected_json = {
