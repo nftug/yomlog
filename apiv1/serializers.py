@@ -41,6 +41,17 @@ class BookIncludedSerializer(PostSerializer):
 
         return data
 
+    def validate_position(self, value):
+        if value < 0:
+            raise ValidationError('0以上の整数を入力してください。')
+        return value
+
+    def validate(self, data):
+        position = data.get('position') or 0
+        if position > data['book'].total:
+            raise ValidationError({'position': '位置の指定が不正です。'})
+        return data
+
 
 class PageCountSerializerMixin():
     """ページ数カウント用 ミックスイン"""
@@ -138,11 +149,6 @@ class StatusLogSerializer(BookIncludedSerializer, PageCountSerializerMixin):
             'percentage': int(percentage * 100),
             'page': page
         }
-
-    def validate_position(self, value):
-        if value < 0:
-            raise ValidationError('0以上の整数を入力してください。')
-        return value
 
 
 class NoteSerializer(BookIncludedSerializer):
