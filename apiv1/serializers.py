@@ -48,7 +48,12 @@ class BookIncludedSerializer(PostSerializer):
 
     def validate(self, data):
         position = data.get('position') or 0
-        if position > data['book'].total:
+        book = data.get('book')
+        if book is None:
+            instance = getattr(self, 'instance', None)
+            book = instance.book
+
+        if position > book.total:
             raise ValidationError({'position': '位置の指定が不正です。'})
         return data
 
