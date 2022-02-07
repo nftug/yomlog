@@ -85,3 +85,19 @@ class NoteFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Note
+
+
+def create_dummy_notes(params_dict, n):
+    book = BookFactory(created_by=params_dict['created_by'])
+    notes = []
+    for i in range(n):
+        params = {
+            **params_dict,
+            'book': book,
+            'position': i + 1,
+            'created_at': now() + timedelta(seconds=1)
+        }
+        state = NoteFactory(**params)
+        notes.insert(0, state)
+
+    return notes

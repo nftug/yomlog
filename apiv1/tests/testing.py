@@ -42,7 +42,12 @@ class UserAPITestCase(APITestCase):
             'id_google': 'xxxxxxxxxx'
         }
         self.STATUS_FIXTURE = {
-            'position': 10
+            'position': 1
+        }
+        self.NOTE_FIXTURE = {
+            'position': 1,
+            'content': 'test\nテスト',
+            'quote_text': 'ほげほげ'
         }
 
 
@@ -132,6 +137,25 @@ def get_expected_state_json(params, state: StatusLog):
             'page': position
         },
         'created_at': convert_time_into_json_str(state.created_at),
+        'book': book_json
+    }
+
+    return expected_json
+
+
+def get_expected_note_json(params, note: Note):
+    """ Assert対象のJSONノートデータを生成"""
+
+    book_json = get_expected_book_json({}, note.book, inside=True)
+    quote_image_origin = str(note.quote_image) if note.quote_image else None
+
+    expected_json = {
+        'id': str(note.id),
+        'position': params.get('position') or note.position,
+        'quote_text': params.get('quote_text') or note.quote_text,
+        'quote_image': params.get('quote_image') or quote_image_origin,
+        'content': params.get('content') or note.content,
+        'created_at': convert_time_into_json_str(note.created_at),
         'book': book_json
     }
 
