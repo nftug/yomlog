@@ -1,10 +1,13 @@
 from django.db.models.query import QuerySet
 from django_filters import rest_framework as django_filter
-from django.db.models import Q
+from django.db.models import Q, F
 from rest_framework.exceptions import ValidationError
 
 from backend.models import Book, StatusLog, Note, Author
 import re
+
+
+STATE_CHOICES = (('to_be_read', 'To be read'), ('reading', 'Reading'), ('read', 'Read'))
 
 
 class GenericSearchFilterSet(django_filter.FilterSet):
@@ -84,13 +87,12 @@ class GenericEventFilterSet(django_filter.FilterSet):
 class BookFilter(GenericSearchFilterSet, GenericEventFilterSet):
     """Book 検索用フィルタ"""
 
-    STATUS_CHOICES = (('to_be_read', 'To be read'), ('reading', 'Reading'), ('read', 'Read'))
-
     title = django_filter.CharFilter(field_name='title', method='filter_search')
     authors = django_filter.CharFilter(field_name='authors__name', method='filter_search')
     title_or = django_filter.CharFilter(field_name='title', label='Title (OR)', method='filter_search_or')
     authors_or = django_filter.CharFilter(field_name='authors__name', label='Authors (OR)', method='filter_search_or')
-    status = django_filter.ChoiceFilter(label='Status', choices=STATUS_CHOICES, method='filter_status')
+    state = django_filter.ChoiceFilter(label='State', choices=STATE_CHOICES, method='filter_state')
+    state_not = django_filter.ChoiceFilter(label='State', choices=STATE_CHOICES, method='filter_state')
     accessed_at = django_filter.DateFromToRangeFilter(
         label='最終アクセス日 (範囲指定)',
         method='filter_date_range',
@@ -109,8 +111,11 @@ class BookFilter(GenericSearchFilterSet, GenericEventFilterSet):
             'amazon_dp'
         ]
 
-    def filter_status(self, queryset, name, value):
-        return queryset.filter_by_state(value)
+    def filter_state(self, queryset, name, value):
+        if name.endswith('_not'):
+            return queryset.filter_by_state(value, exclude=True)
+        else:
+            return queryset.filter_by_state(value)
 
 
 class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
@@ -122,7 +127,8 @@ class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
     authors_or = django_filter.CharFilter(field_name='book__authors__name', label='Authors (OR)', method='filter_search_or')
     amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
     created_by = django_filter.CharFilter(field_name='created_by__username')
-    only_progress = django_filter.BooleanFilter(label='Not include "to be read"', method='filter_only_progress')
+    state = django_filter.ChoiceFilter(label='State', choices=STATE_CHOICES, method='filter_state')
+    state_not = django_filter.ChoiceFilter(label='State (Not)', choices=STATE_CHOICES, method='filter_state')
     created_at = django_filter.DateFromToRangeFilter(
         label='作成日 (範囲指定)',
         method='filter_date_range',
@@ -136,13 +142,18 @@ class StatusLogFilter(GenericSearchFilterSet, GenericEventFilterSet):
             'book__authors__name__icontains',
         ]
 
-    def filter_only_progress(self, queryset, name, value):
-        # 積読状態を除いたステータスを取得
+    def filter_state(self, queryset, name, value):
+        if value == 'to_be_read':
+            query = Q(position=0)
+        elif value == 'reading':
+            query = Q(position__gt=0, position__lt=F('book__total'))
+        elif value == 'read':
+            query = Q(position__gte=F('book__total'))
 
-        if not value:
-            return queryset
-
-        return queryset.exclude(position=0)
+        if name.endswith('_not'):
+            return queryset.exclude(query)
+        else:
+            return queryset.filter(query)
 
 
 class NoteFilter(GenericSearchFilterSet, GenericEventFilterSet):

@@ -264,7 +264,7 @@ export default {
           this.isLoading = true
           const params = {
             no_pagination: true,
-            only_progress: true,
+            state_not: 'to_be_read',
             created_at_after: startDate.format('yyyy-MM-DD'),
             created_at_before: endDate.format('yyyy-MM-DD'),
             ...this.query,

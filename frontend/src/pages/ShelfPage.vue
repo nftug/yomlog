@@ -174,7 +174,7 @@ export default {
       this.page = Number(route.query.page || 1)
 
       const hasNoItems = !this.bookList.items.length
-      const query = { ...route.query, page: this.page, status: this.state }
+      const query = { ...route.query, page: this.page, state: this.state }
       const { query: storeQuery } = this.$store.state.bookList
       const isDiffQuery = JSON.stringify(query) !== JSON.stringify(storeQuery)
 

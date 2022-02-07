@@ -1,21 +1,16 @@
 from datetime import datetime
-from django_filters import rest_framework as django_filter
-from apiv1.tests.testing import *
 from django.http import QueryDict
-from django.utils.timezone import now, timedelta, localtime, make_aware
-from datetime import date, time, datetime
+from django.utils.timezone import make_aware
+from datetime import datetime
 
-from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
+from backend.models import Book
+from apiv1.tests.testing import *
 from apiv1.filters import BookFilter
 from apiv1.tests.factories import BookFactory, BookFactoryWithThreeAuthors, StatusLogFactory
 
 
 class TestBookFilter(UserAPITestCase):
     """書籍検索フィルタのテストクラス"""
-
-    def setUp(self):
-        super().setUp()
-        self.client.force_authenticate(user=self.user)
 
     def test_filter_title(self):
         """タイトルによる絞り込み (正常系)"""
@@ -59,7 +54,7 @@ class TestBookFilter(UserAPITestCase):
         self.assertEqual(queryset.count(), 1)
         self.assertEqual(queryset.first().id, book_first.id)
 
-    def test_filter_status_reading(self):
+    def test_filter_state_reading(self):
         """ステータスによる絞り込み (正常系: reading)"""
 
         # Arrange
@@ -71,7 +66,7 @@ class TestBookFilter(UserAPITestCase):
         StatusLogFactory(position=1, book=book_second, created_by=self.user)
         StatusLogFactory(position=book_second.total, book=book_second, created_by=self.user)
 
-        qd = QueryDict('status=reading')
+        qd = QueryDict('state=reading')
 
         # Act
         filterset = BookFilter(qd, queryset=Book.objects.all())
@@ -81,7 +76,7 @@ class TestBookFilter(UserAPITestCase):
         self.assertEqual(queryset.count(), 1)
         self.assertEqual(queryset.first().id, book_first.id)
 
-    def test_filter_status_read(self):
+    def test_filter_state_read(self):
         """ステータスによる絞り込み (正常系: read)"""
 
         # Arrange
@@ -93,7 +88,7 @@ class TestBookFilter(UserAPITestCase):
         StatusLogFactory(position=book_first.total, book=book_first, created_by=self.user)
         StatusLogFactory(position=1, book=book_second, created_by=self.user)
 
-        qd = QueryDict('status=read')
+        qd = QueryDict('state=read')
 
         # Act
         filterset = BookFilter(qd, queryset=Book.objects.all())
@@ -103,7 +98,7 @@ class TestBookFilter(UserAPITestCase):
         self.assertEqual(queryset.count(), 1)
         self.assertEqual(queryset.first().id, book_first.id)
 
-    def test_filter_status_to_be_read(self):
+    def test_filter_state_to_be_read(self):
         """ステータスによる絞り込み (正常系: to_be_read)"""
 
         # Arrange
@@ -115,7 +110,7 @@ class TestBookFilter(UserAPITestCase):
         StatusLogFactory(position=0, book=book_first, created_by=self.user)
         StatusLogFactory(position=1, book=book_second, created_by=self.user)
 
-        qd = QueryDict('status=to_be_read')
+        qd = QueryDict('state=to_be_read')
 
         # Act
         filterset = BookFilter(qd, queryset=Book.objects.all())
@@ -125,7 +120,7 @@ class TestBookFilter(UserAPITestCase):
         self.assertEqual(queryset.count(), 2)
         self.assertEqual(queryset.first().id, book_first.id)
 
-    def test_filter_status_all(self):
+    def test_filter_state_all(self):
         """ステータスによる絞り込み (正常系: all)"""
 
         # Arrange
@@ -136,7 +131,7 @@ class TestBookFilter(UserAPITestCase):
         StatusLogFactory(position=1, book=book_first, created_by=self.user)
         StatusLogFactory(position=book_second.total, book=book_second, created_by=self.user)
 
-        qd = QueryDict('status=all')
+        qd = QueryDict('state=all')
 
         # Act
         filterset = BookFilter(qd, queryset=Book.objects.all())
@@ -145,12 +140,35 @@ class TestBookFilter(UserAPITestCase):
         # Assert
         self.assertEqual(queryset.count(), 3)
 
-    def test_filter_status_invalid_value(self):
+    def test_filter_state_not_reading(self):
+        """ステータスによる絞り込み (正常系: not reading)"""
+
+        # Arrange
+        book_first = BookFactory(created_by=self.user)
+        book_second = BookFactory(created_by=self.user)
+        book_third = BookFactory(created_by=self.user)
+
+        StatusLogFactory(position=1, book=book_first, created_by=self.user)
+        StatusLogFactory(position=1, book=book_second, created_by=self.user)
+        StatusLogFactory(position=book_second.total, book=book_second, created_by=self.user)
+
+        qd = QueryDict('state_not=reading')
+
+        # Act
+        filterset = BookFilter(qd, queryset=Book.objects.all())
+        queryset = filterset.qs
+
+        # Assert
+        self.assertEqual(queryset.count(), 2)
+        self.assertEqual(queryset.filter(id=book_second.id).exists(), True)
+        self.assertEqual(queryset.filter(id=book_third.id).exists(), True)
+
+    def test_filter_state_invalid_value(self):
         """ステータスによる絞り込み (異常系: 不正な値)"""
 
         # Arrange
         book_first = BookFactory(created_by=self.user)
-        qd = QueryDict('status=hoge')
+        qd = QueryDict('state=hoge')
 
         # Act
         filterset = BookFilter(qd, queryset=Book.objects.all())

@@ -27,7 +27,7 @@ class CustomUser(AbstractUser):
 
 
 class BookQuerySet(models.QuerySet):
-    def filter_by_state(self, state):
+    def filter_by_state(self, state, exclude=False):
         if not state:
             return self
 
@@ -52,7 +52,10 @@ class BookQuerySet(models.QuerySet):
                 elif state == 'read' and position >= book.total:
                     ids.append(book.id)
 
-        return queryset.filter(id__in=ids)
+        if exclude:
+            return queryset.exclude(id__in=ids)
+        else:
+            return queryset.filter(id__in=ids)
 
     def annotate_accessed_at(self):
         return self.annotate(accessed_at=Coalesce(Max('status_log__created_at'), F('created_at')))
