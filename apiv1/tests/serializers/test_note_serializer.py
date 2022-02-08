@@ -1,9 +1,6 @@
-from django.utils.timezone import now, timedelta
 from django.test import RequestFactory
-from django.db.models import QuerySet
 
 from apiv1.tests.testing import *
-from backend.models import Book, Note, Author, BookAuthorRelation
 from apiv1.serializers import NoteSerializer
 from apiv1.tests.factories import BookFactory, NoteFactory
 
@@ -29,6 +26,37 @@ class TestNoteSerializer(UserSerializerTestCase):
 
         # Assert
         self.assertEqual(serializer.is_valid(), True)
+
+    def test_create_valid_quote_text(self):
+        """入力データのバリデーション (正常系: 引用 (テキスト) あり)"""
+
+        # Arrange
+        input_data = {
+            'book': self.book.id, 'position': 1, 'content': 'ほげほげ', 'quote_text': 'ふがふが'
+        }
+        self.request.user = self.user
+
+        # Act
+        serializer = NoteSerializer(data=input_data, context=self.context)
+
+        # Assert
+        self.assertEqual(serializer.is_valid(), True)
+
+    def test_create_valid_quote_image(self):
+        """入力データのバリデーション (正常系: 引用 (画像) あり)"""
+
+        with create_dummy_jpeg() as image_file:
+            # Arrange
+            input_data = {
+                'book': self.book.id, 'position': 1, 'content': 'ほげほげ', 'quote_image': image_file
+            }
+            self.request.user = self.user
+
+            # Act
+            serializer = NoteSerializer(data=input_data, context=self.context)
+
+            # Assert
+            self.assertEqual(serializer.is_valid(), True)
 
     def test_create_invalid_position_blank(self):
         """入力データのバリデーション (異常系: positionが空)"""
@@ -166,3 +194,20 @@ class TestNoteSerializer(UserSerializerTestCase):
         # Assert
         expected_dict = get_expected_note_json(self.NOTE_FIXTURE, note)
         self.assert_book_included_dict(data, expected_dict, book)
+
+    def test_get_note_with_image(self):
+        """ノートの取得 (正常系: 画像ファイル付き)"""
+
+        with create_dummy_jpeg('test_image.jpg') as image_file:
+            # Arrange
+            book = BookFactory(total=110, format_type=0, created_by=self.user)
+            input_data = {**self.NOTE_FIXTURE, 'quote_image': image_file}
+            note = NoteFactory(**input_data, book=book, created_by=self.user)
+
+            # Act
+            data = NoteSerializer(note).data
+
+            # Assert
+            expected_dict = get_expected_note_json(self.NOTE_FIXTURE, note)
+            self.assert_book_included_dict(data, expected_dict, book)
+            self.assertEqual(data['quote_image'], 'http://localhost:8000/media/test_image.jpg')

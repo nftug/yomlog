@@ -4,6 +4,13 @@ from django.db.models import QuerySet
 import random
 import string
 from django.utils.timezone import localtime
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.conf import settings
+from contextlib import contextmanager
+import os
+
 from apiv1.serializers import BookSerializer, StatusLogSerializer
 
 from backend.models import Book, Note, StatusLog
@@ -177,3 +184,19 @@ def get_expected_note_json(params, note: Note):
     }
 
     return expected_json
+
+
+@contextmanager
+def create_dummy_jpeg(filename='test_image.jpg'):
+    """ダミー画像 (JPEG) を生成して返す"""
+
+    try:
+        image = BytesIO()
+        Image.new('RGB', (100, 100)).save(image, 'JPEG')
+        image.seek(0)
+        image_file = SimpleUploadedFile(name=filename, content=image.getvalue(), content_type='image/jpeg')
+        yield image_file
+    finally:
+        filename = os.path.join(settings.MEDIA_ROOT, image_file.name)
+        if os.path.exists(filename):
+            os.remove(filename)
