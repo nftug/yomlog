@@ -160,3 +160,7 @@ templates/index.html
 
 # VSCode
 .VSCodeCounter/
+
+# For production branch
+tests/
+__tests__/
