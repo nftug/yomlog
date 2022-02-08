@@ -43,11 +43,11 @@ class BookFactoryWithThreeAuthors(BookBaseFactory):
 
 def create_dummy_books(params_dict, n):
     books = []
-    for _ in range(n):
+    for i in range(n):
         params = {
             **params_dict,
             'id_google': get_rand_id(10),
-            'created_at': now() + timedelta(seconds=1)
+            'created_at': now() + timedelta(seconds=i)
         }
         book = BookFactory(**params)
         books.insert(0, book)
@@ -71,7 +71,7 @@ def create_dummy_status(params_dict, n):
             **params_dict,
             'book': book,
             'position': i + 1,
-            'created_at': now() + timedelta(seconds=1)
+            'created_at': now() + timedelta(seconds=i)
         }
         state = StatusLogFactory(**params)
         status.insert(0, state)
@@ -95,7 +95,7 @@ def create_dummy_notes(params_dict, n):
             **params_dict,
             'book': book,
             'position': i + 1,
-            'created_at': now() + timedelta(seconds=1)
+            'created_at': now() + timedelta(seconds=i)
         }
         state = NoteFactory(**params)
         notes.insert(0, state)

@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.http import QueryDict
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware, timedelta, now
 from datetime import datetime
 
 from backend.models import Book
@@ -62,9 +62,9 @@ class TestBookFilter(UserAPITestCase):
         book_second = BookFactory(created_by=self.user)
         book_third = BookFactory(created_by=self.user)
 
-        StatusLogFactory(position=1, book=book_first, created_by=self.user)
-        StatusLogFactory(position=1, book=book_second, created_by=self.user)
-        StatusLogFactory(position=book_second.total, book=book_second, created_by=self.user)
+        StatusLogFactory(position=1, book=book_first, created_by=self.user, created_at=now())
+        StatusLogFactory(position=1, book=book_second, created_by=self.user, created_at=now() + timedelta(seconds=1))
+        StatusLogFactory(position=book_second.total, book=book_second, created_by=self.user, created_at=now() + timedelta(seconds=2))
 
         qd = QueryDict('state=reading')
 
@@ -84,9 +84,9 @@ class TestBookFilter(UserAPITestCase):
         book_second = BookFactory(created_by=self.user)
         book_third = BookFactory(created_by=self.user)
 
-        StatusLogFactory(position=1, book=book_first, created_by=self.user)
-        StatusLogFactory(position=book_first.total, book=book_first, created_by=self.user)
-        StatusLogFactory(position=1, book=book_second, created_by=self.user)
+        StatusLogFactory(position=1, book=book_first, created_by=self.user, created_at=now())
+        StatusLogFactory(position=book_first.total, book=book_first, created_by=self.user, created_at=now() + timedelta(seconds=1))
+        StatusLogFactory(position=1, book=book_second, created_by=self.user, created_at=now() + timedelta(seconds=2))
 
         qd = QueryDict('state=read')
 
@@ -106,9 +106,9 @@ class TestBookFilter(UserAPITestCase):
         book_second = BookFactory(created_by=self.user)
         book_third = BookFactory(created_by=self.user)
 
-        StatusLogFactory(position=1, book=book_first, created_by=self.user)
-        StatusLogFactory(position=0, book=book_first, created_by=self.user)
-        StatusLogFactory(position=1, book=book_second, created_by=self.user)
+        StatusLogFactory(position=1, book=book_first, created_by=self.user, created_at=now())
+        StatusLogFactory(position=0, book=book_first, created_by=self.user, created_at=now() + timedelta(seconds=1))
+        StatusLogFactory(position=1, book=book_second, created_by=self.user, created_at=now() + timedelta(seconds=2))
 
         qd = QueryDict('state=to_be_read')
 
@@ -128,8 +128,8 @@ class TestBookFilter(UserAPITestCase):
         book_second = BookFactory(created_by=self.user)
         book_third = BookFactory(created_by=self.user)
 
-        StatusLogFactory(position=1, book=book_first, created_by=self.user)
-        StatusLogFactory(position=book_second.total, book=book_second, created_by=self.user)
+        StatusLogFactory(position=1, book=book_first, created_by=self.user, created_at=now())
+        StatusLogFactory(position=book_second.total, book=book_second, created_by=self.user, created_at=now() + timedelta(seconds=1))
 
         qd = QueryDict('state=all')
 
@@ -148,9 +148,9 @@ class TestBookFilter(UserAPITestCase):
         book_second = BookFactory(created_by=self.user)
         book_third = BookFactory(created_by=self.user)
 
-        StatusLogFactory(position=1, book=book_first, created_by=self.user)
-        StatusLogFactory(position=1, book=book_second, created_by=self.user)
-        StatusLogFactory(position=book_second.total, book=book_second, created_by=self.user)
+        StatusLogFactory(position=1, book=book_first, created_by=self.user, created_at=now())
+        StatusLogFactory(position=1, book=book_second, created_by=self.user, created_at=now() + timedelta(seconds=1))
+        StatusLogFactory(position=book_second.total, book=book_second, created_by=self.user, created_at=now() + timedelta(seconds=2))
 
         qd = QueryDict('state_not=reading')
 
