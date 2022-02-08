@@ -2,6 +2,7 @@ from django.db.models.query import QuerySet
 from django_filters import rest_framework as django_filter
 from django.db.models import Q, F
 from rest_framework.exceptions import ValidationError
+from functools import wraps
 
 from backend.models import Book, StatusLog, Note, Author
 import re
@@ -19,20 +20,19 @@ class GenericSearchFilterSet(django_filter.FilterSet):
     class Meta:
         fields_for_search = []
 
-    def _clean_fields_for_search(self):
+    def _get_cleaned_fields_for_search(self):
+        """フリーワード検索対象の正規化"""
+
+        fields = self.Meta.fields_for_search.copy()
         if self.form.cleaned_data.get('book'):
-            # 本が指定されている場合、フリーワードの検索基準から本の情報を除外する
-            fields = self.Meta.fields_for_search
-            try:
-                fields.remove('book__title__icontains')
-                fields.remove('book__authors__name__icontains')
-            except ValueError:
-                pass
+            # 書籍が指定されている場合、フリーワードの検索基準から書籍関連のフィールドを除外する
+            keys_for_remove = [_ for _ in fields if _.startswith('book__')]
+            [fields.remove(_) for _ in keys_for_remove]
+
+        return fields
 
     def filter_search(self, queryset, name, value):
-        # フィールドの正規化
-        self._clean_fields_for_search()
-
+        fields = self._get_cleaned_fields_for_search()
         query = Q()
         value = value.replace('　', ' ')
         name = re.sub('_or$', '', name)
@@ -48,7 +48,7 @@ class GenericSearchFilterSet(django_filter.FilterSet):
             # クエリの生成
             if name == 'q':
                 query_tmp = Q(id=None)
-                for field in self.Meta.fields_for_search:
+                for field in fields:
                     query_tmp |= Q(**{field: word})
             else:
                 query_tmp = Q(**{name + '__icontains': word})
@@ -169,6 +169,10 @@ class NoteFilter(GenericSearchFilterSet, GenericEventFilterSet):
     quote_text_or = django_filter.CharFilter(field_name='quote_text', label='Quote (OR)', method='filter_search_or')
     amazon_dp = django_filter.CharFilter(field_name='book__amazon_dp')
     created_by = django_filter.CharFilter(field_name='created_by__username')
+    created_at = django_filter.DateFromToRangeFilter(
+        label='作成日 (範囲指定)',
+        method='filter_date_range',
+    )
 
     class Meta:
         model = Note
