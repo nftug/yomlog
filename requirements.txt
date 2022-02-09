@@ -20,6 +20,7 @@ djangorestframework-simplejwt==4.8.0
 djoser @ git+https://github.com/sunscrapers/djoser@b648b07dc2da7dab4c00c1c39af3d6ec53f58eb6
 factory-boy==3.2.1
 Faker==12.0.0
+freezegun==1.1.0
 idna==3.3
 itypes==1.2.0
 Jinja2==3.0.2

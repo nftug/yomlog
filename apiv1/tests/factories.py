@@ -1,7 +1,7 @@
 import factory
 from django.utils.timezone import now, timedelta
 
-from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
+from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation, CustomUser
 from apiv1.tests.testing import get_rand_id
 
 
@@ -101,3 +101,8 @@ def create_dummy_notes(params_dict, n):
         notes.insert(0, state)
 
     return notes
+
+
+class CustomUserFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CustomUser
