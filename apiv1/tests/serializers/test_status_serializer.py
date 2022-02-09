@@ -3,7 +3,6 @@ from django.test import RequestFactory
 from django.db.models import QuerySet
 
 from apiv1.tests.testing import *
-from backend.models import Book, Note, StatusLog, Author, BookAuthorRelation
 from apiv1.serializers import StatusLogSerializer
 from apiv1.tests.factories import BookFactory, StatusLogFactory, NoteFactory
 

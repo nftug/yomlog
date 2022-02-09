@@ -5,15 +5,11 @@ from apiv1.tests.testing import *
 from apiv1.tests.factories import BookFactory, NoteFactory, create_dummy_notes
 
 
-class NoteViewSetTestCase(UserAPITestCase):
-    """雛形: NoteViewsetのテストクラス"""
+class TestNoteViewSet(UserAPITestCase):
+    """NoteViewsetのテストクラス"""
 
     TARGET_URL = '/api/v1/note/'
     TARGET_URL_WITH_PK = '/api/v1/note/{}/'
-
-
-class TestNoteCreateAPIView(NoteViewSetTestCase):
-    """NoteViewSetのテストクラス (POST)"""
 
     def test_create_success(self):
         """POSTリクエスト (正常系)"""
@@ -63,10 +59,6 @@ class TestNoteCreateAPIView(NoteViewSetTestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(Note.objects.count(), 0)
 
-
-class TestNoteUpdateAPIView(NoteViewSetTestCase):
-    """NoteViewSetのテストクラス (PUT/PATCH)"""
-
     def test_put_success(self):
         """PUTリクエスト (正常系)"""
 
@@ -106,10 +98,6 @@ class TestNoteUpdateAPIView(NoteViewSetTestCase):
         note = Note.objects.get()
         expected_json = get_expected_note_json(params, note)
         self.assertJSONEqual(response.content, expected_json)
-
-
-class TestNoteRetrieveAPIView(NoteViewSetTestCase):
-    """NoteViewSetのテストクラス (Retrieve)"""
 
     def test_retrieve_success(self):
         """GETリクエスト [Retrieve] (正常系)"""
@@ -154,10 +142,6 @@ class TestNoteRetrieveAPIView(NoteViewSetTestCase):
         """Assert"""
         self.assertEqual(response.status_code, 401)
 
-
-class TestNoteListAPIView(NoteViewSetTestCase):
-    """NoteViewSetのテストクラス (List)"""
-
     def test_list_success(self):
         """GETリクエスト [List] (正常系: 作成日時で降順ソート)"""
 
@@ -195,10 +179,6 @@ class TestNoteListAPIView(NoteViewSetTestCase):
 
         result_id, note_id = results[0]['id'], str(notes[-1].id)
         self.assertEqual(result_id, note_id)
-
-
-class TestNoteDeleteAPIView(NoteViewSetTestCase):
-    """NoteViewSetのテストクラス (DELETE)"""
 
     def test_delete_success(self):
         """DELETEリクエスト (正常系)"""

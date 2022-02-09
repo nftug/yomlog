@@ -5,15 +5,11 @@ from apiv1.tests.testing import *
 from apiv1.tests.factories import BookFactory, StatusLogFactory, create_dummy_status
 
 
-class StatusLogViewSetTestCase(UserAPITestCase):
-    """雛形: StatusLogViewsetのテストクラス"""
+class TestStatusLogViewSet(UserAPITestCase):
+    """StatusLogViewsetのテストクラス"""
 
     TARGET_URL = '/api/v1/status/'
     TARGET_URL_WITH_PK = '/api/v1/status/{}/'
-
-
-class TestStatusLogCreateAPIView(StatusLogViewSetTestCase):
-    """StatusLogViewSetのテストクラス (POST)"""
 
     def test_create_success(self):
         """POSTリクエスト (正常系)"""
@@ -63,10 +59,6 @@ class TestStatusLogCreateAPIView(StatusLogViewSetTestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(StatusLog.objects.count(), 0)
 
-
-class TestStatusLogUpdateAPIView(StatusLogViewSetTestCase):
-    """StatusLogViewSetのテストクラス (PUT/PATCH)"""
-
     def test_put_success(self):
         """PUTリクエスト (正常系)"""
 
@@ -106,10 +98,6 @@ class TestStatusLogUpdateAPIView(StatusLogViewSetTestCase):
         state = StatusLog.objects.get()
         expected_json = get_expected_state_json(params, state)
         self.assertJSONEqual(response.content, expected_json)
-
-
-class TestStatusLogRetrieveAPIView(StatusLogViewSetTestCase):
-    """StatusLogViewSetのテストクラス (Retrieve)"""
 
     def test_retrieve_success(self):
         """GETリクエスト [Retrieve] (正常系)"""
@@ -154,10 +142,6 @@ class TestStatusLogRetrieveAPIView(StatusLogViewSetTestCase):
         """Assert"""
         self.assertEqual(response.status_code, 401)
 
-
-class TestStatusLogListAPIView(StatusLogViewSetTestCase):
-    """StatusLogViewSetのテストクラス (List)"""
-
     def test_list_success(self):
         """GETリクエスト [List] (正常系: 作成日時で降順ソート)"""
 
@@ -195,10 +179,6 @@ class TestStatusLogListAPIView(StatusLogViewSetTestCase):
 
         result_id, state_id = results[0]['id'], str(status[-1].id)
         self.assertEqual(result_id, state_id)
-
-
-class TestStatusLogDeleteAPIView(StatusLogViewSetTestCase):
-    """StatusLogViewSetのテストクラス (DELETE)"""
 
     def test_delete_success(self):
         """DELETEリクエスト (正常系)"""

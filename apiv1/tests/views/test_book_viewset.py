@@ -5,15 +5,11 @@ from apiv1.tests.factories import BookFactory, create_dummy_books
 from apiv1.tests.testing import *
 
 
-class BookViewSetTestCase(UserAPITestCase):
-    """雛形: BookViewSetのテストクラス"""
+class TestBookViewSet(UserAPITestCase):
+    """BookViewSetのテストクラス"""
 
     TARGET_URL = '/api/v1/book/'
     TARGET_URL_WITH_PK = '/api/v1/book/{}/'
-
-
-class TestBookCreateAPIView(BookViewSetTestCase):
-    """BookViewSetのテストクラス (POST)"""
 
     def test_create_success(self):
         """登録APIへのPOSTリクエスト (正常系)"""
@@ -79,10 +75,6 @@ class TestBookCreateAPIView(BookViewSetTestCase):
         self.assertEqual(Book.objects.count(), 0)
         self.assertEqual(response.status_code, 401)
 
-
-class TestBookUpdateAPIView(BookViewSetTestCase):
-    """BookViewSetのテストクラス (PATCH/PUT)"""
-
     def test_put_success(self):
         """登録APIへのPUTリクエスト (正常系)"""
 
@@ -116,10 +108,6 @@ class TestBookUpdateAPIView(BookViewSetTestCase):
         book = Book.objects.get()
         expected_json = get_expected_book_json(params, book)
         self.assertJSONEqual(str(response.content, encoding='utf8'), expected_json)
-
-
-class TestBookRetrieveAPIView(BookViewSetTestCase):
-    """BookViewSetのテストクラス (Retrieve)"""
 
     def test_retrieve_success(self):
         """APIへのGETリクエスト [Retrieve] (正常系)"""
@@ -160,10 +148,6 @@ class TestBookRetrieveAPIView(BookViewSetTestCase):
 
         """Assert"""
         self.assertEqual(response.status_code, 401)
-
-
-class TestBookListAPIView(BookViewSetTestCase):
-    """BookViewSetのテストクラス (List)"""
 
     def test_list_success(self):
         """APIへのGETリクエスト [List] (正常系)"""
@@ -229,10 +213,6 @@ class TestBookListAPIView(BookViewSetTestCase):
         self.assertEqual(len(results), len(books))
 
         self.assertEqual(results[0]['id'], str(books[-1].id))
-
-
-class TestBookDeleteAPIView(BookViewSetTestCase):
-    """BookViewSetのテストクラス (DELETE)"""
 
     def test_delete_success(self):
         """APIへのDELETEリクエスト (正常系)"""
