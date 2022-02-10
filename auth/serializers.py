@@ -52,9 +52,10 @@ class CustomUserSerializer(UserSerializer, ImageSerializerMixin):
         authors_count = AuthorSerializer(authors, many=True).data
 
         # 直近一週間に読んだページ数を取得
-        end_date = date.today()
-        date_list = [end_date - timedelta(days=x) for x in range(7)]
-        pages_daily = PagesDailySerializer(date_list, many=True, context={'queryset': status_log}).data
+        status_weekly = status_log.filter(created_at__gte=date.today() - timedelta(days=7))
+        date_set = set(status_weekly.values_list('created_at__date', flat=True))
+        date_list = sorted(list(date_set), reverse=True)
+        pages_daily = PagesDailySerializer(date_list, many=True, context={'queryset': status_weekly}).data
 
         return {
             **analytics,
