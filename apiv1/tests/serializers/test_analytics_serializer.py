@@ -9,7 +9,7 @@ from apiv1.filters import StatusLogFilter
 from apiv1.tests.factories import BookFactory, CustomUserFactory, StatusLogFactory
 
 
-def create_status_fixture(user):
+def create_status_fixture_for_pages_read(user):
     book_first = BookFactory(created_by=user, total=100)
     book_second = BookFactory(created_by=user, total=210)
 
@@ -37,6 +37,19 @@ def create_status_fixture(user):
     StatusLogFactory(
         created_by=user, book=book_first, position=51, created_at=make_aware(datetime(2022, 1, 3, 0, 1))
     )
+
+
+def create_status_fixture_for_days(user):
+    start_at = make_aware(datetime(2022, 1, 1))
+
+    for i in range(4):
+        StatusLogFactory(created_by=user, created_at=start_at + timedelta(days=i))
+
+    start_at += timedelta(days=i + 2)
+
+    for i in range(2):
+        StatusLogFactory(created_by=user, created_at=start_at + timedelta(days=i))
+        StatusLogFactory(created_by=user, created_at=start_at + timedelta(days=i))
 
 
 class TestAnalyticsSerializer(UserSerializerTestCase):
@@ -110,7 +123,7 @@ class TestAnalyticsSerializer(UserSerializerTestCase):
         """ページ数集計の取得 (正常系)"""
 
         # Arrange
-        create_status_fixture(user=self.user)
+        create_status_fixture_for_pages_read(user=self.user)
 
         # Act
         data = AnalyticsSerializer(StatusLog.objects.all(), context=self.context).data
@@ -126,7 +139,7 @@ class TestAnalyticsSerializer(UserSerializerTestCase):
 
         # Arrange
         self.user.date_joined = make_aware(datetime(2022, 1, 2))
-        create_status_fixture(user=self.user)
+        create_status_fixture_for_pages_read(user=self.user)
 
         # Act
         data = AnalyticsSerializer(StatusLog.objects.all(), context=self.context).data
@@ -140,7 +153,7 @@ class TestAnalyticsSerializer(UserSerializerTestCase):
         """ページ数集計の取得 (正常系: 日付範囲フィルタ)"""
 
         # Arrange
-        create_status_fixture(user=self.user)
+        create_status_fixture_for_pages_read(user=self.user)
 
         qd = QueryDict('created_at_after=2022-01-02&created_at_before=2022-01-02')
         filterset = StatusLogFilter(qd, queryset=StatusLog.objects.all())
@@ -159,7 +172,7 @@ class TestAnalyticsSerializer(UserSerializerTestCase):
         """ページ数集計の取得 (正常系: 日付範囲フィルタ 開始日が空欄)"""
 
         # Arrange
-        create_status_fixture(user=self.user)
+        create_status_fixture_for_pages_read(user=self.user)
 
         qd = QueryDict('created_at_before=2022-01-02')
         filterset = StatusLogFilter(qd, queryset=StatusLog.objects.all())
@@ -179,7 +192,7 @@ class TestAnalyticsSerializer(UserSerializerTestCase):
         """ページ数集計の取得 (正常系: 日付範囲フィルタ 終了日が空欄)"""
 
         # Arrange
-        create_status_fixture(user=self.user)
+        create_status_fixture_for_pages_read(user=self.user)
 
         qd = QueryDict('created_at_after=2022-01-02')
         filterset = StatusLogFilter(qd, queryset=StatusLog.objects.all())
@@ -200,7 +213,7 @@ class TestAnalyticsSerializer(UserSerializerTestCase):
 
         # Arrange
         self.user.date_joined = make_aware(datetime(2022, 1, 2))
-        create_status_fixture(user=self.user)
+        create_status_fixture_for_pages_read(user=self.user)
 
         qd = QueryDict()
         filterset = StatusLogFilter(qd, queryset=StatusLog.objects.all())
@@ -215,7 +228,98 @@ class TestAnalyticsSerializer(UserSerializerTestCase):
         self.assertEqual(result['total'], 97)
         self.assertEqual(result['avg_per_day'], 25)
 
-    # test_get_days
-    # test_get_days_with_no_status
-    # test_get_days_with_break
-    # test_get_days_filtered
+    @freezegun.freeze_time('2022-01-08')
+    def test_get_days(self):
+        """日数集計の取得 (正常系)"""
+
+        # Arrange
+        self.user.date_joined = make_aware(datetime(2022, 1, 1))
+        create_status_fixture_for_days(user=self.user)
+
+        # Act
+        data = AnalyticsSerializer(StatusLog.objects.all(), context=self.context).data
+
+        # Assert
+        result = data['days']
+        self.assertEqual(result['total'], 6)
+        self.assertEqual(result['continuous'], 2)
+        self.assertEqual(result['continuous_max'], 4)
+
+    @freezegun.freeze_time('2022-01-08')
+    def test_get_days_with_no_status(self):
+        """日数集計の取得 (正常系: ステータスなし)"""
+
+        # Arrange
+        self.user.date_joined = make_aware(datetime(2022, 1, 1))
+
+        # Act
+        data = AnalyticsSerializer(StatusLog.objects.all(), context=self.context).data
+
+        # Assert
+        result = data['days']
+        self.assertEqual(result['total'], 0)
+        self.assertEqual(result['continuous'], 0)
+        self.assertEqual(result['continuous_max'], 0)
+
+    def test_get_days_filtered(self):
+        """日数集計の取得 (正常系: 日付範囲フィルタ)"""
+
+        # Arrange
+        create_status_fixture_for_days(user=self.user)
+
+        qd = QueryDict('created_at_after=2022-01-02&created_at_before=2022-01-06')
+        filterset = StatusLogFilter(qd, queryset=StatusLog.objects.all())
+        queryset = filterset.qs
+        context = {**self.context, 'filterset': filterset}
+
+        # Act
+        data = AnalyticsSerializer(queryset, context=context).data
+
+        # Assert
+        result = data['days']
+        self.assertEqual(result['total'], 4)
+        self.assertEqual(result['continuous'], 1)
+        self.assertEqual(result['continuous_max'], 3)
+
+    def test_get_days_filtered_blank_after(self):
+        """日数集計の取得 (正常系: 日付範囲フィルタ 開始日が空欄)"""
+
+        # Arrange
+        self.user.date_joined = make_aware(datetime(2022, 1, 2))
+        create_status_fixture_for_days(user=self.user)
+
+        qd = QueryDict('created_at_before=2022-01-06')
+        filterset = StatusLogFilter(qd, queryset=StatusLog.objects.all())
+        queryset = filterset.qs
+        context = {**self.context, 'filterset': filterset}
+
+        # Act
+        data = AnalyticsSerializer(queryset, context=context).data
+
+        # Assert
+        result = data['days']
+        self.assertEqual(result['total'], 5)
+        self.assertEqual(result['continuous'], 1)
+        self.assertEqual(result['continuous_max'], 4)
+
+    @freezegun.freeze_time('2022-01-08')
+    def test_get_days_filtered_blank_before(self):
+        """日数集計の取得 (正常系: 日付範囲フィルタ 終了日が空欄)"""
+
+        # Arrange
+        self.user.date_joined = make_aware(datetime(2022, 1, 2))
+        create_status_fixture_for_days(user=self.user)
+
+        qd = QueryDict('created_at_after=2022-01-02')
+        filterset = StatusLogFilter(qd, queryset=StatusLog.objects.all())
+        queryset = filterset.qs
+        context = {**self.context, 'filterset': filterset}
+
+        # Act
+        data = AnalyticsSerializer(queryset, context=context).data
+
+        # Assert
+        result = data['days']
+        self.assertEqual(result['total'], 5)
+        self.assertEqual(result['continuous'], 2)
+        self.assertEqual(result['continuous_max'], 3)
