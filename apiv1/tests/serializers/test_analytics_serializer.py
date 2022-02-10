@@ -357,7 +357,7 @@ class TestPagesDailySerializer(UserAPITestCase):
             {'date': datetime(2022, 1, 1).date(), 'pages': 21}
         ]
         for i in range(3):
-            self.assertEqual(dict(data[i], expected_results[i]))
+            self.assertEqual(dict(data[i]), expected_results[i])
 
 
 class TestAuthorSerializer(UserAPITestCase):
