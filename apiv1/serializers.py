@@ -8,7 +8,7 @@ from django.utils.timezone import localtime
 from .mixins import ImageSerializerMixin
 from backend.models import Author, Book, StatusLog, Note, BookAuthorRelation
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import math
 import re
@@ -332,6 +332,7 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
         user = self.context['request'].user
 
         # ステータスの対象にある本と、ステータスのない本を検索
+        # BUG: クエリの関係上、積読状態を含む集計 (to_be_read/all) はフィルタによる範囲指定が効かない
         books = Book.objects.filter(
             Q(status_log__in=status_log) | Q(created_by=user, status_log=None)
         )
@@ -351,34 +352,36 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
 
         # 全体の累計ページ数を取得
         total_for_avg = None
+        date_joined = self.context['request'].user.date_joined.date()
 
-<<<<<<< HEAD
         # 平均ページ数の計算は、フィルタで指定された日付範囲に依拠させる
         if self.context.get('filterset'):
             created_at = self.context['filterset'].form.cleaned_data.get('created_at')
-            start_date = created_at.start.date() if hasattr(created_at, 'start') \
-                else localtime(status_log.last().created_at).date()
-            end_date = created_at.end.date() if hasattr(created_at, 'end') \
-                else date.today()
-            total = self._get_diff_total(status_log)
+
+            if hasattr(created_at, 'start') and isinstance(created_at.start, datetime):
+                start_date = created_at.start.date()
+            else:
+                start_date = date_joined
+
+            if hasattr(created_at, 'stop') and isinstance(created_at.stop, datetime):
+                end_date = created_at.stop.date()
+            else:
+                end_date = date.today()
+
+            threshold_date = date_joined if start_date >= date_joined else start_date
         else:
             # ユーザー情報から呼び出された場合、start_dateはユーザーの登録日
-            start_date = self.context['request'].user.date_joined.date()
+            start_date = date_joined
             end_date = date.today()
-            total, total_for_avg = self._get_diff_total(status_log, start_date)
+            threshold_date = start_date
 
-=======
-        # 日付範囲を取得して設定
-        start_date, end_date = self._get_daterange_from_filterset()
-
-        threshold_date = date_joined if start_date >= date_joined else start_date
         total, total_for_avg = self._get_diff_total(status_log, threshold_date)
->>>>>>> 869d266 (API: AnalyticsSerializer - get_daysの処理などを修正)
+
         days_for_avg = (end_date - start_date).days + 1
 
         return {
             'total': total,
-            'avg_per_day': int((total_for_avg or total) / (days_for_avg or 1)),
+            'avg_per_day': int(total_for_avg / (days_for_avg or 1)),
         }
 
     def get_days(self, status_log: StatusLog):
