@@ -1,12 +1,14 @@
 import freezegun
 from django.http import QueryDict
 from django.utils.timezone import now, make_aware, datetime, timedelta
+from collections import OrderedDict
 from django.test import RequestFactory
 
 from apiv1.tests.testing import *
-from apiv1.serializers import AnalyticsSerializer
+from apiv1.tests.factories import BookFactory, BookFactoryWithThreeAuthors, CustomUserFactory, StatusLogFactory
+from apiv1.serializers import AnalyticsSerializer, AuthorSerializer, PagesDailySerializer
 from apiv1.filters import StatusLogFilter
-from apiv1.tests.factories import BookFactory, CustomUserFactory, StatusLogFactory
+from backend.models import Author, BookAuthorRelation
 
 
 def create_status_fixture_for_pages_read(user):
@@ -323,3 +325,73 @@ class TestAnalyticsSerializer(UserSerializerTestCase):
         self.assertEqual(result['total'], 5)
         self.assertEqual(result['continuous'], 2)
         self.assertEqual(result['continuous_max'], 3)
+
+
+class TestPagesDailySerializer(UserAPITestCase):
+    """PagesDailySerializerのテストクラス"""
+
+    def setUp(self):
+        super().setUp()
+        self.request = RequestFactory().get('/')
+        self.user = CustomUserFactory(date_joined=make_aware(datetime(2022, 1, 1)))
+        self.request.user = self.user
+        self.context = {'request': self.request}
+
+    def test_get_pages_daily(self):
+        """一日ごとのページ数を取得 (正常系)"""
+
+        # Arranage
+        create_status_fixture_for_pages_read(user=self.user)
+        queryset = StatusLog.objects.all()
+        date_set = set(queryset.values_list('created_at__date', flat=True))
+        date_list = sorted(list(date_set), reverse=True)
+
+        # Act
+        data = PagesDailySerializer(date_list, context={**self.context, 'queryset': queryset}, many=True).data
+
+        # Assert
+        self.assertEqual(len(data), 3)
+        expected_results = [
+            {'date': datetime(2022, 1, 3).date(), 'pages': 42},
+            {'date': datetime(2022, 1, 2).date(), 'pages': 34},
+            {'date': datetime(2022, 1, 1).date(), 'pages': 21}
+        ]
+        for i in range(3):
+            self.assertEqual(dict(data[i], expected_results[i]))
+
+
+class TestAuthorSerializer(UserAPITestCase):
+    """AuthorSerializerのテストクラス"""
+
+    def setUp(self):
+        super().setUp()
+        self.request = RequestFactory().get('/')
+        self.user = CustomUserFactory(date_joined=make_aware(datetime(2022, 1, 1)))
+        self.request.user = self.user
+        self.context = {'request': self.request}
+
+    def test_get_authors(self):
+        """著者リストを取得 (正常系)"""
+
+        # Arrange
+        book1 = BookFactory(authors__author__name='Test', title='テスト1')
+        book2 = BookFactory(authors=None, title='テスト2')
+        BookAuthorRelation.objects.create(book=book2, author=book1.authors.first(), order=0)
+        BookFactory(authors__author__name='ほげほげ', title='ほげほげ')
+        BookFactoryWithThreeAuthors(
+            authors1__author__name='Piyo Piyo', authors2__author__name='ほげほげ', authors3__author__name='ふがふが'
+        )
+        queryset = Author.objects.filter(bookauthorrelation__order=0).sort_by_books_count()
+
+        # Act
+        data = AuthorSerializer(queryset, many=True).data
+
+        # Assert
+        self.assertEqual(len(data), 3)
+        expected_results = [
+            {'name': 'Test', 'count': 2},
+            {'name': 'ほげほげ', 'count': 1},
+            {'name': 'Piyo Piyo', 'count': 1}
+        ]
+        for i in range(3):
+            self.assertIn(OrderedDict(expected_results[i]), data)
