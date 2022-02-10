@@ -1,3 +1,4 @@
+from pkg_resources import ensure_directory
 from rest_framework import serializers
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
@@ -306,6 +307,24 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
     pages_read = serializers.SerializerMethodField()
     days = serializers.SerializerMethodField()
 
+    def _get_daterange_from_filterset(self):
+        """filtersetから日付範囲を取得"""
+
+        date_joined = self.context['request'].user.date_joined.date()
+
+        if self.context.get('filterset'):
+            created_at = self.context['filterset'].form.cleaned_data.get('created_at')
+
+            has_start = hasattr(created_at, 'start') and isinstance(created_at.start, datetime)
+            start_date = created_at.start.date() if has_start else date_joined
+
+            has_stop = hasattr(created_at, 'stop') and isinstance(created_at.stop, datetime)
+            end_date = created_at.stop.date() if has_stop else date.today()
+        else:
+            start_date, end_date = date_joined, date.today()
+
+        return start_date, end_date
+
     def get_number_of_books(self, status_log: StatusLog):
         """ステータスごとの累計冊数を取得"""
 
@@ -333,6 +352,7 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
         # 全体の累計ページ数を取得
         total_for_avg = None
 
+<<<<<<< HEAD
         # 平均ページ数の計算は、フィルタで指定された日付範囲に依拠させる
         if self.context.get('filterset'):
             created_at = self.context['filterset'].form.cleaned_data.get('created_at')
@@ -347,6 +367,13 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
             end_date = date.today()
             total, total_for_avg = self._get_diff_total(status_log, start_date)
 
+=======
+        # 日付範囲を取得して設定
+        start_date, end_date = self._get_daterange_from_filterset()
+
+        threshold_date = date_joined if start_date >= date_joined else start_date
+        total, total_for_avg = self._get_diff_total(status_log, threshold_date)
+>>>>>>> 869d266 (API: AnalyticsSerializer - get_daysの処理などを修正)
         days_for_avg = (end_date - start_date).days + 1
 
         return {
@@ -360,7 +387,7 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
         # 記録された日数のset
         date_set = set(status_log.values_list('created_at__date', flat=True))
         sorted_date_set = sorted(list(date_set))
-        cur_date = None
+        cur_date, continuous_list = None, []
 
         # 連続読書日数のカウントを開始
         for i, cur_date in enumerate(sorted_date_set):
@@ -373,15 +400,21 @@ class AnalyticsSerializer(serializers.Serializer, PageCountSerializerMixin):
                 continuous += 1
             else:
                 # 直前の記録から途切れた
+                # リセット前にcontinuous_listに連続日数を追加
+                continuous_list.append(continuous)
                 continuous = 1
 
-        # 記録がないか、直前の記録の日付の差から2日以上空いている場合、continuousを0にする
-        if cur_date is None or (date.today() - cur_date).days > 1:
+        # 記録がないか、日付範囲から直前の記録の日付の差から2日より多く空いている場合、continuousを0にする
+        start_date, end_date = self._get_daterange_from_filterset()
+        if cur_date is None or (end_date - cur_date).days > 1:
             continuous = 0
+
+        continuous_list.append(continuous)
 
         return {
             'total': len(date_set),
-            'continuous': continuous
+            'continuous': continuous,
+            'continuous_max': max(continuous_list)
         }
 
 
