@@ -52,7 +52,6 @@ api.interceptors.response.use(
     return response
   },
   async (error) => {
-    console.log('error.response=', error.response)
     const status = error.response ? error.response.status : 500
 
     // エラー内容に応じてstoreのメッセージを更新
@@ -62,22 +61,23 @@ api.interceptors.response.use(
       return Promise.reject(error)
     } else {
       if (status === 401) {
-        if (error.response.data.code === 'token_not_valid') {
-          // トークン期限切れの場合、更新処理を入れる
-          try {
-            // トークンのリフレッシュ
-            // console.log('Access token expired. Trying to refresh...')
+        const [errorCode, url] = [
+          error.response.data.code,
+          error.response.config.url,
+        ]
+        if (errorCode === 'token_not_valid') {
+          if (url !== '/auth/jwt/refresh/') {
+            // トークン期限切れの場合、更新処理を入れる
             const access = await store.dispatch('auth/refresh')
-            // console.log('Refresh succeeded. Retrying to request...')
-            // ヘッダー更新
             error.config.headers.Authorization = 'JWT ' + access
-            // リトライ
             return api.request(error.config)
-          } catch (error) {
-            // console.log('Refresh token expired.')
-            store.dispatch('auth/logout', {
-              next: router.history.current.fullPath,
-            })
+          } else {
+            // トークン更新失敗の場合、期限切れの処理を行う
+            if (store.state.auth.isLoggedIn) {
+              store.dispatch('auth/logout', {
+                next: router.history.current.fullPath,
+              })
+            }
             message = 'ログインの期限切れです。'
           }
         } else {
