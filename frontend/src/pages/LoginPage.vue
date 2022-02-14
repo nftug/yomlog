@@ -40,6 +40,7 @@
           </v-card-actions>
           <v-card-actions>
             <v-btn
+              disabled
               block
               to="/login/social/start/google-oauth2"
               aria-label="google-login"

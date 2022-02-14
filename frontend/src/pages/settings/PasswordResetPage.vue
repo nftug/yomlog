@@ -156,7 +156,6 @@ export default {
     onSucceedResetPassword() {
       // リセット後は強制的にログアウト
       if (this.$store.state.auth.isLoggedIn) {
-        // console.log('Logout.')
         this.$store.dispatch('auth/logout')
       }
 
