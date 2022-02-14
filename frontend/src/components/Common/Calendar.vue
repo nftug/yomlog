@@ -240,28 +240,59 @@ export default {
   },
   methods: {
     async getEvents({ start, end } = this.period) {
-      let status, note
       this.events = []
       this.period = { start, end }
       const startDate = moment(start.date).subtract(1, 'M').date(26)
       const endDate = moment(end.date).add(1, 'M').date(6)
 
+      const pushStatus = (status) => {
+        status.forEach((item) => {
+          const bookTitle = this.book.title || item.book.title
+          this.events.push({
+            name: `${bookTitle} (+${item.diff.page})`,
+            start: new Date(item.created_at),
+            end: new Date(item.created_at),
+            color: 'blue',
+            category: 'status',
+            item: item,
+            timed: false,
+          })
+        })
+      }
+      const pushNotes = (notes) => {
+        notes.forEach((item) => {
+          const bookTitle = this.book.title || item.book.title
+          this.events.push({
+            name: `${bookTitle} (${item.position})`,
+            start: new Date(item.created_at),
+            end: new Date(item.created_at),
+            color: 'green',
+            category: 'note',
+            item: item,
+            timed: false,
+          })
+        })
+      }
+
       if (this.hasBookProp) {
         // propsでbookが設定されていた場合、propsからデータを読み込む
-        status = this.book.status.filter((item) => {
+        const status = this.book.status.filter((item) => {
           if (startDate <= item.created_at <= endDate && item.diff.value > 0) {
             return true
           }
         })
-        note = this.book.note.filter((item) => {
+        const notes = this.book.note.filter((item) => {
           if (startDate <= item.created_at <= endDate) {
             return true
           }
         })
+        pushStatus(status)
+        pushNotes(notes)
       } else {
         // 通常時はAPIからデータを読み込む
         try {
           this.isLoading = true
+
           const params = {
             no_pagination: true,
             state_not: 'to_be_read',
@@ -270,38 +301,18 @@ export default {
             ...this.query,
           }
 
-          status = (await api.get('/status/', { params })).data
-          note = (await api.get('/note/', { params })).data
+          await Promise.any([
+            api.get('/status/', { params }).then(({ data }) => {
+              pushStatus(data)
+            }),
+            api.get('/note/', { params }).then(({ data }) => {
+              pushNotes(data)
+            }),
+          ])
         } finally {
           this.isLoading = false
         }
       }
-
-      // 取得したデータからイベントを設定
-      status.forEach((item) => {
-        const bookTitle = this.book.title || item.book.title
-        this.events.push({
-          name: `${bookTitle} (+${item.diff.page})`,
-          start: new Date(item.created_at),
-          end: new Date(item.created_at),
-          color: 'blue',
-          category: 'status',
-          item: item,
-          timed: false,
-        })
-      })
-      note.forEach((item) => {
-        const bookTitle = this.book.title || item.book.title
-        this.events.push({
-          name: `${bookTitle} (${item.position})`,
-          start: new Date(item.created_at),
-          end: new Date(item.created_at),
-          color: 'green',
-          category: 'note',
-          item: item,
-          timed: false,
-        })
-      })
     },
     async showEvent({ event, nativeEvent }) {
       const type = event.item.diff ? 'status' : 'note'
