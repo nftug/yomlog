@@ -15,7 +15,7 @@ module.exports = {
         template:
           process.env.NODE_ENV === 'production'
             ? 'public/index.html'
-            : 'public/index_dev.html',
+            : 'index_dev.html',
         favicon: './public/favicon.ico',
         inject: process.env.NODE_ENV === 'production' ? false : true,
         minify: false,
