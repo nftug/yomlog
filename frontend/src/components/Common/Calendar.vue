@@ -245,29 +245,19 @@ export default {
       const startDate = moment(start.date).subtract(1, 'M').date(26)
       const endDate = moment(end.date).add(1, 'M').date(6)
 
-      const pushStatus = (status) => {
-        status.forEach((item) => {
+      const pushItems = (items) => {
+        items.forEach((item) => {
           const bookTitle = this.book.title || item.book.title
+          const isStatus = item.diff !== undefined
+
           this.events.push({
-            name: `${bookTitle} (+${item.diff.page})`,
+            name:
+              `${bookTitle} ` +
+              (isStatus ? `(+${item.diff.page})` : `(${item.position})`),
             start: new Date(item.created_at),
             end: new Date(item.created_at),
-            color: 'blue',
-            category: 'status',
-            item: item,
-            timed: false,
-          })
-        })
-      }
-      const pushNotes = (notes) => {
-        notes.forEach((item) => {
-          const bookTitle = this.book.title || item.book.title
-          this.events.push({
-            name: `${bookTitle} (${item.position})`,
-            start: new Date(item.created_at),
-            end: new Date(item.created_at),
-            color: 'green',
-            category: 'note',
+            color: isStatus ? 'blue' : 'green',
+            category: isStatus ? 'status' : 'note',
             item: item,
             timed: false,
           })
@@ -286,8 +276,8 @@ export default {
             return true
           }
         })
-        pushStatus(status)
-        pushNotes(notes)
+        pushItems(status)
+        pushItems(notes)
       } else {
         // 通常時はAPIからデータを読み込む
         try {
@@ -303,10 +293,10 @@ export default {
 
           await Promise.any([
             api.get('/status/', { params }).then(({ data }) => {
-              pushStatus(data)
+              pushItems(data)
             }),
             api.get('/note/', { params }).then(({ data }) => {
-              pushNotes(data)
+              pushItems(data)
             }),
           ])
         } finally {
