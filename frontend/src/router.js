@@ -298,9 +298,7 @@ router.beforeEach(async (to, from, next) => {
 })
 
 router.afterEach(() => {
-  setTimeout(() => {
-    store.commit('navbar/setLoading', false)
-  }, 2000)
+  store.commit('navbar/setLoading', false)
 })
 
 function goNextOrHome(to, next) {
