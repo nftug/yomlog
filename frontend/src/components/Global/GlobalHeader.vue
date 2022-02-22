@@ -1,15 +1,5 @@
 <template>
   <v-app-bar app color="primary" dark clipped-left>
-    <!-- Progress bar -->
-    <v-progress-linear
-      :active="$store.state.navbar.loading"
-      :indeterminate="$store.state.navbar.loading"
-      absolute
-      top
-      color="white"
-      height="3"
-    ></v-progress-linear>
-
     <!-- Menu button or Back button (Mobile) -->
     <template v-if="isLoggedIn && isShowMenuButton">
       <v-app-bar-nav-icon
@@ -17,7 +7,7 @@
         @click.stop="$store.commit('navbar/toggleDrawer')"
       ></v-app-bar-nav-icon>
     </template>
-    <template v-else-if="$route.name != 'login'">
+    <template v-else-if="$route.name !== 'home'">
       <v-app-bar-nav-icon class="hidden-lg-and-up" @click="goParentRoute">
         <v-icon>mdi-arrow-left</v-icon>
       </v-app-bar-nav-icon>
@@ -42,7 +32,7 @@
       </SearchField>
     </template>
 
-    <!-- Right (not authed) -->
+    <!-- Right (not authorized) -->
     <template v-else>
       <v-toolbar-title style="cursor: pointer">
         <div class="hidden-lg-and-up">
@@ -66,6 +56,16 @@
     <template #extension v-if="$route.name === 'shelf'">
       <ShelfTabBar></ShelfTabBar>
     </template>
+
+    <!-- Progress bar -->
+    <v-progress-linear
+      :active="$store.state.navbar.loading"
+      :indeterminate="$store.state.navbar.loading"
+      absolute
+      top
+      color="white"
+      height="3"
+    ></v-progress-linear>
   </v-app-bar>
 </template>
 

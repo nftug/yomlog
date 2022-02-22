@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import store from '@/store'
 
 const LoginPage = () => import('@/pages/LoginPage.vue')
-const HomePage = () => import('@/pages/HomePage.vue')
+const IndexPage = () => import('@/pages/IndexPage.vue')
 const ShelfPage = () => import('@/pages/ShelfPage.vue')
 const SignUpPage = () => import('@/pages/SignUpPage.vue')
 const NotFoundPage = () => import('@/pages/error/NotFoundPage.vue')
@@ -31,9 +31,9 @@ const router = new VueRouter({
     {
       path: '/',
       name: 'home',
-      component: HomePage,
+      component: IndexPage,
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         isShowMenuButton: true,
         breadcrumb: 'ホーム',
       },
