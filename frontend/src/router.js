@@ -243,6 +243,8 @@ const router = new VueRouter({
 
 // 画面遷移の直前に毎回実行されるナビゲーションガード
 router.beforeEach(async (to, from, next) => {
+  store.commit('navbar/setLoading', true)
+
   const isLoggedIn = store.state.auth.isLoggedIn
 
   // 遷移元と遷移先の親ルートが異なる場合にのみ、ルートの親子情報をセットする
@@ -293,6 +295,12 @@ router.beforeEach(async (to, from, next) => {
     // ログインしている場合、そのまま続行
     goNextOrHome(to, next)
   }
+})
+
+router.afterEach(() => {
+  setTimeout(() => {
+    store.commit('navbar/setLoading', false)
+  }, 2000)
 })
 
 function goNextOrHome(to, next) {

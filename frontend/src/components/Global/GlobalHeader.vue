@@ -1,5 +1,15 @@
 <template>
   <v-app-bar app color="primary" dark clipped-left>
+    <!-- Progress bar -->
+    <v-progress-linear
+      :active="$store.state.navbar.loading"
+      :indeterminate="$store.state.navbar.loading"
+      absolute
+      top
+      color="white"
+      height="3"
+    ></v-progress-linear>
+
     <!-- Menu button or Back button (Mobile) -->
     <template v-if="isLoggedIn && isShowMenuButton">
       <v-app-bar-nav-icon

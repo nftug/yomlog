@@ -165,6 +165,7 @@ const navbarModule = {
   state: {
     drawer: null,
     search: '',
+    loading: false,
   },
   mutations: {
     setDrawer(state, value) {
@@ -178,6 +179,9 @@ const navbarModule = {
     },
     clearSearch(state) {
       state.search = ''
+    },
+    setLoading(state, value) {
+      state.loading = value
     },
   },
   actions: {
