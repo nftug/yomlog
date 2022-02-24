@@ -13,6 +13,8 @@
       <GlobalMessage></GlobalMessage>
       <router-view></router-view>
     </v-main>
+
+    <GlobalFooter></GlobalFooter>
   </v-app>
 </template>
 
@@ -20,6 +22,7 @@
 import GlobalHeader from '@/components/Global/GlobalHeader.vue'
 import GlobalSidebar from '@/components/Global/GlobalSidebar.vue'
 import GlobalMessage from '@/components/Global/GlobalMessage.vue'
+import GlobalFooter from '@/components/Global/GlobalFooter.vue'
 import TheBreadcrumbs from '@/components/Global/TheBreadcrumbs.vue'
 
 export default {
@@ -28,6 +31,7 @@ export default {
     GlobalHeader,
     GlobalSidebar,
     GlobalMessage,
+    GlobalFooter,
     TheBreadcrumbs,
   },
   metaInfo() {
