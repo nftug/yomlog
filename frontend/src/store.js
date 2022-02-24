@@ -83,9 +83,8 @@ const authModule = {
       // ルート履歴のクリア
       commit('parentRoutes/clear', null, { root: true })
 
-      if (router.history.current.name !== 'login') {
-        const query = {}
-        if (next) query.next = next
+      if (router.history.current.name !== 'login' && next) {
+        const query = { next }
         setTimeout(() => {
           router.push({ name: 'login', query })
         }, 100)
