@@ -6,9 +6,17 @@
     >
       <v-row align="center" justify="center">
         <v-col class="text-center" cols="12">
-          <h1 class="text-h3 font-weight-thin mb-4">YomLog</h1>
+          <h1 class="text-h3 font-weight-thin mb-4">{{ appName }}</h1>
           <h4 class="subheading mt-7">
-            YomLog はあなたの読書ライフをサポートする読書管理サービスです。
+            <div class="mb-1">
+              {{
+                appName
+              }}
+              はあなたの読書ライフをサポートする読書管理サービスです。
+            </div>
+            <div class="mb-1">
+              日々の読書状況を可視化して、読書の習慣を継続させましょう。
+            </div>
           </h4>
           <v-btn class="cyan darken-1 mt-7" dark x-large to="/login">
             使ってみる
@@ -17,6 +25,55 @@
       </v-row>
     </v-parallax>
 
-    <v-col sm="10" lg="9" xl="7" class="mx-auto"></v-col>
+    <v-col sm="10" lg="9" class="mx-auto my-10">
+      <v-row align="center" justify="center">
+        <IntroductionCard
+          icon="mdi-bookmark-check"
+          title="本を読むたびに進捗を記録"
+        >
+          ページ単位で日々の読書量を記録できます。
+          <br />
+          一日に読んだページ数が一目瞭然。読書の継続に役立ちます。
+        </IntroductionCard>
+
+        <IntroductionCard icon="mdi-note-edit" title="読書ノートを残す">
+          読書中に気になった箇所にはノートを残しましょう。
+          <br />
+          記録したノートは全文検索が可能。
+          <br />
+          複数冊の本を横断した検索も可能です。
+        </IntroductionCard>
+
+        <IntroductionCard icon="mdi-library-shelves" title="自動で本を分類分け">
+          読書の進捗に応じて、自動で本を本棚に分類します。
+          <br />
+          読み忘れの防止や読んだ本の振り返りにも便利です。
+        </IntroductionCard>
+
+        <IntroductionCard icon="mdi-poll" title="読書状況を分析">
+          一日に読んだページ数がひと目で分かります。
+          <br />
+          カレンダー機能で月単位での読書状況も俯瞰できます。
+        </IntroductionCard>
+
+        <IntroductionCard icon="mdi-tablet-android" title="Kindle本にも対応">
+          ページ番号を持たないKindle本にも対応。
+          <br />
+          記録の際は位置Noをそのまま記入でOK。
+          <br />
+          自動で対応する紙の本のページ番号に変換します。
+        </IntroductionCard>
+      </v-row>
+    </v-col>
   </v-container>
 </template>
+
+<script>
+import Mixins from '@/mixins'
+import IntroductionCard from '@/components/Landing/IntroductionCard.vue'
+
+export default {
+  mixins: [Mixins],
+  components: { IntroductionCard },
+}
+</script>
