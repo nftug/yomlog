@@ -69,6 +69,8 @@ const authModule = {
     },
     // ログアウト
     logout({ commit }, { next = null } = {}) {
+      console.log('logout', next)
+
       localStorage.removeItem('access')
       localStorage.removeItem('refresh')
       commit('clear')
@@ -83,12 +85,12 @@ const authModule = {
       // ルート履歴のクリア
       commit('parentRoutes/clear', null, { root: true })
 
-      if (router.history.current.name !== 'login' && next) {
-        const query = { next }
-        setTimeout(() => {
-          router.push({ name: 'login', query })
-        }, 100)
-      }
+      let to
+      if (router.history.current.name !== 'login' && next)
+        to = { name: 'login', query: { next } }
+      else to = { name: 'home' }
+
+      router.push(to)
     },
     // ユーザー情報更新
     async reload({ commit }) {
