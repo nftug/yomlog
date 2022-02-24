@@ -65,12 +65,17 @@
             </div>
           </infinite-loading>
 
-          <v-card v-else class="pa-5 text-center">
-            <h2>書籍の追加</h2>
+          <v-card v-else class="pa-5 text-center elevation-0 transparent">
+            <v-card-title primary-title class="layout justify-center">
+              <div class="headline text-center">書籍の追加</div>
+            </v-card-title>
 
-            <p class="mt-2 text-body-2">
-              検索アイコンをクリックして、追加する書籍を検索してください
-            </p>
+            <v-card-text class="text-center">
+              <v-icon x-large class="green--text">mdi-book-plus</v-icon>
+              <div class="mt-5">
+                上部のバーから追加する書籍を検索してください。
+              </div>
+            </v-card-text>
           </v-card>
         </v-container>
         <div style="flex: 1 1 auto"></div>
