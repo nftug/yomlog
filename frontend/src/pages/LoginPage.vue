@@ -59,6 +59,15 @@
           </div>
         </v-form>
       </v-card>
+
+      <div class="text-body-2 text-center mt-5 form-footer">
+        <span class="grey--text text--darken-1">
+          アカウントが未登録ですか？
+        </span>
+        <router-link class="button secondaryAction" to="/signup">
+          ユーザー登録
+        </router-link>
+      </div>
     </div>
   </v-container>
 </template>
