@@ -81,7 +81,7 @@ api.interceptors.response.use(
             message = 'ログインの期限切れです。'
           }
         } else {
-          store.dispatch('auth/logout')
+          if (store.state.auth.isLoggedIn) store.dispatch('auth/logout')
           message = '認証エラーです。'
         }
       } else if (status === 403) {

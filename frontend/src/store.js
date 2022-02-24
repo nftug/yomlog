@@ -69,8 +69,6 @@ const authModule = {
     },
     // ログアウト
     logout({ commit }, { next = null } = {}) {
-      console.log('logout', next)
-
       localStorage.removeItem('access')
       localStorage.removeItem('refresh')
       commit('clear')

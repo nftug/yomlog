@@ -3,7 +3,7 @@
     <v-list>
       <v-list-item>
         <v-list-item-avatar color="grey">
-          <img v-if="auth.avatar" :alt="auth.fullname" :src="auth.avatar" />
+          <v-img v-if="auth.avatar" :alt="auth.fullname" :src="auth.avatar" />
           <v-icon v-else dark>mdi-account-circle</v-icon>
         </v-list-item-avatar>
 
