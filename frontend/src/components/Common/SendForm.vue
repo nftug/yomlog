@@ -171,6 +171,17 @@ export default {
       targetField.value = $event
       targetField.warnings = []
 
+      // パスワード欄のバリデーションをクリア
+      if (targetField.name === 'password') {
+        const pairField = this.fields.find(
+          (field) => field.name === 're_password'
+        )
+        pairField.warnings = []
+      } else if (targetField.name === 're_password') {
+        const pairField = this.fields.find((field) => field.name === 'password')
+        pairField.warnings = []
+      }
+
       this.setModelValue()
     },
     resetFields() {
