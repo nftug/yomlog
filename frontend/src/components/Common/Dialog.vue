@@ -121,6 +121,8 @@ export default {
         }
       }
 
+      if (newVal) this.$emit('show')
+
       // answerをnullに戻す
       this.$nextTick(() => {
         this.answer = null

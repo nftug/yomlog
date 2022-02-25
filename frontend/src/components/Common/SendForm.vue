@@ -1,8 +1,8 @@
 <template>
   <div id="send-form">
-    <Spinner size="100" v-if="isSending" />
+    <Spinner size="100" v-if="fileFieldIndexes.Length && isSending" />
 
-    <v-form v-else @submit.prevent="submitForm()" v-model="isValid">
+    <v-form v-else @submit.prevent="submitForm()" v-model="isValid" ref="form">
       <div v-for="(field, index) in form" :key="index">
         <template v-if="field.type != 'group'">
           <!-- ファイル送信フィールド -->
@@ -21,11 +21,19 @@
             ></v-file-input>
 
             <template v-if="field.type === 'image'">
-              <div v-show="field.prevSrc">
-                <img :src="field.prevSrc" alt="" width="150" />
-                <div>
-                  <v-btn text small color="primary" @click="clearFile(index)">
-                    クリア
+              <div v-show="field.prevSrc" style="position: relative">
+                <template v-if="field.name === 'avatar'">
+                  <v-list-item-avatar color="grey" size="150">
+                    <v-img :src="field.prevSrc" />
+                  </v-list-item-avatar>
+                </template>
+                <template v-else>
+                  <img :src="field.prevSrc" alt="" width="150" />
+                </template>
+
+                <div style="position: absolute; top: 0px; left: 150px">
+                  <v-btn text icon small @click="clearFile(index)">
+                    <v-icon>mdi-close</v-icon>
                   </v-btn>
                 </div>
               </div>
@@ -103,6 +111,7 @@ export default {
     return {
       form: [],
       fields: [],
+      formOrigin: [],
       fileFieldIndexes: [],
       isSending: false,
       isValid: false,
@@ -127,6 +136,9 @@ export default {
           this.fields.push(column)
         })
       }
+
+      // フォームのデフォルト値を保存
+      this.formOrigin = JSON.parse(JSON.stringify(this.form))
     })
   },
   methods: {
@@ -161,15 +173,22 @@ export default {
 
       this.setModelValue()
     },
+    resetFields() {
+      // フィールドをすべてリセット
+      this.form = this.formOrigin
+      this.setModelValue()
+    },
     setModelValue() {
       // フォームの内容を親に反映させる
       const formCopied = JSON.parse(JSON.stringify(this.form))
       this.$emit('input', formCopied)
     },
     async submitForm() {
-      // データを取り出し & バリデーションをクリア
       let data
       let method = this.method
+
+      // フォームのバリデーション
+      if (!this.$refs.form.validate()) return
 
       if (this.fileFieldIndexes.length) {
         // ファイルフィールドありの場合

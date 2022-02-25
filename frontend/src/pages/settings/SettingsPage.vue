@@ -2,7 +2,7 @@
   <!-- メインエリア (モバイル) -->
   <div v-if="isLessThanLg">
     <v-container v-if="$route.name === 'settings'">
-      <v-col sm="10" md="6" class="mx-auto">
+      <v-col sm="10" md="7" class="mx-auto">
         <v-card class="mx-auto" tile>
           <v-list-item-group v-model="selectedIndex" color="primary">
             <v-list-item v-for="(page, i) in pages" :key="i" :to="page.path">
@@ -20,7 +20,7 @@
 
     <v-container v-else>
       <v-container>
-        <v-col sm="10" md="6" class="mx-auto">
+        <v-col sm="10" md="7" class="mx-auto">
           <router-view></router-view>
         </v-col>
       </v-container>
@@ -30,7 +30,7 @@
   <!-- PC用 -->
   <div v-else>
     <v-container>
-      <v-col xl="4" lg="5" md="6" class="mx-auto">
+      <v-col xl="5" md="7" class="mx-auto">
         <p class="text-h4 my-4">設定</p>
 
         <v-tabs v-model="selectedIndex" @change="onChangeTab()">
@@ -78,6 +78,12 @@ export default {
         icon: 'mdi-lock',
         title: 'パスワードの変更',
         titleTab: 'パスワード',
+      },
+      {
+        path: '/settings/account-delete',
+        icon: 'mdi-account-remove',
+        title: 'アカウントの削除',
+        titleTab: 'アカウントの削除',
       },
     ],
     notChangeRoute: false,

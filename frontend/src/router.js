@@ -14,6 +14,7 @@ const ProfileSettingsPage = () =>
 const EmailSettingsPage = () => import('@/pages/settings/EmailSettingsPage.vue')
 const PasswordChangePage = () =>
   import('@/pages/settings/PasswordChangePage.vue')
+const AccountDeletePage = () => import('@/pages/settings/AccountDeletePage.vue')
 const BookDetailPage = () => import('@/pages/BookDetailPage.vue')
 const CalendarPage = () => import('@/pages/CalendarPage.vue')
 const SocialAuthPage = () => import('@/pages/SocialAuthPage.vue')
@@ -196,6 +197,16 @@ const router = new VueRouter({
             title: 'メールアドレスの設定',
             isShowMenuButton: false,
             breadcrumb: { label: 'メールアドレスの設定' },
+          },
+        },
+        {
+          path: 'account-delete/',
+          name: 'settings_account_delete',
+          component: AccountDeletePage,
+          meta: {
+            title: 'アカウントの削除',
+            isShowMenuButton: false,
+            breadcrumb: { label: 'アカウントの削除' },
           },
         },
         {
