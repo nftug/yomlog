@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-parallax dark src="@/assets/jumbotron_bg.jpg">
+    <v-parallax dark :src="require('@/assets/jumbotron_bg.jpg')">
       <v-row align="center" justify="center">
         <v-col class="text-center" cols="12">
           <h1 class="text-h3 font-weight-thin mb-4">{{ appName }}</h1>
@@ -116,3 +116,9 @@ export default {
   components: { IntroductionCard },
 }
 </script>
+
+<style>
+.v-parallax__content {
+  background: rgba(0, 0, 0, 0.6);
+}
+</style>
