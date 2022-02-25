@@ -1,6 +1,6 @@
 <template>
   <Dialog
-    ref="dialogDeleteBook"
+    ref="dialogDeleteItem"
     :title="`${typeStr}の削除`"
     :message="`この${typeStr}を削除しますか？`"
     :hash="`delete-${this.type}`"
@@ -40,7 +40,7 @@ export default {
   },
   methods: {
     async showItemDeleteDialog({ item, book }) {
-      if (!(await this.$refs.dialogDeleteBook.showDialog())) return false
+      if (!(await this.$refs.dialogDeleteItem.showDialog())) return false
 
       if (Array.isArray(item)) {
         const promises = item.map((e) => this.deleteItem(e))
