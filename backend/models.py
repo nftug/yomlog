@@ -99,7 +99,7 @@ class Book(models.Model):
     total_page = models.IntegerField(null=True, blank=True)
     amazon_dp = models.CharField(max_length=13, validators=[MinLengthValidator(10)], null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='books')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='books')
     objects = BookQuerySet.as_manager()
 
     def __str__(self):
@@ -136,7 +136,7 @@ class Note(models.Model):
     quote_image = models.ImageField(blank=True, null=True, default=None)
     content = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='notes')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='notes')
 
 
 class StatusLog(models.Model):
@@ -149,4 +149,4 @@ class StatusLog(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='status_log')
     position = models.IntegerField()
     created_at = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='status_log')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='status_log')
