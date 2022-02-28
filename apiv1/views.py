@@ -6,6 +6,7 @@ from django_filters import rest_framework as django_filter
 from datetime import date, timedelta, datetime as dt
 from django.utils.timezone import localtime
 from rest_framework.parsers import FileUploadParser, FormParser
+from rest_framework.permissions import AllowAny
 
 from backend.models import Book, Note, StatusLog, Author
 from .serializers import AuthorSerializer, BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer, PagesDailySerializer, InquirySerializer
@@ -178,6 +179,7 @@ class InquiryCreateAPIView(generics.CreateAPIView):
     """お問い合わせメール送信用API"""
 
     serializer_class = InquirySerializer
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = InquirySerializer(data=request.data, context={'request': request})

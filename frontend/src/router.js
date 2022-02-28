@@ -21,6 +21,8 @@ const SocialAuthPage = () => import('@/pages/SocialAuthPage.vue')
 const NotePage = () => import('@/pages/NotePage.vue')
 const AuthorsPage = () => import('@/pages/AuthorPage.vue')
 const AnalyticsPage = () => import('@/pages/AnalyticsPage.vue')
+const InquiryPage = () => import('@/pages/InquiryPage.vue')
+const AboutPage = () => import('@/pages/LandingPage.vue')
 
 Vue.use(VueRouter)
 
@@ -220,6 +222,27 @@ const router = new VueRouter({
           },
         },
       ],
+    },
+    {
+      path: '/inquiry',
+      name: 'inquiry',
+      component: InquiryPage,
+      meta: {
+        title: 'お問い合わせ',
+        requiresAuth: false,
+        breadcrumb: { label: 'お問い合わせ', parent: 'home' },
+      },
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: AboutPage,
+      meta: {
+        title: 'YomLog',
+        requiresAuth: false,
+        isHideDrawer: true,
+        isShowMenuButton: true,
+      },
     },
     { path: '*', component: NotFoundPage },
   ],

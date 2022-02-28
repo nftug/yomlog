@@ -460,12 +460,14 @@ class InquirySerializer(serializers.Serializer):
         return data
 
     def save(self):
-        user_email = self.context['request'].user.email
+        title = self.validated_data['title']
+        content = self.validated_data['content']
+        email = self.validated_data['email']
 
         message = EmailMessage(
-            subject=f'【お問い合わせ】{self.validated_data["title"]}',
-            body=f'{user_email}からのメッセージ:\n\n{self.validated_data["content"]}',
+            subject=f'【お問い合わせ】{title}',
+            body=f'{email}からのメッセージ:\n\n{content}',
             from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[settings.INQUIRY_EMAIL, user_email]
+            to=[settings.INQUIRY_EMAIL, email]
         )
         message.send()

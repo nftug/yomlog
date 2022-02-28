@@ -41,6 +41,20 @@
           </template>
 
           <!-- 通常のフィールド -->
+          <template v-else-if="field.type === 'textarea'">
+            <v-textarea
+              :type="field.type"
+              :value="form[index].value"
+              :id="field.name"
+              :label="field.label"
+              :rows="field.rows"
+              :required="field.required"
+              :readonly="field.readonly"
+              :error-messages="form[index].warnings"
+              @input="onInputField($event, index)"
+            ></v-textarea>
+          </template>
+
           <template v-else>
             <v-text-field
               :type="field.type"

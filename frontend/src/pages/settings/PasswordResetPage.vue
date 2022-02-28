@@ -59,33 +59,19 @@
         </SendForm>
       </div>
 
-      <Dialog
-        ref="dialogNoEmail"
-        title="メールアドレスが設定されていません"
-        max-width="500"
-      >
-        <p>
-          この操作を行うにはメールアドレスの設定が必要です。
-          <br />
-          先にメールアドレスの設定を完了させてください。
-        </p>
-        <template #actions="{ ok }">
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="ok">OK</v-btn>
-        </template>
-      </Dialog>
+      <RequireEmailDialog></RequireEmailDialog>
     </template>
   </v-container>
 </template>
 
 <script>
 import SendForm from '@/components/Common/SendForm.vue'
-import Dialog from '@/components/Common/Dialog.vue'
+import RequireEmailDialog from '@/components/Dialog/RequireEmailDialog.vue'
 
 export default {
   components: {
     SendForm,
-    Dialog,
+    RequireEmailDialog,
   },
   data() {
     return {
@@ -124,16 +110,6 @@ export default {
       },
     }
   },
-  async mounted() {
-    // メールアドレスが設定されていない状態でリセットを試みた場合
-    // ダイアログを表示してメールアドレスの設定に遷移
-    const { email, isLoggedIn } = this.$store.state.auth
-
-    if (isLoggedIn && !this.hasResetToken && !email) {
-      await this.$refs.dialogNoEmail.showDialog()
-      this.$router.replace({ name: 'settings_email' })
-    }
-  },
   computed: {
     hasResetToken() {
       return this.$route.params.uid && this.$route.params.token
@@ -159,7 +135,7 @@ export default {
         this.$store.dispatch('auth/logout')
       }
 
-      this.$router.push('/login/')
+      this.$router.push('/login')
       this.$store.dispatch('message/setInfoMessage', {
         message: 'パスワードのリセットが完了しました。',
       })

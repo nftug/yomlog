@@ -13,9 +13,11 @@
               日々の読書状況を可視化して、読書の習慣を継続させましょう。
             </div>
           </div>
-          <v-btn class="cyan darken-1 mt-7" dark x-large to="/login">
-            <strong>使ってみる</strong>
-          </v-btn>
+          <template v-if="!isLoggedIn">
+            <v-btn class="cyan darken-1 mt-7" dark x-large to="/login">
+              <strong>使ってみる</strong>
+            </v-btn>
+          </template>
         </v-col>
       </v-row>
     </v-parallax>
@@ -72,32 +74,61 @@
               {{ appName }}の利用はこちらからどうぞ。
             </v-card-text>
 
-            <v-card-actions class="justify-center mt-3">
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-btn
-                    class="cyan darken-1 col-12 col-sm-6"
-                    dark
-                    x-large
-                    to="/login"
-                    block
-                  >
-                    <v-icon left size="24">mdi-login</v-icon>
-                    ログイン
-                  </v-btn>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-btn
-                    class="indigo darken-1 col-12 col-sm-6"
-                    dark
-                    x-large
-                    to="/signup"
-                    block
-                  >
-                    <v-icon left size="24">mdi-account-plus</v-icon>
-                    ユーザー登録
-                  </v-btn>
-                </v-col>
+            <v-card-actions class="mt-3">
+              <v-row class="justify-center">
+                <template v-if="!isLoggedIn">
+                  <v-col cols="12" sm="6">
+                    <v-btn
+                      class="cyan darken-1 col-12 col-sm-6"
+                      dark
+                      x-large
+                      to="/login"
+                      block
+                    >
+                      <v-icon left size="24">mdi-login</v-icon>
+                      ログイン
+                    </v-btn>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-btn
+                      class="indigo darken-1 col-12 col-sm-6"
+                      dark
+                      x-large
+                      to="/signup"
+                      block
+                    >
+                      <v-icon left size="24">mdi-account-plus</v-icon>
+                      ユーザー登録
+                    </v-btn>
+                  </v-col>
+                </template>
+
+                <template v-else>
+                  <v-col cols="12" sm="6">
+                    <v-btn
+                      class="cyan darken-1 col-12 col-sm-6"
+                      dark
+                      x-large
+                      to="/"
+                      block
+                    >
+                      <v-icon left size="24">mdi-home</v-icon>
+                      ホーム画面へ
+                    </v-btn>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-btn
+                      class="indigo darken-1 col-12 col-sm-6"
+                      dark
+                      x-large
+                      to="/shelf/reading"
+                      block
+                    >
+                      <v-icon left size="24">mdi-library-shelves</v-icon>
+                      本棚へ
+                    </v-btn>
+                  </v-col>
+                </template>
               </v-row>
             </v-card-actions>
           </v-card>
