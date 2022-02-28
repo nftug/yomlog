@@ -8,7 +8,7 @@ from django.utils.timezone import localtime
 from rest_framework.parsers import FileUploadParser, FormParser
 
 from backend.models import Book, Note, StatusLog, Author
-from .serializers import AuthorSerializer, BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer, PagesDailySerializer
+from .serializers import AuthorSerializer, BookSerializer, NoteSerializer, StatusLogSerializer, AnalyticsSerializer, PagesDailySerializer, InquirySerializer
 from .filters import BookFilter, StatusLogFilter, NoteFilter
 
 
@@ -171,4 +171,17 @@ class PagesDailyAPIView(views.APIView):
         date_list = sorted(list(date_set), reverse=True)
 
         serializer = PagesDailySerializer(date_list, many=True, context={'queryset': queryset})
+        return response.Response(serializer.data)
+
+
+class InquiryCreateAPIView(generics.CreateAPIView):
+    """お問い合わせメール送信用API"""
+
+    serializer_class = InquirySerializer
+
+    def post(self, request):
+        serializer = InquirySerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
         return response.Response(serializer.data)

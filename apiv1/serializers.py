@@ -4,6 +4,7 @@ from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 from django.conf import settings
 from django.utils.timezone import localtime
+from django.core.mail import EmailMessage
 
 from .mixins import ImageSerializerMixin
 from backend.models import Author, Book, StatusLog, Note, BookAuthorRelation
@@ -438,3 +439,33 @@ class PagesDailySerializer(serializers.Serializer, PageCountSerializerMixin):
 
         pages_daily = self._get_diff_total(status_daily)
         return pages_daily
+
+
+class InquirySerializer(serializers.Serializer):
+    """お問い合わせメール送信用シリアライザ"""
+
+    email = serializers.EmailField(required=False, allow_blank=True, allow_null=True)
+    title = serializers.CharField(max_length=150)
+    content = serializers.CharField(trim_whitespace=False)
+
+    def validate(self, data):
+        email = data.get('email')
+
+        if not email:
+            user_email = self.context['request'].user.email
+            if not user_email:
+                raise ValidationError({'email': 'ユーザーのメールアドレスが設定されていません。'})
+            data['email'] = user_email
+
+        return data
+
+    def save(self):
+        user_email = self.context['request'].user.email
+
+        message = EmailMessage(
+            subject=f'【お問い合わせ】{self.validated_data["title"]}',
+            body=f'{user_email}からのメッセージ:\n\n{self.validated_data["content"]}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[settings.INQUIRY_EMAIL, user_email]
+        )
+        message.send()

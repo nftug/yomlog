@@ -15,6 +15,7 @@ db_from_env = dj_database_url.config()
 DATABASES['default'].update(db_from_env)
 
 DEFAULT_FROM_EMAIL = os.environ['EMAIL_FROM']
+INQUIRY_EMAIL = os.environ['EMAIL_FROM']
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = 'apikey'
 EMAIL_HOST_PASSWORD = os.environ['SENDGRID_PASSWORD']
