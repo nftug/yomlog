@@ -444,20 +444,16 @@ class PagesDailySerializer(serializers.Serializer, PageCountSerializerMixin):
 class InquirySerializer(serializers.Serializer):
     """お問い合わせメール送信用シリアライザ"""
 
-    email = serializers.EmailField(required=False, allow_blank=True, allow_null=True)
+    email = serializers.EmailField()
     title = serializers.CharField(max_length=150)
     content = serializers.CharField(trim_whitespace=False)
 
-    def validate(self, data):
-        email = data.get('email')
+    def validate_email(self, value):
+        user = self.context['request'].user
+        if not user.is_anonymous and value != user.email:
+            raise ValidationError('ログイン中のユーザーのメールアドレスを入力してください。')
 
-        if not email:
-            user_email = self.context['request'].user.email
-            if not user_email:
-                raise ValidationError({'email': 'ユーザーのメールアドレスが設定されていません。'})
-            data['email'] = user_email
-
-        return data
+        return value
 
     def save(self):
         title = self.validated_data['title']
