@@ -23,6 +23,7 @@ const AuthorsPage = () => import('@/pages/AuthorPage.vue')
 const AnalyticsPage = () => import('@/pages/AnalyticsPage.vue')
 const InquiryPage = () => import('@/pages/InquiryPage.vue')
 const AboutPage = () => import('@/pages/LandingPage.vue')
+const TermsOfUsePage = () => import('@/pages/TermsOfUsePage.vue')
 
 Vue.use(VueRouter)
 
@@ -234,13 +235,22 @@ const router = new VueRouter({
       },
     },
     {
+      path: '/terms_of_use',
+      name: 'terms_of_use',
+      component: TermsOfUsePage,
+      meta: {
+        title: '利用規約',
+        requiresAuth: false,
+        breadcrumb: { label: '利用規約', parent: 'home' },
+      },
+    },
+    {
       path: '/about',
       name: 'about',
       component: AboutPage,
       meta: {
         title: 'YomLog',
         requiresAuth: false,
-        isHideDrawer: true,
         isShowMenuButton: true,
       },
     },

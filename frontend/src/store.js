@@ -88,7 +88,9 @@ const authModule = {
         to = { name: 'login', query: { next } }
       else to = { name: 'home' }
 
-      router.push(to)
+      setTimeout(() => {
+        router.push(to)
+      }, 100)
     },
     // ユーザー情報更新
     async reload({ commit }) {

@@ -2,24 +2,27 @@
   <v-footer absolute padless app>
     <v-card flat tile width="100%" class="primary text-center">
       <v-row justify="center" no-gutters>
-        <v-btn
-          v-for="link in links"
-          :key="link.label"
-          :to="link.to"
-          color="white"
-          text
-          small
-          rounded
-          class="my-2"
-        >
-          {{ link.label }}
-        </v-btn>
+        <div class="mt-4">
+          <template v-for="link in links">
+            <v-btn
+              v-if="isLoggedIn || !link.requiresAuth"
+              :key="link.label"
+              :to="link.to"
+              color="white"
+              text
+              small
+              rounded
+            >
+              {{ link.label }}
+            </v-btn>
+          </template>
+        </div>
       </v-row>
 
-      <v-col class="py-2 text-center white--text text-caption" cols="12">
+      <div class="py-4 text-center white--text text-caption">
         2022 —
         <strong>{{ appName }}</strong>
-      </v-col>
+      </div>
     </v-card>
   </v-footer>
 </template>
@@ -38,6 +41,11 @@ export default {
       {
         label: 'YomLogについて',
         to: '/about',
+        requiresAuth: true,
+      },
+      {
+        label: '利用規約',
+        to: '/terms_of_use',
       },
       {
         label: 'お問い合わせ',

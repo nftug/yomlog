@@ -120,6 +120,7 @@ export default {
     action: { type: String, require: true },
     method: { type: String, default: 'post' },
     additionalData: { type: Object, require: false },
+    confirmMethod: { type: Function, require: false },
   },
   data() {
     return {
@@ -215,6 +216,13 @@ export default {
       // フォームのバリデーション
       if (!this.$refs.form.validate()) return
 
+      // 確認メソッドの実行
+      if (this.confirmMethod) {
+        const ans = await this.confirmMethod()
+        if (!ans) return
+      }
+
+      // 送信データのarrange
       if (this.fileFieldIndexes.length) {
         // ファイルフィールドありの場合
         data = new FormData()
@@ -232,7 +240,7 @@ export default {
           })
         }
       } else {
-        // 写真なしの場合
+        // ファイルフィールドなしの場合
         data = {}
         this.fields.forEach((field) => {
           data[field.name] = field.value

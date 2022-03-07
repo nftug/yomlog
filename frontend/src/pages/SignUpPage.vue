@@ -18,6 +18,7 @@
             v-model="formSignUp"
             action="/auth/users/"
             method="post"
+            :confirm-method="showTermsOfUseDialog"
             @form-success="onSucceedSend"
           >
             <template #footer="{ isValid }">
@@ -39,28 +40,30 @@
       </v-card>
     </div>
 
-    <v-dialog v-model="dialog" max-width="600">
-      <v-card>
-        <v-card-title class="text-h5">確認メールの送信</v-card-title>
+    <Dialog ref="dialogConfirm" max-width="600" title="確認メールの送信">
+      ユーザー登録確認のメールを送信しました。
+      <br />
+      メールに記載されたリンクをクリックして、ユーザー登録を完了させてください。
+      <br />
+      数分待っても確認のメールが届かない場合はご連絡ください。
 
-        <v-card-text>
-          <p>
-            ユーザー登録確認のメールを送信しました。
-            <br />
-            メールに記載されたリンクをクリックして、ユーザー登録を完了させてください。
-            <br />
-            数分待っても確認のメールが届かない場合はご連絡ください。
-          </p>
-        </v-card-text>
+      <template #actions="{ ok }">
+        <v-spacer></v-spacer>
+        <v-btn color="green darken-1" text @click="ok">OK</v-btn>
+      </template>
+    </Dialog>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="onClickDialogOk()">
-            OK
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <Dialog
+      ref="dialogTermsOfUse"
+      max-width="800"
+      title="利用規約への同意"
+      label-ok="同意する"
+      label-cancel="キャンセル"
+      scrollable
+    >
+      ユーザー登録の際に以下の利用規約に同意する必要があります。
+      <TermsOfUse outlined class="mt-3" title-class="text-h6"></TermsOfUse>
+    </Dialog>
   </v-container>
 </template>
 
@@ -68,11 +71,15 @@
 import api from '@/services/api'
 import Spinner from '@/components/Common/Spinner.vue'
 import SendForm from '@/components/Common/SendForm.vue'
+import Dialog from '@/components/Common/Dialog.vue'
+import TermsOfUse from '@/components/TermsOfUse/TermsOfUse.vue'
 
 export default {
   components: {
     Spinner,
     SendForm,
+    Dialog,
+    TermsOfUse,
   },
   data: () => ({
     dialog: false,
@@ -149,6 +156,10 @@ export default {
     }
   },
   methods: {
+    // 利用規約ダイアログの表示
+    async showTermsOfUseDialog() {
+      return await this.$refs.dialogTermsOfUse.showDialog()
+    },
     // フォーム送信成功
     async onSucceedSend({ username, is_active }) {
       if (is_active) {
@@ -163,8 +174,9 @@ export default {
           message: 'アカウントを作成しました。',
         })
       } else {
-        // アクティブでない場合、メール送信のダイアログを表示
-        this.dialog = true
+        // アクティブでない場合、メール送信済みのダイアログを表示
+        await this.$refs.dialogConfirm.showDialog()
+        this.$router.push('/login')
       }
     },
     // ユーザーのアクティベーション
@@ -195,11 +207,6 @@ export default {
         }
         this.$store.dispatch('message/setErrorMessage', { message: message })
       }
-    },
-    // ユーザー登録ダイアログ: OK
-    onClickDialogOk() {
-      this.dialog = false
-      this.$router.push('/login/')
     },
   },
 }
